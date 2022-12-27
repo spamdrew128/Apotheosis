@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "board_constants.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "bitboards_tdd.h": "c",
+        "lookup.h": "c",
+        "bitboards.h": "c"
     }
 }
