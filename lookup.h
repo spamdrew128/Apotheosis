@@ -8,6 +8,6 @@ typedef struct {
     Bitboard_t singleBitset[63];
 } Lookup_t;
 
-void CreateLookup(Lookup_t* lookup);
+void InitLookup(Lookup_t* lookup);
 
 #endif
