@@ -2,17 +2,19 @@ CC=gcc
 INCDIRS=-I.
 CFLAGS=-Wall -g $(INCDIRS)
 
-CFILES=bitboards.c lookup.c
-OBJECTS=bitboards.o lookup.o
+COMMON_CFILES=bitboards.c lookup.c
+COMMON_OBJECTS=bitboards.o lookup.o
 
-D_CFILES=bitboards_tdd.c lookup_tdd.c
-D_OBJECTS=bitboards_tdd.o lookup_tdd.o
+MAIN=main
+CFILES=$(MAIN).c $(COMMON_CFILES)
+OBJECTS=$(MAIN).o $(COMMON_OBJECTS)
+
+TDD_MAIN=main_tdd
+D_CFILES=$(TDD_MAIN).c $(COMMON_CFILES) bitboards_tdd.c lookup_tdd.c
+D_OBJECTS=$(TDD_MAIN).o $(COMMON_OBJECTS) bitboards_tdd.o lookup_tdd.o
 
 BINARY=bin
 DEBUG_BINARY=debug_bin
-
-MAIN=main.c
-TDD_MAIN=tdd/main_tdd.c
 
 all: $(BINARY) $(DEBUG_BINARY)
 
