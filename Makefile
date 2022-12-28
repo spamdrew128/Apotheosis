@@ -9,9 +9,10 @@ MAIN=main
 CFILES=$(MAIN).c $(COMMON_CFILES)
 OBJECTS=$(MAIN).o $(COMMON_OBJECTS)
 
-TDD_MAIN=main_tdd
-D_CFILES=$(TDD_MAIN).c $(COMMON_CFILES) bitboards_tdd.c lookup_tdd.c
-D_OBJECTS=$(TDD_MAIN).o $(COMMON_OBJECTS) bitboards_tdd.o lookup_tdd.o
+TDD=tdd
+TDD_MAIN=$(TDD)/main_tdd
+D_CFILES=$(TDD_MAIN).c $(COMMON_CFILES) $(TDD)/bitboards_tdd.c $(TDD)/lookup_tdd.c
+D_OBJECTS=$(TDD_MAIN).o $(COMMON_OBJECTS) $(TDD)/bitboards_tdd.o $(TDD)/lookup_tdd.o
 
 BINARY=bin
 DEBUG_BINARY=debug_bin
