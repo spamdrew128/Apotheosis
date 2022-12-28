@@ -19,6 +19,9 @@ DEBUG_BINARY=debug
 
 all: $(BINARY) $(DEBUG_BINARY)
 
+test: $(DEBUG_BINARY)
+	$(DEBUG_BINARY).exe
+
 $(BINARY): $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^
 

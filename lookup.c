@@ -2,12 +2,16 @@
 
 static Lookup_t lookup;
 
-static void InitSingleBitset(Bitboard_t singleBitset[]) {
+static void InitSingleBitset(Bitboard_t singleBitsets[]) {
     for(int i = 0; i < 64; i++) {
-        singleBitset[i] = C64(1) << i;
+        singleBitsets[i] = C64(1) << i;
     }
 }
 
 void InitLookup() {
-    InitSingleBitset(lookup.singleBitset);
+    InitSingleBitset(lookup.singleBitsets);
+}
+
+Bitboard_t GetSingleBitset(int square) {
+    return lookup.singleBitsets[square];
 }

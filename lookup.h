@@ -5,9 +5,11 @@
 #include "bitboards.h"
 
 typedef struct {
-    Bitboard_t singleBitset[63];
+    Bitboard_t singleBitsets[63];
 } Lookup_t;
 
 void InitLookup();
+
+Bitboard_t GetSingleBitset(int square);
 
 #endif
