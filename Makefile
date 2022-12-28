@@ -29,4 +29,4 @@ $(DEBUG_BINARY): $(D_OBJECTS)
 	$(CC) $(CFLAGS) -c -o $@ $^
 
 clean:
-	rm -rf $(BINARY) $(DEBUG_BINARY) $(OBJECTS) $(D_OBJECTS)
+	-del -fR $(BINARY) $(DEBUG_BINARY) $(OBJECTS) $(D_OBJECTS)
