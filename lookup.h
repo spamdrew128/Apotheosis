@@ -10,6 +10,6 @@ typedef struct {
 
 void InitLookup();
 
-Bitboard_t GetSingleBitset(int square);
+Bitboard_t GetSingleBitset(Square_t square);
 
 #endif

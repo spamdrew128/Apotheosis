@@ -13,7 +13,7 @@ static void ShouldInitializeSingleBitset() {
     for(int i = 0; i < 64; i++) {
         Bitboard_t bitset = GetSingleBitset(i);
         if(OneSetBit(bitset)) {
-            printf("\n%s Failure\n",__func__);
+            printf("\n%s Failure\n", __func__);
             return;
         }
     }

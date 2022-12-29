@@ -12,6 +12,6 @@ void InitLookup() {
     InitSingleBitset(lookup.singleBitsets);
 }
 
-Bitboard_t GetSingleBitset(int square) {
+Bitboard_t GetSingleBitset(Square_t square) {
     return lookup.singleBitsets[square];
 }

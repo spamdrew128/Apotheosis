@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <assert.h>
 
 #include "bitboards.h"
 
@@ -20,5 +21,8 @@ Population_t PopulationCount(Bitboard_t b) {
     return count;
 }
 
-
+Square_t Lsb(Bitboard_t b) {
+    assert(b);
+    return __builtin_ctzll(b);
+}
 
