@@ -21,7 +21,7 @@ Population_t PopulationCount(Bitboard_t b) {
     return count;
 }
 
-Square_t Lsb(Bitboard_t b) {
+inline Square_t LSB(Bitboard_t b) { // I hate macros and you can't force me to use them
     assert(b);
     return __builtin_ctzll(b);
 }

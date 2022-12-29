@@ -33,4 +33,6 @@ Bitboard_t NoWeOne (Bitboard_t b);
 typedef int Population_t;
 Population_t PopulationCount(Bitboard_t b);
 
+Square_t LSB(Bitboard_t b);
+
 #endif
