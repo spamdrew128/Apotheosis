@@ -4,7 +4,8 @@
 #include "board_constants.h"
 
 typedef struct {
-    Bitboard_t singleBitsets[64];
+    Bitboard_t singleBitsets[NUM_SQUARES];
+    
 } Lookup_t;
 
 void InitLookup();

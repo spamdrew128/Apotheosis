@@ -3,7 +3,7 @@
 static Lookup_t lookup;
 
 static void InitSingleBitset(Bitboard_t singleBitsets[]) {
-    for(int i = 0; i < 64; i++) {
+    for(int i = 0; i < NUM_SQUARES; i++) {
         singleBitsets[i] = C64(1) << i;
     }
 }

@@ -13,7 +13,7 @@ static bool OneSetBit(Bitboard_t b) {return b & (b - 1);}
 static void ShouldInitializeSingleBitset() {
     bool success = true;
 
-    for(int i = 0; i < 64; i++) {
+    for(int i = 0; i < NUM_SQUARES; i++) {
         Bitboard_t bitset = GetSingleBitset(i);
         if(OneSetBit(bitset)) {
             success = false;
