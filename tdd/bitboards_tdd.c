@@ -18,7 +18,7 @@ static void CanCountPopulation() {
 static void CanIdentifyLSB() {
     Bitboard_t b = C64(0b111000);
     Square_t expected = d1;
-    PrintResults(PopulationCount(b) == expected);
+    PrintResults(LSB(b) == expected);
 }
 
 void BitboardsTDDRunner() {
