@@ -2,6 +2,7 @@
 #include <assert.h>
 
 #include "bitboards.h"
+#include "lookup.h"
 
 Bitboard_t NortOne (Bitboard_t b) {return  b << 8;}
 Bitboard_t NoEaOne (Bitboard_t b) {return (b & not_h_file) << 9;}
@@ -25,4 +26,5 @@ inline Square_t LSB(Bitboard_t b) { // I hate macros and you can't force me to u
     assert(b);
     return __builtin_ctzll(b);
 }
+
 

@@ -3,8 +3,6 @@
 
 #include "board_constants.h"
 
-typedef U64 Bitboard_t;
-
 enum side {
     white,
     black
@@ -34,5 +32,9 @@ typedef int Population_t;
 Population_t PopulationCount(Bitboard_t b);
 
 Square_t LSB(Bitboard_t b);
+
+#define SetBits(bitboard, mask) bitboard |= mask
+#define ResetBits(bitboard, mask) bitboard &= ~mask
+#define ToggleBits(bitboard, mask) bitboard ^= mask
 
 #endif

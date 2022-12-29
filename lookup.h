@@ -2,10 +2,9 @@
 #define __LOOKUP_H__
 
 #include "board_constants.h"
-#include "bitboards.h"
 
 typedef struct {
-    Bitboard_t singleBitsets[63];
+    Bitboard_t singleBitsets[64];
 } Lookup_t;
 
 void InitLookup();

@@ -1,7 +1,7 @@
 #ifndef __BOARD_CONSTANTS_H__
 #define __BOARD_CONSTANTS_H__
 
-typedef unsigned long long  U64; // supported by MSC 13.00+ and C99 
+typedef unsigned long long  Bitboard_t; // supported by MSC 13.00+ and C99 
 #define C64(constantU64) constantU64##ULL
 
 typedef int Square_t;
