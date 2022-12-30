@@ -87,4 +87,14 @@ void InterpretFEN(FEN_t fen, BoardInfo_t* info) {
         }
         i++;
     }
+
+    for(int i = 0; i < 2; i++) {
+        info->allPieces[i] = 
+            info->pawns[i] |
+            info->knights[i] |
+            info->bishops[i] |
+            info->rooks[i] |
+            info->queens[i] |
+            info->kings[i];
+    }
 }
