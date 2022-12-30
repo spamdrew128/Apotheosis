@@ -19,6 +19,8 @@ typedef struct {
     Bitboard_t kings[2];
 } BoardInfo_t;
 
+void InitBoardInfo(BoardInfo_t* info);
+
 Bitboard_t NortOne (Bitboard_t b);
 Bitboard_t NoEaOne (Bitboard_t b);
 Bitboard_t EastOne (Bitboard_t b);

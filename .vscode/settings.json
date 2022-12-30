@@ -4,6 +4,8 @@
         "stdio.h": "c",
         "bitboards_tdd.h": "c",
         "lookup.h": "c",
-        "bitboards.h": "c"
+        "bitboards.h": "c",
+        "lookup_tdd.h": "c",
+        "fen_tdd.h": "c"
     }
 }

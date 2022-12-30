@@ -1,8 +1,21 @@
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #include "bitboards.h"
 #include "lookup.h"
+
+void InitBoardInfo(BoardInfo_t* info) {
+    for(int i = 0; i < 2; i++) {
+        info->allPieces[i] = C64(0);
+        info->pawns[i] = C64(0);
+        info->knights[i] = C64(0);
+        info->bishops[i] = C64(0);
+        info->rooks[i] = C64(0);
+        info->queens[i] = C64(0);
+        info->kings[i] = C64(0);
+    }
+}
 
 Bitboard_t NortOne (Bitboard_t b) {return  b << 8;}
 Bitboard_t NoEaOne (Bitboard_t b) {return (b & not_h_file) << 9;}

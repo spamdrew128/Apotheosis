@@ -4,11 +4,13 @@ CFLAGS=-Wall -g $(INCDIRS)
 
 COMMON_CFILES= \
 bitboards.c \
-lookup.c
+lookup.c \
+FEN.c
 
 COMMON_OBJECTS= \
 bitboards.o \
-lookup.o
+lookup.o \
+FEN.o
 
 MAIN=main
 CFILES=$(MAIN).c $(COMMON_CFILES)
@@ -22,14 +24,16 @@ $(TDD_MAIN).c \
 $(COMMON_CFILES) \
 $(TDD)\bitboards_tdd.c \
 $(TDD)\lookup_tdd.c \
-$(TDD)\debug.c 
+$(TDD)\debug.c \
+$(TDD)\FEN_tdd.c
 
 D_OBJECTS= \
 $(TDD_MAIN).o \
 $(COMMON_OBJECTS) \
 $(TDD)\bitboards_tdd.o \
 $(TDD)\lookup_tdd.o \
-$(TDD)\debug.o
+$(TDD)\debug.o \
+$(TDD)\FEN_tdd.o
 
 BINARY=bin
 DEBUG_BINARY=debug

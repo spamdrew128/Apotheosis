@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include <math.h>
 
 #include "debug.h"
 #include "lookup_tdd.h"

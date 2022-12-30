@@ -5,9 +5,10 @@ typedef unsigned long long Bitboard_t; // supported by MSC 13.00+ and C99
 #define C64(constantU64) constantU64##ULL
 
 #define NUM_SQUARES 64
+#define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 
 typedef int Square_t;
-enum squareLabels{
+enum squareLabels {
   a1, b1, c1, d1, e1, f1, g1, h1,
   a2, b2, c2, d2, e2, f2, g2, h2,
   a3, b3, c3, d3, e3, f3, g3, h3,
@@ -18,7 +19,7 @@ enum squareLabels{
   a8, b8, c8, d8, e8, f8, g8, h8
 };
 
-enum squareSets{
+enum squareSets {
   a_file         = 0x0101010101010101,
   h_file         = 0x8080808080808080,
   not_a_file     = 0xfefefefefefefefe, // ~a_file
