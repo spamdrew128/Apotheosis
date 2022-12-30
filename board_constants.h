@@ -23,6 +23,8 @@ enum squareSets{
   h_file         = 0x8080808080808080,
   not_a_file     = 0xfefefefefefefefe, // ~a_file
   not_h_file     = 0x7f7f7f7f7f7f7f7f, // ~h_file
+  not_ab_files   = 0xFCFCFCFCFCFCFCFC,
+  not_gh_files   = 0x3F3F3F3F3F3F3F3F,
   first_rank     = 0x00000000000000FF,
   eighth_rank    = 0xFF00000000000000,
   a1_h8_diagonal = 0x8040201008040201,
