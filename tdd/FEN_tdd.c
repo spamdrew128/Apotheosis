@@ -8,6 +8,7 @@
 
 void FENTDDRunner() {
     BoardInfo_t info;
+    InitBoardInfo(&info);
 
     InterpretFEN(START_FEN, &info);
 }
