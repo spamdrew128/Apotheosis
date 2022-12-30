@@ -1,4 +1,5 @@
 #include "lookup.h"
+#include "bitboards.h"
 
 static Lookup_t lookup;
 
@@ -33,9 +34,25 @@ static void InitKnightAttacks(Bitboard_t knightMoves[]) {
     }
 }
 
+static void InitKingAttacks(Bitboard_t kingMoves[]) {
+    for(Square_t i = 0; i < NUM_SQUARES; i++) {
+        Bitboard_t squareBitset = GetSingleBitset(i);
+        kingMoves[i] = 
+            NortOne(squareBitset) |
+            NoEaOne(squareBitset) |
+            EastOne(squareBitset) |
+            SoEaOne(squareBitset) |
+            SoutOne(squareBitset) |
+            SoWeOne(squareBitset) |
+            WestOne(squareBitset) |
+            NoWeOne(squareBitset);         
+    }
+}
+
 void InitLookup() {
     InitSingleBitset(lookup.singleBitsets);
     InitKnightAttacks(lookup.knightAttacks);
+    InitKingAttacks(lookup.kingAttacks);
 }
 
 Bitboard_t GetSingleBitset(Square_t square) {
@@ -44,4 +61,8 @@ Bitboard_t GetSingleBitset(Square_t square) {
 
 Bitboard_t GetKnightAttacks(Square_t square) {
     return lookup.knightAttacks[square];
+}
+
+Bitboard_t GetKingAttacks(Square_t square) {
+    return lookup.kingAttacks[square];
 }

@@ -77,7 +77,7 @@ void InterpretFEN(FEN_t fen, BoardInfo_t* info) {
 
             default: // some integer
                 int emptySpaces = CharToInt(fen[i]);
-                assert(emptySpaces <= 8);
+                assert(emptySpaces >= 1 && emptySpaces <= 8);
                 file += emptySpaces;
                 break;
         }
