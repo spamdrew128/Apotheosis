@@ -18,7 +18,7 @@ static Bitboard_t NoWeWe(Bitboard_t b) {return (b & not_ab_files) <<  6;}
 static Bitboard_t SoWeWe(Bitboard_t b) {return (b & not_ab_files) >> 10;}
 static Bitboard_t SoSoWe(Bitboard_t b) {return (b & not_a_file ) >> 17;}
 
-static void InitKnightMoves(Bitboard_t knightMoves[]) {
+static void InitKnightAttacks(Bitboard_t knightMoves[]) {
     for(Square_t i = 0; i < NUM_SQUARES; i++) {
         Bitboard_t squareBitset = GetSingleBitset(i);
         knightMoves[i] = 
@@ -35,13 +35,13 @@ static void InitKnightMoves(Bitboard_t knightMoves[]) {
 
 void InitLookup() {
     InitSingleBitset(lookup.singleBitsets);
-    InitKnightMoves(lookup.knightMoves);
+    InitKnightAttacks(lookup.knightAttacks);
 }
 
 Bitboard_t GetSingleBitset(Square_t square) {
     return lookup.singleBitsets[square];
 }
 
-Bitboard_t GetKnightMoves(Square_t square) {
-    return lookup.knightMoves[square];
+Bitboard_t GetKnightAttacks(Square_t square) {
+    return lookup.knightAttacks[square];
 }

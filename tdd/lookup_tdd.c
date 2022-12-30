@@ -27,4 +27,4 @@ void LookupTDDRunner() {
     InitLookup();
 
     ShouldInitializeSingleBitset();
-}
+}   

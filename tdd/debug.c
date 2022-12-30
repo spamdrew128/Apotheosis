@@ -14,8 +14,13 @@ void PrintBitboard(Bitboard_t b) {
     printf("\n");
     for(int i = 7; i >= 0; i--) {
         for(int j = 0; j < 8; j++) {
-            printf("%d ", boardArray[i*8 + j]);
-        }
+            Square_t square = boardArray[i*8 + j];
+            if(square) {
+                printf("%d ", boardArray[i*8 + j]);
+            } else {
+                printf(". ");
+            }
+        }    
         printf("\n");
     }
 }

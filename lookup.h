@@ -6,13 +6,13 @@
 typedef struct {
     Bitboard_t singleBitsets[NUM_SQUARES];
 
-    Bitboard_t knightMoves[NUM_SQUARES];
+    Bitboard_t knightAttacks[NUM_SQUARES];
 } Lookup_t;
 
 void InitLookup();
 
 Bitboard_t GetSingleBitset(Square_t square);
 
-Bitboard_t GetKnightMoves(Square_t square);
+Bitboard_t GetKnightAttacks(Square_t square);
 
 #endif
