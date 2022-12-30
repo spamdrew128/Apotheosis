@@ -11,8 +11,8 @@ OBJECTS=$(MAIN).o $(COMMON_OBJECTS)
 
 TDD=tdd
 TDD_MAIN=$(TDD)\main_tdd
-D_CFILES=$(TDD_MAIN).c $(COMMON_CFILES) $(TDD)\bitboards_tdd.c $(TDD)\lookup_tdd.c
-D_OBJECTS=$(TDD_MAIN).o $(COMMON_OBJECTS) $(TDD)\bitboards_tdd.o $(TDD)\lookup_tdd.o
+D_CFILES=$(TDD_MAIN).c $(COMMON_CFILES) $(TDD)\bitboards_tdd.c $(TDD)\lookup_tdd.c $(TDD)\debug.c 
+D_OBJECTS=$(TDD_MAIN).o $(COMMON_OBJECTS) $(TDD)\bitboards_tdd.o $(TDD)\lookup_tdd.o $(TDD)\debug.o
 
 BINARY=bin
 DEBUG_BINARY=debug
