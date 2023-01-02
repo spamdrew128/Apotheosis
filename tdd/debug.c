@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdarg.h>
 
 #include "debug.h"
 
@@ -58,4 +59,16 @@ void PrintChessboard(BoardInfo_t* info) {
         }    
         printf("\n");
     }
+}
+
+Bitboard_t CreateBitboard(int numOccupied, ...) {
+    va_list valist;
+    va_start(valist, numOccupied);
+
+    Bitboard_t bitboard = C64(0);
+    for (int i = 0; i < numOccupied; i++) {
+        bitboard |= C64(1) << va_arg(valist, Square_t);
+    } 
+
+    return bitboard;
 }

@@ -13,4 +13,6 @@ void PrintBitboard(Bitboard_t b);
 
 void PrintChessboard(BoardInfo_t* info);
 
+Bitboard_t CreateBitboard(int numOccupied, ...);
+
 #endif
