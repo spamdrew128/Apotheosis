@@ -26,7 +26,4 @@ void LookupTDDRunner() {
     InitLookup();
 
     ShouldInitializeSingleBitset();
-
-    PrintBitboard(GetKingAttacks(g1));
-    PrintBitboard(GetKingAttacks(g2));
 }   

@@ -6,6 +6,8 @@
         "lookup.h": "c",
         "bitboards.h": "c",
         "lookup_tdd.h": "c",
-        "fen_tdd.h": "c"
+        "fen_tdd.h": "c",
+        "pieces_tdd.h": "c",
+        "fen.h": "c"
     }
 }

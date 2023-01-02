@@ -11,6 +11,5 @@ int main(int argc, char *argv[])
     BoardInfo_t boardInfo;
     InitBoardInfo(&boardInfo);
     InterpretFEN(START_FEN, &boardInfo);
-
     
 }

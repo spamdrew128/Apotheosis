@@ -4,10 +4,12 @@
 #include "lookup_tdd.h"
 #include "bitboards_tdd.h"
 #include "FEN_tdd.h"
+#include "pieces_tdd.h"
 
 int main(int argc, char *argv[])
 {
     LookupTDDRunner();
     BitboardsTDDRunner();
     FENTDDRunner();
+    PiecesTDDRunner();
 }
