@@ -3,11 +3,6 @@
 
 #include "board_constants.h"
 
-enum side {
-    white,
-    black
-};
-
 typedef struct {
     Bitboard_t allPieces[2];
 

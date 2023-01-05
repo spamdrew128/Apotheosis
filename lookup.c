@@ -19,10 +19,10 @@ static Bitboard_t NoWeWe(Bitboard_t b) {return (b & not_ab_files) <<  6;}
 static Bitboard_t SoWeWe(Bitboard_t b) {return (b & not_ab_files) >> 10;}
 static Bitboard_t SoSoWe(Bitboard_t b) {return (b & not_a_file ) >> 17;}
 
-static void InitKnightAttacks(Bitboard_t knightMoves[]) {
+static void InitKnightAttacks(Bitboard_t knightAttacks[]) {
     for(Square_t i = 0; i < NUM_SQUARES; i++) {
         Bitboard_t squareBitset = GetSingleBitset(i);
-        knightMoves[i] = 
+        knightAttacks[i] = 
             NoNoEa(squareBitset) |
             NoEaEa(squareBitset) |
             SoEaEa(squareBitset) |
@@ -34,10 +34,10 @@ static void InitKnightAttacks(Bitboard_t knightMoves[]) {
     }
 }
 
-static void InitKingAttacks(Bitboard_t kingMoves[]) {
+static void InitKingAttacks(Bitboard_t kingAttacks[]) {
     for(Square_t i = 0; i < NUM_SQUARES; i++) {
         Bitboard_t squareBitset = GetSingleBitset(i);
-        kingMoves[i] = 
+        kingAttacks[i] = 
             NortOne(squareBitset) |
             NoEaOne(squareBitset) |
             EastOne(squareBitset) |
@@ -49,10 +49,24 @@ static void InitKingAttacks(Bitboard_t kingMoves[]) {
     }
 }
 
+static void InitPawnAttacks(Bitboard_t pawnAttacks[][NUM_SQUARES]) {
+    for(Square_t i = 0; i < NUM_SQUARES; i++) {
+        Bitboard_t squareBitset = GetSingleBitset(i);
+        pawnAttacks[white][i] = 
+            NoEaOne(squareBitset) |
+            NoWeOne(squareBitset);  
+
+        pawnAttacks[black][i] =
+            SoEaOne(squareBitset) |
+            SoWeOne(squareBitset);       
+    }
+}
+
 void InitLookup() {
     InitSingleBitset(lookup.singleBitsets);
     InitKnightAttacks(lookup.knightAttacks);
     InitKingAttacks(lookup.kingAttacks);
+    InitPawnAttacks(lookup.pawnAttacks);
 }
 
 Bitboard_t GetSingleBitset(Square_t square) {
@@ -65,4 +79,8 @@ Bitboard_t GetKnightAttacks(Square_t square) {
 
 Bitboard_t GetKingAttacks(Square_t square) {
     return lookup.kingAttacks[square];
+}
+
+Bitboard_t GetPawnAttacks(Square_t square, Color_t color) {
+    return lookup.pawnAttacks[color][square];
 }

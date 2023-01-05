@@ -7,6 +7,12 @@ typedef unsigned long long Bitboard_t; // supported by MSC 13.00+ and C99
 #define NUM_SQUARES 64
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 
+typedef int Color_t;
+enum side {
+    white,
+    black
+};
+
 typedef int Square_t;
 enum squareLabels {
   a1, b1, c1, d1, e1, f1, g1, h1,
