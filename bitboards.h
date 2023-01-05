@@ -5,6 +5,7 @@
 
 typedef struct {
     Bitboard_t allPieces[2];
+    Bitboard_t empty;
 
     Bitboard_t pawns[2];
     Bitboard_t knights[2];

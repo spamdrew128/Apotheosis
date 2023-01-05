@@ -97,4 +97,6 @@ void InterpretFEN(FEN_t fen, BoardInfo_t* info) {
             info->queens[i] |
             info->kings[i];
     }
+
+    info->empty = ~(info->allPieces[white] | info->allPieces[black]);
 }

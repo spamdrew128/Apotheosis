@@ -24,6 +24,8 @@ static void InitStartFENExpectedInfo(BoardInfo_t* expectedInfo) {
     expectedInfo->rooks[black] = CreateBitboard(2, a8,h8);
     expectedInfo->queens[black] = CreateBitboard(1, d8);
     expectedInfo->kings[black] = CreateBitboard(1, e8);
+
+    expectedInfo->empty = ~(expectedInfo->allPieces[white] | expectedInfo->allPieces[black]);
 }
 
 static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo) {
@@ -54,6 +56,8 @@ static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo) {
         expectedInfo->rooks[black] |
         expectedInfo->queens[black] |
         expectedInfo->kings[black];
+
+    expectedInfo->empty = ~(expectedInfo->allPieces[white] | expectedInfo->allPieces[black]);
 }
 
 static bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo) {
@@ -68,6 +72,9 @@ static bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo) {
             (info->queens[i] == expectedInfo->queens[i]) &&
             (info->kings[i] == expectedInfo->kings[i]);
     }
+
+    success = success && (info->empty == expectedInfo->empty);
+
     return success;
 }
 

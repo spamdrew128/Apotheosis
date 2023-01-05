@@ -15,6 +15,8 @@ void InitBoardInfo(BoardInfo_t* info) {
         info->queens[i] = C64(0);
         info->kings[i] = C64(0);
     }
+
+    info->empty = C64(0);
 }
 
 Bitboard_t NortOne (Bitboard_t b) {return  b << 8;}
