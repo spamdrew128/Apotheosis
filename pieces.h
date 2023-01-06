@@ -12,5 +12,12 @@ Bitboard_t BlackSinglePushTargets(Bitboard_t bPawns, Bitboard_t empty);
 
 Bitboard_t BlackDoublePushTargets(Bitboard_t bPawns, Bitboard_t empty);
 
+Bitboard_t WhiteEastCaptureTargets(Bitboard_t wPawns, Bitboard_t enemyPieces);
+
+Bitboard_t BlackEastCaptureTargets(Bitboard_t bPawns, Bitboard_t enemyPieces);
+
+Bitboard_t WhiteWestCaptureTargets(Bitboard_t wPawns, Bitboard_t enemyPieces);
+
+Bitboard_t BlackWestCaptureTargets(Bitboard_t bPawns, Bitboard_t enemyPieces);
 
 #endif

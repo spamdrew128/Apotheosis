@@ -22,3 +22,19 @@ Bitboard_t BlackDoublePushTargets(Bitboard_t bPawns, Bitboard_t empty) {
    Bitboard_t singlePushs = BlackSinglePushTargets(bPawns, empty);
    return SoutOne(singlePushs) & empty & rank_5;
 }
+
+Bitboard_t WhiteEastCaptureTargets(Bitboard_t wPawns, Bitboard_t enemyPieces) {
+   return NoEaOne(wPawns) & enemyPieces;
+}
+
+Bitboard_t BlackEastCaptureTargets(Bitboard_t bPawns, Bitboard_t enemyPieces) {
+   return SoEaOne(bPawns) & enemyPieces;
+}
+
+Bitboard_t WhiteWestCaptureTargets(Bitboard_t wPawns, Bitboard_t enemyPieces) {
+   return NoWeOne(wPawns) & enemyPieces;
+}
+
+Bitboard_t BlackWestCaptureTargets(Bitboard_t bPawns, Bitboard_t enemyPieces) {
+   return SoWeOne(bPawns) & enemyPieces;
+}
