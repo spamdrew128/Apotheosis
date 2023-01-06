@@ -20,16 +20,16 @@ Bitboard_t WhiteWestCaptureTargets(Bitboard_t wPawns, Bitboard_t enemyPieces);
 
 Bitboard_t BlackWestCaptureTargets(Bitboard_t bPawns, Bitboard_t enemyPieces);
 
-#define WhiteEastEnPassantTargets(wPawns, wPotentialTargets) \
-    WhiteEastCaptureTargets(wPawns, wPotentialTargets)
+#define WhiteEastEnPassantTargets(wPawns, wEnPassantSquares) \
+    WhiteEastCaptureTargets(wPawns, wEnPassantSquares)
 
-#define BlackEastEnPassantTargets(bPawns, bPotentialTargets) \
-    BlackEastCaptureTargets(bPawns, bPotentialTargets)
+#define BlackEastEnPassantTargets(bPawns, bEnPassantSquares) \
+    BlackEastCaptureTargets(bPawns, bEnPassantSquares)
 
-#define WhiteWestEnPassantTargets(wPawns, wPotentialTargets) \
-    WhiteWestCaptureTargets(wPawns, wPotentialTargets)
+#define WhiteWestEnPassantTargets(wPawns, wEnPassantSquares) \
+    WhiteWestCaptureTargets(wPawns, wEnPassantSquares)
 
-#define BlackWestEnPassantTargets(bPawns, bPotentialTargets) \
-    BlackWestCaptureTargets(bPawns, bPotentialTargets)
+#define BlackWestEnPassantTargets(bPawns, bEnPassantSquares) \
+    BlackWestCaptureTargets(bPawns, bEnPassantSquares)
 
 #endif
