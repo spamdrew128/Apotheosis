@@ -105,9 +105,4 @@ static void ComplexFENInterpretedCorrectly() {
 void FENTDDRunner() {
     StartFENInterpretedCorrectly();
     ComplexFENInterpretedCorrectly();
-
-    // BoardInfo_t info;
-    // InitBoardInfo(&info);
-    // InterpretFEN("rnbqkb1r/pp3ppp/B7/2pppn2/4PP2/P1N5/1PPP2PP/R1BQK1NR", &info);
-    // PrintChessboard(&info);
 }   

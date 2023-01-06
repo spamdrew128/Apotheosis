@@ -38,3 +38,4 @@ Bitboard_t WhiteWestCaptureTargets(Bitboard_t wPawns, Bitboard_t enemyPieces) {
 Bitboard_t BlackWestCaptureTargets(Bitboard_t bPawns, Bitboard_t enemyPieces) {
    return SoWeOne(bPawns) & enemyPieces;
 }
+

@@ -25,7 +25,9 @@ enum {
     other_midgame_w = 0x3001CE00,
     other_midgame_b = 0xE3001C00000000,
     other_midgame_w_all = 0x1003005CEDD,
-    other_midgame_b_all = 0xBFE3003C00000000
+    other_midgame_b_all = 0xBFE3003C00000000,
+
+    en_passant_test_b_pawns = 0xE0100805000000
 };
 
 // HELPERS
@@ -90,6 +92,18 @@ static void OtherMidgameCaptureTargets() {
     PrintResults(success);
 }
 
+static void EnPassantCaptureTargets() {
+    Bitboard_t expectedBlackEast = CreateBitboard(1, b3);
+    Bitboard_t expectedBlackWest = CreateBitboard(1, b3);
+    Bitboard_t enPassantSquare = CreateBitboard(1, b3);
+
+    bool success = 
+        (BlackEastEnPassantTargets(en_passant_test_b_pawns, enPassantSquare) == expectedBlackEast) &&
+        (BlackWestEnPassantTargets(en_passant_test_b_pawns, enPassantSquare) == expectedBlackWest);
+
+    PrintResults(success);
+}
+
 void PiecesTDDRunner() {
     StartSinglePawnPushesMatch();
     StartDoublePawnPushesMatch();
@@ -98,4 +112,6 @@ void PiecesTDDRunner() {
 
     StartCaptureTargets();
     OtherMidgameCaptureTargets();
+
+    EnPassantCaptureTargets();
 }
