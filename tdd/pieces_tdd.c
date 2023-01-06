@@ -8,13 +8,13 @@
 #include "bitboards.h"
 
 enum {
-    start_empty = third_rank | fourth_rank | fifth_rank | sixth_rank,
-    start_w = second_rank,
-    start_b = seventh_rank,
-    start_expected_w_single = third_rank,
-    start_expected_b_single = sixth_rank,
-    start_expected_w_double = fourth_rank,
-    start_expected_b_double = fifth_rank,
+    start_empty = rank_3 | rank_4 | rank_5 | rank_6,
+    start_w = rank_2,
+    start_b = rank_7,
+    start_expected_w_single = rank_3,
+    start_expected_b_single = rank_6,
+    start_expected_w_double = rank_4,
+    start_expected_b_double = rank_5,
 
     midgame_empty = 0x8A4C13A7EFDBD853,
     midgame_w = 0x4810002700,

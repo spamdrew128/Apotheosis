@@ -10,16 +10,16 @@
 
 // HELPERS
 static void InitStartFENExpectedInfo(BoardInfo_t* expectedInfo) {
-    expectedInfo->allPieces[white] = first_rank | second_rank;
-    expectedInfo->pawns[white] = second_rank;
+    expectedInfo->allPieces[white] = rank_1 | rank_2;
+    expectedInfo->pawns[white] = rank_2;
     expectedInfo->knights[white] = CreateBitboard(2, b1,g1);
     expectedInfo->bishops[white] = CreateBitboard(2, c1,f1);
     expectedInfo->rooks[white] = CreateBitboard(2, a1,h1);
     expectedInfo->queens[white] = CreateBitboard(1, d1);
     expectedInfo->kings[white] = CreateBitboard(1, e1);
 
-    expectedInfo->allPieces[black] = seventh_rank | eighth_rank;
-    expectedInfo->pawns[black] = seventh_rank;
+    expectedInfo->allPieces[black] = rank_7 | rank_8;
+    expectedInfo->pawns[black] = rank_7;
     expectedInfo->knights[black] = CreateBitboard(2, b8,g8);
     expectedInfo->bishops[black] = CreateBitboard(2, c8,f8);
     expectedInfo->rooks[black] = CreateBitboard(2, a8,h8);
