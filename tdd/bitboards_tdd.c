@@ -10,6 +10,7 @@ enum {
     d1_LSB = C64(0b111000)
 };
 
+// TESTS
 static void CanCountPopulation(Bitboard_t b, Population_t expected) {
     PrintResults(PopulationCount(b) == expected);
 }

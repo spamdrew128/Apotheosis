@@ -7,8 +7,10 @@
 #include "board_constants.h"
 #include "bitboards.h"
 
+// HELPERS
 static bool OneSetBit(Bitboard_t b) {return b & (b - 1);}
 
+// TESTS
 static void ShouldInitializeSingleBitset() {
     bool success = true;
 
