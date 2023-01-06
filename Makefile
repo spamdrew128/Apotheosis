@@ -1,6 +1,6 @@
 CC=gcc
 INCDIRS=-I.
-CFLAGS=-Wall -g $(INCDIRS)
+CFLAGS=-Wall -g -std=c99 $(INCDIRS)
 
 COMMON_CFILES= \
 bitboards.c \
