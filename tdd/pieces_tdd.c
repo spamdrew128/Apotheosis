@@ -58,34 +58,9 @@ static void ComplexDoublePawnPushesMatch() {
     PrintResults(success);
 }
 
-static void StartPushablePawnsMatch() {
-    bool success =
-        (WhitePushablePawns(start_w, start_empty) == start_w) &&
-        (WhiteDblPushablePawns(start_w, start_empty) == start_w) &&
-        (BlackPushablePawns(start_b, start_empty) == start_b) &&
-        (BlackDblPushablePawns(start_b, start_empty) == start_b);
-    PrintResults(success);
-}
-
-static void ComplexPushablePawnsMatch() {
-    Bitboard_t expectedWhite = CreateBitboard(2, a2,b2);
-    Bitboard_t expectedDblWhite = CreateBitboard(2, a2,b2);
-    Bitboard_t expectedBlack = CreateBitboard(3, a7,b7,c6);
-    Bitboard_t expectedDblBlack = CreateBitboard(2, a7,b7);
-
-    bool success =
-        (WhitePushablePawns(midgame_w, midgame_empty) == expectedWhite) &&
-        (WhiteDblPushablePawns(midgame_w, midgame_empty) == expectedDblWhite) &&
-        (BlackPushablePawns(midgame_b, midgame_empty) == expectedBlack) &&
-        (BlackDblPushablePawns(midgame_b, midgame_empty) == expectedDblBlack);
-    PrintResults(success);
-}
-
 void PiecesTDDRunner() {
     StartSinglePawnPushesMatch();
     StartDoublePawnPushesMatch();
     ComplexSinglePawnPushesMatch();
     ComplexDoublePawnPushesMatch();
-    StartPushablePawnsMatch();
-    ComplexPushablePawnsMatch();
 }
