@@ -10,7 +10,6 @@
 
 // HELPERS
 static void InitStartFENExpectedInfo(BoardInfo_t* expectedInfo) {
-    expectedInfo->allPieces[white] = rank_1 | rank_2;
     expectedInfo->pawns[white] = rank_2;
     expectedInfo->knights[white] = CreateBitboard(2, b1,g1);
     expectedInfo->bishops[white] = CreateBitboard(2, c1,f1);
@@ -18,7 +17,6 @@ static void InitStartFENExpectedInfo(BoardInfo_t* expectedInfo) {
     expectedInfo->queens[white] = CreateBitboard(1, d1);
     expectedInfo->kings[white] = CreateBitboard(1, e1);
 
-    expectedInfo->allPieces[black] = rank_7 | rank_8;
     expectedInfo->pawns[black] = rank_7;
     expectedInfo->knights[black] = CreateBitboard(2, b8,g8);
     expectedInfo->bishops[black] = CreateBitboard(2, c8,f8);
@@ -26,7 +24,8 @@ static void InitStartFENExpectedInfo(BoardInfo_t* expectedInfo) {
     expectedInfo->queens[black] = CreateBitboard(1, d8);
     expectedInfo->kings[black] = CreateBitboard(1, e8);
 
-    expectedInfo->empty = ~(expectedInfo->allPieces[white] | expectedInfo->allPieces[black]);
+    UpdateAllPieces(expectedInfo);
+    UpdateEmpty(expectedInfo);
 }
 
 static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo) {
@@ -36,13 +35,6 @@ static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo) {
     expectedInfo->rooks[white] = CreateBitboard(2, d1,h1);
     expectedInfo->queens[white] = CreateBitboard(1, h6);
     expectedInfo->kings[white] = CreateBitboard(1, c1);
-    expectedInfo->allPieces[white] = 
-        expectedInfo->pawns[white] |
-        expectedInfo->knights[white] |
-        expectedInfo->bishops[white] | 
-        expectedInfo->rooks[white] |
-        expectedInfo->queens[white] |
-        expectedInfo->kings[white];
 
     expectedInfo->pawns[black] = CreateBitboard(8, a7,b7,c6,d6,e5,f7,g6,h7);
     expectedInfo->knights[black] = CreateBitboard(2, e7,f6);
@@ -50,15 +42,9 @@ static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo) {
     expectedInfo->rooks[black] = CreateBitboard(2, a8,f8);
     expectedInfo->queens[black] = CreateBitboard(1, e8);
     expectedInfo->kings[black] = CreateBitboard(1, g8);
-    expectedInfo->allPieces[black] = 
-        expectedInfo->pawns[black] |
-        expectedInfo->knights[black] |
-        expectedInfo->bishops[black] | 
-        expectedInfo->rooks[black] |
-        expectedInfo->queens[black] |
-        expectedInfo->kings[black];
 
-    expectedInfo->empty = ~(expectedInfo->allPieces[white] | expectedInfo->allPieces[black]);
+    UpdateAllPieces(expectedInfo);
+    UpdateEmpty(expectedInfo);
 }
 
 static bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo) {

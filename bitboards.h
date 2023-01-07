@@ -15,6 +15,19 @@ typedef struct {
     Bitboard_t kings[2];
 } BoardInfo_t;
 
+#define UpdateAllPieces(info) \
+    for(int i = 0; i < 2; i++) { \
+        info->allPieces[i] = \
+            info->pawns[i] | \
+            info->knights[i] | \
+            info->bishops[i] | \
+            info->rooks[i] | \
+            info->queens[i] | \
+            info->kings[i]; \
+    }
+
+#define UpdateEmpty(info) info->empty = ~(info->allPieces[white] | info->allPieces[black])
+
 void InitBoardInfo(BoardInfo_t* info);
 
 Bitboard_t NortOne (Bitboard_t b);

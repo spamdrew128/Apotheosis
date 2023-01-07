@@ -6,6 +6,7 @@
 #include "pieces.h"
 #include "board_constants.h"
 #include "bitboards.h"
+#include "lookup.h"
 
 enum {
     start_empty = rank_3 | rank_4 | rank_5 | rank_6,
@@ -27,12 +28,50 @@ enum {
     other_midgame_w_all = 0x1003005CEDD,
     other_midgame_b_all = 0xBFE3003C00000000,
 
-    en_passant_test_b_pawns = 0xE0100805000000
+    en_passant_test_b_pawns = 0xE0100805000000,
 };
 
 // HELPERS
+void InitStartInfo(BoardInfo_t* info) {
+    info->pawns[white] = rank_2;
+    info->knights[white] = CreateBitboard(2, b1,g1);
+    info->bishops[white] = CreateBitboard(2, c1,f1);
+    info->rooks[white] = CreateBitboard(2, a1,h1);
+    info->queens[white] = CreateBitboard(1, d1);
+    info->kings[white] = CreateBitboard(1, e1);
 
-// TESTS
+    info->pawns[black] = rank_7;
+    info->knights[black] = CreateBitboard(2, b8,g8);
+    info->bishops[black] = CreateBitboard(2, c8,f8);
+    info->rooks[black] = CreateBitboard(2, a8,h8);
+    info->queens[black] = CreateBitboard(1, d8);
+    info->kings[black] = CreateBitboard(1, e8);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
+}
+
+// r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R
+void InitMidgameInfo(BoardInfo_t* info) {
+    info->pawns[white] = CreateBitboard(7, a2,b2,c2,d5,e4,f2,g5);
+    info->knights[white] = CreateBitboard(2, c3,f3);
+    info->bishops[white] = CreateBitboard(1, f1);
+    info->rooks[white] = CreateBitboard(2, d1,h1);
+    info->queens[white] = CreateBitboard(1, h6);
+    info->kings[white] = CreateBitboard(1, c1);
+
+    info->pawns[black] = CreateBitboard(8, a7,b7,c6,d6,e5,f7,g6,h7);
+    info->knights[black] = CreateBitboard(2, e7,f6);
+    info->bishops[black] = CreateBitboard(1, c8);
+    info->rooks[black] = CreateBitboard(2, a8,f8);
+    info->queens[black] = CreateBitboard(1, e8);
+    info->kings[black] = CreateBitboard(1, g8);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
+}
+
+// PAWN TESTS
 static void StartSinglePawnPushesMatch() {
     bool success = 
         (WhiteSinglePushTargets(start_w, start_empty) == start_expected_w_single) &&
@@ -104,7 +143,82 @@ static void EnPassantCaptureTargets() {
     PrintResults(success);
 }
 
+// KNIGHT TESTS
+static void StartKnightMoveTargets() {
+    BoardInfo_t info;
+    InitStartInfo(&info);
+
+    Bitboard_t expectedB1Knight = CreateBitboard(2, a3,c3);
+    Bitboard_t expectedB8Knight = CreateBitboard(2, a6,c6);
+    Bitboard_t expectedG1Knight = CreateBitboard(2, f3,h3);
+    Bitboard_t expectedG8Knight = CreateBitboard(2, f6,h6);
+
+    bool success = 
+        (KnightMoveTargets(b1, info.empty) == expectedB1Knight) &&
+        (KnightMoveTargets(b8, info.empty) == expectedB8Knight) &&
+        (KnightMoveTargets(g1, info.empty) == expectedG1Knight) &&
+        (KnightMoveTargets(g8, info.empty) == expectedG8Knight);
+
+    PrintResults(success);
+}
+
+static void StartKnightCaptureTargets() {
+    BoardInfo_t info;
+    InitStartInfo(&info);
+
+    Bitboard_t expectedB1Knight = C64(0);
+    Bitboard_t expectedB8Knight = C64(0);
+    Bitboard_t expectedG1Knight = C64(0);
+    Bitboard_t expectedG8Knight = C64(0);
+
+    bool success = 
+        (KnightCaptureTargets(b1, info.allPieces[black]) == expectedB1Knight) &&
+        (KnightCaptureTargets(b8, info.allPieces[white]) == expectedB8Knight) &&
+        (KnightCaptureTargets(g1, info.allPieces[black]) == expectedG1Knight) &&
+        (KnightCaptureTargets(g8, info.allPieces[white]) == expectedG8Knight);
+
+    PrintResults(success);
+}
+
+static void MidgameKnightMoveTargets() {
+    BoardInfo_t info;
+    InitMidgameInfo(&info);
+
+    Bitboard_t expectedC3Knight = CreateBitboard(4, a4,b1,b5,e2);
+    Bitboard_t expectedF3Knight = CreateBitboard(6, d2,d4,e1,g1,h2,h4);
+    Bitboard_t expectedE7Knight = CreateBitboard(1, f5);
+    Bitboard_t expectedF6Knight = CreateBitboard(3, d7,g4,h5);
+
+    bool success = 
+        (KnightMoveTargets(c3, info.empty) == expectedC3Knight) &&
+        (KnightMoveTargets(f3, info.empty) == expectedF3Knight) &&
+        (KnightMoveTargets(e7, info.empty) == expectedE7Knight) &&
+        (KnightMoveTargets(f6, info.empty) == expectedF6Knight);
+
+    PrintResults(success);
+}
+
+static void MidgameKnightCaptureTargets() {
+    BoardInfo_t info;
+    InitMidgameInfo(&info);
+    
+    Bitboard_t expectedC3Knight = C64(0);
+    Bitboard_t expectedF3Knight = CreateBitboard(1, e5);
+    Bitboard_t expectedE7Knight = CreateBitboard(1, d5);
+    Bitboard_t expectedF6Knight = CreateBitboard(2, d5,e4);
+
+    bool success = 
+        (KnightCaptureTargets(c3, info.allPieces[black]) == expectedC3Knight) &&
+        (KnightCaptureTargets(f3, info.allPieces[black]) == expectedF3Knight) &&
+        (KnightCaptureTargets(e7, info.allPieces[white]) == expectedE7Knight) &&
+        (KnightCaptureTargets(f6, info.allPieces[white]) == expectedF6Knight);
+
+    PrintResults(success);
+}
+
 void PiecesTDDRunner() {
+    InitLookup();
+
     StartSinglePawnPushesMatch();
     StartDoublePawnPushesMatch();
     MidgameSinglePawnPushesMatch();
@@ -114,4 +228,9 @@ void PiecesTDDRunner() {
     OtherMidgameCaptureTargets();
 
     EnPassantCaptureTargets();
+
+    StartKnightMoveTargets();
+    StartKnightCaptureTargets();
+    MidgameKnightMoveTargets();
+    MidgameKnightCaptureTargets();
 }

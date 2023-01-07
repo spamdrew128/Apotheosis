@@ -39,3 +39,11 @@ Bitboard_t BlackWestCaptureTargets(Bitboard_t bPawns, Bitboard_t enemyPieces) {
    return SoWeOne(bPawns) & enemyPieces;
 }
 
+// KNIGHTS
+Bitboard_t KnightMoveTargets(Square_t square, Bitboard_t empty) {
+   return GetKnightAttacks(square) & empty;
+}
+
+Bitboard_t KnightCaptureTargets(Square_t square, Bitboard_t enemyPieces) {
+   return GetKnightAttacks(square) & enemyPieces;
+}
