@@ -71,6 +71,26 @@ void InitMidgameInfo(BoardInfo_t* info) {
     UpdateEmpty(info);
 }
 
+// 8/8/7K/pP4p1/Pk6/8/6PP/8
+void InitEndgameInfo(BoardInfo_t* info) {
+    info->pawns[white] = CreateBitboard(4, a4,b5,g2,h2);
+    info->knights[white] = C64(0);
+    info->bishops[white] = C64(0);
+    info->rooks[white] = C64(0);
+    info->queens[white] = C64(0);
+    info->kings[white] = CreateBitboard(1, h6);
+
+    info->pawns[black] = CreateBitboard(2, a5,g5);
+    info->knights[black] = C64(0);
+    info->bishops[black] = C64(0);
+    info->rooks[black] = C64(0);
+    info->queens[black] = C64(0);
+    info->kings[black] = CreateBitboard(1, b4);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
+}
+
 // PAWN TESTS
 static void StartSinglePawnPushesMatch() {
     bool success = 
@@ -216,6 +236,35 @@ static void MidgameKnightCaptureTargets() {
     PrintResults(success);
 }
 
+// KING TESTS
+static void EndgameKingMoveTargets() {
+    BoardInfo_t info;
+    InitEndgameInfo(&info);
+
+    Bitboard_t expectedWhiteKing = CreateBitboard(4, g6,g7,h5,h7);
+    Bitboard_t expectedBlackKing = CreateBitboard(5, a3,b3,c3,c4,c5);
+
+    bool success = 
+        (KingMoveTargets(LSB(info.kings[white]), info.empty) == expectedWhiteKing) &&
+        (KingMoveTargets(LSB(info.kings[black]), info.empty) == expectedBlackKing);
+
+    PrintResults(success);
+}
+
+static void EndgameKingCaptureTargets() {
+    BoardInfo_t info;
+    InitEndgameInfo(&info);
+
+    Bitboard_t expectedWhiteKing = CreateBitboard(1, g5);
+    Bitboard_t expectedBlackKing = CreateBitboard(2, a4,b5);
+
+    bool success = 
+        (KingMoveTargets(LSB(info.kings[white]), info.allPieces[black]) == expectedWhiteKing) &&
+        (KingMoveTargets(LSB(info.kings[black]), info.allPieces[white]) == expectedBlackKing);
+
+    PrintResults(success);
+}
+
 void PiecesTDDRunner() {
     StartSinglePawnPushesMatch();
     StartDoublePawnPushesMatch();
@@ -231,4 +280,7 @@ void PiecesTDDRunner() {
     StartKnightCaptureTargets();
     MidgameKnightMoveTargets();
     MidgameKnightCaptureTargets();
+
+    EndgameKingMoveTargets();
+    EndgameKingCaptureTargets();
 }

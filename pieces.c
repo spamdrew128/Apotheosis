@@ -47,3 +47,12 @@ Bitboard_t KnightMoveTargets(Square_t square, Bitboard_t empty) {
 Bitboard_t KnightCaptureTargets(Square_t square, Bitboard_t enemyPieces) {
    return GetKnightAttacks(square) & enemyPieces;
 }
+
+// KINGS
+Bitboard_t KingMoveTargets(Square_t square, Bitboard_t empty) {
+   return GetKingAttacks(square) & empty;
+}
+
+Bitboard_t KingCaptureTargets(Square_t square, Bitboard_t enemyPieces) {
+   return GetKingAttacks(square) & enemyPieces;
+}
