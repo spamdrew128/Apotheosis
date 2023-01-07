@@ -25,7 +25,5 @@ static void ShouldInitializeSingleBitset() {
 }
 
 void LookupTDDRunner() {
-    InitLookup();
-
     ShouldInitializeSingleBitset();
 }   

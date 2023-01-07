@@ -217,8 +217,6 @@ static void MidgameKnightCaptureTargets() {
 }
 
 void PiecesTDDRunner() {
-    InitLookup();
-
     StartSinglePawnPushesMatch();
     StartDoublePawnPushesMatch();
     MidgameSinglePawnPushesMatch();
