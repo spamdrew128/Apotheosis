@@ -6,6 +6,7 @@
 #include "bitboards_tdd.h"
 #include "FEN_tdd.h"
 #include "pieces_tdd.h"
+#include "magic_tdd.h"
 
 int main(int argc, char *argv[])
 {
@@ -15,4 +16,5 @@ int main(int argc, char *argv[])
     BitboardsTDDRunner();
     FENTDDRunner();
     PiecesTDDRunner();
+    MagicTDDRunner();
 }
