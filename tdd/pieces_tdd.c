@@ -6,7 +6,6 @@
 #include "pieces.h"
 #include "board_constants.h"
 #include "bitboards.h"
-#include "lookup.h"
 
 enum {
     start_empty = rank_3 | rank_4 | rank_5 | rank_6,

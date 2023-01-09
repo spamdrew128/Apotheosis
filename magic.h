@@ -6,10 +6,12 @@
 #include "board_constants.h"
 
 typedef struct {
-    Bitboard_t bitboard;
+    Bitboard_t mask;
     Bitboard_t magic;
-    uint8_t indexBits;
-    const Bitboard_t* hashTable;
+    uint8_t shift;
+    Bitboard_t* hashTable;
 } MagicEntry_t;
+
+void InitRookEntries(MagicEntry_t magicEntries[NUM_SQUARES]);
 
 #endif
