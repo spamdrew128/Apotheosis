@@ -6,6 +6,7 @@
 #include "board_constants.h"
 
 typedef Bitboard_t MagicBB_t;
+typedef uint32_t Hash_t;
 
 typedef struct {
     Bitboard_t mask;
@@ -13,6 +14,8 @@ typedef struct {
     uint8_t shift;
     Bitboard_t* hashTable;
 } MagicEntry_t;
+
+void SeedRNG();
 
 void InitRookEntries(MagicEntry_t magicEntries[NUM_SQUARES]);
 

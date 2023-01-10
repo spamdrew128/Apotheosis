@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "lookup.h"
+#include "magic.h"
 #include "board_constants.h"
 #include "lookup_tdd.h"
 #include "bitboards_tdd.h"
@@ -11,6 +12,7 @@
 int main(int argc, char *argv[])
 {
     InitLookup();
+    SeedRNG();
 
     LookupTDDRunner();
     BitboardsTDDRunner();

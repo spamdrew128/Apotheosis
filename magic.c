@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <time.h>
 
 #include "magic.h"
 #include "bitboards.h"
@@ -8,12 +10,33 @@ enum {
     uninitialized = 0xffffffffffffffff
 };
 
+typedef struct {
+    Bitboard_t blockers;
+    Bitboard_t attacks;
+} TempStorage_t;
+
 // To avoid lookup dependancies
 #define SquareToBitset(square) C64(1) << square
 
 #define NotEdge(singleBitset, edge) singleBitset & ~(edge)
 
 #define DistinctBlockers(n) (int)(C64(1) << n)
+
+#define MagicHash(blockers, magic, shift) (blockers * magic) >> shift
+
+static void ResetHashTable(Bitboard_t* hashTable, int tableEntries) {
+    for(int i = 0; i < tableEntries; i++) {
+        hashTable[i] = uninitialized;
+    }
+}
+
+static Bitboard_t RandBitboard() {
+  Bitboard_t r = 0;
+  for (int i = 0; i < NUM_SQUARES; i++) {
+    r = r*2 + rand()%2;
+  }
+  return r;
+}
 
 static Bitboard_t FillMask(Bitboard_t singleBitset, Bitboard_t (*DirectionFunc)(Bitboard_t), Bitboard_t edge) {
     Bitboard_t result = C64(0);
@@ -23,6 +46,17 @@ static Bitboard_t FillMask(Bitboard_t singleBitset, Bitboard_t (*DirectionFunc)(
         result |= singleBitset;
         singleBitset = DirectionFunc(singleBitset);
     }
+
+    return result;
+}
+
+static Bitboard_t FillAttacks(Bitboard_t singleBitset, Bitboard_t blockers, Bitboard_t (*DirectionFunc)(Bitboard_t)) {
+    Bitboard_t result = C64(0);
+
+    do {
+        singleBitset = DirectionFunc(singleBitset);
+        result |= singleBitset;
+    } while(singleBitset && !(singleBitset & blockers));
 
     return result;
 }
@@ -41,15 +75,87 @@ static Bitboard_t* CreateHashTable(uint8_t indexBits) {
     int tableEntries = DistinctBlockers(indexBits);
     Bitboard_t* hashTable = malloc(tableEntries * sizeof(*hashTable));
 
-    for(int i = 0; i < tableEntries; i++) {
-        hashTable[i] = uninitialized;
-    }
+    ResetHashTable(hashTable, tableEntries);
 
     return hashTable;
 }
 
-static MagicBB_t FindMagic(Square_t square, Bitboard_t* hashTable) {
+static Bitboard_t* SerializeIntoSingleBitsets(Bitboard_t mask, uint8_t indexBits) {
+    Bitboard_t* singleBitsetList = malloc(indexBits * sizeof(*singleBitsetList));
 
+    for(int i = 0; i < indexBits; i++) {
+        Bitboard_t ls1b = mask & -mask; // isolate LS1B
+        singleBitsetList[i] = ls1b;
+        mask &= mask - 1; // reset LS1B
+    }
+
+    return singleBitsetList;
+}
+
+static Bitboard_t FindRookAttacksFromBlockers(Square_t square, Bitboard_t blockers) {
+    Bitboard_t singleBitset = SquareToBitset(square);
+    return (
+        FillAttacks(singleBitset, blockers, NortOne) |
+        FillAttacks(singleBitset, blockers, EastOne) |
+        FillAttacks(singleBitset, blockers, SoutOne) |
+        FillAttacks(singleBitset, blockers, WestOne)
+    );
+}
+
+static void InitRookTempStorage(TempStorage_t* tempStorageTable, Bitboard_t mask, uint8_t indexBits, Square_t square) {
+    int tableEntries = DistinctBlockers(indexBits);
+    Bitboard_t* singleBitsetList = SerializeIntoSingleBitsets(mask, indexBits);
+
+    for(int i = 0; i < tableEntries; i++) {
+        int temp = i;
+        Bitboard_t blockerPattern = C64(0);
+        while (temp)
+        {
+            blockerPattern |= singleBitsetList[LSB(temp)];
+            temp &= temp - 1;
+        }
+        
+        tempStorageTable[i].blockers = blockerPattern;
+        tempStorageTable[i].attacks = FindRookAttacksFromBlockers(square, blockerPattern);
+    }
+
+    free(singleBitsetList);
+    return tempStorageTable;
+}
+
+static bool TryMagic(MagicBB_t magic, Bitboard_t* hashTable, TempStorage_t* tempStorageTable, uint8_t shift, int tableEntries) {
+    for(int i = 0; i < tableEntries; i++) {
+        Bitboard_t blockers = tempStorageTable[i].blockers;
+        Bitboard_t attacks = tempStorageTable[i].attacks;
+        Hash_t hash = MagicHash(blockers, magic, shift);
+
+        if(hashTable[hash] == uninitialized) {
+           hashTable[hash] = attacks;
+        } else if(hashTable[hash] != attacks) { // non-constuctive collision
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static MagicBB_t FindMagic(Bitboard_t mask, Bitboard_t* hashTable, uint8_t indexBits, Square_t square) {
+    int tableEntries = DistinctBlockers(indexBits);
+    TempStorage_t* tempStorageTable = malloc(tableEntries * sizeof(*tempStorageTable));
+    InitRookTempStorage(tempStorageTable, mask, indexBits, square);
+
+    while(true) {
+        MagicBB_t magic = RandBitboard() & RandBitboard() & RandBitboard();
+        if(TryMagic(magic, hashTable, tempStorageTable, 64-indexBits, tableEntries)) {
+            return magic;
+        } else {
+            ResetHashTable(hashTable, tableEntries);
+        }
+    }
+}
+
+void SeedRNG() {
+    srand(time(NULL));
 }
 
 void InitRookEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
@@ -57,7 +163,8 @@ void InitRookEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
         magicEntries[square].mask = FindRookMask(square);
         uint8_t indexBits = PopulationCount(magicEntries[square].mask);
         magicEntries[square].shift = NUM_SQUARES - indexBits;
+
         magicEntries[square].hashTable = CreateHashTable(indexBits);
-        magicEntries[square].magic = FindMagic(square, magicEntries[square].hashTable);
+        magicEntries[square].magic = FindMagic(magicEntries[square].mask, magicEntries[square].hashTable, indexBits, square);
     }
 }
