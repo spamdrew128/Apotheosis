@@ -91,13 +91,20 @@ static Bitboard_t FindRookAttacksFromBlockers(Square_t square, Bitboard_t blocke
     );
 }
 
-static void InitRookTempStorage(TempStorage_t* tempStorageTable, Bitboard_t mask, uint8_t indexBits, Square_t square) {
+static void InitTempStorage(
+    TempStorage_t* tempStorageTable, 
+    Bitboard_t mask, 
+    uint8_t indexBits, 
+    Square_t square, 
+    Bitboard_t (*FindPieceAttacksFromBlockers)(Square_t, Bitboard_t)
+) 
+{
     int tableEntries = DistinctBlockers(indexBits);
     Bitboard_t blockers = 0;
 
     for(int i = 0; i < tableEntries; i++) {
         tempStorageTable[i].blockers = blockers;
-        tempStorageTable[i].attacks = FindRookAttacksFromBlockers(square, blockers);
+        tempStorageTable[i].attacks = FindPieceAttacksFromBlockers(square, blockers);
         blockers = (blockers - mask) & mask;
     }
 
@@ -112,7 +119,7 @@ static bool TryMagic(MagicBB_t magic, Bitboard_t* hashTable, TempStorage_t* temp
 
         if(hashTable[hash] == uninitialized) {
            hashTable[hash] = attacks;
-        } else if(hashTable[hash] != attacks) { // non-constuctive collision
+        } else if(hashTable[hash] != attacks) { // if non-constuctive collision
             return false;
         }
     }
@@ -123,7 +130,7 @@ static bool TryMagic(MagicBB_t magic, Bitboard_t* hashTable, TempStorage_t* temp
 static MagicBB_t FindMagic(Bitboard_t mask, Bitboard_t* hashTable, uint8_t indexBits, Square_t square) {
     int tableEntries = DistinctBlockers(indexBits);
     TempStorage_t* tempStorageTable = malloc(tableEntries * sizeof(*tempStorageTable));
-    InitRookTempStorage(tempStorageTable, mask, indexBits, square);
+    InitTempStorage(tempStorageTable, mask, indexBits, square, FindRookAttacksFromBlockers);
 
     while(true) {
         MagicBB_t magic = RandBitboard() & RandBitboard() & RandBitboard();
