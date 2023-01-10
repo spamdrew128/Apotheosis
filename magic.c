@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
+#include <assert.h>
 
 #include "magic.h"
 #include "bitboards.h"
@@ -80,18 +81,6 @@ static Bitboard_t* CreateHashTable(uint8_t indexBits) {
     return hashTable;
 }
 
-static Bitboard_t* SerializeIntoSingleBitsets(Bitboard_t mask, uint8_t indexBits) {
-    Bitboard_t* singleBitsetList = malloc(indexBits * sizeof(*singleBitsetList));
-
-    for(int i = 0; i < indexBits; i++) {
-        Bitboard_t ls1b = mask & -mask; // isolate LS1B
-        singleBitsetList[i] = ls1b;
-        mask &= mask - 1; // reset LS1B
-    }
-
-    return singleBitsetList;
-}
-
 static Bitboard_t FindRookAttacksFromBlockers(Square_t square, Bitboard_t blockers) {
     Bitboard_t singleBitset = SquareToBitset(square);
     return (
@@ -104,23 +93,15 @@ static Bitboard_t FindRookAttacksFromBlockers(Square_t square, Bitboard_t blocke
 
 static void InitRookTempStorage(TempStorage_t* tempStorageTable, Bitboard_t mask, uint8_t indexBits, Square_t square) {
     int tableEntries = DistinctBlockers(indexBits);
-    Bitboard_t* singleBitsetList = SerializeIntoSingleBitsets(mask, indexBits);
+    Bitboard_t blockers = 0;
 
     for(int i = 0; i < tableEntries; i++) {
-        int temp = i;
-        Bitboard_t blockerPattern = C64(0);
-        while (temp)
-        {
-            blockerPattern |= singleBitsetList[LSB(temp)];
-            temp &= temp - 1;
-        }
-        
-        tempStorageTable[i].blockers = blockerPattern;
-        tempStorageTable[i].attacks = FindRookAttacksFromBlockers(square, blockerPattern);
+        tempStorageTable[i].blockers = blockers;
+        tempStorageTable[i].attacks = FindRookAttacksFromBlockers(square, blockers);
+        blockers = (blockers - mask) & mask;
     }
 
-    free(singleBitsetList);
-    return tempStorageTable;
+    assert(blockers == 0);
 }
 
 static bool TryMagic(MagicBB_t magic, Bitboard_t* hashTable, TempStorage_t* tempStorageTable, uint8_t shift, int tableEntries) {
