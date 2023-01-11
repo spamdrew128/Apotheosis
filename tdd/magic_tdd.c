@@ -8,7 +8,11 @@
 enum {
     corner_rook_index_bits = 12,
     edge_rook_index_bits = 11,
-    middle_rook_index_bits = 10
+    middle_rook_index_bits = 10,
+
+    corner_bishop_index_bits = 6,
+    edge_bishop_index_bits = 5,
+    middle_bishop_index_bits = 10
 };
 
 // HELPERS
@@ -44,6 +48,8 @@ void MagicTDDRunner() {
 
     MagicEntry_t rMagicEntries[NUM_SQUARES];
     InitRookEntries(rMagicEntries);
+    MagicEntry_t bMagicEntries[NUM_SQUARES];
+    InitBishopEntries(bMagicEntries);
 
     RookMasksMatch(rMagicEntries);
 

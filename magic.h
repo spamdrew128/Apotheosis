@@ -15,9 +15,9 @@ typedef struct {
     Bitboard_t* hashTable;
 } MagicEntry_t;
 
-void SeedRNG();
-
 void InitRookEntries(MagicEntry_t magicEntries[NUM_SQUARES]);
+
+void InitBishopEntries(MagicEntry_t magicEntries[NUM_SQUARES]);
 
 void FreeMagicEntries(MagicEntry_t magicEntries[NUM_SQUARES]);
 

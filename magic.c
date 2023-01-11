@@ -64,6 +64,15 @@ static Bitboard_t FillAttacks(Bitboard_t singleBitset, Bitboard_t blockers, Dire
     return result;
 }
 
+static Bitboard_t* CreateHashTable(uint8_t indexBits) {
+    int tableEntries = DistinctBlockers(indexBits);
+    Bitboard_t* hashTable = malloc(tableEntries * sizeof(*hashTable));
+
+    ResetHashTable(hashTable, tableEntries);
+
+    return hashTable;
+}
+
 static Bitboard_t FindRookMask(Square_t square) {
     Bitboard_t singleBitset = SquareToBitset(square);
     return (
@@ -74,13 +83,14 @@ static Bitboard_t FindRookMask(Square_t square) {
     );
 }
 
-static Bitboard_t* CreateHashTable(uint8_t indexBits) {
-    int tableEntries = DistinctBlockers(indexBits);
-    Bitboard_t* hashTable = malloc(tableEntries * sizeof(*hashTable));
-
-    ResetHashTable(hashTable, tableEntries);
-
-    return hashTable;
+static Bitboard_t FindBishopMask(Square_t square) {
+    Bitboard_t singleBitset = SquareToBitset(square);
+    return (
+        FillMask(singleBitset, NoEaOne, rank_8 | h_file) |
+        FillMask(singleBitset, SoEaOne, rank_1 | h_file) |
+        FillMask(singleBitset, SoWeOne, rank_1 | a_file) |
+        FillMask(singleBitset, NoWeOne, rank_8 | a_file)
+    );
 }
 
 static Bitboard_t FindRookAttacksFromBlockers(Square_t square, Bitboard_t blockers) {
@@ -90,6 +100,16 @@ static Bitboard_t FindRookAttacksFromBlockers(Square_t square, Bitboard_t blocke
         FillAttacks(singleBitset, blockers, EastOne) |
         FillAttacks(singleBitset, blockers, SoutOne) |
         FillAttacks(singleBitset, blockers, WestOne)
+    );
+}
+
+static Bitboard_t FindBishopAttacksFromBlockers(Square_t square, Bitboard_t blockers) {
+    Bitboard_t singleBitset = SquareToBitset(square);
+    return (
+        FillAttacks(singleBitset, blockers, NoEaOne) |
+        FillAttacks(singleBitset, blockers, SoEaOne) |
+        FillAttacks(singleBitset, blockers, SoWeOne) |
+        FillAttacks(singleBitset, blockers, NoWeOne)
     );
 }
 
@@ -129,15 +149,16 @@ static bool TryMagic(MagicBB_t magic, Bitboard_t* hashTable, TempStorage_t* temp
     return true;
 }
 
-static MagicBB_t FindRookMagic(Bitboard_t mask, Bitboard_t* hashTable, uint8_t indexBits, Square_t square) {
+static MagicBB_t FindMagic(Bitboard_t mask, Bitboard_t* hashTable, uint8_t indexBits, Square_t square, BlockersToAttacksCallback_t callback) {
     int tableEntries = DistinctBlockers(indexBits);
     TempStorage_t* tempStorageTable = malloc(tableEntries * sizeof(*tempStorageTable));
-    InitTempStorage(tempStorageTable, mask, indexBits, square, FindRookAttacksFromBlockers);
+    InitTempStorage(tempStorageTable, mask, indexBits, square, callback);
 
+    uint8_t shift = 64-indexBits;
     while(true) {
         MagicBB_t magic = RandBitboard() & RandBitboard() & RandBitboard();
 
-        if(TryMagic(magic, hashTable, tempStorageTable, 64-indexBits, tableEntries)) {
+        if(TryMagic(magic, hashTable, tempStorageTable, shift, tableEntries)) {
             free(tempStorageTable);
             return magic;
         } else {
@@ -153,20 +174,20 @@ void InitRookEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
         magicEntries[square].shift = NUM_SQUARES - indexBits;
 
         magicEntries[square].hashTable = CreateHashTable(indexBits);
-        magicEntries[square].magic = FindRookMagic(magicEntries[square].mask, magicEntries[square].hashTable, indexBits, square);
+        magicEntries[square].magic = FindMagic(magicEntries[square].mask, magicEntries[square].hashTable, indexBits, square, FindRookAttacksFromBlockers);
     }
 }
 
-// void InitBishopEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
-//     for(Square_t square = 0; square < NUM_SQUARES; square++) {
-//         magicEntries[square].mask = FindRookMask(square);
-//         uint8_t indexBits = PopulationCount(magicEntries[square].mask);
-//         magicEntries[square].shift = NUM_SQUARES - indexBits;
+void InitBishopEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
+    for(Square_t square = 0; square < NUM_SQUARES; square++) {
+        magicEntries[square].mask = FindBishopMask(square);
+        uint8_t indexBits = PopulationCount(magicEntries[square].mask);
+        magicEntries[square].shift = NUM_SQUARES - indexBits;
 
-//         magicEntries[square].hashTable = CreateHashTable(indexBits);
-//         magicEntries[square].magic = FindRookMagic(magicEntries[square].mask, magicEntries[square].hashTable, indexBits, square);
-//     }
-// }
+        magicEntries[square].hashTable = CreateHashTable(indexBits);
+        magicEntries[square].magic = FindMagic(magicEntries[square].mask, magicEntries[square].hashTable, indexBits, square, FindBishopAttacksFromBlockers);
+    }
+}
 
 void FreeMagicEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
     for(Square_t square = 0; square < NUM_SQUARES; square++) {
