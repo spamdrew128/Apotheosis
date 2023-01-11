@@ -127,13 +127,20 @@ static void InitTempStorage(
     for(int i = 0; i < tableEntries; i++) {
         tempStorageTable[i].blockers = blockers;
         tempStorageTable[i].attacks = FindPieceAttacksFromBlockers(square, blockers);
-        blockers = (blockers - mask) & mask;
+        blockers = (blockers - mask) & mask; // this iterates through all subsets somehow
     }
 
     assert(blockers == 0);
 }
 
-static bool TryMagic(MagicBB_t magic, Bitboard_t* hashTable, TempStorage_t* tempStorageTable, uint8_t shift, int tableEntries) {
+static bool TryMagic(
+    MagicBB_t magic,
+    Bitboard_t* hashTable,
+    TempStorage_t* tempStorageTable,
+    uint8_t shift,
+    int tableEntries
+)
+{
     for(int i = 0; i < tableEntries; i++) {
         Bitboard_t blockers = tempStorageTable[i].blockers;
         Bitboard_t attacks = tempStorageTable[i].attacks;
@@ -149,7 +156,14 @@ static bool TryMagic(MagicBB_t magic, Bitboard_t* hashTable, TempStorage_t* temp
     return true;
 }
 
-static MagicBB_t FindMagic(Bitboard_t mask, Bitboard_t* hashTable, uint8_t indexBits, Square_t square, BlockersToAttacksCallback_t callback) {
+static MagicBB_t FindMagic(
+    Bitboard_t mask,
+    Bitboard_t* hashTable,
+    uint8_t indexBits,
+    Square_t square,
+    BlockersToAttacksCallback_t callback
+) 
+{
     int tableEntries = DistinctBlockers(indexBits);
     TempStorage_t* tempStorageTable = malloc(tableEntries * sizeof(*tempStorageTable));
     InitTempStorage(tempStorageTable, mask, indexBits, square, callback);
