@@ -9,8 +9,6 @@
 
 int main(int argc, char *argv[])
 {
-    SeedRNG();
-    
     InitLookup();
     BoardInfo_t boardInfo;
     InitBoardInfo(&boardInfo);
