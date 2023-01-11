@@ -127,7 +127,7 @@ static bool TryMagic(MagicBB_t magic, Bitboard_t* hashTable, TempStorage_t* temp
     return true;
 }
 
-static MagicBB_t FindMagic(Bitboard_t mask, Bitboard_t* hashTable, uint8_t indexBits, Square_t square) {
+static MagicBB_t FindRookMagic(Bitboard_t mask, Bitboard_t* hashTable, uint8_t indexBits, Square_t square) {
     int tableEntries = DistinctBlockers(indexBits);
     TempStorage_t* tempStorageTable = malloc(tableEntries * sizeof(*tempStorageTable));
     InitTempStorage(tempStorageTable, mask, indexBits, square, FindRookAttacksFromBlockers);
@@ -153,6 +153,6 @@ void InitRookEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
         magicEntries[square].shift = NUM_SQUARES - indexBits;
 
         magicEntries[square].hashTable = CreateHashTable(indexBits);
-        magicEntries[square].magic = FindMagic(magicEntries[square].mask, magicEntries[square].hashTable, indexBits, square);
+        magicEntries[square].magic = FindRookMagic(magicEntries[square].mask, magicEntries[square].hashTable, indexBits, square);
     }
 }
