@@ -7,14 +7,16 @@ bitboards.c \
 lookup.c \
 FEN.c \
 pieces.c \
-magic.o
+magic.c \
+RNG.c
 
 COMMON_OBJECTS= \
 bitboards.o \
 lookup.o \
 FEN.o \
 pieces.o \
-magic.o
+magic.o \
+RNG.o
 
 MAIN=main
 CFILES=$(MAIN).c $(COMMON_CFILES)
