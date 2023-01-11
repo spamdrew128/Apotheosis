@@ -27,14 +27,6 @@ typedef struct {
 
 #define DistinctBlockers(n) (int)(C64(1) << n)
 
-static Bitboard_t RandBitboard() {
-    pcg32_random_t* seed = GetRNGSeed();
-    Bitboard_t r1 = pcg32_random_r(seed);
-    Bitboard_t r2 = pcg32_random_r(seed);
-    r1 = r1 << 32;
-    return r1 | r2;
-}
-
 static void ResetHashTable(Bitboard_t* hashTable, int tableEntries) {
     for(int i = 0; i < tableEntries; i++) {
         hashTable[i] = uninitialized;

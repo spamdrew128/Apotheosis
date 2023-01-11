@@ -3,10 +3,10 @@
 
 #include <stdint.h>
 
+#include "board_constants.h"
+
 typedef struct { uint64_t state;  uint64_t inc; } pcg32_random_t;
 
-uint32_t pcg32_random_r(pcg32_random_t* rng);
-
-pcg32_random_t* GetRNGSeed();
+Bitboard_t RandBitboard();
 
 #endif

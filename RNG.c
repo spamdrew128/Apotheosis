@@ -17,6 +17,9 @@ uint32_t pcg32_random_r(pcg32_random_t* rng)
     return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
 }
 
-pcg32_random_t* GetRNGSeed() {
-    return &rng;
+Bitboard_t RandBitboard() {
+    Bitboard_t r1 = pcg32_random_r(&rng);
+    Bitboard_t r2 = pcg32_random_r(&rng);
+    r1 = r1 << 32;
+    return r1 | r2;
 }
