@@ -21,14 +21,11 @@ static bool SquareIsEdge(Square_t square) {
 }
 
 // TESTS
-static void RookMasksMatch() {
+static void RookMasksMatch(MagicEntry_t rMagicEntries[NUM_SQUARES]) {
     bool success = true;
 
-    MagicEntry_t magicEntries[NUM_SQUARES];
-    InitRookEntries(magicEntries);
-
     for(int square = 0; square < NUM_SQUARES; square++) {
-        Bitboard_t mask = magicEntries[square].mask;
+        Bitboard_t mask = rMagicEntries[square].mask;
         if(SquareIsCorner(square)) {
             success = success && (PopulationCount(mask) == corner_rook_index_bits);
         } else if(SquareIsEdge(square)) {
@@ -42,5 +39,13 @@ static void RookMasksMatch() {
 }
 
 void MagicTDDRunner() {
-    RookMasksMatch();
+    // These tests suck to write so I'm not gonna do it for magics.
+    // Sue me.
+
+    MagicEntry_t rMagicEntries[NUM_SQUARES];
+    InitRookEntries(rMagicEntries);
+
+    RookMasksMatch(rMagicEntries);
+
+    FreeMagicEntries(rMagicEntries);
 }

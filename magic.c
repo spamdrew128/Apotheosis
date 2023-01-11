@@ -12,6 +12,9 @@ enum {
     uninitialized = 0xffffffffffffffff
 };
 
+typedef Bitboard_t (*BlockersToAttacksCallback_t)(Square_t, Bitboard_t);
+typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t);
+
 typedef struct {
     Bitboard_t blockers;
     Bitboard_t attacks;
@@ -23,8 +26,6 @@ typedef struct {
 #define NotEdge(singleBitset, edge) singleBitset & ~(edge)
 
 #define DistinctBlockers(n) (int)(C64(1) << n)
-
-#define MagicHash(blockers, magic, shift) (blockers * magic) >> shift
 
 static Bitboard_t RandBitboard() {
     pcg32_random_t* seed = GetRNGSeed();
@@ -40,7 +41,7 @@ static void ResetHashTable(Bitboard_t* hashTable, int tableEntries) {
     }
 }
 
-static Bitboard_t FillMask(Bitboard_t singleBitset, Bitboard_t (*DirectionFunc)(Bitboard_t), Bitboard_t edge) {
+static Bitboard_t FillMask(Bitboard_t singleBitset, DirectionCallback_t DirectionFunc, Bitboard_t edge) {
     Bitboard_t result = C64(0);
 
     singleBitset = DirectionFunc(singleBitset);
@@ -52,7 +53,7 @@ static Bitboard_t FillMask(Bitboard_t singleBitset, Bitboard_t (*DirectionFunc)(
     return result;
 }
 
-static Bitboard_t FillAttacks(Bitboard_t singleBitset, Bitboard_t blockers, Bitboard_t (*DirectionFunc)(Bitboard_t)) {
+static Bitboard_t FillAttacks(Bitboard_t singleBitset, Bitboard_t blockers, DirectionCallback_t DirectionFunc) {
     Bitboard_t result = C64(0);
 
     do {
@@ -97,7 +98,7 @@ static void InitTempStorage(
     Bitboard_t mask, 
     uint8_t indexBits, 
     Square_t square, 
-    Bitboard_t (*FindPieceAttacksFromBlockers)(Square_t, Bitboard_t)
+    BlockersToAttacksCallback_t FindPieceAttacksFromBlockers
 ) 
 {
     int tableEntries = DistinctBlockers(indexBits);
@@ -153,5 +154,22 @@ void InitRookEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
 
         magicEntries[square].hashTable = CreateHashTable(indexBits);
         magicEntries[square].magic = FindRookMagic(magicEntries[square].mask, magicEntries[square].hashTable, indexBits, square);
+    }
+}
+
+// void InitBishopEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
+//     for(Square_t square = 0; square < NUM_SQUARES; square++) {
+//         magicEntries[square].mask = FindRookMask(square);
+//         uint8_t indexBits = PopulationCount(magicEntries[square].mask);
+//         magicEntries[square].shift = NUM_SQUARES - indexBits;
+
+//         magicEntries[square].hashTable = CreateHashTable(indexBits);
+//         magicEntries[square].magic = FindRookMagic(magicEntries[square].mask, magicEntries[square].hashTable, indexBits, square);
+//     }
+// }
+
+void FreeMagicEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
+    for(Square_t square = 0; square < NUM_SQUARES; square++) {
+        free(magicEntries[square].hashTable);
     }
 }

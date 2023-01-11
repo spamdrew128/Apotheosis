@@ -19,4 +19,8 @@ void SeedRNG();
 
 void InitRookEntries(MagicEntry_t magicEntries[NUM_SQUARES]);
 
+void FreeMagicEntries(MagicEntry_t magicEntries[NUM_SQUARES]);
+
+#define MagicHash(blockers, magic, shift) (blockers * magic) >> shift
+
 #endif
