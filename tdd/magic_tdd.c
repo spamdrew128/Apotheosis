@@ -13,7 +13,12 @@ enum {
     bishop_9index_bits_area = SquareToBitset(d4) | SquareToBitset(e4) | SquareToBitset(d5) | SquareToBitset(e5),
     bishop_7index_bits_area = 0x00003C24243C0000,
     bishop_6index_bits_area = 0x8100000000000081,
-    bishop_5index_bits_area = 0x7EFFC3C3C3C3FF7E
+    bishop_5index_bits_area = 0x7EFFC3C3C3C3FF7E,
+
+    rook_square = d3,
+    rook_blockers = SquareToBitset(b3) | SquareToBitset(g3) | SquareToBitset(d7) | SquareToBitset(d8),
+    rook_expected_attacks = (rank_3 | d_file) & ~(SquareToBitset(a3) | SquareToBitset(h3) | SquareToBitset(d3) | SquareToBitset(d8))
+
 };
 
 // HELPERS
@@ -28,6 +33,8 @@ static bool SquareIsEdge(Square_t square) {
 static bool SquareIsInBishopArea(Square_t square, Bitboard_t area) {
     return CreateBitboard(1, square) & area;
 }
+
+
 
 // TESTS
 static void RookMasksMatch(MagicEntry_t rMagicEntries[NUM_SQUARES]) {
@@ -47,11 +54,11 @@ static void RookMasksMatch(MagicEntry_t rMagicEntries[NUM_SQUARES]) {
     PrintResults(success);
 }
 
-static void BishopsMasksMatch(MagicEntry_t rMagicEntries[NUM_SQUARES]) {
+static void BishopsMasksMatch(MagicEntry_t bMagicEntries[NUM_SQUARES]) {
     bool success = true;
 
     for(int square = 0; square < NUM_SQUARES; square++) {
-        Bitboard_t mask = rMagicEntries[square].mask;
+        Bitboard_t mask = bMagicEntries[square].mask;
         if(SquareIsInBishopArea(square, bishop_9index_bits_area)) {
             success = success && (PopulationCount(mask) == 9);
         } else if(SquareIsInBishopArea(square, bishop_7index_bits_area)) {
@@ -68,6 +75,14 @@ static void BishopsMasksMatch(MagicEntry_t rMagicEntries[NUM_SQUARES]) {
     PrintResults(success);
 }
 
+static void VerifyRookLookup(MagicEntry_t rMagicEntries[NUM_SQUARES]) {
+    MagicEntry_t entry = rMagicEntries[rook_square];
+    Bitboard_t blockers = rook_blockers & entry.mask;
+    Hash_t hash = MagicHash(blockers, entry.magic, entry.shift);
+
+    PrintResults(entry.hashTable[hash] == rook_expected_attacks);
+}
+
 void MagicTDDRunner() {
     // These tests suck to write so I'm not gonna do it for magics.
     // Sue me.
@@ -79,6 +94,8 @@ void MagicTDDRunner() {
 
     RookMasksMatch(rMagicEntries);
     BishopsMasksMatch(bMagicEntries);
+
+    VerifyRookLookup(rMagicEntries);
 
     FreeMagicEntries(rMagicEntries);
 }

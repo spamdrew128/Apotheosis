@@ -27,6 +27,7 @@ enum squareLabels {
 
 enum squareSets {
   a_file         = 0x0101010101010101,
+  d_file         = 0x0808080808080808,
   h_file         = 0x8080808080808080,
   not_a_file     = 0xfefefefefefefefe, // ~a_file
   not_h_file     = 0x7f7f7f7f7f7f7f7f, // ~h_file
