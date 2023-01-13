@@ -174,58 +174,60 @@ static MagicBB_t FindMagic(
     }
 }
 
-void InitRookEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
-    for(Square_t square = 0; square < NUM_SQUARES; square++) {
-        magicEntries[square].mask = FindRookMask(square);
-        uint8_t indexBits = PopulationCount(magicEntries[square].mask);
-        magicEntries[square].shift = NUM_SQUARES - indexBits;
+void PrintRookMagics(FILE* fp) {
+    const char* macro = "#define ROOK_MAGICS { \\";
+    fprintf(fp, "%s\n", macro);
 
-        magicEntries[square].hashTable = CreateHashTable(indexBits);
-        magicEntries[square].magic = FindMagic(magicEntries[square].mask, magicEntries[square].hashTable, indexBits, square, FindRookAttacksFromBlockers);
-    }
-}
-
-void InitBishopEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
-    for(Square_t square = 0; square < NUM_SQUARES; square++) {
-        magicEntries[square].mask = FindBishopMask(square);
-        uint8_t indexBits = PopulationCount(magicEntries[square].mask);
-        magicEntries[square].shift = NUM_SQUARES - indexBits;
-
-        magicEntries[square].hashTable = CreateHashTable(indexBits);
-        magicEntries[square].magic = FindMagic(magicEntries[square].mask, magicEntries[square].hashTable, indexBits, square, FindBishopAttacksFromBlockers);
-    }
-}
-
-static void FreeMagicEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
-    for(Square_t square = 0; square < NUM_SQUARES; square++) {
-        free(magicEntries[square].hashTable);
-    }
-}
-
-void PrintRookMagics() {
     for(Square_t square = 0; square < NUM_SQUARES; square++) {
         Bitboard_t mask = FindRookMask(square);
         uint8_t indexBits = PopulationCount(mask);
-        uint8_t shift = NUM_SQUARES - indexBits;
 
         Bitboard_t* hashTable = CreateHashTable(indexBits);
         MagicBB_t magic = FindMagic(mask, hashTable, indexBits, square, FindRookAttacksFromBlockers);
+        free(hashTable);
+
+        fprintf(fp, "   0x%llx", magic);
+        if(square < NUM_SQUARES-1) {
+            fprintf(fp, ",");
+        }
+        fprintf(fp, " \\\n");
     }
+    fprintf(fp, "}");
 }
 
-void PrintBishopMagics() {
+void PrintBishopMagics(FILE* fp) {
+    const char* macro = "#define BISHOP_MAGICS { \\";
+    fprintf(fp, "%s\n", macro);
+
     for(Square_t square = 0; square < NUM_SQUARES; square++) {
         Bitboard_t mask = FindBishopMask(square);
         uint8_t indexBits = PopulationCount(mask);
-        uint8_t shift = NUM_SQUARES - indexBits;
 
         Bitboard_t* hashTable = CreateHashTable(indexBits);
         MagicBB_t magic = FindMagic(mask, hashTable, indexBits, square, FindBishopAttacksFromBlockers);
+        free(hashTable);
+
+        fprintf(fp, "   0x%llx", magic);
+        if(square < NUM_SQUARES-1) {
+            fprintf(fp, ",");
+        }
+        fprintf(fp, " \\\n");
     }
+    fprintf(fp, "}");
 }
 
 void GenerateMagics(const char* filepath) {
     FILE* fp = fopen(filepath, "w");
+    const char* header = "#ifndef __MAGIC_TABLE_H__\n#define __MAGIC_TABLE_H__\n\n";
+    const char* footer = "#endif";
+
+    fprintf(fp, "%s", header);
+
+    PrintRookMagics(fp);
+    fprintf(fp, "\n\n");
+    PrintBishopMagics(fp);
+
+    fprintf(fp, "\n\n%s", footer);
 
     fclose(fp);
 }
