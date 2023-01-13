@@ -25,6 +25,16 @@ enum squareLabels {
   a8, b8, c8, d8, e8, f8, g8, h8
 };
 
+typedef int Piece_t;
+enum pieceTypes {
+  pawn,
+  knight,
+  bishop,
+  rook,
+  queen,
+  king
+};
+
 enum squareSets {
   a_file         = 0x0101010101010101,
   d_file         = 0x0808080808080808,

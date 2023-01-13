@@ -8,6 +8,7 @@
         "lookup_tdd.h": "c",
         "fen_tdd.h": "c",
         "pieces_tdd.h": "c",
-        "fen.h": "c"
+        "fen.h": "c",
+        "magic.h": "c"
     }
 }
