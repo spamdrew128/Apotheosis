@@ -17,8 +17,15 @@ enum {
 
     rook_square = d3,
     rook_blockers = SquareToBitset(b3) | SquareToBitset(g3) | SquareToBitset(d7) | SquareToBitset(d8),
-    rook_expected_attacks = (rank_3 | d_file) & ~(SquareToBitset(a3) | SquareToBitset(h3) | SquareToBitset(d3) | SquareToBitset(d8))
+    rook_expected_attacks = (rank_3 | d_file) & ~(SquareToBitset(a3) | SquareToBitset(h3) | SquareToBitset(d3) | SquareToBitset(d8)),
 
+    bishop_square = f3,
+    bishop_blockers = SquareToBitset(d1) | SquareToBitset(g4) | SquareToBitset(d5) | SquareToBitset(c6),
+    bishop_expected_attacks = 0x0000000850005088,
+
+    queen_square = e3,
+    queen_blockers = 0x10020420001000,
+    queen_expected_attacks = 0x0010101438ef3844
 };
 
 // HELPERS
@@ -75,12 +82,35 @@ static void BishopsMasksMatch(MagicEntry_t bMagicEntries[NUM_SQUARES]) {
     PrintResults(success);
 }
 
-static void VerifyRookLookup(MagicEntry_t rMagicEntries[NUM_SQUARES]) {
+static void TestRookHashLookup(MagicEntry_t rMagicEntries[NUM_SQUARES]) {
     MagicEntry_t entry = rMagicEntries[rook_square];
     Bitboard_t blockers = rook_blockers & entry.mask;
     Hash_t hash = MagicHash(blockers, entry.magic, entry.shift);
 
     PrintResults(entry.hashTable[hash] == rook_expected_attacks);
+}
+
+static void TestBishopHashLookup(MagicEntry_t bMagicEntries[NUM_SQUARES]) {
+    MagicEntry_t entry = bMagicEntries[bishop_square];
+    Bitboard_t blockers = bishop_blockers & entry.mask;
+    Hash_t hash = MagicHash(blockers, entry.magic, entry.shift);
+
+    PrintResults(entry.hashTable[hash] == bishop_expected_attacks);
+}
+
+static void TestQueenHashLookup(MagicEntry_t rMagicEntries[NUM_SQUARES], MagicEntry_t bMagicEntries[NUM_SQUARES]) {
+    MagicEntry_t rEntry = rMagicEntries[queen_square];
+    MagicEntry_t bEntry = bMagicEntries[queen_square];
+
+    Bitboard_t rBlockers = queen_blockers & rEntry.mask;
+    Bitboard_t bBlockers = queen_blockers & bEntry.mask;
+
+    Hash_t rHash = MagicHash(rBlockers, rEntry.magic, rEntry.shift);
+    Hash_t bHash = MagicHash(bBlockers, bEntry.magic, bEntry.shift);
+
+    Bitboard_t queen_attacks = rEntry.hashTable[rHash] | bEntry.hashTable[bHash];
+
+    PrintResults(queen_attacks == queen_expected_attacks);
 }
 
 void MagicTDDRunner() {
@@ -95,7 +125,10 @@ void MagicTDDRunner() {
     RookMasksMatch(rMagicEntries);
     BishopsMasksMatch(bMagicEntries);
 
-    VerifyRookLookup(rMagicEntries);
+    TestRookHashLookup(rMagicEntries);
+    TestBishopHashLookup(bMagicEntries);
+    TestQueenHashLookup(rMagicEntries, bMagicEntries);
 
     FreeMagicEntries(rMagicEntries);
+    FreeMagicEntries(bMagicEntries);
 }
