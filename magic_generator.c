@@ -174,7 +174,7 @@ static MagicBB_t FindMagic(
     }
 }
 
-void PrintRookMagics(FILE* fp) {
+static void PrintRookMagics(FILE* fp) {
     const char* macro = "#define ROOK_MAGICS { \\";
     fprintf(fp, "%s\n", macro);
 
@@ -195,7 +195,7 @@ void PrintRookMagics(FILE* fp) {
     fprintf(fp, "}");
 }
 
-void PrintBishopMagics(FILE* fp) {
+static void PrintBishopMagics(FILE* fp) {
     const char* macro = "#define BISHOP_MAGICS { \\";
     fprintf(fp, "%s\n", macro);
 
