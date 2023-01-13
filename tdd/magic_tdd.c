@@ -112,14 +112,13 @@ static void TestQueenHashLookup(MagicEntry_t rMagicEntries[NUM_SQUARES], MagicEn
 }
 
 void MagicTDDRunner() {
-    // These tests suck to write so I'm not gonna do it for magics.
-    // Sue me.
-
     MagicEntry_t rMagicEntries[NUM_SQUARES];
     InitRookEntries(rMagicEntries);
     MagicEntry_t bMagicEntries[NUM_SQUARES];
     InitBishopEntries(bMagicEntries);
 
+    // These tests suck to write so I'm not gonna do it for magics.
+    // Sue me.
     RookMasksMatch(rMagicEntries);
     BishopsMasksMatch(bMagicEntries);
 
