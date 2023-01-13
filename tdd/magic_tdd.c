@@ -41,8 +41,6 @@ static bool SquareIsInBishopArea(Square_t square, Bitboard_t area) {
     return CreateBitboard(1, square) & area;
 }
 
-
-
 // TESTS
 static void RookMasksMatch(MagicEntry_t rMagicEntries[NUM_SQUARES]) {
     bool success = true;
