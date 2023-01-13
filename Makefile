@@ -1,9 +1,22 @@
 CC=gcc
 INCDIRS=-I.
-CFLAGS=-Wall -g $(INCDIRS)
+CFLAGS=-Wall -g -std=c99 $(INCDIRS)
 
-COMMON_CFILES=bitboards.c lookup.c
-COMMON_OBJECTS=bitboards.o lookup.o
+COMMON_CFILES= \
+bitboards.c \
+lookup.c \
+FEN.c \
+pieces.c \
+magic.c \
+RNG.c
+
+COMMON_OBJECTS= \
+bitboards.o \
+lookup.o \
+FEN.o \
+pieces.o \
+magic.o \
+RNG.o
 
 MAIN=main
 CFILES=$(MAIN).c $(COMMON_CFILES)
@@ -11,8 +24,26 @@ OBJECTS=$(MAIN).o $(COMMON_OBJECTS)
 
 TDD=tdd
 TDD_MAIN=$(TDD)\main_tdd
-D_CFILES=$(TDD_MAIN).c $(COMMON_CFILES) $(TDD)\bitboards_tdd.c $(TDD)\lookup_tdd.c
-D_OBJECTS=$(TDD_MAIN).o $(COMMON_OBJECTS) $(TDD)\bitboards_tdd.o $(TDD)\lookup_tdd.o
+
+D_CFILES= \
+$(TDD_MAIN).c \
+$(COMMON_CFILES) \
+$(TDD)\bitboards_tdd.c \
+$(TDD)\lookup_tdd.c \
+$(TDD)\debug.c \
+$(TDD)\FEN_tdd.c \
+$(TDD)\pieces_tdd.c \
+$(TDD)\magic_tdd.c
+
+D_OBJECTS= \
+$(TDD_MAIN).o \
+$(COMMON_OBJECTS) \
+$(TDD)\bitboards_tdd.o \
+$(TDD)\lookup_tdd.o \
+$(TDD)\debug.o \
+$(TDD)\FEN_tdd.o \
+$(TDD)\pieces_tdd.o \
+$(TDD)\magic_tdd.o
 
 BINARY=bin
 DEBUG_BINARY=debug
