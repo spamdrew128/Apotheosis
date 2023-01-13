@@ -8,7 +8,8 @@ lookup.c \
 FEN.c \
 pieces.c \
 magic.c \
-RNG.c
+RNG.c \
+magic_generator.c
 
 COMMON_OBJECTS= \
 bitboards.o \
@@ -16,7 +17,8 @@ lookup.o \
 FEN.o \
 pieces.o \
 magic.o \
-RNG.o
+RNG.o \
+magic_generator.o
 
 MAIN=main
 CFILES=$(MAIN).c $(COMMON_CFILES)
