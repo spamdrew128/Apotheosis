@@ -2,5 +2,6 @@
 #define __LEGALS_H__
 
 #include "board_constants.h"
+#include "bitboards.h"
 
 #endif
