@@ -36,25 +36,25 @@ enum pieceTypes {
 };
 
 enum squareSets {
-  a_file         = 0x0101010101010101,
-  d_file         = 0x0808080808080808,
-  h_file         = 0x8080808080808080,
-  not_a_file     = 0xfefefefefefefefe, // ~a_file
-  not_h_file     = 0x7f7f7f7f7f7f7f7f, // ~h_file
-  not_ab_files   = 0xFCFCFCFCFCFCFCFC,
-  not_gh_files   = 0x3F3F3F3F3F3F3F3F,
-  rank_1         = 0x00000000000000FF,
-  rank_2         = 0x000000000000FF00,
-  rank_3         = 0x0000000000FF0000,
-  rank_4         = 0x00000000FF000000,
-  rank_5         = 0x000000FF00000000,
-  rank_6         = 0x0000FF0000000000,
-  rank_7         = 0x00FF000000000000,
-  rank_8         = 0xFF00000000000000,
-  a1_h8_diagonal = 0x8040201008040201,
-  h1_a8_diagonal = 0x0102040810204080,
-  light_squares  = 0x55AA55AA55AA55AA,
-  dark_squares   = 0xAA55AA55AA55AA55
+  a_file         = C64(0x0101010101010101),
+  d_file         = C64(0x0808080808080808),
+  h_file         = C64(0x8080808080808080),
+  not_a_file     = C64(0xfefefefefefefefe), // ~a_file
+  not_h_file     = C64(0x7f7f7f7f7f7f7f7f), // ~h_file
+  not_ab_files   = C64(0xfcfcfcfcfcfcfcfc),
+  not_gh_files   = C64(0x3f3f3f3f3f3f3f3f),
+  rank_1         = C64(0x00000000000000ff),
+  rank_2         = C64(0x000000000000ff00),
+  rank_3         = C64(0x0000000000ff0000),
+  rank_4         = C64(0x00000000ff000000),
+  rank_5         = C64(0x000000ff00000000),
+  rank_6         = C64(0x0000ff0000000000),
+  rank_7         = C64(0x00ff000000000000),
+  rank_8         = C64(0xff00000000000000),
+  a1_h8_diagonal = C64(0x8040201008040201),
+  h1_a8_diagonal = C64(0x0102040810204080),
+  light_squares  = C64(0x55aa55aa55aa55aa),
+  dark_squares   = C64(0xaa55aa55aa55aa55)
 };
 
 #endif

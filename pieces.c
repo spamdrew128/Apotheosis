@@ -6,7 +6,9 @@
 
 enum {
    white_promotion_rank = rank_8,
-   black_promotion_rank = rank_1
+   black_promotion_rank = rank_1,
+   not_white_promotion_rank = C64(~0xff00000000000000),
+   not_black_promotion_rank = C64(~0x00000000000000ff)
 };
 
 // PAWNS
@@ -46,13 +48,13 @@ Bitboard_t BlackWestCaptureTargets(Bitboard_t bPawns, Bitboard_t enemyPieces) {
 
 Bitboard_t FilterWhitePromotions(Bitboard_t* whiteMoveset) {
    Bitboard_t promotions = (*whiteMoveset) & white_promotion_rank;
-   (*whiteMoveset) &= ~white_promotion_rank;
+   (*whiteMoveset) &= not_white_promotion_rank;
    return promotions;
 }
 
 Bitboard_t FilterBlackPromotions(Bitboard_t* blackMoveset) {
    Bitboard_t promotions = (*blackMoveset) & black_promotion_rank;
-   (*blackMoveset) &= ~black_promotion_rank;
+   (*blackMoveset) &= not_black_promotion_rank;
    return promotions;
 }
 

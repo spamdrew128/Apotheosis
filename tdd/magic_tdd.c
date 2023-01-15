@@ -13,7 +13,7 @@ enum {
     bishop_9index_bits_area = SquareToBitset(d4) | SquareToBitset(e4) | SquareToBitset(d5) | SquareToBitset(e5),
     bishop_7index_bits_area = 0x00003C24243C0000,
     bishop_6index_bits_area = 0x8100000000000081,
-    bishop_5index_bits_area = 0x7EFFC3C3C3C3FF7E,
+    bishop_5index_bits_area = 0x7effc3c3c3c3ff7e,
 
     rook_square = d3,
     rook_blockers = SquareToBitset(b3) | SquareToBitset(g3) | SquareToBitset(d7) | SquareToBitset(d8),
