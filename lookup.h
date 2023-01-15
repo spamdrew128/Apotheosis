@@ -25,8 +25,8 @@ Bitboard_t GetKingAttacks(Square_t square);
 
 Bitboard_t GetPawnAttacks(Square_t square, Color_t color);
 
-MagicEntry_t GetRookMagicEntries(Square_t square);
+MagicEntry_t GetRookMagicEntry(Square_t square);
 
-MagicEntry_t GetBishopMagicEntries(Square_t square);
+MagicEntry_t GetBishopMagicEntry(Square_t square);
 
 #endif

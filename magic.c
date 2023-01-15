@@ -149,7 +149,7 @@ static void FillHashTable(
 
         if(hashTable[hash] == uninitialized) {
            hashTable[hash] = attacks;
-        } else if(hashTable[hash] != attacks) { // if non-constuctive collision
+        } else if(hashTable[hash] != attacks) {
             assert(2 + 2 == 5); // literally 1984
         }
     }

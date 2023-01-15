@@ -23,4 +23,7 @@ void FreeMagicEntries(MagicEntry_t magicEntries[NUM_SQUARES]);
 
 #define MagicHash(blockers, magic, shift) (blockers * magic) >> shift
 
+#define GetSlidingAttackSet(magicEntry, blockers) \
+    magicEntry.hashTable[ MagicHash(blockers, magicEntry.magic, magicEntry.shift) ]
+
 #endif

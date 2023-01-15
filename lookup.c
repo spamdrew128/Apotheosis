@@ -87,10 +87,10 @@ Bitboard_t GetPawnAttacks(Square_t square, Color_t color) {
     return lookup.pawnAttacks[color][square];
 }
 
-MagicEntry_t GetRookMagicEntries(Square_t square) {
+MagicEntry_t GetRookMagicEntry(Square_t square) {
     return lookup.rookMagicEntries[square];
 }
 
-MagicEntry_t GetBishopMagicEntries(Square_t square) {
+MagicEntry_t GetBishopMagicEntry(Square_t square) {
     return lookup.bishopMagicEntries[square];
 }

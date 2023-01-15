@@ -70,6 +70,26 @@ void InitMidgameInfo(BoardInfo_t* info) {
     UpdateEmpty(info);
 }
 
+// 5k1r/1ppb3p/1p1p3p/3B4/1P1p1P2/1Qp1q3/P5PP/3R1K2
+void InitOtherMidgameInfo(BoardInfo_t* info) {
+    info->pawns[white] = CreateBitboard(5, a2,g2,h2,b4,f4);
+    info->knights[white] = C64(0);
+    info->bishops[white] = CreateBitboard(1, d5);
+    info->rooks[white] = CreateBitboard(1, d1);
+    info->queens[white] = CreateBitboard(1, b3);
+    info->kings[white] = CreateBitboard(1, f1);
+
+    info->pawns[black] = CreateBitboard(8, c3,d4,b6,d6,h6,b7,c7,h7);
+    info->knights[black] = C64(0);
+    info->bishops[black] = CreateBitboard(1, d7);
+    info->rooks[black] = CreateBitboard(1, h8);
+    info->queens[black] = CreateBitboard(1, e3);
+    info->kings[black] = CreateBitboard(1, f8);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
+}
+
 // 8/8/7K/pP4p1/Pk6/8/6PP/8
 void InitEndgameInfo(BoardInfo_t* info) {
     info->pawns[white] = CreateBitboard(4, a4,b5,g2,h2);
@@ -264,6 +284,57 @@ static void EndgameKingCaptureTargets() {
     PrintResults(success);
 }
 
+static void OtherMidgameRookMoveTargets() {
+    BoardInfo_t info;
+    InitOtherMidgameInfo(&info);
+
+    Square_t rookSquare = d1;
+    Bitboard_t expectedD1RookMoves = CreateBitboard(6, a1,b1,c1,e1,d2,d3);
+
+    bool success = RookMoveTargets(rookSquare, info.allPieces[white], info.empty) == expectedD1RookMoves;
+
+    PrintResults(success);
+}
+
+static void OtherMidgameRookCaptureTargets() {
+    BoardInfo_t info;
+    InitOtherMidgameInfo(&info);
+
+    Square_t rookSquare = d1;
+    Bitboard_t expectedD1RookCaptures = CreateBitboard(1, d4);
+
+    bool success = RookCaptureTargets(rookSquare, info.allPieces[white], info.allPieces[black]) == expectedD1RookCaptures;
+
+    PrintResults(success);
+}
+
+static void OtherMidgameBishopMoveTargets() {
+    BoardInfo_t info;
+    InitOtherMidgameInfo(&info);
+
+    Square_t bishopSquare = d5;
+    Bitboard_t expectedD5BishopMoves = CreateBitboard(7, f3,c4,e4,c6,e6,f7,g8);
+
+    PrintBitboard(expectedD5BishopMoves);
+    PrintBitboard(BishopMoveTargets(bishopSquare, info.allPieces[white], info.empty));
+
+    bool success = BishopMoveTargets(bishopSquare, info.allPieces[white], info.empty) == expectedD5BishopMoves;
+
+    PrintResults(success);
+}
+
+static void OtherMidgameBishopCaptureTargets() {
+    BoardInfo_t info;
+    InitOtherMidgameInfo(&info);
+
+    Square_t bishopSquare = d5;
+    Bitboard_t expectedD5BishopCaptures = CreateBitboard(1, b7);
+
+    bool success = BishopCaptureTargets(bishopSquare, info.allPieces[white], info.allPieces[black]) == expectedD5BishopCaptures;
+
+    PrintResults(success);
+}
+
 void PiecesTDDRunner() {
     StartSinglePawnPushesMatch();
     StartDoublePawnPushesMatch();
@@ -282,4 +353,10 @@ void PiecesTDDRunner() {
 
     EndgameKingMoveTargets();
     EndgameKingCaptureTargets();
+
+    OtherMidgameRookMoveTargets();
+    OtherMidgameRookCaptureTargets();
+
+    OtherMidgameBishopMoveTargets();
+    OtherMidgameBishopCaptureTargets();
 }
