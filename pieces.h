@@ -43,17 +43,18 @@ Bitboard_t KingMoveTargets(Square_t square, Bitboard_t empty);
 Bitboard_t KingCaptureTargets(Square_t square, Bitboard_t enemyPieces);
 
 // ROOKS
-Bitboard_t RookMoveTargets(Square_t square, Bitboard_t allPieces, Bitboard_t empty);
+Bitboard_t RookMoveTargets(Square_t square, Bitboard_t empty);
 
-Bitboard_t RookCaptureTargets(Square_t square, Bitboard_t allPieces, Bitboard_t enemyPieces);
+Bitboard_t RookCaptureTargets(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces);
+
 // BISHOPS
-Bitboard_t BishopMoveTargets(Square_t square, Bitboard_t allPieces, Bitboard_t empty);
+Bitboard_t BishopMoveTargets(Square_t square, Bitboard_t empty);
 
-Bitboard_t BishopCaptureTargets(Square_t square, Bitboard_t allPieces, Bitboard_t enemyPieces);
+Bitboard_t BishopCaptureTargets(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces);
 
 // QUEENS
-Bitboard_t QueenMoveTargets(Square_t square, Bitboard_t allPieces, Bitboard_t empty);
+Bitboard_t QueenMoveTargets(Square_t square, Bitboard_t empty);
 
-Bitboard_t QueenCaptureTargets(Square_t square, Bitboard_t allPieces, Bitboard_t enemyPieces);
+Bitboard_t QueenCaptureTargets(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces);
 
 #endif
