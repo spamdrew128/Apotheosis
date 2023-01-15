@@ -85,9 +85,9 @@ Bitboard_t BishopCaptureTargets(Square_t square, Bitboard_t empty, Bitboard_t en
 
 // QUEENS
 Bitboard_t QueenMoveTargets(Square_t square, Bitboard_t empty) {
-   return C64(0);
+   return RookMoveTargets(square, empty) | BishopMoveTargets(square, empty);
 }
 
 Bitboard_t QueenCaptureTargets(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces) {
-   return C64(0);
+   return RookCaptureTargets(square, empty, enemyPieces) | BishopCaptureTargets(square, empty, enemyPieces);
 }
