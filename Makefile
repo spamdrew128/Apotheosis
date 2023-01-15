@@ -8,7 +8,8 @@ lookup.c \
 FEN.c \
 pieces.c \
 magic.c \
-RNG.c
+RNG.c \
+legals.c
 
 COMMON_OBJECTS= \
 bitboards.o \
@@ -16,7 +17,8 @@ lookup.o \
 FEN.o \
 pieces.o \
 magic.o \
-RNG.o
+RNG.o \
+legals.o
 
 MAIN=main
 CFILES=$(MAIN).c $(COMMON_CFILES)
@@ -33,7 +35,8 @@ $(TDD)\lookup_tdd.c \
 $(TDD)\debug.c \
 $(TDD)\FEN_tdd.c \
 $(TDD)\pieces_tdd.c \
-$(TDD)\magic_tdd.c
+$(TDD)\magic_tdd.c \
+$(TDD)\legals_tdd.c
 
 D_OBJECTS= \
 $(TDD_MAIN).o \
@@ -43,7 +46,8 @@ $(TDD)\lookup_tdd.o \
 $(TDD)\debug.o \
 $(TDD)\FEN_tdd.o \
 $(TDD)\pieces_tdd.o \
-$(TDD)\magic_tdd.o
+$(TDD)\magic_tdd.o \
+$(TDD)\legals_tdd.o
 
 BINARY=bin
 DEBUG_BINARY=debug

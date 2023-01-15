@@ -7,6 +7,7 @@
 #include "FEN_tdd.h"
 #include "pieces_tdd.h"
 #include "magic_tdd.h"
+#include "legals_tdd.h"
 
 int main(int argc, char *argv[])
 {
@@ -17,4 +18,5 @@ int main(int argc, char *argv[])
     FENTDDRunner();
     PiecesTDDRunner();
     MagicTDDRunner();
+    LegalsTDDRunner();
 }
