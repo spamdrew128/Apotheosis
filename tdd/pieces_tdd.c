@@ -356,6 +356,42 @@ static void OtherMidgameQueenCaptureTargets() {
     PrintResults(success);
 }
 
+// k2n1n2/4P3/K7/8/8/8/2p5/3R4
+static void FilterPawnPromotions() {
+    Bitboard_t wPieces = CreateBitboard(3, d1,a6,e7);
+    Bitboard_t bPieces = CreateBitboard(4, c2,a8,d8,f8);
+    Bitboard_t wPawns = CreateBitboard(1, e7);
+    Bitboard_t bPawns = CreateBitboard(1, c2);
+    Bitboard_t empty = ~(wPieces | bPieces);
+
+    Bitboard_t wPawnMoves = WhiteSinglePushTargets(wPawns, empty);
+    Bitboard_t wPawnCaptures = WhiteEastCaptureTargets(wPawns, bPieces) | WhiteWestCaptureTargets(wPawns, bPieces);
+    Bitboard_t bPawnMoves = BlackSinglePushTargets(bPawns, empty);
+    Bitboard_t bPawnCaptures = BlackEastCaptureTargets(bPawns, wPieces) | BlackWestCaptureTargets(bPawns, wPieces);
+
+    Bitboard_t expectedMoves = C64(0);
+    Bitboard_t expectedCaptures = C64(0);
+    Bitboard_t expectedWhitePromotions = CreateBitboard(3 ,d8,e8,f8);
+    Bitboard_t expectedBlackPromotions = CreateBitboard(2 ,c1,d1);
+
+    Bitboard_t wPromotions = FilterWhitePromotions(&wPawnMoves) | FilterWhitePromotions(&wPawnCaptures);
+    Bitboard_t bPromotions = FilterBlackPromotions(&bPawnMoves) | FilterBlackPromotions(&bPawnCaptures);
+
+    bool filteredCorrectly = 
+        (wPawnMoves == expectedMoves) &&
+        (wPawnCaptures == expectedCaptures) &&
+        (bPawnMoves == expectedMoves) &&
+        (bPawnCaptures == expectedCaptures);
+
+    bool correctPromotions = 
+        (wPromotions == expectedWhitePromotions) &&
+        (bPromotions == expectedBlackPromotions);
+
+    bool success = filteredCorrectly && correctPromotions;
+
+    PrintResults(success);    
+}
+
 void PiecesTDDRunner() {
     StartSinglePawnPushesMatch();
     StartDoublePawnPushesMatch();
@@ -381,4 +417,6 @@ void PiecesTDDRunner() {
     OtherMidgameBishopCaptureTargets();
     OtherMidgameQueenMoveTargets();
     OtherMidgameQueenCaptureTargets();
+
+    FilterPawnPromotions();
 }

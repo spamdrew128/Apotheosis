@@ -20,6 +20,10 @@ Bitboard_t WhiteWestCaptureTargets(Bitboard_t wPawns, Bitboard_t enemyPieces);
 
 Bitboard_t BlackWestCaptureTargets(Bitboard_t bPawns, Bitboard_t enemyPieces);
 
+Bitboard_t FilterWhitePromotions(Bitboard_t* whiteMoveset);
+
+Bitboard_t FilterBlackPromotions(Bitboard_t* blackMoveset);
+
 #define WhiteEastEnPassantTargets(wPawns, wEnPassantSquares) \
     WhiteEastCaptureTargets(wPawns, wEnPassantSquares)
 

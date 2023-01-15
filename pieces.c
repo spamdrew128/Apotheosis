@@ -4,6 +4,11 @@
 #include "lookup.h"
 #include "board_constants.h"
 
+enum {
+   white_promotion_rank = rank_8,
+   black_promotion_rank = rank_1
+};
+
 // PAWNS
 Bitboard_t WhiteSinglePushTargets(Bitboard_t wPawns, Bitboard_t empty) {
    return NortOne(wPawns) & empty;
@@ -37,6 +42,18 @@ Bitboard_t WhiteWestCaptureTargets(Bitboard_t wPawns, Bitboard_t enemyPieces) {
 
 Bitboard_t BlackWestCaptureTargets(Bitboard_t bPawns, Bitboard_t enemyPieces) {
    return SoWeOne(bPawns) & enemyPieces;
+}
+
+Bitboard_t FilterWhitePromotions(Bitboard_t* whiteMoveset) {
+   Bitboard_t promotions = (*whiteMoveset) & white_promotion_rank;
+   (*whiteMoveset) &= ~white_promotion_rank;
+   return promotions;
+}
+
+Bitboard_t FilterBlackPromotions(Bitboard_t* blackMoveset) {
+   Bitboard_t promotions = (*blackMoveset) & black_promotion_rank;
+   (*blackMoveset) &= ~black_promotion_rank;
+   return promotions;
 }
 
 // KNIGHTS
