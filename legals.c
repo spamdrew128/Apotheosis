@@ -42,7 +42,7 @@ static Bitboard_t GetAllAttacks(Bitboard_t pieceLocations, Bitboard_t empty, Get
 }
 
 static Bitboard_t NonPawnUnsafeSquares(BoardInfo_t* boardInfo, Color_t enemyColor) {
-    Bitboard_t empty = boardInfo->empty | (boardInfo->kings[!enemyColor]);
+    Bitboard_t empty = boardInfo->empty | (boardInfo->kings[!enemyColor]); // king does not count as blocker!
 
     return (
         GetKingAttacks(LSB(boardInfo->kings[enemyColor])) |

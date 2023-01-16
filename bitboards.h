@@ -17,18 +17,19 @@ typedef struct {
     Bitboard_t castleSquares[2];
 } BoardInfo_t;
 
-#define UpdateAllPieces(info) \
+#define UpdateAllPieces(boardInfoAddress) \
     for(int i = 0; i < 2; i++) { \
-        info->allPieces[i] = \
-            info->pawns[i] | \
-            info->knights[i] | \
-            info->bishops[i] | \
-            info->rooks[i] | \
-            info->queens[i] | \
-            info->kings[i]; \
+        boardInfoAddress->allPieces[i] = \
+            boardInfoAddress->pawns[i] | \
+            boardInfoAddress->knights[i] | \
+            boardInfoAddress->bishops[i] | \
+            boardInfoAddress->rooks[i] | \
+            boardInfoAddress->queens[i] | \
+            boardInfoAddress->kings[i]; \
     }
 
-#define UpdateEmpty(info) info->empty = ~(info->allPieces[white] | info->allPieces[black])
+#define UpdateEmpty(boardInfoAddress) \
+    boardInfoAddress->empty = ~(boardInfoAddress->allPieces[white] | boardInfoAddress->allPieces[black])
 
 void InitBoardInfo(BoardInfo_t* info);
 
