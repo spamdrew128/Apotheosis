@@ -58,7 +58,11 @@ enum squareSets {
   white_queenside_castle = C64(1) << c1,
   white_kingside_castle = C64(1) << g1,
   black_queenside_castle = C64(1) << c8,
-  black_kingside_castle = C64(1) << g8
+  black_kingside_castle = C64(1) << g8,
+  white_queenside_castle_mask = C64(0x0c),
+  white_kingside_castle_mask = C64(0x60),
+  black_queenside_castle_mask = C64(0x0c) << 56,
+  black_kingside_castle_mask = C64(0x60) << 56
 };
 
 #endif

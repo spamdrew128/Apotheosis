@@ -3,6 +3,13 @@
 
 typedef Bitboard_t (*GetAttacksCallback_t)(Square_t, Bitboard_t);
 
+static Bitboard_t kingsideCastleMasks[2] = {white_kingside_castle_mask, black_kingside_castle_mask};
+static Bitboard_t queensideCastleMasks[2] = {white_queenside_castle_mask, black_queenside_castle_mask};
+
+#define KingsideCastlingIsSafe(color, unsafeSquares) !(kingsideCastleMasks[color] & unsafeSquares)
+
+#define QueensideCastlingIsSafe(color, unsafeSquares) !(queensideCastleMasks[color] & unsafeSquares)
+
 static Bitboard_t KnightAttacks(Square_t square, Bitboard_t empty) {
     (void)empty;
     return GetKnightAttacks(square);
@@ -34,13 +41,15 @@ static Bitboard_t GetAllAttacks(Bitboard_t pieceLocations, Bitboard_t empty, Get
     return result;
 }
 
-static Bitboard_t NonPawnUnsafeSquares(BoardInfo_t* boardInfo, Color_t color) {
+static Bitboard_t NonPawnUnsafeSquares(BoardInfo_t* boardInfo, Color_t enemyColor) {
+    Bitboard_t empty = boardInfo->empty & ~(boardInfo->kings[!enemyColor]);
+
     return (
-        GetKingAttacks(LSB(boardInfo->kings[color])) |
-        GetAllAttacks(boardInfo->knights[color], boardInfo->empty, KnightAttacks) |
-        GetAllAttacks(boardInfo->rooks[color], boardInfo->empty, RookAttacks) |
-        GetAllAttacks(boardInfo->bishops[color], boardInfo->empty, BishopAttacks) |
-        GetAllAttacks(boardInfo->queens[color], boardInfo->empty, QueenAttacks)
+        GetKingAttacks(LSB(boardInfo->kings[enemyColor])) |
+        GetAllAttacks(boardInfo->knights[enemyColor], empty, KnightAttacks) |
+        GetAllAttacks(boardInfo->rooks[enemyColor], empty, RookAttacks) |
+        GetAllAttacks(boardInfo->bishops[enemyColor], empty, BishopAttacks) |
+        GetAllAttacks(boardInfo->queens[enemyColor], empty, QueenAttacks)
     );
 }
 
@@ -58,4 +67,18 @@ Bitboard_t BlackUnsafeSquares(BoardInfo_t* boardInfo) {
         NoWeOne(boardInfo->pawns[white]) |
         NonPawnUnsafeSquares(boardInfo, white)
     );
+}
+
+Bitboard_t KingLegalMoves(Bitboard_t kingMoves, Bitboard_t unsafeSquares) {
+    return kingMoves & ~unsafeSquares;
+}
+
+Bitboard_t CastlingMoves(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color_t color) {
+    Bitboard_t castlingMoves = C64(0);
+    Bitboard_t kingsideSquare = boardInfo->castleSquares[color] & (boardInfo->kings[color] << 2);
+    Bitboard_t queensideSquare = boardInfo->castleSquares[color] & (boardInfo->kings[color] >> 2);
+
+    castlingMoves |= KingsideCastlingIsSafe(color, unsafeSquares) * kingsideSquare;
+    castlingMoves |= QueensideCastlingIsSafe(color, unsafeSquares) * queensideSquare;
+    return castlingMoves;
 }
