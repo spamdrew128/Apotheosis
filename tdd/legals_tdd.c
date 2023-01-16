@@ -4,6 +4,7 @@
 #include "debug.h"
 #include "legals_tdd.h"
 #include "legals.h"
+#include "pieces.h"
 #include "board_constants.h"
 
 enum {
@@ -31,6 +32,26 @@ static void InitMidgameInfo(BoardInfo_t* info) {
     UpdateEmpty(info);
 }
 
+// 8/8/8/8/4K3/8/8/k3r3
+static void InitKingLegalsTestInfo(BoardInfo_t* info) {
+    info->pawns[white] = empty_set;
+    info->knights[white] = empty_set;
+    info->bishops[white] = empty_set;
+    info->rooks[white] = empty_set;
+    info->queens[white] = empty_set;
+    info->kings[white] = CreateBitboard(1, e4);
+
+    info->pawns[black] = empty_set;
+    info->knights[black] = empty_set;
+    info->bishops[black] = empty_set;
+    info->rooks[black] = CreateBitboard(1, e1);
+    info->queens[black] = empty_set;
+    info->kings[black] = CreateBitboard(1, a1);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
+}
+
 static void TestWhiteUnsafeSquares() {
     BoardInfo_t info;
     InitMidgameInfo(&info);
@@ -45,7 +66,19 @@ static void TestBlackUnsafeSquares() {
     PrintResults(BlackUnsafeSquares(&info) == black_expected_unsafe);
 }
 
+static void TestKingLegalMoves() {
+    BoardInfo_t info;
+    InitKingLegalsTestInfo(&info);
+    Bitboard_t expectedKingLegals = CreateBitboard(6, d3,d4,d5,f3,f4,f5);
+
+    Bitboard_t kingMoves = KingMoveTargets(LSB(info.kings[white]), info.empty);
+    Bitboard_t unsafeSquares = WhiteUnsafeSquares(&info);
+    PrintResults(KingLegalMoves(kingMoves, unsafeSquares) == expectedKingLegals);
+}
+
 void LegalsTDDRunner() {
     TestWhiteUnsafeSquares();
     TestBlackUnsafeSquares();
+
+    TestKingLegalMoves();
 }
