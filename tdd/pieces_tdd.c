@@ -73,14 +73,14 @@ static void InitMidgameInfo(BoardInfo_t* info) {
 // 5k1r/1ppb3p/1p1p3p/3B4/1P1p1P2/1Qp1q3/P5PP/3R1K2
 static void InitOtherMidgameInfo(BoardInfo_t* info) {
     info->pawns[white] = CreateBitboard(5, a2,g2,h2,b4,f4);
-    info->knights[white] = C64(0);
+    info->knights[white] = empty_set;
     info->bishops[white] = CreateBitboard(1, d5);
     info->rooks[white] = CreateBitboard(1, d1);
     info->queens[white] = CreateBitboard(1, b3);
     info->kings[white] = CreateBitboard(1, f1);
 
     info->pawns[black] = CreateBitboard(8, c3,d4,b6,d6,h6,b7,c7,h7);
-    info->knights[black] = C64(0);
+    info->knights[black] = empty_set;
     info->bishops[black] = CreateBitboard(1, d7);
     info->rooks[black] = CreateBitboard(1, h8);
     info->queens[black] = CreateBitboard(1, e3);
@@ -93,17 +93,17 @@ static void InitOtherMidgameInfo(BoardInfo_t* info) {
 // 8/8/7K/pP4p1/Pk6/8/6PP/8
 static void InitEndgameInfo(BoardInfo_t* info) {
     info->pawns[white] = CreateBitboard(4, a4,b5,g2,h2);
-    info->knights[white] = C64(0);
-    info->bishops[white] = C64(0);
-    info->rooks[white] = C64(0);
-    info->queens[white] = C64(0);
+    info->knights[white] = empty_set;
+    info->bishops[white] = empty_set;
+    info->rooks[white] = empty_set;
+    info->queens[white] = empty_set;
     info->kings[white] = CreateBitboard(1, h6);
 
     info->pawns[black] = CreateBitboard(2, a5,g5);
-    info->knights[black] = C64(0);
-    info->bishops[black] = C64(0);
-    info->rooks[black] = C64(0);
-    info->queens[black] = C64(0);
+    info->knights[black] = empty_set;
+    info->bishops[black] = empty_set;
+    info->rooks[black] = empty_set;
+    info->queens[black] = empty_set;
     info->kings[black] = CreateBitboard(1, b4);
 
     UpdateAllPieces(info);
@@ -147,10 +147,10 @@ static void MidgameDoublePawnPushesMatch() {
 
 static void StartCaptureTargets() {
     bool success = 
-        (WhiteEastCaptureTargets(start_w, start_b_all) == C64(0)) &&
-        (BlackEastCaptureTargets(start_b, start_w_all) == C64(0)) &&
-        (WhiteWestCaptureTargets(start_w, start_b_all) == C64(0)) &&
-        (BlackWestCaptureTargets(start_b, start_w_all) == C64(0));
+        (WhiteEastCaptureTargets(start_w, start_b_all) == empty_set) &&
+        (BlackEastCaptureTargets(start_b, start_w_all) == empty_set) &&
+        (WhiteWestCaptureTargets(start_w, start_b_all) == empty_set) &&
+        (BlackWestCaptureTargets(start_b, start_w_all) == empty_set);
 
     PrintResults(success);
 }
@@ -205,10 +205,10 @@ static void StartKnightCaptureTargets() {
     BoardInfo_t info;
     InitStartInfo(&info);
 
-    Bitboard_t expectedB1Knight = C64(0);
-    Bitboard_t expectedB8Knight = C64(0);
-    Bitboard_t expectedG1Knight = C64(0);
-    Bitboard_t expectedG8Knight = C64(0);
+    Bitboard_t expectedB1Knight = empty_set;
+    Bitboard_t expectedB8Knight = empty_set;
+    Bitboard_t expectedG1Knight = empty_set;
+    Bitboard_t expectedG8Knight = empty_set;
 
     bool success = 
         (KnightCaptureTargets(b1, info.allPieces[black]) == expectedB1Knight) &&
@@ -241,7 +241,7 @@ static void MidgameKnightCaptureTargets() {
     BoardInfo_t info;
     InitMidgameInfo(&info);
     
-    Bitboard_t expectedC3Knight = C64(0);
+    Bitboard_t expectedC3Knight = empty_set;
     Bitboard_t expectedF3Knight = CreateBitboard(1, e5);
     Bitboard_t expectedE7Knight = CreateBitboard(1, d5);
     Bitboard_t expectedF6Knight = CreateBitboard(2, d5,e4);
@@ -369,8 +369,8 @@ static void FilterPawnPromotions() {
     Bitboard_t bPawnMoves = BlackSinglePushTargets(bPawns, empty);
     Bitboard_t bPawnCaptures = BlackEastCaptureTargets(bPawns, wPieces) | BlackWestCaptureTargets(bPawns, wPieces);
 
-    Bitboard_t expectedMoves = C64(0);
-    Bitboard_t expectedCaptures = C64(0);
+    Bitboard_t expectedMoves = empty_set;
+    Bitboard_t expectedCaptures = empty_set;
     Bitboard_t expectedWhitePromotions = CreateBitboard(3 ,d8,e8,f8);
     Bitboard_t expectedBlackPromotions = CreateBitboard(2 ,c1,d1);
 

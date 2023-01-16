@@ -36,8 +36,8 @@ enum pieceTypes {
 };
 
 enum squareSets {
-  empty          = C64(0),
-  full           = C64(0xffffffffffffffff),
+  empty_set      = C64(0),
+  full_set       = C64(0xffffffffffffffff),
   a_file         = C64(0x0101010101010101),
   d_file         = C64(0x0808080808080808),
   h_file         = C64(0x8080808080808080),

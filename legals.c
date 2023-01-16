@@ -32,7 +32,7 @@ static Bitboard_t QueenAttacks(Square_t square, Bitboard_t empty) {
 }
 
 static Bitboard_t GetAllAttacks(Bitboard_t pieceLocations, Bitboard_t empty, GetAttacksCallback_t GetAttacksCallback) {
-    Bitboard_t result = C64(0);
+    Bitboard_t result = empty_set;
     while(pieceLocations) {
         result |= GetAttacksCallback(LSB(pieceLocations), empty);
         pieceLocations &= pieceLocations - 1;
@@ -74,7 +74,7 @@ Bitboard_t KingLegalMoves(Bitboard_t kingMoves, Bitboard_t unsafeSquares) {
 }
 
 Bitboard_t CastlingMoves(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color_t color) {
-    Bitboard_t castlingMoves = C64(0);
+    Bitboard_t castlingMoves = empty_set;
     Bitboard_t kingsideSquare = boardInfo->castleSquares[color] & (boardInfo->kings[color] << 2);
     Bitboard_t queensideSquare = boardInfo->castleSquares[color] & (boardInfo->kings[color] >> 2);
 

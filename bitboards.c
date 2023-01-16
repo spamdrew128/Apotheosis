@@ -7,16 +7,16 @@
 
 void InitBoardInfo(BoardInfo_t* info) {
     for(int i = 0; i < 2; i++) {
-        info->allPieces[i] = C64(0);
-        info->pawns[i] = C64(0);
-        info->knights[i] = C64(0);
-        info->bishops[i] = C64(0);
-        info->rooks[i] = C64(0);
-        info->queens[i] = C64(0);
-        info->kings[i] = C64(0);
+        info->allPieces[i] = empty_set;
+        info->pawns[i] = empty_set;
+        info->knights[i] = empty_set;
+        info->bishops[i] = empty_set;
+        info->rooks[i] = empty_set;
+        info->queens[i] = empty_set;
+        info->kings[i] = empty_set;
     }
 
-    info->empty = C64(0);
+    info->empty = empty_set;
     info->castleSquares[white] = white_kingside_castle | white_queenside_castle;
     info->castleSquares[black] = black_kingside_castle | black_queenside_castle;
 }

@@ -36,7 +36,7 @@ void PrintBitboard(Bitboard_t b) {
 
 void PrintChessboard(BoardInfo_t* info) {
     char boardArray[64] = {0};
-    FillBoardArray(boardArray, ~C64(0), '.');
+    FillBoardArray(boardArray, full_set, '.');
 
     FillBoardArray(boardArray, info->rooks[white], 'R');
     FillBoardArray(boardArray, info->knights[white], 'N');
@@ -65,7 +65,7 @@ Bitboard_t CreateBitboard(int numOccupied, ...) {
     va_list valist;
     va_start(valist, numOccupied);
 
-    Bitboard_t bitboard = C64(0);
+    Bitboard_t bitboard = empty_set;
     for (int i = 0; i < numOccupied; i++) {
         bitboard |= C64(1) << va_arg(valist, Square_t);
     } 

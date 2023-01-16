@@ -36,7 +36,7 @@ static void ResetHashTable(Bitboard_t* hashTable, int tableEntries) {
 }
 
 static Bitboard_t FillMask(Bitboard_t singleBitset, DirectionCallback_t DirectionFunc, Bitboard_t edge) {
-    Bitboard_t result = C64(0);
+    Bitboard_t result = empty_set;
 
     singleBitset = DirectionFunc(singleBitset);
     while(NotEdge(singleBitset, edge)) {
@@ -48,7 +48,7 @@ static Bitboard_t FillMask(Bitboard_t singleBitset, DirectionCallback_t Directio
 }
 
 static Bitboard_t FillAttacks(Bitboard_t singleBitset, Bitboard_t blockers, DirectionCallback_t DirectionFunc) {
-    Bitboard_t result = C64(0);
+    Bitboard_t result = empty_set;
 
     do {
         singleBitset = DirectionFunc(singleBitset);
