@@ -12,6 +12,8 @@ enum {
     black_expected_unsafe = 0x20c0f5fa9ddfdffe
 };
 
+#define KingPos(boardInfo, color) LSB(info.kings[color])
+
 // r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R
 static void InitMidgameInfo(BoardInfo_t* info) {
     info->pawns[white] = CreateBitboard(7, a2,b2,c2,d5,e4,f2,g5);
@@ -71,7 +73,7 @@ static void TestKingLegalMoves() {
     InitKingLegalsTestInfo(&info);
     Bitboard_t expectedKingLegals = CreateBitboard(6, d3,d4,d5,f3,f4,f5);
 
-    Bitboard_t kingMoves = KingMoveTargets(LSB(info.kings[white]), info.empty);
+    Bitboard_t kingMoves = KingMoveTargets(KingPos(info, white), info.empty);
     Bitboard_t unsafeSquares = WhiteUnsafeSquares(&info);
     PrintResults(KingLegalMoves(kingMoves, unsafeSquares) == expectedKingLegals);
 }
