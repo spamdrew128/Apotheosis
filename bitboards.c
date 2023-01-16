@@ -17,6 +17,8 @@ void InitBoardInfo(BoardInfo_t* info) {
     }
 
     info->empty = C64(0);
+    info->castleSquares[white] = white_kingside_castle | white_queenside_castle;
+    info->castleSquares[black] = black_kingside_castle | black_queenside_castle;
 }
 
 Bitboard_t NortOne (Bitboard_t b) {return  b << 8;}

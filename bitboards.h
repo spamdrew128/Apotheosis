@@ -13,6 +13,8 @@ typedef struct {
     Bitboard_t rooks[2];
     Bitboard_t queens[2];
     Bitboard_t kings[2];
+
+    Bitboard_t castleSquares[2];
 } BoardInfo_t;
 
 #define UpdateAllPieces(info) \
