@@ -31,7 +31,7 @@ enum {
 };
 
 // HELPERS
-void InitStartInfo(BoardInfo_t* info) {
+static void InitStartInfo(BoardInfo_t* info) {
     info->pawns[white] = rank_2;
     info->knights[white] = CreateBitboard(2, b1,g1);
     info->bishops[white] = CreateBitboard(2, c1,f1);
@@ -51,7 +51,7 @@ void InitStartInfo(BoardInfo_t* info) {
 }
 
 // r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R
-void InitMidgameInfo(BoardInfo_t* info) {
+static void InitMidgameInfo(BoardInfo_t* info) {
     info->pawns[white] = CreateBitboard(7, a2,b2,c2,d5,e4,f2,g5);
     info->knights[white] = CreateBitboard(2, c3,f3);
     info->bishops[white] = CreateBitboard(1, f1);
@@ -71,7 +71,7 @@ void InitMidgameInfo(BoardInfo_t* info) {
 }
 
 // 5k1r/1ppb3p/1p1p3p/3B4/1P1p1P2/1Qp1q3/P5PP/3R1K2
-void InitOtherMidgameInfo(BoardInfo_t* info) {
+static void InitOtherMidgameInfo(BoardInfo_t* info) {
     info->pawns[white] = CreateBitboard(5, a2,g2,h2,b4,f4);
     info->knights[white] = C64(0);
     info->bishops[white] = CreateBitboard(1, d5);
@@ -91,7 +91,7 @@ void InitOtherMidgameInfo(BoardInfo_t* info) {
 }
 
 // 8/8/7K/pP4p1/Pk6/8/6PP/8
-void InitEndgameInfo(BoardInfo_t* info) {
+static void InitEndgameInfo(BoardInfo_t* info) {
     info->pawns[white] = CreateBitboard(4, a4,b5,g2,h2);
     info->knights[white] = C64(0);
     info->bishops[white] = C64(0);

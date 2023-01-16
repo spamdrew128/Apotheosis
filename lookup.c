@@ -94,3 +94,8 @@ MagicEntry_t GetRookMagicEntry(Square_t square) {
 MagicEntry_t GetBishopMagicEntry(Square_t square) {
     return lookup.bishopMagicEntries[square];
 }
+
+void TeardownLookup() {
+    FreeMagicEntries(lookup.rookMagicEntries);
+    FreeMagicEntries(lookup.bishopMagicEntries);
+}

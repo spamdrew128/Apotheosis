@@ -27,9 +27,11 @@ static Bitboard_t QueenAttacks(Square_t square, Bitboard_t empty) {
 static Bitboard_t GetAllAttacks(Bitboard_t pieceLocations, Bitboard_t empty, GetAttacksCallback_t GetAttacksCallback) {
     Bitboard_t result = 0;
     while(pieceLocations) {
-        GetAttacksCallback(LSB(pieceLocations), empty);
+        result |= GetAttacksCallback(LSB(pieceLocations), empty);
         pieceLocations &= pieceLocations - 1;
     }
+
+    return result;
 }
 
 static Bitboard_t NonPawnUnsafeSquares(BoardInfo_t* boardInfo, Color_t color) {

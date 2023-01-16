@@ -29,4 +29,6 @@ MagicEntry_t GetRookMagicEntry(Square_t square);
 
 MagicEntry_t GetBishopMagicEntry(Square_t square);
 
+void TeardownLookup();
+
 #endif
