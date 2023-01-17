@@ -12,14 +12,14 @@ static Bitboard_t qscBlockableSquares[2] = {w_qsc_blockable_squares, b_qsc_block
 
 static bool KingsideCastlingIsSafe(Color_t color, Bitboard_t unsafeSquares, Bitboard_t empty) {
     return 
-        !(kscVulnerableSquares[color] & unsafeSquares) &&
-        !(kscBlockableSquares[color] & ~empty);
+        !((kscVulnerableSquares[color] & unsafeSquares) ||
+        (kscBlockableSquares[color] & ~empty));
 }
 
 static bool QueensideCastlingIsSafe(Color_t color, Bitboard_t unsafeSquares, Bitboard_t empty) {
     return
-        !(qscVulnerableSquares[color] & unsafeSquares) &&
-        !(qscBlockableSquares[color] & ~empty);
+        !((qscVulnerableSquares[color] & unsafeSquares) ||
+        (qscBlockableSquares[color] & ~empty));
 }
 
 static Bitboard_t KnightAttacks(Square_t square, Bitboard_t empty) {
