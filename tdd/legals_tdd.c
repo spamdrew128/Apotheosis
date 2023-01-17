@@ -102,8 +102,8 @@ static void TestAllLegalCastling() {
     BoardInfo_t info;
     InitAllCastlingLegalInfo(&info);
 
-    Bitboard_t expectedWhiteCastling = white_queenside_castle | white_kingside_castle;
-    Bitboard_t expectedBlackCastling = black_queenside_castle | black_kingside_castle;
+    Bitboard_t expectedWhiteCastling = white_queenside_castle_sq | white_kingside_castle_sq;
+    Bitboard_t expectedBlackCastling = black_queenside_castle_sq | black_kingside_castle_sq;
 
     bool success = 
         (CastlingMoves(&info, WhiteUnsafeSquares(&info), white) == expectedWhiteCastling) &&
@@ -113,6 +113,17 @@ static void TestAllLegalCastling() {
 }
 
 static void ShouldntCastleThroughCheck() {
+    BoardInfo_t info;
+    InitWhiteCastlingIllegalInfo(&info);
+
+    Bitboard_t expectedWhiteCastling = empty_set;
+
+    bool success = CastlingMoves(&info, WhiteUnsafeSquares(&info), white) == expectedWhiteCastling;
+
+    PrintResults(success);
+}
+
+static void ShouldntCastleThroughPiecesCheck() {
     BoardInfo_t info;
     InitWhiteCastlingIllegalInfo(&info);
 

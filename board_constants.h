@@ -57,14 +57,14 @@ enum squareSets {
   h1_a8_diagonal = C64(0x0102040810204080),
   light_squares  = C64(0x55aa55aa55aa55aa),
   dark_squares   = C64(0xaa55aa55aa55aa55),
-  white_queenside_castle = C64(1) << c1,
-  white_kingside_castle = C64(1) << g1,
-  black_queenside_castle = C64(1) << c8,
-  black_kingside_castle = C64(1) << g8,
-  white_queenside_castle_mask = C64(0x0c),
-  white_kingside_castle_mask = C64(0x60),
-  black_queenside_castle_mask = C64(0x0c) << 56,
-  black_kingside_castle_mask = C64(0x60) << 56
+  white_queenside_castle_sq = C64(1) << c1,
+  white_kingside_castle_sq = C64(1) << g1,
+  black_queenside_castle_sq = C64(1) << c8,
+  black_kingside_castle_sq = C64(1) << g8,
+  w_qsc_vulnerable_squares = C64(0x0c),
+  w_ksc_vulnerable_squares = C64(0x60),
+  b_qsc_vulnerable_squares = C64(0x0c) << 56,
+  b_ksc_vulnerable_squares = C64(0x60) << 56
 };
 
 #endif

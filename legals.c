@@ -3,12 +3,12 @@
 
 typedef Bitboard_t (*GetAttacksCallback_t)(Square_t, Bitboard_t);
 
-static Bitboard_t kingsideCastleMasks[2] = {white_kingside_castle_mask, black_kingside_castle_mask};
-static Bitboard_t queensideCastleMasks[2] = {white_queenside_castle_mask, black_queenside_castle_mask};
+static Bitboard_t kscVulnerableSquares[2] = {w_ksc_vulnerable_squares, b_ksc_vulnerable_squares};
+static Bitboard_t qscVulnerableSquares[2] = {w_qsc_vulnerable_squares, b_qsc_vulnerable_squares};
 
-#define KingsideCastlingIsSafe(color, unsafeSquares) !(kingsideCastleMasks[color] & unsafeSquares)
+#define KingsideCastlingIsSafe(color, unsafeSquares) !(kscVulnerableSquares[color] & unsafeSquares)
 
-#define QueensideCastlingIsSafe(color, unsafeSquares) !(queensideCastleMasks[color] & unsafeSquares)
+#define QueensideCastlingIsSafe(color, unsafeSquares) !(qscVulnerableSquares[color] & unsafeSquares)
 
 static Bitboard_t KnightAttacks(Square_t square, Bitboard_t empty) {
     (void)empty;
