@@ -16,6 +16,7 @@ enum {
 
 // r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R
 static void InitMidgameInfo(BoardInfo_t* info) {
+    InitBoardInfo(info);
     info->pawns[white] = CreateBitboard(7, a2,b2,c2,d5,e4,f2,g5);
     info->knights[white] = CreateBitboard(2, c3,f3);
     info->bishops[white] = CreateBitboard(1, f1);
@@ -36,19 +37,38 @@ static void InitMidgameInfo(BoardInfo_t* info) {
 
 // 8/8/8/8/4K3/8/8/k3r3
 static void InitKingLegalsTestInfo(BoardInfo_t* info) {
-    info->pawns[white] = empty_set;
-    info->knights[white] = empty_set;
-    info->bishops[white] = empty_set;
-    info->rooks[white] = empty_set;
-    info->queens[white] = empty_set;
+    InitBoardInfo(info);
     info->kings[white] = CreateBitboard(1, e4);
 
-    info->pawns[black] = empty_set;
-    info->knights[black] = empty_set;
-    info->bishops[black] = empty_set;
     info->rooks[black] = CreateBitboard(1, e1);
-    info->queens[black] = empty_set;
     info->kings[black] = CreateBitboard(1, a1);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
+}
+
+// r3k2r/8/8/8/8/8/8/R3K2R
+static void InitAllCastlingLegalInfo(BoardInfo_t* info) {
+    InitBoardInfo(info);
+    info->kings[white] = CreateBitboard(1, e1);
+    info->rooks[white] = CreateBitboard(2, a1,h1);
+
+    info->kings[black] = CreateBitboard(1, e8);
+    info->rooks[black] = CreateBitboard(2, a8,h8);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
+}
+
+// 4k1r1/8/8/7b/8/8/8/R3K2R
+static void InitWhiteCastlingIllegalInfo(BoardInfo_t* info) {
+    InitBoardInfo(info);
+    info->kings[white] = CreateBitboard(1, e1);
+    info->rooks[white] = CreateBitboard(2, a1,h1);
+
+    info->kings[black] = CreateBitboard(1, e8);
+    info->bishops[black] = CreateBitboard(1, h5);
+    info->rooks[black] = CreateBitboard(1, g8);
 
     UpdateAllPieces(info);
     UpdateEmpty(info);
@@ -78,9 +98,37 @@ static void TestKingLegalMoves() {
     PrintResults(KingLegalMoves(kingMoves, unsafeSquares) == expectedKingLegals);
 }
 
+static void TestAllLegalCastling() {
+    BoardInfo_t info;
+    InitAllCastlingLegalInfo(&info);
+
+    Bitboard_t expectedWhiteCastling = white_queenside_castle | white_kingside_castle;
+    Bitboard_t expectedBlackCastling = black_queenside_castle | black_kingside_castle;
+
+    bool success = 
+        (CastlingMoves(&info, WhiteUnsafeSquares(&info), white) == expectedWhiteCastling) &&
+        (CastlingMoves(&info, BlackUnsafeSquares(&info), black) == expectedBlackCastling);
+
+    PrintResults(success);
+}
+
+static void ShouldntCastleThroughCheck() {
+    BoardInfo_t info;
+    InitWhiteCastlingIllegalInfo(&info);
+
+    Bitboard_t expectedWhiteCastling = empty_set;
+
+    bool success = CastlingMoves(&info, WhiteUnsafeSquares(&info), white) == expectedWhiteCastling;
+
+    PrintResults(success);
+}
+
 void LegalsTDDRunner() {
     TestWhiteUnsafeSquares();
     TestBlackUnsafeSquares();
 
     TestKingLegalMoves();
+
+    TestAllLegalCastling();
+    ShouldntCastleThroughCheck();
 }
