@@ -74,6 +74,19 @@ static void InitWhiteCastlingIllegalInfo(BoardInfo_t* info) {
     UpdateEmpty(info);
 }
 
+// 4k3/8/8/8/8/8/8/Rb2Kb1R
+static void InitWhiteCastlingBlockedInfo(BoardInfo_t* info) {
+    InitBoardInfo(info);
+    info->kings[white] = CreateBitboard(1, e1);
+    info->rooks[white] = CreateBitboard(2, a1,h1);
+
+    info->kings[black] = CreateBitboard(1, e8);
+    info->bishops[black] = CreateBitboard(2, b1,f1);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
+}
+
 static void TestWhiteUnsafeSquares() {
     BoardInfo_t info;
     InitMidgameInfo(&info);
@@ -123,9 +136,9 @@ static void ShouldntCastleThroughCheck() {
     PrintResults(success);
 }
 
-static void ShouldntCastleThroughPiecesCheck() {
+static void ShouldntCastleThroughBlockers() {
     BoardInfo_t info;
-    InitWhiteCastlingIllegalInfo(&info);
+    InitWhiteCastlingBlockedInfo(&info);
 
     Bitboard_t expectedWhiteCastling = empty_set;
 
@@ -142,4 +155,5 @@ void LegalsTDDRunner() {
 
     TestAllLegalCastling();
     ShouldntCastleThroughCheck();
+    ShouldntCastleThroughBlockers();
 }

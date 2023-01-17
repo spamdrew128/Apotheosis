@@ -64,7 +64,11 @@ enum squareSets {
   w_qsc_vulnerable_squares = C64(0x0c),
   w_ksc_vulnerable_squares = C64(0x60),
   b_qsc_vulnerable_squares = C64(0x0c) << 56,
-  b_ksc_vulnerable_squares = C64(0x60) << 56
+  b_ksc_vulnerable_squares = C64(0x60) << 56,
+  w_qsc_blockable_squares = C64(0x0c),
+  w_ksc_blockable_squares = C64(0x60),
+  b_qsc_blockable_squares = C64(0x0c) << 56,
+  b_ksc_blockable_squares = C64(0x60) << 56
 };
 
 #endif

@@ -6,6 +6,9 @@ typedef Bitboard_t (*GetAttacksCallback_t)(Square_t, Bitboard_t);
 static Bitboard_t kscVulnerableSquares[2] = {w_ksc_vulnerable_squares, b_ksc_vulnerable_squares};
 static Bitboard_t qscVulnerableSquares[2] = {w_qsc_vulnerable_squares, b_qsc_vulnerable_squares};
 
+static Bitboard_t kscBlockableSquares[2] = {w_ksc_blockable_squares, b_ksc_blockable_squares};
+static Bitboard_t qscBlockableSquares[2] = {w_qsc_blockable_squares, b_qsc_blockable_squares};
+
 #define KingsideCastlingIsSafe(color, unsafeSquares) !(kscVulnerableSquares[color] & unsafeSquares)
 
 #define QueensideCastlingIsSafe(color, unsafeSquares) !(qscVulnerableSquares[color] & unsafeSquares)
