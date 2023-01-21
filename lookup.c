@@ -3,6 +3,8 @@
 
 static Lookup_t lookup;
 
+typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t);
+
 static void InitSingleBitset(Bitboard_t singleBitsets[]) {
     for(Square_t i = 0; i < NUM_SQUARES; i++) {
         singleBitsets[i] = C64(1) << i;
@@ -62,6 +64,42 @@ static void InitPawnAttacks(Bitboard_t pawnAttacks[][NUM_SQUARES]) {
     }
 }
 
+static void InitializeSlidingCheckmasksWithZeros(Bitboard_t slidingCheckmasks[][NUM_SQUARES]) {
+    for(int i = 0; i < NUM_SQUARES; i++) {
+        for(int j = 0; j < NUM_SQUARES; j++) {
+            slidingCheckmasks[i][j] = 0;
+        }
+    }
+}
+
+static void FillSlidingCheckmask(Bitboard_t* checkmasks, Bitboard_t singleBitset, DirectionCallback_t DirectionFunc) {
+    Bitboard_t result = empty_set;
+
+    singleBitset = DirectionFunc(singleBitset);
+    while(singleBitset) {
+        result |= singleBitset;
+        checkmasks[LSB(singleBitset)] = result;
+        singleBitset = DirectionFunc(singleBitset);
+    }
+}
+
+static void InitSlidingCheckmasks(Bitboard_t slidingCheckmasks[][NUM_SQUARES]) {
+    InitializeSlidingCheckmasksWithZeros(slidingCheckmasks);
+
+    for(Square_t kingSquare = 0; kingSquare < NUM_SQUARES; kingSquare++) {
+        Bitboard_t kingBitboard = GetSingleBitset(kingSquare);
+        
+        FillSlidingCheckmask(slidingCheckmasks[kingSquare], kingBitboard, NortOne);
+        FillSlidingCheckmask(slidingCheckmasks[kingSquare], kingBitboard, EastOne);
+        FillSlidingCheckmask(slidingCheckmasks[kingSquare], kingBitboard, SoutOne);
+        FillSlidingCheckmask(slidingCheckmasks[kingSquare], kingBitboard, WestOne);
+        FillSlidingCheckmask(slidingCheckmasks[kingSquare], kingBitboard, NoEaOne);
+        FillSlidingCheckmask(slidingCheckmasks[kingSquare], kingBitboard, SoEaOne);
+        FillSlidingCheckmask(slidingCheckmasks[kingSquare], kingBitboard, SoWeOne);
+        FillSlidingCheckmask(slidingCheckmasks[kingSquare], kingBitboard, NoWeOne);
+    }
+}
+
 void InitLookup() {
     InitSingleBitset(lookup.singleBitsets);
     InitKnightAttacks(lookup.knightAttacks);
@@ -69,6 +107,7 @@ void InitLookup() {
     InitPawnAttacks(lookup.pawnAttacks);
     InitRookEntries(lookup.rookMagicEntries);
     InitBishopEntries(lookup.bishopMagicEntries);
+    InitSlidingCheckmasks(lookup.slidingCheckmasks);
 }
 
 Bitboard_t GetSingleBitset(Square_t square) {
@@ -93,6 +132,10 @@ MagicEntry_t GetRookMagicEntry(Square_t square) {
 
 MagicEntry_t GetBishopMagicEntry(Square_t square) {
     return lookup.bishopMagicEntries[square];
+}
+
+Bitboard_t GetSlidingCheckmasks(Square_t kingSquare, Square_t slidingPieceSquare) {
+    return lookup.slidingCheckmasks[kingSquare][slidingPieceSquare];
 }
 
 void TeardownLookup() {

@@ -13,6 +13,8 @@ typedef struct {
 
     MagicEntry_t rookMagicEntries[NUM_SQUARES];
     MagicEntry_t bishopMagicEntries[NUM_SQUARES];
+
+    Bitboard_t slidingCheckmasks[NUM_SQUARES][NUM_SQUARES];
 } Lookup_t;
 
 void InitLookup();
@@ -28,6 +30,8 @@ Bitboard_t GetPawnAttacks(Square_t square, Color_t color);
 MagicEntry_t GetRookMagicEntry(Square_t square);
 
 MagicEntry_t GetBishopMagicEntry(Square_t square);
+
+Bitboard_t GetSlidingCheckmasks(Square_t kingSquare, Square_t slidingPieceSquare);
 
 void TeardownLookup();
 
