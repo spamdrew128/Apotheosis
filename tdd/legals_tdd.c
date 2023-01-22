@@ -87,6 +87,10 @@ static void InitWhiteCastlingBlockedInfo(BoardInfo_t* info) {
     UpdateEmpty(info);
 }
 
+static InitWhiteSlidingCheckmaskTestInfo(BoardInfo_t* info) {
+
+}
+
 static void TestWhiteUnsafeSquares() {
     BoardInfo_t info;
     InitMidgameInfo(&info);
@@ -147,6 +151,17 @@ static void ShouldntCastleThroughBlockers() {
     PrintResults(success);
 }
 
+static void CheckmaskIsFullWhenNotInCheck() {
+    BoardInfo_t info;
+    InitMidgameInfo(&info);
+
+    Bitboard_t expected = full_set;
+
+    bool success = DefineCheckmask(&info, false) == expected;
+
+    PrintResults(success);
+}
+
 void LegalsTDDRunner() {
     TestWhiteUnsafeSquares();
     TestBlackUnsafeSquares();
@@ -156,4 +171,6 @@ void LegalsTDDRunner() {
     TestAllLegalCastling();
     ShouldntCastleThroughCheck();
     ShouldntCastleThroughBlockers();
+
+    CheckmaskIsFullWhenNotInCheck();
 }

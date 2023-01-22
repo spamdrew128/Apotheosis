@@ -94,3 +94,11 @@ Bitboard_t CastlingMoves(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color
     castlingMoves |= QueensideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) * queensideSquare;
     return castlingMoves;
 }
+
+Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, bool inCheck) {
+    if(!inCheck) {
+        return full_set;
+    }
+
+    return empty_set;
+}
