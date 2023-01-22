@@ -6,6 +6,19 @@
 #include "board_constants.h"
 #include "bitboards.h"
 
+typedef int Direction_t;
+#define NUM_DIRECTIONS 8
+enum directions {
+    N,
+    NE,
+    E,
+    SE,
+    S,
+    SW,
+    W,
+    NW
+};
+
 Bitboard_t WhiteUnsafeSquares(BoardInfo_t* boardInfo);
 
 Bitboard_t BlackUnsafeSquares(BoardInfo_t* boardInfo);

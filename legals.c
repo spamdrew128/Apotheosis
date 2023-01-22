@@ -177,3 +177,7 @@ bool IsDoubleCheck(BoardInfo_t* boardInfo, Bitboard_t checkmask, Color_t color) 
 
     return PopulationCount(mask & checkmask) > 1;
 }
+
+Bitboard_t DefinePinmasks(BoardInfo_t* boardInfo, Color_t color, Bitboard_t pinmasks[NUM_DIRECTIONS]) {
+    
+}
