@@ -1,6 +1,7 @@
 #include "legals.h"
 #include "lookup.h"
 #include "stdbool.h"
+#include "pieces.h"
 
 typedef Bitboard_t (*GetAttacksCallback_t)(Square_t, Bitboard_t);
 
@@ -9,6 +10,9 @@ static Bitboard_t qscVulnerableSquares[2] = {w_qsc_vulnerable_squares, b_qsc_vul
 
 static Bitboard_t kscBlockableSquares[2] = {w_ksc_blockable_squares, b_ksc_blockable_squares};
 static Bitboard_t qscBlockableSquares[2] = {w_qsc_blockable_squares, b_qsc_blockable_squares};
+
+#define SliderChecksKing(boardInfoAddress, sliderSquare, kingPos) \
+    QueenCaptureTargets(sliderSquare, boardInfoAddress->empty, kingPos)
 
 static bool KingsideCastlingIsSafe(Color_t color, Bitboard_t unsafeSquares, Bitboard_t empty) {
     return 
@@ -46,7 +50,7 @@ static Bitboard_t QueenAttacks(Square_t square, Bitboard_t empty) {
 static Bitboard_t GetAllAttacks(Bitboard_t pieceLocations, Bitboard_t empty, GetAttacksCallback_t GetAttacksCallback) {
     Bitboard_t result = empty_set;
     while(pieceLocations) {
-        result |= GetAttacksCallback(LSB(pieceLocations), empty);
+        SetBits(result, GetAttacksCallback(LSB(pieceLocations), empty));
         ResetLSB(pieceLocations);
     }
 
@@ -95,12 +99,24 @@ Bitboard_t CastlingMoves(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color
     return castlingMoves;
 }
 
-Bitboard_t DefineCheckmask(Bitboard_t enemySliders, bool inCheck) {
+Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, bool inCheck, Color_t color) {
     if(!inCheck) {
         return full_set;
     }
+    Color_t enemyColor = !color;
 
+    Bitboard_t enemySliders = AllSlidersBitboard(boardInfo, enemyColor);
+    Bitboard_t kingBitboard = boardInfo->kings[color];
+    Bitboard_t kingSquare = LSB(boardInfo->kings[color]);
 
+    Bitboard_t checkmask = empty_set;
+    while(enemySliders) {
+        Bitboard_t sliderSquare = LSB(enemySliders);
+        if(SliderChecksKing(boardInfo, sliderSquare, kingBitboard)) {
+            SetBits(checkmask, GetSlidingCheckmask(kingSquare, sliderSquare));
+        }
+        ResetLSB(enemySliders);
+    }
 
-    return empty_set;
+    return checkmask;
 }

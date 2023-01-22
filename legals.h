@@ -14,6 +14,6 @@ Bitboard_t KingLegalMoves(Bitboard_t kingMoves, Bitboard_t unsafeSquares);
 
 Bitboard_t CastlingMoves(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color_t color);
 
-Bitboard_t DefineCheckmask(Bitboard_t enemySliders, bool inCheck);
+Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, bool inCheck, Color_t color);
 
 #endif

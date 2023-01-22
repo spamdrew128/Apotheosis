@@ -166,7 +166,7 @@ static void CheckmaskIsFullWhenNotInCheck() {
 
     Bitboard_t expected = full_set;
 
-    bool success = DefineCheckmask(AllSlidersBitboard(&info, white), false) == expected;
+    bool success = DefineCheckmask(&info, false, white) == expected;
 
     PrintResults(success);
 }
@@ -179,7 +179,7 @@ static void TestSingleCheckCheckmask() {
 
     bool inCheck = WhiteUnsafeSquares(&info) & LSB(info.kings[white]);
 
-    bool success = DefineCheckmask(AllSlidersBitboard(&info, white), inCheck) == expected;
+    bool success = DefineCheckmask(&info, inCheck, white) == expected;
 
     PrintResults(success);
 }

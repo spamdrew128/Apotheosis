@@ -79,7 +79,7 @@ static void FillSlidingCheckmask(Bitboard_t* checkmasks, Bitboard_t singleBitset
 
     singleBitset = DirectionFunc(singleBitset);
     while(singleBitset) {
-        result |= singleBitset;
+        SetBits(result, singleBitset);
         checkmasks[LSB(singleBitset)] = result;
         singleBitset = DirectionFunc(singleBitset);
     }
