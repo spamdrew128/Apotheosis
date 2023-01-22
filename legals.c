@@ -184,7 +184,7 @@ void DefinePinmasks(BoardInfo_t* boardInfo, Color_t color, Bitboard_t pinmaskLis
     Bitboard_t kingBitboard = boardInfo->kings[color];
     Bitboard_t kingSquare = LSB(boardInfo->kings[color]);
 
-    Bitboard_t potentialPinmaskEmpty = (boardInfo->empty | boardInfo->allPieces[color]) & kingBitboard;
+    Bitboard_t potentialPinmaskEmpty = (boardInfo->empty | boardInfo->allPieces[color]) & ~kingBitboard;
 
     Bitboard_t potentialPinmask = empty_set;
     UpdateCheckmaskWithSliders(

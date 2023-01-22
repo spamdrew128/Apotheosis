@@ -191,6 +191,9 @@ static void InitPinMaskPositionInfo(BoardInfo_t* info) {
     info->bishops[black] = CreateBitboard(1, g8);
     info->rooks[black] = CreateBitboard(2, d1,h5);
     info->queens[black] = CreateBitboard(1, a8);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
 }
 
 // TESTS
