@@ -94,8 +94,8 @@ Bitboard_t CastlingMoves(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color
     Bitboard_t kingsideSquare = boardInfo->castleSquares[color] & (boardInfo->kings[color] << 2);
     Bitboard_t queensideSquare = boardInfo->castleSquares[color] & (boardInfo->kings[color] >> 2);
 
-    castlingMoves |= KingsideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) * kingsideSquare;
-    castlingMoves |= QueensideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) * queensideSquare;
+    SetBits(castlingMoves, KingsideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) * kingsideSquare);
+    SetBits(castlingMoves, QueensideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) * queensideSquare);
     return castlingMoves;
 }
 

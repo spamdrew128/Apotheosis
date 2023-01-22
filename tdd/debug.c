@@ -67,7 +67,7 @@ Bitboard_t CreateBitboard(int numOccupied, ...) {
 
     Bitboard_t bitboard = empty_set;
     for (int i = 0; i < numOccupied; i++) {
-        bitboard |= C64(1) << va_arg(valist, Square_t);
+        SetBits(bitboard, C64(1) << va_arg(valist, Square_t));
     } 
 
     return bitboard;
