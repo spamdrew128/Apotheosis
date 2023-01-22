@@ -100,6 +100,18 @@ static void InitWhiteSlidingCheckmaskTestInfo(BoardInfo_t* info) {
     UpdateEmpty(info);
 }
 
+// 7k/8/2p2pp1/4p3/3K4/8/8/8
+static void InitWhitePawnCheckmaskTestInfo(BoardInfo_t* info) {
+    InitBoardInfo(info);
+    info->kings[white] = CreateBitboard(1, d4);
+
+    info->kings[black] = CreateBitboard(1, h8);
+    info->pawns[black] = CreateBitboard(4, e5,c6,f6,g6);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
+}
+
 static void TestWhiteUnsafeSquares() {
     BoardInfo_t info;
     InitMidgameInfo(&info);
@@ -171,13 +183,26 @@ static void CheckmaskIsFullWhenNotInCheck() {
     PrintResults(success);
 }
 
-static void TestSingleCheckCheckmask() {
+static void TestSlidingCheckCheckmask() {
     BoardInfo_t info;
     InitWhiteSlidingCheckmaskTestInfo(&info);
 
     Bitboard_t expected = CreateBitboard(2, b2, c3);
 
-    bool inCheck = WhiteUnsafeSquares(&info) & LSB(info.kings[white]);
+    bool inCheck = WhiteUnsafeSquares(&info) & info.kings[white];
+
+    bool success = DefineCheckmask(&info, inCheck, white) == expected;
+
+    PrintResults(success);
+}
+
+static void TestPawnCheckCheckmask() {
+    BoardInfo_t info;
+    InitWhitePawnCheckmaskTestInfo(&info);
+
+    Bitboard_t expected = CreateBitboard(1, e5);
+
+    bool inCheck = WhiteUnsafeSquares(&info) & info.kings[white];
 
     bool success = DefineCheckmask(&info, inCheck, white) == expected;
 
@@ -195,5 +220,6 @@ void LegalsTDDRunner() {
     ShouldntCastleThroughBlockers();
 
     CheckmaskIsFullWhenNotInCheck();
-    TestSingleCheckCheckmask();
+    TestSlidingCheckCheckmask();
+    TestPawnCheckCheckmask();
 }

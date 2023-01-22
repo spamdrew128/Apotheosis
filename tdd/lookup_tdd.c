@@ -24,7 +24,7 @@ static void ShouldInitializeSingleBitset() {
     PrintResults(success);
 }
 
-static void ShouldGetCheckmaskLookup() {
+static void ShouldGetSlidingCheckmaskLookup() {
     Square_t kingSquare = f3;
     Square_t bishopSquare = c6;
     Bitboard_t expectedCheckmask = CreateBitboard(3, e4,d5,c6);
@@ -32,7 +32,7 @@ static void ShouldGetCheckmaskLookup() {
     PrintResults(GetSlidingCheckmask(kingSquare, bishopSquare) == expectedCheckmask);
 }
 
-static void ShouldGetOtherCheckmaskLookup() {
+static void ShouldGetOtherSlidingCheckmaskLookup() {
     Square_t kingSquare = e5;
     Square_t rookSquare = h5;
     Bitboard_t expectedCheckmask = CreateBitboard(3, f5,g5,h5);
@@ -43,6 +43,6 @@ static void ShouldGetOtherCheckmaskLookup() {
 void LookupTDDRunner() {
     ShouldInitializeSingleBitset();
     // Just pretend there are more tests here
-    ShouldGetCheckmaskLookup();
-    ShouldGetOtherCheckmaskLookup();
+    ShouldGetSlidingCheckmaskLookup();
+    ShouldGetOtherSlidingCheckmaskLookup();
 }   

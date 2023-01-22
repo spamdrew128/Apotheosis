@@ -53,19 +53,6 @@ static void InitKingAttacks(Bitboard_t kingAttacks[]) {
     }
 }
 
-static void InitPawnAttacks(Bitboard_t pawnAttacks[][NUM_SQUARES]) {
-    for(Square_t i = 0; i < NUM_SQUARES; i++) {
-        Bitboard_t squareBitset = GetSingleBitset(i);
-        pawnAttacks[white][i] = 
-            NoEaOne(squareBitset) |
-            NoWeOne(squareBitset);  
-
-        pawnAttacks[black][i] =
-            SoEaOne(squareBitset) |
-            SoWeOne(squareBitset);       
-    }
-}
-
 static void InitializeSlidingCheckmasksWithZeros(Bitboard_t slidingCheckmasks[][NUM_SQUARES]) {
     for(int i = 0; i < NUM_SQUARES; i++) {
         for(int j = 0; j < NUM_SQUARES; j++) {
@@ -82,6 +69,20 @@ static void FillSlidingCheckmask(Bitboard_t* checkmasks, Bitboard_t singleBitset
         SetBits(result, singleBitset);
         checkmasks[LSB(singleBitset)] = result;
         singleBitset = DirectionFunc(singleBitset);
+    }
+}
+
+static void InitPawnCheckmasks(Bitboard_t pawnCheckmasks[][NUM_SQUARES]) {
+    for(Square_t i = 0; i < NUM_SQUARES; i++) {
+        Bitboard_t squareBitset = GetSingleBitset(i);
+        
+        pawnCheckmasks[white][i] =
+            NoEaOne(squareBitset) |
+            NoWeOne(squareBitset);  
+
+        pawnCheckmasks[black][i] = 
+            SoEaOne(squareBitset) |
+            SoWeOne(squareBitset); 
     }
 }
 
@@ -106,10 +107,10 @@ void InitLookup() {
     InitSingleBitset(lookup.singleBitsets);
     InitKnightAttacks(lookup.knightAttacks);
     InitKingAttacks(lookup.kingAttacks);
-    InitPawnAttacks(lookup.pawnAttacks);
     InitRookEntries(lookup.rookMagicEntries);
     InitBishopEntries(lookup.bishopMagicEntries);
     InitSlidingCheckmasks(lookup.slidingCheckmasks);
+    InitPawnCheckmasks(lookup.pawnCheckmasks);
 }
 
 Bitboard_t GetSingleBitset(Square_t square) {
@@ -124,10 +125,6 @@ Bitboard_t GetKingAttacks(Square_t square) {
     return lookup.kingAttacks[square];
 }
 
-Bitboard_t GetPawnAttacks(Square_t square, Color_t color) {
-    return lookup.pawnAttacks[color][square];
-}
-
 MagicEntry_t GetRookMagicEntry(Square_t square) {
     return lookup.rookMagicEntries[square];
 }
@@ -140,6 +137,10 @@ Bitboard_t GetSlidingCheckmask(Square_t kingSquare, Square_t slidingPieceSquare)
     Bitboard_t checkmask = lookup.slidingCheckmasks[kingSquare][slidingPieceSquare];
     assert(checkmask);
     return checkmask;
+}
+
+Bitboard_t GetPawnCheckmask(Square_t kingSquare, Color_t color) { // might be redundant but I don't care
+    return lookup.pawnCheckmasks[color][kingSquare];
 }
 
 void TeardownLookup() {
