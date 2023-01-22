@@ -24,6 +24,25 @@ static void ShouldInitializeSingleBitset() {
     PrintResults(success);
 }
 
+static void ShouldGetCheckmaskLookup() {
+    Square_t kingSquare = f3;
+    Square_t bishopSquare = c6;
+    Bitboard_t expectedCheckmask = CreateBitboard(3, e4,d5,c6);
+
+    PrintResults(GetSlidingCheckmask(kingSquare, bishopSquare) == expectedCheckmask);
+}
+
+static void ShouldGetOtherCheckmaskLookup() {
+    Square_t kingSquare = e5;
+    Square_t rookSquare = h5;
+    Bitboard_t expectedCheckmask = CreateBitboard(3, f5,g5,h5);
+
+    PrintResults(GetSlidingCheckmask(kingSquare, rookSquare) == expectedCheckmask);
+}
+
 void LookupTDDRunner() {
     ShouldInitializeSingleBitset();
+    // Just pretend there are more tests here
+    ShouldGetCheckmaskLookup();
+    ShouldGetOtherCheckmaskLookup();
 }   

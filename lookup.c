@@ -136,7 +136,7 @@ MagicEntry_t GetBishopMagicEntry(Square_t square) {
     return lookup.bishopMagicEntries[square];
 }
 
-Bitboard_t GetSlidingCheckmasks(Square_t kingSquare, Square_t slidingPieceSquare) {
+Bitboard_t GetSlidingCheckmask(Square_t kingSquare, Square_t slidingPieceSquare) {
     Bitboard_t checkmask = lookup.slidingCheckmasks[kingSquare][slidingPieceSquare];
     assert(checkmask);
     return checkmask;

@@ -31,7 +31,7 @@ MagicEntry_t GetRookMagicEntry(Square_t square);
 
 MagicEntry_t GetBishopMagicEntry(Square_t square);
 
-Bitboard_t GetSlidingCheckmasks(Square_t kingSquare, Square_t slidingPieceSquare);
+Bitboard_t GetSlidingCheckmask(Square_t kingSquare, Square_t slidingPieceSquare);
 
 void TeardownLookup();
 
