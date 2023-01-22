@@ -121,5 +121,8 @@ Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, bool inCheck, Color_t color) 
     Bitboard_t pawnsCheckingKing = GetPawnCheckmask(kingSquare, color) & boardInfo->pawns[enemyColor];
     SetBits(checkmask, pawnsCheckingKing);
 
+    Bitboard_t knighsCheckingKing = GetKnightAttacks(kingSquare) & boardInfo->knights[enemyColor];
+    SetBits(checkmask, knighsCheckingKing);
+
     return checkmask;
 }
