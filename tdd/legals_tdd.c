@@ -6,6 +6,7 @@
 #include "legals.h"
 #include "pieces.h"
 #include "board_constants.h"
+#include "lookup.h"
 
 enum {
     white_expected_unsafe = 0xfefb57be78800000,
@@ -87,8 +88,16 @@ static void InitWhiteCastlingBlockedInfo(BoardInfo_t* info) {
     UpdateEmpty(info);
 }
 
-static InitWhiteSlidingCheckmaskTestInfo(BoardInfo_t* info) {
+static void InitWhiteSlidingCheckmaskTestInfo(BoardInfo_t* info) {
+    InitBoardInfo(info);
+    info->kings[white] = CreateBitboard(1, d4);
 
+    info->kings[black] = CreateBitboard(1, h8);
+    info->bishops[black] = CreateBitboard(2, b2,f5);
+    info->queens[black] = CreateBitboard(1, c7);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
 }
 
 static void TestWhiteUnsafeSquares() {
@@ -162,6 +171,19 @@ static void CheckmaskIsFullWhenNotInCheck() {
     PrintResults(success);
 }
 
+static void TestSingleCheckCheckmask() {
+    BoardInfo_t info;
+    InitWhiteSlidingCheckmaskTestInfo(&info);
+
+    Bitboard_t expected = CreateBitboard(2, b2, c3);
+
+    bool inCheck = WhiteUnsafeSquares(&info) & LSB(info.kings[white]);
+
+    bool success = DefineCheckmask(&info, inCheck) == expected;
+
+    PrintResults(success);
+}
+
 void LegalsTDDRunner() {
     TestWhiteUnsafeSquares();
     TestBlackUnsafeSquares();
@@ -173,4 +195,5 @@ void LegalsTDDRunner() {
     ShouldntCastleThroughBlockers();
 
     CheckmaskIsFullWhenNotInCheck();
+    TestSingleCheckCheckmask();
 }
