@@ -160,6 +160,15 @@ static void InitDoubleSlidingCheckTestInfo(BoardInfo_t* info) {
     UpdateEmpty(info);
 }
 
+// 7k/2q5/8/1n3b2/3K4/8/1b6/8
+static void InitDoubleKnightAndSlidingCheckTestInfo(BoardInfo_t* info) {
+    InitWhiteSlidingCheckmaskTestInfo(info);
+    info->knights[black] = CreateBitboard(1, b5);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
+}
+
 // TESTS
 
 static void TestWhiteUnsafeSquares() {
@@ -299,6 +308,18 @@ static void ShouldNotIdentifySingleChecksAsDoubleChecks() {
     PrintResults(expected == actual);
 }
 
+static void ShouldIdentifyKnightAndSliderDoubleCheck() {
+    BoardInfo_t info;
+    InitDoubleKnightAndSlidingCheckTestInfo(&info);
+
+    bool expected = true;
+
+    assert(IsInCheck(&info, white));
+    bool actual = IsDoubleCheck(&info, DefineCheckmask(&info, white), white);
+
+    PrintResults(expected == actual);
+}
+
 void LegalsTDDRunner() {
     TestWhiteUnsafeSquares();
     TestBlackUnsafeSquares();
@@ -310,7 +331,7 @@ void LegalsTDDRunner() {
     ShouldntCastleThroughBlockers();
 
     ShouldFindInCheck();
-    
+
     TestSlidingCheckCheckmask();
     TestWhitePawnCheckCheckmask();
     TestBlackPawnCheckCheckmask();
@@ -318,4 +339,5 @@ void LegalsTDDRunner() {
 
     ShouldIdentifySliderDoubleCheck();
     ShouldNotIdentifySingleChecksAsDoubleChecks();
+    ShouldIdentifyKnightAndSliderDoubleCheck();
 }
