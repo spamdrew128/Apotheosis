@@ -178,6 +178,39 @@ bool IsDoubleCheck(BoardInfo_t* boardInfo, Bitboard_t checkmask, Color_t color) 
     return PopulationCount(mask & checkmask) > 1;
 }
 
-Bitboard_t DefinePinmasks(BoardInfo_t* boardInfo, Color_t color, Bitboard_t pinmasks[NUM_DIRECTIONS]) {
-    
+void DefinePinmasks(BoardInfo_t* boardInfo, Color_t color, Bitboard_t pinmaskList[NUM_DIRECTIONS]) {
+    Color_t enemyColor = !color;
+
+    Bitboard_t kingBitboard = boardInfo->kings[color];
+    Bitboard_t kingSquare = LSB(boardInfo->kings[color]);
+
+    Bitboard_t potentialPinmaskEmpty = (boardInfo->empty | boardInfo->allPieces[color]) & kingBitboard;
+
+    Bitboard_t potentialPinmask = empty_set;
+    UpdateCheckmaskWithSliders(
+        &potentialPinmask,
+        boardInfo->rooks[enemyColor],
+        potentialPinmaskEmpty,
+        kingBitboard,
+        kingSquare,
+        RookChecksKing
+    );
+
+    UpdateCheckmaskWithSliders(
+        &potentialPinmask,
+        boardInfo->bishops[enemyColor],
+        potentialPinmaskEmpty,
+        kingBitboard,
+        kingSquare,
+        BishopChecksKing
+    );
+
+    UpdateCheckmaskWithSliders(
+        &potentialPinmask,
+        boardInfo->queens[enemyColor],
+        potentialPinmaskEmpty,
+        kingBitboard,
+        kingSquare,
+        QueenChecksKing
+    );
 }

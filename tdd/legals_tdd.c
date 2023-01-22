@@ -26,6 +26,15 @@ static bool IsInCheck(BoardInfo_t* boardInfo, Color_t color) {
     }
 }
 
+static Bitboard_t CombinePinmasks(Bitboard_t pinmaskList[NUM_DIRECTIONS]) {
+    Bitboard_t pinmask = empty_set;
+    for(Direction_t d = 0; d < NUM_DIRECTIONS; d++) {
+        SetBits(pinmask, pinmaskList[d]);
+    }
+
+    return pinmask;
+}
+
 // r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R
 static void InitMidgameInfo(BoardInfo_t* info) {
     InitBoardInfo(info);
@@ -167,6 +176,21 @@ static void InitDoubleKnightAndSlidingCheckTestInfo(BoardInfo_t* info) {
 
     UpdateAllPieces(info);
     UpdateEmpty(info);
+}
+
+// q5bk/1P6/2P1Q3/3K2Rr/8/8/3n4/3r4
+static void InitPinMaskPositionInfo(BoardInfo_t* info) {
+    InitBoardInfo(info);
+    info->kings[white] = CreateBitboard(1, d5);
+    info->pawns[white] = CreateBitboard(2, c6,b7);
+    info->rooks[white] = CreateBitboard(1, g5);
+    info->queens[white] = CreateBitboard(1, e6);
+
+    info->kings[black] = CreateBitboard(1, h8);
+    info->knights[black] = CreateBitboard(1, d2);
+    info->bishops[black] = CreateBitboard(1, g8);
+    info->rooks[black] = CreateBitboard(2, d1,h5);
+    info->queens[black] = CreateBitboard(1, a8);
 }
 
 // TESTS
@@ -320,6 +344,19 @@ static void ShouldIdentifyKnightAndSliderDoubleCheck() {
     PrintResults(expected == actual);
 }
 
+static void ShouldDefinePinmasks() {
+    BoardInfo_t info;
+    InitPinMaskPositionInfo(&info);
+
+    Bitboard_t pinmaskList[NUM_DIRECTIONS];
+    DefinePinmasks(&info, white, pinmaskList);
+
+    Bitboard_t expected = CreateBitboard(7, e5,f5,g5,h5,e6,f7,g8);
+    Bitboard_t actual = CombinePinmasks(pinmaskList);
+
+    PrintResults(expected == actual);
+}
+
 void LegalsTDDRunner() {
     TestWhiteUnsafeSquares();
     TestBlackUnsafeSquares();
@@ -340,4 +377,6 @@ void LegalsTDDRunner() {
     ShouldIdentifySliderDoubleCheck();
     ShouldNotIdentifySingleChecksAsDoubleChecks();
     ShouldIdentifyKnightAndSliderDoubleCheck();
+
+    ShouldDefinePinmasks();
 }
