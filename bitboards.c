@@ -33,7 +33,7 @@ Bitboard_t NoWeOne (Bitboard_t b) {return (b & not_a_file) << 7;}
 Population_t PopulationCount(Bitboard_t b) {
     Population_t count = 0;
     while(b) {
-        b &= b - 1;
+        ResetLSB(b);
         count++;
     }
     return count;

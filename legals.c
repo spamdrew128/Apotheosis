@@ -47,7 +47,7 @@ static Bitboard_t GetAllAttacks(Bitboard_t pieceLocations, Bitboard_t empty, Get
     Bitboard_t result = empty_set;
     while(pieceLocations) {
         result |= GetAttacksCallback(LSB(pieceLocations), empty);
-        pieceLocations &= pieceLocations - 1;
+        ResetLSB(pieceLocations);
     }
 
     return result;
@@ -99,6 +99,8 @@ Bitboard_t DefineCheckmask(Bitboard_t enemySliders, bool inCheck) {
     if(!inCheck) {
         return full_set;
     }
+
+
 
     return empty_set;
 }

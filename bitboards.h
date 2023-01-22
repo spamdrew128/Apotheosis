@@ -50,6 +50,8 @@ Population_t PopulationCount(Bitboard_t b);
 
 Square_t LSB(Bitboard_t b);
 
+#define ResetLSB(b) b &= b - 1
+
 #define SetBits(bitboard, mask) bitboard |= mask
 #define ResetBits(bitboard, mask) bitboard &= ~mask
 #define ToggleBits(bitboard, mask) bitboard ^= mask
