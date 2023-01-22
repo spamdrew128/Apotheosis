@@ -95,7 +95,7 @@ Bitboard_t CastlingMoves(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color
     return castlingMoves;
 }
 
-Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, bool inCheck) {
+Bitboard_t DefineCheckmask(Bitboard_t enemySliders, bool inCheck) {
     if(!inCheck) {
         return full_set;
     }

@@ -29,7 +29,10 @@ typedef struct {
     }
 
 #define UpdateEmpty(boardInfoAddress) \
-    boardInfoAddress->empty = ~(boardInfoAddress->allPieces[white] | boardInfoAddress->allPieces[black])
+    boardInfoAddress->empty = ~((boardInfoAddress)->allPieces[white] | (boardInfoAddress)->allPieces[black])
+
+#define AllSlidersBitboard(boardInfoAddress, color) \
+    (boardInfoAddress)->bishops[color] | (boardInfoAddress)->rooks[color] | (boardInfoAddress)->queens[color]
 
 void InitBoardInfo(BoardInfo_t* info);
 
