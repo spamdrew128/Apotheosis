@@ -99,13 +99,13 @@ static void InitWhiteCastlingBlockedInfo(BoardInfo_t* info) {
     UpdateEmpty(info);
 }
 
-// 7k/2q5/8/5b2/3K4/8/1b6/8
+// 7k/2q5/8/5b2/3K4/8/1b6/3b4
 static void InitWhiteSlidingCheckmaskTestInfo(BoardInfo_t* info) {
     InitBoardInfo(info);
     info->kings[white] = CreateBitboard(1, d4);
 
     info->kings[black] = CreateBitboard(1, h8);
-    info->bishops[black] = CreateBitboard(2, b2,f5);
+    info->bishops[black] = CreateBitboard(3, d1,b2,f5);
     info->queens[black] = CreateBitboard(1, c7);
 
     UpdateAllPieces(info);
@@ -151,7 +151,7 @@ static void InitWhiteKnightCheckmaskTestInfo(BoardInfo_t* info) {
     UpdateEmpty(info);
 }
 
-// 3r3k/2q5/8/5b2/3K4/8/1b6/8
+// 3r3k/2q5/8/5b2/3K4/8/1b6/3b4
 static void InitDoubleSlidingCheckTestInfo(BoardInfo_t* info) {
     InitWhiteSlidingCheckmaskTestInfo(info);
     info->rooks[black] = CreateBitboard(1, d8);
@@ -160,7 +160,7 @@ static void InitDoubleSlidingCheckTestInfo(BoardInfo_t* info) {
     UpdateEmpty(info);
 }
 
-// 7k/2q5/8/1n3b2/3K4/8/1b6/8
+// 7k/2q5/8/1n3b2/3K4/8/1b6/3b4
 static void InitDoubleKnightAndSlidingCheckTestInfo(BoardInfo_t* info) {
     InitWhiteSlidingCheckmaskTestInfo(info);
     info->knights[black] = CreateBitboard(1, b5);
