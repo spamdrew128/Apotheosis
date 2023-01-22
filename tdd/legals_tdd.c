@@ -17,6 +17,14 @@ enum {
 
 #define KingPos(boardInfo, color) LSB(info.kings[color])
 
+static bool IsInCheck(BoardInfo_t* boardInfo, Color_t color) {
+    if(color == white) {
+        return WhiteUnsafeSquares(boardInfo) & boardInfo->kings[white];
+    } else {
+        return BlackUnsafeSquares(boardInfo) & boardInfo->kings[black];
+    }
+}
+
 // r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R
 static void InitMidgameInfo(BoardInfo_t* info) {
     InitBoardInfo(info);
@@ -256,7 +264,7 @@ static void TestBlackPawnCheckCheckmask() {
 
     Bitboard_t expected = CreateBitboard(1, e4);
 
-    bool inCheck = BlackUnsafeSquares(&info) & info.kings[black];
+    bool inCheck = IsInCheck(&info, black);
 
     bool success = DefineCheckmask(&info, inCheck, black) == expected;
 
@@ -269,7 +277,7 @@ static void TestKnightCheckCheckmask() {
 
     Bitboard_t expected = CreateBitboard(1, e4);
 
-    bool inCheck = WhiteUnsafeSquares(&info) & info.kings[white];
+    bool inCheck = IsInCheck(&info, white);
 
     bool success = DefineCheckmask(&info, inCheck, white) == expected;
 
@@ -282,7 +290,19 @@ static void ShouldIdentifySliderDoubleCheck() {
 
     bool expected = true;
 
-    bool inCheck = WhiteUnsafeSquares(&info) & info.kings[white];
+    bool inCheck = IsInCheck(&info, white);
+    bool actual = IsDoubleCheck(&info, DefineCheckmask(&info, inCheck, white), white);
+
+    PrintResults(expected == actual);
+}
+
+static void ShouldNotCallSingleChecksDoubleChecks() {
+    BoardInfo_t info;
+    InitWhiteSlidingCheckmaskTestInfo(&info);
+
+    bool expected = false;
+
+    bool inCheck = IsInCheck(&info, white);
     bool actual = IsDoubleCheck(&info, DefineCheckmask(&info, inCheck, white), white);
 
     PrintResults(expected == actual);
@@ -305,4 +325,5 @@ void LegalsTDDRunner() {
     TestKnightCheckCheckmask();
 
     ShouldIdentifySliderDoubleCheck();
+    ShouldNotCallSingleChecksDoubleChecks();
 }
