@@ -126,3 +126,10 @@ Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, bool inCheck, Color_t color) 
 
     return checkmask;
 }
+
+bool IsDoubleCheck(BoardInfo_t* boardInfo, Bitboard_t checkmask, Color_t color) {
+    Bitboard_t kingSquare = LSB(boardInfo->kings[color]);
+    Bitboard_t mask = GetKingAttacks(kingSquare) | GetKnightAttacks(kingSquare);
+
+    return PopulationCount(mask & checkmask) > 1;
+}

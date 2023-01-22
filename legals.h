@@ -16,4 +16,6 @@ Bitboard_t CastlingMoves(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color
 
 Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, bool inCheck, Color_t color);
 
+bool IsDoubleCheck(BoardInfo_t* boardInfo, Bitboard_t checkmask, Color_t color);
+
 #endif

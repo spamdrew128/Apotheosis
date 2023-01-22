@@ -13,6 +13,8 @@ enum {
     black_expected_unsafe = 0x20c0f5fa9ddfdffe
 };
 
+// HELPERS
+
 #define KingPos(boardInfo, color) LSB(info.kings[color])
 
 // r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R
@@ -88,6 +90,7 @@ static void InitWhiteCastlingBlockedInfo(BoardInfo_t* info) {
     UpdateEmpty(info);
 }
 
+// 7k/2q5/8/5b2/3K4/8/1b6/8
 static void InitWhiteSlidingCheckmaskTestInfo(BoardInfo_t* info) {
     InitBoardInfo(info);
     info->kings[white] = CreateBitboard(1, d4);
@@ -138,6 +141,17 @@ static void InitWhiteKnightCheckmaskTestInfo(BoardInfo_t* info) {
     UpdateAllPieces(info);
     UpdateEmpty(info);
 }
+
+// 3r3k/2q5/8/5b2/3K4/8/1b6/8
+static void InitDoubleSlidingCheckTestInfo(BoardInfo_t* info) {
+    InitWhiteSlidingCheckmaskTestInfo(info);
+    info->rooks[black] = CreateBitboard(1, d8);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
+}
+
+// TESTS
 
 static void TestWhiteUnsafeSquares() {
     BoardInfo_t info;
@@ -262,6 +276,18 @@ static void TestKnightCheckCheckmask() {
     PrintResults(success);
 }
 
+static void ShouldIdentifySliderDoubleCheck() {
+    BoardInfo_t info;
+    InitDoubleSlidingCheckTestInfo(&info);
+
+    bool expected = true;
+
+    bool inCheck = WhiteUnsafeSquares(&info) & info.kings[white];
+    bool actual = IsDoubleCheck(&info, DefineCheckmask(&info, inCheck, white), white);
+
+    PrintResults(expected == actual);
+}
+
 void LegalsTDDRunner() {
     TestWhiteUnsafeSquares();
     TestBlackUnsafeSquares();
@@ -277,4 +303,6 @@ void LegalsTDDRunner() {
     TestWhitePawnCheckCheckmask();
     TestBlackPawnCheckCheckmask();
     TestKnightCheckCheckmask();
+
+    ShouldIdentifySliderDoubleCheck();
 }
