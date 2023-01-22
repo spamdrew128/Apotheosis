@@ -118,5 +118,8 @@ Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, bool inCheck, Color_t color) 
         ResetLSB(enemySliders);
     }
 
+    Bitboard_t pawnsCheckingKing = GetPawnCheckmask(kingSquare, color) & boardInfo->pawns[enemyColor];
+    SetBits(checkmask, pawnsCheckingKing);
+
     return checkmask;
 }

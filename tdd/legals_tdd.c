@@ -112,6 +112,33 @@ static void InitWhitePawnCheckmaskTestInfo(BoardInfo_t* info) {
     UpdateEmpty(info);
 }
 
+// 8/7K/2P5/3k2P1/4P3/2P5/8/8
+static void InitBlackPawnCheckmaskTestInfo(BoardInfo_t* info) {
+    InitBoardInfo(info);
+    info->kings[white] = CreateBitboard(1, h7);
+    info->pawns[white] = CreateBitboard(4, c3,e4,g5,c6);
+
+    info->kings[black] = CreateBitboard(1, d5);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
+}
+
+// 7k/2n5/7q/2K5/4n3/1b1N4/8/8
+static void InitWhiteKnightCheckmaskTestInfo(BoardInfo_t* info) {
+    InitBoardInfo(info);
+    info->kings[white] = CreateBitboard(1, c5);
+    info->knights[white] = CreateBitboard(1, d3);
+
+    info->kings[black] = CreateBitboard(1, h8);
+    info->knights[black] = CreateBitboard(2, e4,c7);
+    info->bishops[black] = CreateBitboard(1, b3);
+    info->queens[black] = CreateBitboard(1, h6);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
+}
+
 static void TestWhiteUnsafeSquares() {
     BoardInfo_t info;
     InitMidgameInfo(&info);
@@ -196,11 +223,37 @@ static void TestSlidingCheckCheckmask() {
     PrintResults(success);
 }
 
-static void TestPawnCheckCheckmask() {
+static void TestWhitePawnCheckCheckmask() {
     BoardInfo_t info;
     InitWhitePawnCheckmaskTestInfo(&info);
 
     Bitboard_t expected = CreateBitboard(1, e5);
+
+    bool inCheck = WhiteUnsafeSquares(&info) & info.kings[white];
+
+    bool success = DefineCheckmask(&info, inCheck, white) == expected;
+
+    PrintResults(success);
+}
+
+static void TestBlackPawnCheckCheckmask() {
+    BoardInfo_t info;
+    InitBlackPawnCheckmaskTestInfo(&info);
+
+    Bitboard_t expected = CreateBitboard(1, e4);
+
+    bool inCheck = BlackUnsafeSquares(&info) & info.kings[black];
+
+    bool success = DefineCheckmask(&info, inCheck, black) == expected;
+
+    PrintResults(success);
+}
+
+static void TestKnightCheckCheckmask() {
+    BoardInfo_t info;
+    InitWhiteKnightCheckmaskTestInfo(&info);
+
+    Bitboard_t expected = CreateBitboard(1, e4);
 
     bool inCheck = WhiteUnsafeSquares(&info) & info.kings[white];
 
@@ -221,5 +274,7 @@ void LegalsTDDRunner() {
 
     CheckmaskIsFullWhenNotInCheck();
     TestSlidingCheckCheckmask();
-    TestPawnCheckCheckmask();
+    TestWhitePawnCheckCheckmask();
+    TestBlackPawnCheckCheckmask();
+    TestKnightCheckCheckmask();
 }
