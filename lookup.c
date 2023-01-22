@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include "lookup.h"
 #include "bitboards.h"
 
@@ -135,7 +137,9 @@ MagicEntry_t GetBishopMagicEntry(Square_t square) {
 }
 
 Bitboard_t GetSlidingCheckmasks(Square_t kingSquare, Square_t slidingPieceSquare) {
-    return lookup.slidingCheckmasks[kingSquare][slidingPieceSquare];
+    Bitboard_t checkmask = lookup.slidingCheckmasks[kingSquare][slidingPieceSquare];
+    assert(checkmask);
+    return checkmask;
 }
 
 void TeardownLookup() {
