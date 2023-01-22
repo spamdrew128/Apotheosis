@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <assert.h>
 
 #include "debug.h"
 #include "legals_tdd.h"
@@ -19,9 +20,9 @@ enum {
 
 static bool IsInCheck(BoardInfo_t* boardInfo, Color_t color) {
     if(color == white) {
-        return WhiteUnsafeSquares(boardInfo) & boardInfo->kings[white];
+        return InCheck(boardInfo, WhiteUnsafeSquares(boardInfo), white);
     } else {
-        return BlackUnsafeSquares(boardInfo) & boardInfo->kings[black];
+        return InCheck(boardInfo, BlackUnsafeSquares(boardInfo), black);
     }
 }
 
@@ -221,13 +222,11 @@ static void ShouldntCastleThroughBlockers() {
     PrintResults(success);
 }
 
-static void CheckmaskIsFullWhenNotInCheck() {
+static void ShouldFindInCheck() {
     BoardInfo_t info;
     InitMidgameInfo(&info);
 
-    Bitboard_t expected = full_set;
-
-    bool success = DefineCheckmask(&info, false, white) == expected;
+    bool success = !IsInCheck(&info, white);
 
     PrintResults(success);
 }
@@ -238,9 +237,7 @@ static void TestSlidingCheckCheckmask() {
 
     Bitboard_t expected = CreateBitboard(2, b2, c3);
 
-    bool inCheck = WhiteUnsafeSquares(&info) & info.kings[white];
-
-    bool success = DefineCheckmask(&info, inCheck, white) == expected;
+    bool success = DefineCheckmask(&info, white) == expected;
 
     PrintResults(success);
 }
@@ -251,9 +248,7 @@ static void TestWhitePawnCheckCheckmask() {
 
     Bitboard_t expected = CreateBitboard(1, e5);
 
-    bool inCheck = WhiteUnsafeSquares(&info) & info.kings[white];
-
-    bool success = DefineCheckmask(&info, inCheck, white) == expected;
+    bool success = DefineCheckmask(&info, white) == expected;
 
     PrintResults(success);
 }
@@ -264,9 +259,7 @@ static void TestBlackPawnCheckCheckmask() {
 
     Bitboard_t expected = CreateBitboard(1, e4);
 
-    bool inCheck = IsInCheck(&info, black);
-
-    bool success = DefineCheckmask(&info, inCheck, black) == expected;
+    bool success = DefineCheckmask(&info, black) == expected;
 
     PrintResults(success);
 }
@@ -277,9 +270,7 @@ static void TestKnightCheckCheckmask() {
 
     Bitboard_t expected = CreateBitboard(1, e4);
 
-    bool inCheck = IsInCheck(&info, white);
-
-    bool success = DefineCheckmask(&info, inCheck, white) == expected;
+    bool success = DefineCheckmask(&info, white) == expected;
 
     PrintResults(success);
 }
@@ -290,20 +281,20 @@ static void ShouldIdentifySliderDoubleCheck() {
 
     bool expected = true;
 
-    bool inCheck = IsInCheck(&info, white);
-    bool actual = IsDoubleCheck(&info, DefineCheckmask(&info, inCheck, white), white);
+    assert(IsInCheck(&info, white));
+    bool actual = IsDoubleCheck(&info, DefineCheckmask(&info, white), white);
 
     PrintResults(expected == actual);
 }
 
-static void ShouldNotCallSingleChecksDoubleChecks() {
+static void ShouldNotIdentifySingleChecksAsDoubleChecks() {
     BoardInfo_t info;
     InitWhiteSlidingCheckmaskTestInfo(&info);
 
     bool expected = false;
 
-    bool inCheck = IsInCheck(&info, white);
-    bool actual = IsDoubleCheck(&info, DefineCheckmask(&info, inCheck, white), white);
+    assert(IsInCheck(&info, white));
+    bool actual = IsDoubleCheck(&info, DefineCheckmask(&info, white), white);
 
     PrintResults(expected == actual);
 }
@@ -318,12 +309,13 @@ void LegalsTDDRunner() {
     ShouldntCastleThroughCheck();
     ShouldntCastleThroughBlockers();
 
-    CheckmaskIsFullWhenNotInCheck();
+    ShouldFindInCheck();
+    
     TestSlidingCheckCheckmask();
     TestWhitePawnCheckCheckmask();
     TestBlackPawnCheckCheckmask();
     TestKnightCheckCheckmask();
 
     ShouldIdentifySliderDoubleCheck();
-    ShouldNotCallSingleChecksDoubleChecks();
+    ShouldNotIdentifySingleChecksAsDoubleChecks();
 }
