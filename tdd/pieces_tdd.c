@@ -3,7 +3,6 @@
 
 #include "debug.h"
 #include "pieces_tdd.h"
-#include "pieces.h"
 #include "board_constants.h"
 #include "bitboards.h"
 

@@ -3,7 +3,6 @@
 
 #include "debug.h"
 #include "magic_tdd.h"
-#include "magic.h"
 
 enum {
     corner_rook_index_bits = 12,

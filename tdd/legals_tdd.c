@@ -4,7 +4,6 @@
 
 #include "debug.h"
 #include "legals_tdd.h"
-#include "legals.h"
 #include "pieces.h"
 #include "board_constants.h"
 #include "lookup.h"

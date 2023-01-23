@@ -3,7 +3,6 @@
 
 #include "debug.h"
 #include "lookup_tdd.h"
-#include "lookup.h"
 #include "board_constants.h"
 #include "bitboards.h"
 
