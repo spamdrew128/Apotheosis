@@ -30,6 +30,7 @@ enum squareLabels {
 
 typedef int Piece_t;
 enum pieceTypes {
+  none,
   pawn,
   knight,
   bishop,
