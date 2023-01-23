@@ -214,5 +214,11 @@ void DefinePinmasks(BoardInfo_t* boardInfo, Color_t color, Bitboard_t pinmaskLis
         QueenChecksKing
     );
 
+    for(Direction_t direction = 0; direction < NUM_DIRECTIONS; direction++) {
+        Bitboard_t directionalRay = GetDirectionalRay(kingSquare, direction);
+        Bitboard_t friendlyPiecesOnRay = boardInfo->allPieces[color] & directionalRay;
 
+        bool isValidPin = PopulationCount(friendlyPiecesOnRay) == 1;
+        pinmaskList[direction] = (directionalRay & potentialPinmask) * isValidPin;
+    }
 }
