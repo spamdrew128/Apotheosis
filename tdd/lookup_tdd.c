@@ -40,9 +40,18 @@ static void ShouldGetOtherSlidingCheckmaskLookup() {
     PrintResults(GetSlidingCheckmask(kingSquare, rookSquare) == expectedCheckmask);
 }
 
+static void ShouldCorrectlyFindDirectionalRays() {
+    Square_t square = d5;
+    Bitboard_t expectedRay = CreateBitboard(4, h1,g2,f3,e4);
+
+    PrintResults(GetDirectionalRay(square, SE) == expectedRay);
+}
+
 void LookupTDDRunner() {
     ShouldInitializeSingleBitset();
     // Just pretend there are more tests here
     ShouldGetSlidingCheckmaskLookup();
     ShouldGetOtherSlidingCheckmaskLookup();
+
+    ShouldCorrectlyFindDirectionalRays();
 }   

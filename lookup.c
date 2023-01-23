@@ -86,7 +86,7 @@ static void InitPawnCheckmasks(Bitboard_t pawnCheckmasks[][NUM_SQUARES]) {
     }
 }
 
-static void InitSlidingCheckmasks(Bitboard_t slidingCheckmasks[][NUM_SQUARES]) {
+static void InitSlidingCheckmasks(Bitboard_t slidingCheckmasks[NUM_SQUARES][NUM_SQUARES]) {
     InitializeSlidingCheckmasksWithZeros(slidingCheckmasks);
 
     for(Square_t kingSquare = 0; kingSquare < NUM_SQUARES; kingSquare++) {
@@ -103,6 +103,33 @@ static void InitSlidingCheckmasks(Bitboard_t slidingCheckmasks[][NUM_SQUARES]) {
     }
 }
 
+static Bitboard_t GetSingleDirectionRay(Bitboard_t singleBitset, DirectionCallback_t DirectionFunc) {
+    Bitboard_t result = empty_set;
+
+    singleBitset = DirectionFunc(singleBitset);
+    while(singleBitset) {
+        SetBits(result, singleBitset);
+        singleBitset = DirectionFunc(singleBitset);
+    }
+
+    return result;
+}
+
+static void InitDirectionalRays(Bitboard_t directionalRays[NUM_SQUARES][NUM_DIRECTIONS]) {
+    for(int i = 0; i < NUM_SQUARES; i++) {
+        Bitboard_t singleBitset = GetSingleBitset(i);
+
+        directionalRays[i][N] = GetSingleDirectionRay(singleBitset, NortOne);
+        directionalRays[i][NE] = GetSingleDirectionRay(singleBitset, NoEaOne);
+        directionalRays[i][E] = GetSingleDirectionRay(singleBitset, EastOne);
+        directionalRays[i][SE] = GetSingleDirectionRay(singleBitset, SoEaOne);
+        directionalRays[i][S] = GetSingleDirectionRay(singleBitset, SoutOne);
+        directionalRays[i][SW] = GetSingleDirectionRay(singleBitset, SoWeOne);
+        directionalRays[i][W] = GetSingleDirectionRay(singleBitset, WestOne);
+        directionalRays[i][NW] = GetSingleDirectionRay(singleBitset, NoWeOne);
+    }
+}
+
 void InitLookup() {
     InitSingleBitset(lookup.singleBitsets);
     InitKnightAttacks(lookup.knightAttacks);
@@ -111,6 +138,7 @@ void InitLookup() {
     InitBishopEntries(lookup.bishopMagicEntries);
     InitSlidingCheckmasks(lookup.slidingCheckmasks);
     InitPawnCheckmasks(lookup.pawnCheckmasks);
+    InitDirectionalRays(lookup.directionalRays);
 }
 
 Bitboard_t GetSingleBitset(Square_t square) {
@@ -141,6 +169,10 @@ Bitboard_t GetSlidingCheckmask(Square_t kingSquare, Square_t slidingPieceSquare)
 
 Bitboard_t GetPawnCheckmask(Square_t kingSquare, Color_t color) { // might be redundant but I don't care
     return lookup.pawnCheckmasks[color][kingSquare];
+}
+
+Bitboard_t GetDirectionalRay(Square_t square, Direction_t direction) {
+    return lookup.directionalRays[square][direction];
 }
 
 void TeardownLookup() {

@@ -15,6 +15,8 @@ typedef struct {
 
     Bitboard_t slidingCheckmasks[NUM_SQUARES][NUM_SQUARES];
     Bitboard_t pawnCheckmasks[2][NUM_SQUARES]; // different for each color
+
+    Bitboard_t directionalRays[NUM_SQUARES][NUM_DIRECTIONS];
 } Lookup_t;
 
 void InitLookup();
@@ -32,6 +34,8 @@ MagicEntry_t GetBishopMagicEntry(Square_t square);
 Bitboard_t GetSlidingCheckmask(Square_t kingSquare, Square_t slidingPieceSquare);
 
 Bitboard_t GetPawnCheckmask(Square_t kingSquare, Color_t color);
+
+Bitboard_t GetDirectionalRay(Square_t square, Direction_t direction);
 
 void TeardownLookup();
 

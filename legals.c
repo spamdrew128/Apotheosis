@@ -213,4 +213,6 @@ void DefinePinmasks(BoardInfo_t* boardInfo, Color_t color, Bitboard_t pinmaskLis
         kingSquare,
         QueenChecksKing
     );
+
+
 }

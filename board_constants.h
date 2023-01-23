@@ -5,6 +5,7 @@ typedef unsigned long long Bitboard_t; // supported by MSC 13.00+ and C99
 #define C64(constantU64) constantU64##ULL
 
 #define NUM_SQUARES 64
+#define NUM_DIRECTIONS 8
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 
 #include <stdbool.h>
@@ -35,6 +36,19 @@ enum pieceTypes {
   rook,
   queen,
   king
+};
+
+
+typedef int Direction_t;
+enum directions {
+    N,
+    NE,
+    E,
+    SE,
+    S,
+    SW,
+    W,
+    NW
 };
 
 enum squareSets {
