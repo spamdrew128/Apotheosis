@@ -14,6 +14,7 @@ void InitBoardInfo(BoardInfo_t* info) {
         info->rooks[i] = empty_set;
         info->queens[i] = empty_set;
         info->kings[i] = empty_set;
+        info->enPassantSquares[i] = empty_set;
     }
 
     info->empty = empty_set;
