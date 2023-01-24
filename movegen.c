@@ -2,8 +2,6 @@
 #include "movegen.h"
 #include "pieces.h"
 
-#define CurrentMove(moveListPtr) moveListPtr->moves[moveListPtr->numMoves]
-
 typedef Bitboard_t (*UnsafeSquaresCallback_t)(BoardInfo_t* boardInfo);
 static UnsafeSquaresCallback_t UnsafeSquaresCallbacks[2] = { WhiteUnsafeSquares, BlackUnsafeSquares };
 
@@ -53,40 +51,40 @@ static void SerializeCapturesIntoMovelist(
     Color_t enemyColor = !color;
     _SerializeCapturesHelper(
         moveList,
+        boardInfo,
         boardInfo->pawns[enemyColor] | newCaptures,
-        newCaptures,
         fromSquare,
         piece,
         pawn
     );
     _SerializeCapturesHelper(
         moveList,
+        boardInfo,
         boardInfo->knights[enemyColor] | newCaptures,
-        newCaptures,
         fromSquare,
         piece,
         knight
     );
     _SerializeCapturesHelper(
         moveList,
+        boardInfo,
         boardInfo->bishops[enemyColor] | newCaptures,
-        newCaptures,
         fromSquare,
         piece,
         bishop
     );
     _SerializeCapturesHelper(
         moveList,
+        boardInfo,
         boardInfo->rooks[enemyColor] | newCaptures,
-        newCaptures,
         fromSquare,
         piece,
         rook
     );
     _SerializeCapturesHelper(
         moveList,
+        boardInfo,
         boardInfo->rooks[enemyColor] | newCaptures,
-        newCaptures,
         fromSquare,
         piece,
         queen
@@ -94,13 +92,13 @@ static void SerializeCapturesIntoMovelist(
 }
 
 static void AddKingMoves(MoveList_t* moveList, BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color_t color) {
-    Bitboard_t kingMoves = KingMoveTargets(LSB(boardInfo->kings), boardInfo->empty);
+    Bitboard_t kingMoves = KingMoveTargets(LSB(boardInfo->kings[color]), boardInfo->empty);
     Bitboard_t kingLegalMoves = KingLegalMoves(kingMoves, unsafeSquares);
     SerializeMovesIntoMovelist(moveList, kingLegalMoves, boardInfo->kings[color], king);
 }
 
 static void AddKingCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color_t color) {
-    Bitboard_t kingCaptures = KingCaptureTargets(LSB(boardInfo->kings), boardInfo->allPieces[!color]);
+    Bitboard_t kingCaptures = KingCaptureTargets(LSB(boardInfo->kings[color]), boardInfo->allPieces[!color]);
     Bitboard_t kingLegalCaptures = KingLegalMoves(kingCaptures, unsafeSquares);
     SerializeCapturesIntoMovelist(
         moveList,

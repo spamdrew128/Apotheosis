@@ -6,6 +6,7 @@ typedef unsigned long long Bitboard_t; // supported by MSC 13.00+ and C99
 
 #define NUM_SQUARES 64
 #define NUM_DIRECTIONS 8
+#define MOVELIST_MAX 1024
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 
 #include <stdbool.h>
@@ -38,7 +39,6 @@ enum pieceTypes {
   queen,
   king
 };
-
 
 typedef int Direction_t;
 enum directions {

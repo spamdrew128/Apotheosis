@@ -12,12 +12,14 @@ typedef struct {
 } Move_t;
 
 typedef struct {
-    Move_t moves[256];
+    Move_t moves[MOVELIST_MAX];
     int numMoves;
 } MoveList_t;
 
 void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color);
 
 void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color);
+
+#define CurrentMove(moveListPtr) moveListPtr->moves[moveListPtr->numMoves]
 
 #endif
