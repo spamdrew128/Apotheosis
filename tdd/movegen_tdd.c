@@ -53,6 +53,7 @@ static void ShouldCorrectlyEvaluatePosWithPins() {
     int expectedNumQueenMoves = 2;
 
     MoveList_t moveList;
+    CompleteMovegen(&moveList, &info, white);
 
     bool success = 
         (CountPieceMoves(king, moveList) == expectedNumKingMoves) &&
