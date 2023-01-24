@@ -11,4 +11,9 @@ typedef struct {
     Piece_t promotionType;
 } Move_t;
 
+typedef struct {
+    Move_t moves[256];
+    int numMoves;
+} MoveList_t;
+
 #endif
