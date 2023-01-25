@@ -24,7 +24,7 @@ static Stack_t stack = {
 };
 
 GameState_t* GetNewGameState() {
-    GameState_t* newState = malloc(sizeof(newState));
+    GameState_t* newState = malloc(sizeof(*newState));
     assert(newState);
     return newState;
 }

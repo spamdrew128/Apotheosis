@@ -52,11 +52,11 @@ static void ShouldAddState() {
 }
 
 static void ShouldRevertState() {
-    // GameState_t* state1 = GetSomeGamestate();
+    GameState_t* state1 = GetSomeGamestate();
     // GameState_t* state2 = GetSomeGamestate();
 }
 
 void GameStateTDDRunner() {
     ShouldAddState();
-    ShouldRevertState();
+    // ShouldRevertState();
 }
