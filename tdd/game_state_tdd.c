@@ -3,11 +3,11 @@
 #include "debug.h"
 
 enum {
-    SomeHalfmoveClock = 16,
-    SomeCastleSquares = 0x562a,
-    SomeEnPassantSquares = 0x8,
-    OtherCastleSquares = 0x56da,
-    OtherEnPassantSquares = 0x81
+    some_halfmove_clock = 16,
+    some_white_castle_squares = 0x562a,
+    some_white_enpassant_squares = 0x8,
+    some_black_castle_squares = 0x56da,
+    some_black_enpassant_squares = 0x81
 };
 
 // HELPERS
@@ -20,21 +20,31 @@ static bool GameStateIsCorrect(GameState_t* expected) {
         (ReadEnPassantSquares(black) == expected->enPassantSquares[black]);
 }
 
+static GameState_t* GetSomeGamestate() {
+    GameState_t* state = AllocateEmptyGameState();
+    state->halfmoveClock = some_halfmove_clock;
+    state->castleSquares[white] = some_white_castle_squares;
+    state->enPassantSquares[white] = some_white_enpassant_squares;
+    state->castleSquares[black] = some_black_castle_squares;
+    state->enPassantSquares[black] = some_black_enpassant_squares;
+
+    return state;
+}
+
 // TESTS
 static void ShouldAddState() {
-    GameState_t state = {
-        .halfmoveClock = SomeHalfmoveClock,
-        .castleSquares = { SomeCastleSquares, OtherCastleSquares },
-        .enPassantSquares = { SomeEnPassantSquares, OtherEnPassantSquares }
-    };
-    AddState(&state);
+    InitStack();
+    GameState_t* state = GetSomeGamestate();
 
-    PrintResults(GameStateIsCorrect(&state));
+    AddState(state);
+
+    PrintResults(GameStateIsCorrect(state));
     TeardownStack();
 }
 
 static void ShouldRevertState() {
-
+    InitStack();
+    TeardownStack();
 }
 
 void GameStateTDDRunner() {

@@ -11,6 +11,10 @@ typedef struct {
     Bitboard_t enPassantSquares[2];
 } GameState_t;
 
+void InitStack();
+
+GameState_t* AllocateEmptyGameState();
+
 void AddState(GameState_t* newState);
 
 void RevertState();

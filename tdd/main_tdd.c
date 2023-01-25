@@ -9,6 +9,7 @@
 #include "magic_tdd.h"
 #include "legals_tdd.h"
 #include "movegen_tdd.h"
+#include "game_state_tdd.h"
 
 int main(int argc, char *argv[])
 {
@@ -21,6 +22,7 @@ int main(int argc, char *argv[])
     MagicTDDRunner();
     LegalsTDDRunner();
     MovegenTDDRunner();
+    GameStateTDDRunner();
 
     TeardownLookup();
 }
