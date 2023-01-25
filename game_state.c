@@ -29,6 +29,18 @@ GameState_t* GetNewGameState() {
     return newState;
 }
 
+GameState_t* GetDefaultGameState() {
+    GameState_t* defaultState = GetNewGameState();
+
+    defaultState->halfmoveClock = ReadHalfmoveClock() + 1;
+    defaultState->castleSquares[white] = ReadCastleSquares(white);
+    defaultState->castleSquares[black] = ReadCastleSquares(black);
+    defaultState->enPassantSquares[white] = empty_set;
+    defaultState->enPassantSquares[black] = empty_set;
+
+    return defaultState;
+}
+
 void AddState(GameState_t* newState) {
     NextState(stack) = newState;
 }
@@ -48,4 +60,10 @@ Bitboard_t ReadCastleSquares(Color_t color) {
 
 Bitboard_t ReadEnPassantSquares(Color_t color) {
     return CurrentState(stack)->enPassantSquares[color];
+}
+
+void TeardownGameStateStack() {
+    while(stack.top > stack_empty) {
+        RevertState();
+    }
 }
