@@ -12,6 +12,7 @@
         "magic.h": "c",
         "stdbool.h": "c",
         "game_state.h": "c",
-        "board_info.h": "c"
+        "board_info.h": "c",
+        "board_info_tdd.h": "c"
     }
 }
