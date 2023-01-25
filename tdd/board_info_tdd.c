@@ -27,9 +27,22 @@ void BoardInfoShouldInitCorrectly() {
         success = success && info.mailbox[i] == none_type;
     }
 
-    PrintResults(!success);
+    PrintResults(success);
+}
+
+static void MailboxShouldUpdate() {
+    BoardInfo_t info;
+    InitBoardInfo(&info);
+    info.knights[white] = CreateBitboard(2, e2, g7);
+    info.queens[black] = CreateBitboard(1, a3);
+    TranslateBitboardsToMailbox(&info);
+
+    bool success = info.mailbox[e2] == knight && info.mailbox[a3] == queen;
+
+    PrintResults(success);
 }
 
 void BoardInfoTDDRunner() {
     BoardInfoShouldInitCorrectly();
+    MailboxShouldUpdate();
 }
