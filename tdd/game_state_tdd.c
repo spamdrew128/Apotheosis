@@ -21,7 +21,7 @@ static bool GameStateIsCorrect(GameState_t* expected) {
 }
 
 static GameState_t* GetSomeGamestate() {
-    GameState_t* state = AllocateEmptyGameState();
+    GameState_t* state = GetNewGameState();
     state->halfmoveClock = some_halfmove_clock;
     state->castleSquares[white] = some_white_castle_squares;
     state->enPassantSquares[white] = some_white_enpassant_squares;
@@ -31,20 +31,29 @@ static GameState_t* GetSomeGamestate() {
     return state;
 }
 
+static GameState_t* GetEmptyGameState() {
+    GameState_t* state = GetNewGameState();
+    state->halfmoveClock = 0;
+    state->castleSquares[white] = empty_set;
+    state->enPassantSquares[white] = empty_set;
+    state->castleSquares[black] = empty_set;
+    state->enPassantSquares[black] = empty_set;
+
+    return state;
+}
+
 // TESTS
 static void ShouldAddState() {
-    InitStack();
     GameState_t* state = GetSomeGamestate();
 
     AddState(state);
 
     PrintResults(GameStateIsCorrect(state));
-    TeardownStack();
 }
 
 static void ShouldRevertState() {
-    InitStack();
-    TeardownStack();
+    // GameState_t* state1 = GetSomeGamestate();
+    // GameState_t* state2 = GetSomeGamestate();
 }
 
 void GameStateTDDRunner() {

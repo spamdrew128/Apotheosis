@@ -14,5 +14,4 @@ int main(int argc, char *argv[])
     InitBoardInfo(&boardInfo);
     InterpretFEN(START_FEN, &boardInfo);
     
-    TeardownLookup();
 }

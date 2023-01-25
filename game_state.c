@@ -7,38 +7,25 @@
 typedef struct {
     GameState_t* gameStates[MOVELIST_MAX];
     int top;
-    bool isInitialized;
 } Stack_t;
 
 enum {
-    stack_empty = -1,
-    unused_game_state = -2
+    stack_empty = -1
 };
 
 #define CurrentState(stack) stack.gameStates[stack.top]
 
 #define NextState(stack) stack.gameStates[++(stack.top)]
 
+#define FreeTopOfStack(stack) free(stack.gameStates[(stack.top)--])
+
 static Stack_t stack = {
-    .isInitialized = false
+    .top = stack_empty,
 };
 
-void InitStack() {
-    stack.top = stack_empty;
-    for(int i = 0; i < MOVELIST_MAX; i++) {
-        GameState_t* state = AllocateEmptyGameState();
-        assert(state);
-
-        state->halfmoveClock = unused_game_state;
-        stack.gameStates[i] = state;
-    }
-
-    stack.isInitialized = true;
-}
-
-GameState_t* AllocateEmptyGameState() {
-    GameState_t* newState = malloc(sizeof(*newState));
-    assert(newState != NULL);
+GameState_t* GetNewGameState() {
+    GameState_t* newState = malloc(sizeof(newState));
+    assert(newState);
     return newState;
 }
 
@@ -47,8 +34,8 @@ void AddState(GameState_t* newState) {
 }
 
 void RevertState() {
-    assert(stack.top > 0);
-    stack.top--;
+    assert(stack.top >= 0);
+    FreeTopOfStack(stack);
 }
 
 HalfmoveCount_t ReadHalfmoveClock() {
@@ -61,15 +48,4 @@ Bitboard_t ReadCastleSquares(Color_t color) {
 
 Bitboard_t ReadEnPassantSquares(Color_t color) {
     return CurrentState(stack)->enPassantSquares[color];
-}
-
-void TeardownStack() {
-    assert(stack.isInitialized);
-
-    for(int i = 0; i < MOVELIST_MAX; i++) {
-        free(stack.gameStates[i]);
-    }
-
-    stack.top = stack_empty;
-    stack.isInitialized = false;
 }
