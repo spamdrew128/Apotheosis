@@ -85,6 +85,7 @@ void InterpretFEN(FEN_t fen, BoardInfo_t* info) {
         if(file >= 8) {
             file = 0;
         }
+        
         i++;
     }
 

@@ -32,6 +32,7 @@ GameState_t* GetNewGameState() {
 GameState_t* GetDefaultNextGameState() {
     GameState_t* defaultState = GetNewGameState();
 
+    defaultState->colorToMove = !ReadColorToMove();
     defaultState->halfmoveClock = ReadHalfmoveClock() + 1;
     defaultState->castleSquares[white] = ReadCastleSquares(white);
     defaultState->castleSquares[black] = ReadCastleSquares(black);
@@ -44,6 +45,7 @@ GameState_t* GetDefaultNextGameState() {
 void AddStartingGameState() {
     GameState_t* gameStartState = GetNewGameState();
 
+    gameStartState->colorToMove = white;
     gameStartState->halfmoveClock = 0;
     gameStartState->castleSquares[white] = white_kingside_castle_sq | white_queenside_castle_sq;
     gameStartState->castleSquares[black] = black_kingside_castle_sq | black_queenside_castle_sq;
@@ -60,6 +62,10 @@ void AddState(GameState_t* newState) {
 void RevertState() {
     assert(stack.top >= 0);
     FreeTopOfStack(stack);
+}
+
+Color_t ReadColorToMove() {
+    return CurrentState(stack)->colorToMove;
 }
 
 HalfmoveCount_t ReadHalfmoveClock() {
