@@ -29,7 +29,7 @@ GameState_t* GetNewGameState() {
     return newState;
 }
 
-GameState_t* GetDefaultGameState() {
+GameState_t* GetDefaultNextGameState() {
     GameState_t* defaultState = GetNewGameState();
 
     defaultState->halfmoveClock = ReadHalfmoveClock() + 1;
@@ -39,6 +39,18 @@ GameState_t* GetDefaultGameState() {
     defaultState->enPassantSquares[black] = empty_set;
 
     return defaultState;
+}
+
+void AddStartingGameState() {
+    GameState_t* gameStartState = GetNewGameState();
+
+    gameStartState->halfmoveClock = 0;
+    gameStartState->castleSquares[white] = white_kingside_castle_sq | white_queenside_castle_sq;
+    gameStartState->castleSquares[black] = black_kingside_castle_sq | black_queenside_castle_sq;
+    gameStartState->enPassantSquares[white] = empty_set;
+    gameStartState->enPassantSquares[black] = empty_set;
+
+    AddState(gameStartState);
 }
 
 void AddState(GameState_t* newState) {

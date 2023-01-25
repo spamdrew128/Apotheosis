@@ -13,7 +13,9 @@ typedef struct {
 
 GameState_t* GetNewGameState();
 
-GameState_t* GetDefaultGameState();
+GameState_t* GetDefaultNextGameState();
+
+void AddStartingGameState();
 
 void AddState(GameState_t* newState);
 

@@ -45,7 +45,7 @@ static void ShouldGetDefaultState() {
     GameState_t* state = GetSomeGamestate();
     AddState(state);
 
-    GameState_t* nextState = GetDefaultGameState();
+    GameState_t* nextState = GetDefaultNextGameState();
     AddState(nextState);
 
     GameState_t expected = {
@@ -60,7 +60,7 @@ static void ShouldGetDefaultState() {
 
 static void ShouldRevertState() {
     GameState_t* state1 = GetSomeGamestate();
-    GameState_t* state2 = GetDefaultGameState(state1);
+    GameState_t* state2 = GetDefaultNextGameState(state1);
     
     AddState(state1);
     AddState(state2);

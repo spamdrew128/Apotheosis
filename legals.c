@@ -2,6 +2,7 @@
 #include "lookup.h"
 #include "stdbool.h"
 #include "pieces.h"
+#include "game_state.h"
 
 typedef Bitboard_t (*GetAttacksCallback_t)(Square_t square, Bitboard_t empty);
 typedef bool (*SliderChecksKingCallback_t)(Square_t sliderSquare, Bitboard_t empty, Bitboard_t kingBitboard);
@@ -101,8 +102,8 @@ Bitboard_t KingLegalMoves(Bitboard_t kingMoves, Bitboard_t unsafeSquares) {
 
 Bitboard_t CastlingMoves(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color_t color) {
     Bitboard_t castlingMoves = empty_set;
-    Bitboard_t kingsideSquare = boardInfo->castleSquares[color] & (boardInfo->kings[color] << 2);
-    Bitboard_t queensideSquare = boardInfo->castleSquares[color] & (boardInfo->kings[color] >> 2);
+    Bitboard_t kingsideSquare = ReadCastleSquares(color) & (boardInfo->kings[color] << 2);
+    Bitboard_t queensideSquare = ReadCastleSquares(color) & (boardInfo->kings[color] >> 2);
 
     SetBits(castlingMoves, KingsideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) * kingsideSquare);
     SetBits(castlingMoves, QueensideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) * queensideSquare);

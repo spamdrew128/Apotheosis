@@ -10,6 +10,7 @@
         "pieces_tdd.h": "c",
         "fen.h": "c",
         "magic.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "game_state.h": "c"
     }
 }

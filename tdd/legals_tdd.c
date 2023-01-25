@@ -7,6 +7,7 @@
 #include "pieces.h"
 #include "board_constants.h"
 #include "lookup.h"
+#include "game_state.h"
 
 enum {
     white_expected_unsafe = 0xfefb57be78800000,
@@ -196,7 +197,6 @@ static void InitPinMaskPositionInfo(BoardInfo_t* info) {
 }
 
 // TESTS
-
 static void TestWhiteUnsafeSquares() {
     BoardInfo_t info;
     InitMidgameInfo(&info);
@@ -360,6 +360,8 @@ static void ShouldDefinePinmasks() {
 }
 
 void LegalsTDDRunner() {
+    AddStartingGameState();
+
     TestWhiteUnsafeSquares();
     TestBlackUnsafeSquares();
 
@@ -381,4 +383,6 @@ void LegalsTDDRunner() {
     ShouldIdentifyKnightAndSliderDoubleCheck();
 
     ShouldDefinePinmasks();
+
+    TeardownGameStateStack();
 }

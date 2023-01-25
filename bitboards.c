@@ -14,12 +14,9 @@ void InitBoardInfo(BoardInfo_t* info) {
         info->rooks[i] = empty_set;
         info->queens[i] = empty_set;
         info->kings[i] = empty_set;
-        info->enPassantSquares[i] = empty_set;
     }
 
     info->empty = empty_set;
-    info->castleSquares[white] = white_kingside_castle_sq | white_queenside_castle_sq;
-    info->castleSquares[black] = black_kingside_castle_sq | black_queenside_castle_sq;
 }
 
 Bitboard_t NortOne (Bitboard_t b) {return  b << 8;}
