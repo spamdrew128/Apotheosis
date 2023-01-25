@@ -5,7 +5,7 @@
 #include "game_state.h"
 
 typedef struct {
-    GameState_t* gameStates[MOVELIST_MAX];
+    GameState_t* gameStates[GAMESTATES_MAX];
     int top;
 } Stack_t;
 
