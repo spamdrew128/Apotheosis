@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 
+#include "board_info.h"
 #include "board_constants.h"
 #include "bitboards.h"
 

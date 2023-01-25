@@ -9,10 +9,10 @@ static void SerializeMovesIntoMovelist(MoveList_t* moveList, Bitboard_t newMoves
     while(newMoves) {
         (moveList->numMoves)++;
         CurrentMove(moveList).piece = piece;
-        CurrentMove(moveList).captureTargetType = none;
+        CurrentMove(moveList).captureTargetType = none_type;
         CurrentMove(moveList).fromSquare = fromSquare;
         CurrentMove(moveList).toSquare = IsolateLSB(newMoves);
-        CurrentMove(moveList).promotionType = none;
+        CurrentMove(moveList).promotionType = none_type;
 
         ResetLSB(newMoves);
     }
@@ -33,7 +33,7 @@ static void _SerializeCapturesHelper(
         CurrentMove(moveList).captureTargetType = targetType;
         CurrentMove(moveList).fromSquare = fromSquare;
         CurrentMove(moveList).toSquare = IsolateLSB(newCaptures);
-        CurrentMove(moveList).promotionType = none;
+        CurrentMove(moveList).promotionType = none_type;
 
         ResetLSB(newCaptures);
     }

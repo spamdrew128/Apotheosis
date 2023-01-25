@@ -4,6 +4,7 @@ CFLAGS=-Wall -g -std=c99 $(INCDIRS)
 
 COMMON_CFILES= \
 bitboards.c \
+board_info.c \
 lookup.c \
 FEN.c \
 pieces.c \
@@ -15,6 +16,7 @@ game_state.c
 
 COMMON_OBJECTS= \
 bitboards.o \
+board_info.o \
 lookup.o \
 FEN.o \
 pieces.o \
@@ -35,6 +37,7 @@ D_CFILES= \
 $(TDD_MAIN).c \
 $(COMMON_CFILES) \
 $(TDD)\bitboards_tdd.c \
+$(TDD)\board_info_tdd.c \
 $(TDD)\lookup_tdd.c \
 $(TDD)\debug.c \
 $(TDD)\FEN_tdd.c \
@@ -48,6 +51,7 @@ D_OBJECTS= \
 $(TDD_MAIN).o \
 $(COMMON_OBJECTS) \
 $(TDD)\bitboards_tdd.o \
+$(TDD)\board_info_tdd.o \
 $(TDD)\lookup_tdd.o \
 $(TDD)\debug.o \
 $(TDD)\FEN_tdd.o \

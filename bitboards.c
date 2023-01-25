@@ -3,21 +3,6 @@
 #include <string.h>
 
 #include "bitboards.h"
-#include "lookup.h"
-
-void InitBoardInfo(BoardInfo_t* info) {
-    for(int i = 0; i < 2; i++) {
-        info->allPieces[i] = empty_set;
-        info->pawns[i] = empty_set;
-        info->knights[i] = empty_set;
-        info->bishops[i] = empty_set;
-        info->rooks[i] = empty_set;
-        info->queens[i] = empty_set;
-        info->kings[i] = empty_set;
-    }
-
-    info->empty = empty_set;
-}
 
 Bitboard_t NortOne (Bitboard_t b) {return  b << 8;}
 Bitboard_t NoEaOne (Bitboard_t b) {return (b & not_h_file) << 9;}

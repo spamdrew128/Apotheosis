@@ -11,6 +11,7 @@
         "fen.h": "c",
         "magic.h": "c",
         "stdbool.h": "c",
-        "game_state.h": "c"
+        "game_state.h": "c",
+        "board_info.h": "c"
     }
 }

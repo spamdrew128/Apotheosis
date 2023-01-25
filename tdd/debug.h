@@ -5,6 +5,7 @@
 
 #include "board_constants.h"
 #include "bitboards.h"
+#include "board_info.h"
 
 #define PrintResults(success) \
     if(success) {printf(".");} else {printf("\n%s Failure\n", __func__);}
