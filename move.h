@@ -29,6 +29,8 @@ enum specialFlags {
   castle_flag     = 0b11 << special_flag_offset
 };
 
+#define InitalizeMove(move) move.data = 0
+
 #define ReadToSquare(move) move.data & to_square;
 #define ReadFromSquare(move) (move.data & from_square) >> from_square_offset;
 #define ReadPromotionPiece(move) (move.data & promotion_piece) >> promotion_piece_offset;
