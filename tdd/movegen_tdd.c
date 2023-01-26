@@ -12,7 +12,7 @@
 // HELPERS
 static int CountPieceMoves(Piece_t piece, MoveList_t moveList, BoardInfo_t* info) {
     int count = 0;
-    for(int i = 0; i < moveList.numMoves; i++) {
+    for(int i = 0; i < moveList.maxIndex; i++) {
         Square_t fromSquare = ReadFromSquare(moveList.moves[i])
         if(PieceOnSquare(info, fromSquare) == piece) {
             count++;
@@ -70,5 +70,5 @@ static void ShouldCorrectlyEvaluatePosWithPins() {
 }
 
 void MovegenTDDRunner() {
-    // ShouldCorrectlyEvaluatePosWithPins();
+    ShouldCorrectlyEvaluatePosWithPins();
 }

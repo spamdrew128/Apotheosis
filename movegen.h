@@ -6,7 +6,7 @@
 
 typedef struct {
     Move_t moves[MOVELIST_MAX];
-    int numMoves;
+    int maxIndex;
 } MoveList_t;
 
 void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color);
