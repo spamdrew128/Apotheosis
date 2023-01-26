@@ -383,4 +383,6 @@ void LegalsTDDRunner() {
     ShouldIdentifyKnightAndSliderDoubleCheck();
 
     ShouldDefinePinmasks();
+
+    ResetGameStateStack();
 }

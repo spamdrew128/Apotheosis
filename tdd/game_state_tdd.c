@@ -42,7 +42,7 @@ static void ShouldAddState() {
     AddState(state);
 
     PrintResults(GameStateIsCorrect(state));
-    
+    ResetGameStateStack();
 }
 
 static void ShouldGetDefaultState() {
@@ -60,7 +60,7 @@ static void ShouldGetDefaultState() {
     };
 
     PrintResults(GameStateIsCorrect(expected));
-    
+    ResetGameStateStack();
 }
 
 static void ShouldRevertState() {
@@ -73,11 +73,12 @@ static void ShouldRevertState() {
     RevertState();
 
     PrintResults(GameStateIsCorrect(state1));
-    
+    ResetGameStateStack();
 }
 
 void GameStateTDDRunner() {
     ShouldAddState();
     ShouldGetDefaultState();
     ShouldRevertState();
+    stack.top = 5;
 }

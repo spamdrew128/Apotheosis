@@ -76,3 +76,7 @@ Bitboard_t ReadCastleSquares(Color_t color) {
 Bitboard_t ReadEnPassantSquares(Color_t color) {
     return CurrentState(stack).enPassantSquares[color];
 }
+
+void ResetGameStateStack() {
+    stack.top = stack_empty;
+}

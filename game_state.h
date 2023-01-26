@@ -30,4 +30,6 @@ Bitboard_t ReadCastleSquares(Color_t color);
 
 Bitboard_t ReadEnPassantSquares(Color_t color);
 
+void ResetGameStateStack();
+
 #endif
