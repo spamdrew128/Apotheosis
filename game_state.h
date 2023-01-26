@@ -12,13 +12,13 @@ typedef struct {
     Bitboard_t enPassantSquares[2];
 } GameState_t;
 
-GameState_t* GetNewGameState();
+GameState_t GetNewGameState();
 
-GameState_t* GetDefaultNextGameState();
+GameState_t GetDefaultNextGameState();
 
 void AddStartingGameState();
 
-void AddState(GameState_t* newState);
+void AddState(GameState_t newState);
 
 void RevertState();
 
@@ -29,7 +29,5 @@ HalfmoveCount_t ReadHalfmoveClock();
 Bitboard_t ReadCastleSquares(Color_t color);
 
 Bitboard_t ReadEnPassantSquares(Color_t color);
-
-void TeardownGameStateStack();
 
 #endif

@@ -12,60 +12,60 @@ enum {
 };
 
 // HELPERS
-static bool GameStateIsCorrect(GameState_t* expected) {
+static bool GameStateIsCorrect(GameState_t expected) {
     return 
-        (ReadColorToMove() == expected->colorToMove) &&
-        (ReadHalfmoveClock() == expected->halfmoveClock) &&
-        (ReadCastleSquares(white) == expected->castleSquares[white]) &&
-        (ReadCastleSquares(black) == expected->castleSquares[black]) &&
-        (ReadEnPassantSquares(white) == expected->enPassantSquares[white]) &&
-        (ReadEnPassantSquares(black) == expected->enPassantSquares[black]);
+        (ReadColorToMove() == expected.colorToMove) &&
+        (ReadHalfmoveClock() == expected.halfmoveClock) &&
+        (ReadCastleSquares(white) == expected.castleSquares[white]) &&
+        (ReadCastleSquares(black) == expected.castleSquares[black]) &&
+        (ReadEnPassantSquares(white) == expected.enPassantSquares[white]) &&
+        (ReadEnPassantSquares(black) == expected.enPassantSquares[black]);
 }
 
-static GameState_t* GetSomeGamestate() {
-    GameState_t* state = GetNewGameState();
+static GameState_t GetSomeGamestate() {
+    GameState_t state = GetNewGameState();
 
-    state->colorToMove = some_color_to_move;
-    state->halfmoveClock = some_halfmove_clock;
-    state->castleSquares[white] = some_white_castle_squares;
-    state->enPassantSquares[white] = some_white_enpassant_squares;
-    state->castleSquares[black] = some_black_castle_squares;
-    state->enPassantSquares[black] = some_black_enpassant_squares;
+    state.colorToMove = some_color_to_move;
+    state.halfmoveClock = some_halfmove_clock;
+    state.castleSquares[white] = some_white_castle_squares;
+    state.enPassantSquares[white] = some_white_enpassant_squares;
+    state.castleSquares[black] = some_black_castle_squares;
+    state.enPassantSquares[black] = some_black_enpassant_squares;
 
     return state;
 }
 
 // TESTS
 static void ShouldAddState() {
-    GameState_t* state = GetSomeGamestate();
+    GameState_t state = GetSomeGamestate();
 
     AddState(state);
 
     PrintResults(GameStateIsCorrect(state));
-    TeardownGameStateStack();
+    
 }
 
 static void ShouldGetDefaultState() {
-    GameState_t* state = GetSomeGamestate();
+    GameState_t state = GetSomeGamestate();
     AddState(state);
 
-    GameState_t* nextState = GetDefaultNextGameState();
+    GameState_t nextState = GetDefaultNextGameState();
     AddState(nextState);
 
     GameState_t expected = {
         .colorToMove = !some_color_to_move,
-        .halfmoveClock = state->halfmoveClock + 1,
-        .castleSquares = {state->castleSquares[white], state->castleSquares[black]},
+        .halfmoveClock = state.halfmoveClock + 1,
+        .castleSquares = {state.castleSquares[white], state.castleSquares[black]},
         .enPassantSquares = {empty_set, empty_set}
     };
 
-    PrintResults(GameStateIsCorrect(&expected));
-    TeardownGameStateStack();
+    PrintResults(GameStateIsCorrect(expected));
+    
 }
 
 static void ShouldRevertState() {
-    GameState_t* state1 = GetSomeGamestate();
-    GameState_t* state2 = GetDefaultNextGameState(state1);
+    GameState_t state1 = GetSomeGamestate();
+    GameState_t state2 = GetDefaultNextGameState(state1);
     
     AddState(state1);
     AddState(state2);
@@ -73,7 +73,7 @@ static void ShouldRevertState() {
     RevertState();
 
     PrintResults(GameStateIsCorrect(state1));
-    TeardownGameStateStack();
+    
 }
 
 void GameStateTDDRunner() {

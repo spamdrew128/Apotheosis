@@ -18,5 +18,4 @@ int main(int argc, char *argv[])
     // Todo: GAME LOOP
 
     TeardownLookup();
-    TeardownGameStateStack();
 }
