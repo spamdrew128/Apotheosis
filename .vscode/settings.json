@@ -13,6 +13,8 @@
         "stdbool.h": "c",
         "game_state.h": "c",
         "board_info.h": "c",
-        "board_info_tdd.h": "c"
+        "board_info_tdd.h": "c",
+        "movegen_tdd.h": "c",
+        "movegen.h": "c"
     }
 }

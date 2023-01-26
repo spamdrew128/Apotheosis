@@ -7,12 +7,14 @@
 #include "pieces.h"
 #include "board_constants.h"
 #include "lookup.h"
+#include "move.h"
 
 // HELPERS
-static int CountPieceMoves(Piece_t piece, MoveList_t moveList) {
+static int CountPieceMoves(Piece_t piece, MoveList_t moveList, BoardInfo_t* info) {
     int count = 0;
     for(int i = 0; i < moveList.numMoves; i++) {
-        if(moveList.moves[i].piece == piece) {
+        Square_t fromSquare = ReadFromSquare(moveList.moves[i])
+        if(PieceOnSquare(info, fromSquare) == piece) {
             count++;
         }
     }
@@ -38,6 +40,7 @@ static void InitPinPositionInfo(BoardInfo_t* info) {
 
     UpdateAllPieces(info);
     UpdateEmpty(info);
+    TranslateBitboardsToMailbox(info);
 }
 
 // TESTS
@@ -56,12 +59,12 @@ static void ShouldCorrectlyEvaluatePosWithPins() {
     CompleteMovegen(&moveList, &info, white);
 
     bool success = 
-        (CountPieceMoves(king, moveList) == expectedNumKingMoves) &&
-        (CountPieceMoves(pawn, moveList) == expectedNumPawnMoves) &&
-        (CountPieceMoves(rook, moveList) == expectedNumRookMoves) &&
-        (CountPieceMoves(bishop, moveList) == expectedNumBishopMoves) &&
-        (CountPieceMoves(knight, moveList) == expectedNumKnightsMoves) &&
-        (CountPieceMoves(queen, moveList) == expectedNumQueenMoves);
+        (CountPieceMoves(king, moveList, &info) == expectedNumKingMoves) &&
+        (CountPieceMoves(pawn, moveList, &info) == expectedNumPawnMoves) &&
+        (CountPieceMoves(rook, moveList, &info) == expectedNumRookMoves) &&
+        (CountPieceMoves(bishop, moveList, &info) == expectedNumBishopMoves) &&
+        (CountPieceMoves(knight, moveList, &info) == expectedNumKnightsMoves) &&
+        (CountPieceMoves(queen, moveList, &info) == expectedNumQueenMoves);
 
     PrintResults(success);
 }

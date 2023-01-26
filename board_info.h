@@ -35,4 +35,7 @@ void InitBoardInfo(BoardInfo_t* info);
 
 void TranslateBitboardsToMailbox(BoardInfo_t* info);
 
+#define PieceOnSquare(boardInfoAddress, square) \
+    boardInfoAddress->mailbox[square]
+
 #endif

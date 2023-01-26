@@ -8,11 +8,11 @@ static UnsafeSquaresCallback_t UnsafeSquaresCallbacks[2] = { WhiteUnsafeSquares,
 static void SerializeMovesIntoMovelist(MoveList_t* moveList, Bitboard_t newMoves, Bitboard_t fromSquare, Piece_t piece) {
     while(newMoves) {
         (moveList->numMoves)++;
-        CurrentMove(moveList).piece = piece;
-        CurrentMove(moveList).captureTargetType = none_type;
-        CurrentMove(moveList).fromSquare = fromSquare;
-        CurrentMove(moveList).toSquare = IsolateLSB(newMoves);
-        CurrentMove(moveList).promotionType = none_type;
+        LastMove(moveList).piece = piece;
+        LastMove(moveList).captureTargetType = none_type;
+        LastMove(moveList).fromSquare = fromSquare;
+        LastMove(moveList).toSquare = IsolateLSB(newMoves);
+        LastMove(moveList).promotionType = none_type;
 
         ResetLSB(newMoves);
     }
@@ -29,11 +29,11 @@ static void _SerializeCapturesHelper(
 {
     while(newCaptures) {
         (moveList->numMoves)++;
-        CurrentMove(moveList).piece = piece;
-        CurrentMove(moveList).captureTargetType = targetType;
-        CurrentMove(moveList).fromSquare = fromSquare;
-        CurrentMove(moveList).toSquare = IsolateLSB(newCaptures);
-        CurrentMove(moveList).promotionType = none_type;
+        LastMove(moveList).piece = piece;
+        LastMove(moveList).captureTargetType = targetType;
+        LastMove(moveList).fromSquare = fromSquare;
+        LastMove(moveList).toSquare = IsolateLSB(newCaptures);
+        LastMove(moveList).promotionType = none_type;
 
         ResetLSB(newCaptures);
     }
