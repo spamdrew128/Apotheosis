@@ -80,5 +80,4 @@ void GameStateTDDRunner() {
     ShouldAddState();
     ShouldGetDefaultState();
     ShouldRevertState();
-    stack.top = 5;
 }
