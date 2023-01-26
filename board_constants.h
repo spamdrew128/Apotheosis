@@ -11,6 +11,7 @@ typedef unsigned long long Bitboard_t; // supported by MSC 13.00+ and C99
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef bool Color_t;
 enum color {
@@ -31,14 +32,16 @@ enum squareLabels {
 };
 
 typedef int Piece_t;
+// ORDERING IS EXTREMELY IMPORTANT
+// CHANGING ORDER WILL F UP MOVE.H
 enum pieceTypes {
-  none_type,
-  pawn,
   knight,
   bishop,
   rook,
   queen,
-  king
+  pawn,
+  king,
+  none_type
 };
 
 typedef int Direction_t;
