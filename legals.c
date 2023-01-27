@@ -109,7 +109,7 @@ Bitboard_t CastlingMoves(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color
     return castlingMoves;
 }
 
-static Bitboard_t UpdateCheckmaskWithSliders(
+static Bitboard_t SliderOnlyCheckmask(
     BoardInfo_t* boardInfo,
     Bitboard_t empty,
     Bitboard_t kingBitboard,
@@ -134,7 +134,7 @@ Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, Color_t color) {
     Bitboard_t kingBitboard = boardInfo->kings[color];
     Bitboard_t kingSquare = LSB(boardInfo->kings[color]);
 
-    Bitboard_t checkmask = UpdateCheckmaskWithSliders(
+    Bitboard_t checkmask = SliderOnlyCheckmask(
         boardInfo,
         boardInfo->empty,
         kingBitboard,
@@ -182,11 +182,12 @@ PinmaskContainer_t DefinePinmasks(BoardInfo_t* boardInfo, Color_t color) {
     Bitboard_t kingBitboard = boardInfo->kings[color];
     Bitboard_t kingSquare = LSB(boardInfo->kings[color]);
 
-    Bitboard_t emptyWithoutWhitePieces = (boardInfo->empty | boardInfo->allPieces[color]) & ~kingBitboard;
+    Bitboard_t emptyIfNoFriendlyPiecesOtherThanKing = 
+        (boardInfo->empty | boardInfo->allPieces[color]) & ~kingBitboard;
 
-    Bitboard_t potentialPinmaskSquares = UpdateCheckmaskWithSliders(
+    Bitboard_t potentialPinmaskSquares = SliderOnlyCheckmask(
         boardInfo,
-        emptyWithoutWhitePieces,
+        emptyIfNoFriendlyPiecesOtherThanKing,
         kingBitboard,
         kingSquare,
         color

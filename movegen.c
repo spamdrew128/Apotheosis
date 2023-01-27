@@ -47,9 +47,10 @@ static void SerializeSliderPostionsIntoMoves(
 }
 
 static void AddKingMoves(MoveList_t* moveList, BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color_t color) {
-    Bitboard_t kingMoves = KingMoveTargets(LSB(boardInfo->kings[color]), boardInfo->empty);
+    Bitboard_t kingSquare = LSB(boardInfo->kings[color]);
+    Bitboard_t kingMoves = KingMoveTargets(kingSquare, boardInfo->empty);
     Bitboard_t kingLegalMoves = KingLegalMoves(kingMoves, unsafeSquares);
-    SerializeMovesIntoMovelist(moveList, kingLegalMoves, boardInfo->kings[color], king);
+    SerializeMovesIntoMovelist(moveList, kingLegalMoves, kingSquare, king);
 }
 
 static void AddKingCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color_t color) {
