@@ -127,10 +127,10 @@ static void AddRookCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo, Bitboa
     );
 }
 
-static void AddQueenCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo, Bitboard_t hvPins, Bitboard_t d12Pins, Bitboard_t checkmask, Color_t color) {
-    Bitboard_t freeQueens = boardInfo->queens[color] & ~(hvPins | d12Pins);
-    Bitboard_t hvPinnedQueens = boardInfo->queens[color] & hvPins;
-    Bitboard_t d12PinnedQueens = boardInfo->queens[color] & d12Pins;
+static void AddQueenCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo, PinmaskContainer_t pinmasks, Bitboard_t checkmask, Color_t color) {
+    Bitboard_t freeQueens = boardInfo->queens[color] & ~(pinmasks.allPinmask);
+    Bitboard_t hvPinnedQueens = boardInfo->queens[color] & pinmasks.hvPinmask;
+    Bitboard_t d12PinnedQueens = boardInfo->queens[color] & pinmasks.d12Pinmask;
     
     Bitboard_t enemy = boardInfo->allPieces[!color];
 
@@ -147,7 +147,7 @@ static void AddQueenCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo, Bitbo
     SerializeSliderPostionsIntoMoves(
         moveList,
         hvPinnedQueens,
-        checkmask & hvPins,
+        checkmask & pinmasks.hvPinmask,
         boardInfo->empty,
         enemy,
         queen,
@@ -157,7 +157,7 @@ static void AddQueenCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo, Bitbo
     SerializeSliderPostionsIntoMoves(
         moveList,
         d12PinnedQueens,
-        checkmask & hvPins,
+        checkmask & pinmasks.hvPinmask,
         boardInfo->empty,
         enemy,
         queen,
@@ -165,7 +165,7 @@ static void AddQueenCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo, Bitbo
     );
 }
 
-static void AddPawnCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo, Bitboard_t d12Pins, Bitboard_t allPins, Bitboard_t checkmask, Color_t color) {
+static void AddPawnCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo, Bitboard_t d12Pins, Bitboard_t checkmask, Color_t color) {
     // Bitboard_t pawnCaptures = PawnCa
 }
 
@@ -184,17 +184,13 @@ void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color
             return;
         }
     } 
-    
-    Bitboard_t pinmaskList[NUM_DIRECTIONS];
-    DefinePinmasks(boardInfo, color, pinmaskList);
-    Bitboard_t hvPins = pinmaskList[N] | pinmaskList[E] | pinmaskList[S] | pinmaskList[W];
-    Bitboard_t d12Pins = pinmaskList[NE] | pinmaskList[SE] | pinmaskList[NW] | pinmaskList[SW];
-    Bitboard_t allPins = hvPins | d12Pins;
-    
-    AddKnightCaptures(moveList, boardInfo, allPins, checkmask, color);
-    AddBishopCaptures(moveList, boardInfo, d12Pins, checkmask, color);
-    AddRookCaptures(moveList, boardInfo, hvPins, checkmask, color);
-    AddQueenCaptures(moveList, boardInfo, hvPins, d12Pins, checkmask, color);
+
+    PinmaskContainer_t pinmasks = DefinePinmasks(boardInfo, color);
+
+    AddKnightCaptures(moveList, boardInfo, pinmasks.allPinmask, checkmask, color);
+    AddBishopCaptures(moveList, boardInfo, pinmasks.d12Pinmask, checkmask, color);
+    AddRookCaptures(moveList, boardInfo, pinmasks.hvPinmask, checkmask, color);
+    AddQueenCaptures(moveList, boardInfo, pinmasks, checkmask, color);
 }
 
 void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color) {
