@@ -5,7 +5,6 @@
 #include "game_state.h"
 
 typedef Bitboard_t (*GetAttacksCallback_t)(Square_t square, Bitboard_t empty);
-typedef bool (*SliderChecksKingCallback_t)(Square_t sliderSquare, Bitboard_t empty, Bitboard_t kingBitboard);
 
 static Bitboard_t kscVulnerableSquares[2] = {w_ksc_vulnerable_squares, b_ksc_vulnerable_squares};
 static Bitboard_t qscVulnerableSquares[2] = {w_qsc_vulnerable_squares, b_qsc_vulnerable_squares};
@@ -13,17 +12,9 @@ static Bitboard_t qscVulnerableSquares[2] = {w_qsc_vulnerable_squares, b_qsc_vul
 static Bitboard_t kscBlockableSquares[2] = {w_ksc_blockable_squares, b_ksc_blockable_squares};
 static Bitboard_t qscBlockableSquares[2] = {w_qsc_blockable_squares, b_qsc_blockable_squares};
 
-static bool QueenChecksKing(Square_t sliderSquare, Bitboard_t empty, Bitboard_t kingBitboard) {
-    return QueenCaptureTargets(sliderSquare, empty, kingBitboard);
-}
-
-static bool RookChecksKing(Square_t sliderSquare, Bitboard_t empty, Bitboard_t kingBitboard) {
-    return RookCaptureTargets(sliderSquare, empty, kingBitboard);
-}
-
-static bool BishopChecksKing(Square_t sliderSquare, Bitboard_t empty, Bitboard_t kingBitboard) {
-    return BishopCaptureTargets(sliderSquare, empty, kingBitboard);
-}
+#define GetSlidingCheckers(boardInfoPtr, kingSquare, empty, enemyColor) \
+    RookCaptureTargets(kingSquare, empty, (boardInfoPtr->rooks[enemyColor] | boardInfoPtr->queens[enemyColor])) | \
+    BishopCaptureTargets(kingSquare, empty, (boardInfoPtr->bishops[enemyColor] | boardInfoPtr->queens[enemyColor]))
 
 static bool KingsideCastlingIsSafe(Color_t color, Bitboard_t unsafeSquares, Bitboard_t empty) {
     return 
@@ -110,63 +101,43 @@ Bitboard_t CastlingMoves(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color
     return castlingMoves;
 }
 
-static void UpdateCheckmaskWithSliders(
-    Bitboard_t* checkmask,
-    Bitboard_t enemySliders,
+static Bitboard_t UpdateCheckmaskWithSliders(
+    BoardInfo_t* boardInfo,
     Bitboard_t empty,
     Bitboard_t kingBitboard,
     Bitboard_t kingSquare,
-    SliderChecksKingCallback_t SliderChecksKingCallback
+    Color_t color
 ) 
 {
-    while(enemySliders) {
-        Bitboard_t sliderSquare = LSB(enemySliders);
-        if(SliderChecksKingCallback(sliderSquare, empty, kingBitboard)) {
-            SetBits(*checkmask, GetSlidingCheckmask(kingSquare, sliderSquare));
-        }
-        ResetLSB(enemySliders);
+    Bitboard_t checkingSliders = GetSlidingCheckers(boardInfo, kingSquare, empty, !color);
+
+    Bitboard_t checkmask = empty_set;
+    while(checkingSliders) {
+        SetBits(checkmask, GetSlidingCheckmask(kingSquare, LSB(checkingSliders)));
+
+        ResetLSB(checkingSliders);
     }
+
+    return checkmask;
 }
 
 Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, Color_t color) {
     // assumes you are in check
-    Color_t enemyColor = !color;
-
     Bitboard_t kingBitboard = boardInfo->kings[color];
     Bitboard_t kingSquare = LSB(boardInfo->kings[color]);
 
-    Bitboard_t checkmask = empty_set;
-    UpdateCheckmaskWithSliders(
-        &checkmask,
-        boardInfo->rooks[enemyColor],
+    Bitboard_t checkmask = UpdateCheckmaskWithSliders(
+        boardInfo,
         boardInfo->empty,
         kingBitboard,
         kingSquare,
-        RookChecksKing
+        color
     );
 
-    UpdateCheckmaskWithSliders(
-        &checkmask,
-        boardInfo->bishops[enemyColor],
-        boardInfo->empty,
-        kingBitboard,
-        kingSquare,
-        BishopChecksKing
-    );
-
-    UpdateCheckmaskWithSliders(
-        &checkmask,
-        boardInfo->queens[enemyColor],
-        boardInfo->empty,
-        kingBitboard,
-        kingSquare,
-        QueenChecksKing
-    );
-
-    Bitboard_t pawnsCheckingKing = GetPawnCheckmask(kingSquare, color) & boardInfo->pawns[enemyColor];
+    Bitboard_t pawnsCheckingKing = GetPawnCheckmask(kingSquare, color) & boardInfo->pawns[!color];
     SetBits(checkmask, pawnsCheckingKing);
 
-    Bitboard_t knighsCheckingKing = GetKnightAttacks(kingSquare) & boardInfo->knights[enemyColor];
+    Bitboard_t knighsCheckingKing = GetKnightAttacks(kingSquare) & boardInfo->knights[!color];
     SetBits(checkmask, knighsCheckingKing);
 
     return checkmask;
@@ -180,39 +151,17 @@ bool IsDoubleCheck(BoardInfo_t* boardInfo, Bitboard_t checkmask, Color_t color) 
 }
 
 void DefinePinmasks(BoardInfo_t* boardInfo, Color_t color, Bitboard_t pinmaskList[NUM_DIRECTIONS]) {
-    Color_t enemyColor = !color;
-
     Bitboard_t kingBitboard = boardInfo->kings[color];
     Bitboard_t kingSquare = LSB(boardInfo->kings[color]);
 
-    Bitboard_t potentialPinmaskEmpty = (boardInfo->empty | boardInfo->allPieces[color]) & ~kingBitboard;
+    Bitboard_t emptyWithoutWhitePieces = (boardInfo->empty | boardInfo->allPieces[color]) & ~kingBitboard;
 
-    Bitboard_t potentialPinmask = empty_set;
-    UpdateCheckmaskWithSliders(
-        &potentialPinmask,
-        boardInfo->rooks[enemyColor],
-        potentialPinmaskEmpty,
+    Bitboard_t potentialPinmask = UpdateCheckmaskWithSliders(
+        boardInfo,
+        emptyWithoutWhitePieces,
         kingBitboard,
         kingSquare,
-        RookChecksKing
-    );
-
-    UpdateCheckmaskWithSliders(
-        &potentialPinmask,
-        boardInfo->bishops[enemyColor],
-        potentialPinmaskEmpty,
-        kingBitboard,
-        kingSquare,
-        BishopChecksKing
-    );
-
-    UpdateCheckmaskWithSliders(
-        &potentialPinmask,
-        boardInfo->queens[enemyColor],
-        potentialPinmaskEmpty,
-        kingBitboard,
-        kingSquare,
-        QueenChecksKing
+        color
     );
 
     for(Direction_t direction = 0; direction < NUM_DIRECTIONS; direction++) {

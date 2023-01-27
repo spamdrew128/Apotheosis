@@ -17,7 +17,7 @@ Bitboard_t KingLegalMoves(Bitboard_t kingMoves, Bitboard_t unsafeSquares);
 
 Bitboard_t CastlingMoves(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color_t color);
 
-#define InCheck(boardInfoAddress, unsafeSquares, color) unsafeSquares & (boardInfo)->kings[color]
+#define InCheck(boardInfoPtr, unsafeSquares, color) unsafeSquares & (boardInfo)->kings[color]
 
 Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, Color_t color);
 

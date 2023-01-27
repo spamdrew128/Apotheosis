@@ -165,7 +165,7 @@ static void AddQueenCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo, Bitbo
 }
 
 static void AddPawnCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo, Bitboard_t d12Pins, Bitboard_t allPins, Bitboard_t checkmask, Color_t color) {
-    Bitboard_t pawnCaptures = PawnCa
+    // Bitboard_t pawnCaptures = PawnCa
 }
 
 void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color) {

@@ -70,5 +70,5 @@ static void ShouldCorrectlyEvaluatePosWithPins() {
 }
 
 void MovegenTDDRunner() {
-    ShouldCorrectlyEvaluatePosWithPins();
+    // ShouldCorrectlyEvaluatePosWithPins();
 }

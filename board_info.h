@@ -19,23 +19,23 @@ typedef struct {
 
 void InitBoardInfo(BoardInfo_t* info);
 
-#define UpdateAllPieces(boardInfoAddress) \
+#define UpdateAllPieces(boardInfoPtr) \
     for(int i = 0; i < 2; i++) { \
-        boardInfoAddress->allPieces[i] = \
-            boardInfoAddress->pawns[i] | \
-            boardInfoAddress->knights[i] | \
-            boardInfoAddress->bishops[i] | \
-            boardInfoAddress->rooks[i] | \
-            boardInfoAddress->queens[i] | \
-            boardInfoAddress->kings[i]; \
+        boardInfoPtr->allPieces[i] = \
+            boardInfoPtr->pawns[i] | \
+            boardInfoPtr->knights[i] | \
+            boardInfoPtr->bishops[i] | \
+            boardInfoPtr->rooks[i] | \
+            boardInfoPtr->queens[i] | \
+            boardInfoPtr->kings[i]; \
     }
 
-#define UpdateEmpty(boardInfoAddress) \
-    boardInfoAddress->empty = ~((boardInfoAddress)->allPieces[white] | (boardInfoAddress)->allPieces[black])
+#define UpdateEmpty(boardInfoPtr) \
+    boardInfoPtr->empty = ~((boardInfoPtr)->allPieces[white] | (boardInfoPtr)->allPieces[black])
 
 void TranslateBitboardsToMailbox(BoardInfo_t* info);
 
-#define PieceOnSquare(boardInfoAddress, square) \
-    boardInfoAddress->mailbox[square]
+#define PieceOnSquare(boardInfoPtr, square) \
+    boardInfoPtr->mailbox[square]
 
 #endif
