@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #include "legals.h"
 #include "lookup.h"
 #include "stdbool.h"
@@ -11,6 +13,12 @@ static Bitboard_t qscVulnerableSquares[2] = {w_qsc_vulnerable_squares, b_qsc_vul
 
 static Bitboard_t kscBlockableSquares[2] = {w_ksc_blockable_squares, b_ksc_blockable_squares};
 static Bitboard_t qscBlockableSquares[2] = {w_qsc_blockable_squares, b_qsc_blockable_squares};
+
+typedef uint8_t PinmaskType_t;
+enum pinmaskTypes{
+    hv_pinmask,
+    d12_pinmask
+};
 
 #define GetSlidingCheckers(boardInfoPtr, kingSquare, empty, enemyColor) \
     RookCaptureTargets(kingSquare, empty, (boardInfoPtr->rooks[enemyColor] | boardInfoPtr->queens[enemyColor])) | \
@@ -150,13 +158,33 @@ bool IsDoubleCheck(BoardInfo_t* boardInfo, Bitboard_t checkmask, Color_t color) 
     return PopulationCount(mask & checkmask) > 1;
 }
 
-void DefinePinmasks(BoardInfo_t* boardInfo, Color_t color, Bitboard_t pinmaskList[NUM_DIRECTIONS]) {
+static Bitboard_t CalculateDirectionalPinmask(
+    Bitboard_t potentialPinmaskSquares,
+    Bitboard_t allPieces,
+    Square_t kingSquare,
+    PinmaskType_t pinmaskType  
+) 
+{
+    Bitboard_t pinmask = empty_set;
+
+    for(Direction_t direction = pinmaskType; direction < NUM_DIRECTIONS; direction += 2) {
+        Bitboard_t directionalRay = GetDirectionalRay(kingSquare, direction);
+        Bitboard_t friendlyPiecesOnRay = allPieces & GetDirectionalRay(kingSquare, direction);
+
+        bool isValidPin = PopulationCount(friendlyPiecesOnRay) == 1;
+        pinmask |= (directionalRay & potentialPinmaskSquares) * isValidPin;
+    }
+
+    return pinmask;
+}
+
+PinmaskContainer_t DefinePinmasks(BoardInfo_t* boardInfo, Color_t color) {
     Bitboard_t kingBitboard = boardInfo->kings[color];
     Bitboard_t kingSquare = LSB(boardInfo->kings[color]);
 
     Bitboard_t emptyWithoutWhitePieces = (boardInfo->empty | boardInfo->allPieces[color]) & ~kingBitboard;
 
-    Bitboard_t potentialPinmask = UpdateCheckmaskWithSliders(
+    Bitboard_t potentialPinmaskSquares = UpdateCheckmaskWithSliders(
         boardInfo,
         emptyWithoutWhitePieces,
         kingBitboard,
@@ -164,11 +192,22 @@ void DefinePinmasks(BoardInfo_t* boardInfo, Color_t color, Bitboard_t pinmaskLis
         color
     );
 
-    for(Direction_t direction = 0; direction < NUM_DIRECTIONS; direction++) {
-        Bitboard_t directionalRay = GetDirectionalRay(kingSquare, direction);
-        Bitboard_t friendlyPiecesOnRay = boardInfo->allPieces[color] & directionalRay;
+    PinmaskContainer_t pinmasks;
+    pinmasks.hvPinmask = CalculateDirectionalPinmask(
+        potentialPinmaskSquares,
+        boardInfo->allPieces[color],
+        kingSquare,
+        hv_pinmask
+    );
 
-        bool isValidPin = PopulationCount(friendlyPiecesOnRay) == 1;
-        pinmaskList[direction] = (directionalRay & potentialPinmask) * isValidPin;
-    }
+    pinmasks.d12Pinmask = CalculateDirectionalPinmask(
+        potentialPinmaskSquares,
+        boardInfo->allPieces[color],
+        kingSquare,
+        d12_pinmask
+    );
+
+    pinmasks.allPinmask = pinmasks.hvPinmask | pinmasks.d12Pinmask;
+
+    return pinmasks;
 }

@@ -4,8 +4,6 @@
 typedef unsigned long long Bitboard_t; // supported by MSC 13.00+ and C99 
 #define C64(constantU64) constantU64##ULL
 
-#define NUM_SQUARES 64
-#define NUM_DIRECTIONS 8
 #define MOVELIST_MAX 1024
 #define GAMESTATES_MAX 1024
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
@@ -28,7 +26,8 @@ enum squareLabels {
   a5, b5, c5, d5, e5, f5, g5, h5,
   a6, b6, c6, d6, e6, f6, g6, h6,
   a7, b7, c7, d7, e7, f7, g7, h7,
-  a8, b8, c8, d8, e8, f8, g8, h8
+  a8, b8, c8, d8, e8, f8, g8, h8,
+  NUM_SQUARES
 };
 
 typedef int Piece_t;
@@ -53,7 +52,8 @@ enum directions {
     S,
     SW,
     W,
-    NW
+    NW,
+    NUM_DIRECTIONS
 };
 
 enum squareSets {

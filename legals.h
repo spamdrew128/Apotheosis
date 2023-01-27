@@ -9,6 +9,13 @@
 
 // mostly everything I need for movegen.c
 
+typedef struct
+{
+    Bitboard_t hvPinmask;
+    Bitboard_t d12Pinmask;
+    Bitboard_t allPinmask;
+} PinmaskContainer_t;
+
 Bitboard_t WhiteUnsafeSquares(BoardInfo_t* boardInfo);
 
 Bitboard_t BlackUnsafeSquares(BoardInfo_t* boardInfo);
@@ -23,6 +30,6 @@ Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, Color_t color);
 
 bool IsDoubleCheck(BoardInfo_t* boardInfo, Bitboard_t checkmask, Color_t color);
 
-void DefinePinmasks(BoardInfo_t* boardInfo, Color_t color, Bitboard_t pinmaskList[NUM_DIRECTIONS]);
+PinmaskContainer_t DefinePinmasks(BoardInfo_t* boardInfo, Color_t color);
 
 #endif

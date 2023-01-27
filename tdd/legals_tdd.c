@@ -26,15 +26,6 @@ static bool IsInCheck(BoardInfo_t* boardInfo, Color_t color) {
     }
 }
 
-static Bitboard_t CombinePinmasks(Bitboard_t pinmaskList[NUM_DIRECTIONS]) {
-    Bitboard_t pinmask = empty_set;
-    for(Direction_t d = 0; d < NUM_DIRECTIONS; d++) {
-        SetBits(pinmask, pinmaskList[d]);
-    }
-
-    return pinmask;
-}
-
 // r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R
 static void InitMidgameInfo(BoardInfo_t* info) {
     InitBoardInfo(info);
@@ -350,13 +341,16 @@ static void ShouldDefinePinmasks() {
     BoardInfo_t info;
     InitPinMaskPositionInfo(&info);
 
-    Bitboard_t pinmaskList[NUM_DIRECTIONS];
-    DefinePinmasks(&info, white, pinmaskList);
+    PinmaskContainer_t pinmasks = DefinePinmasks(&info, white);
 
-    Bitboard_t expected = CreateBitboard(7, e5,f5,g5,h5,e6,f7,g8);
-    Bitboard_t actual = CombinePinmasks(pinmaskList);
+    Bitboard_t expectedHVPinmasks = CreateBitboard(4, e5,f5,g5,h5);
+    Bitboard_t expectedD12Pinmasks = CreateBitboard(3, e6,f7,g8);
 
-    PrintResults(expected == actual);
+    bool success = 
+        pinmasks.hvPinmask == expectedHVPinmasks &&
+        pinmasks.d12Pinmask == expectedD12Pinmasks;
+
+    PrintResults(success);
 }
 
 void LegalsTDDRunner() {
