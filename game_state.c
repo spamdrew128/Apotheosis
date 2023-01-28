@@ -32,8 +32,7 @@ GameState_t GetDefaultNextGameState() {
     defaultState.halfmoveClock = ReadHalfmoveClock() + 1;
     defaultState.castleSquares[white] = ReadCastleSquares(white);
     defaultState.castleSquares[black] = ReadCastleSquares(black);
-    defaultState.enPassantSquares[white] = empty_set;
-    defaultState.enPassantSquares[black] = empty_set;
+    defaultState.enPassantSquares = empty_set;
 
     return defaultState;
 }
@@ -45,8 +44,7 @@ void AddStartingGameState() {
     gameStartState.halfmoveClock = 0;
     gameStartState.castleSquares[white] = white_kingside_castle_sq | white_queenside_castle_sq;
     gameStartState.castleSquares[black] = black_kingside_castle_sq | black_queenside_castle_sq;
-    gameStartState.enPassantSquares[white] = empty_set;
-    gameStartState.enPassantSquares[black] = empty_set;
+    gameStartState.enPassantSquares = empty_set;
 
     AddState(gameStartState);
 }
@@ -73,8 +71,8 @@ Bitboard_t ReadCastleSquares(Color_t color) {
     return CurrentState(stack).castleSquares[color];
 }
 
-Bitboard_t ReadEnPassantSquares(Color_t color) {
-    return CurrentState(stack).enPassantSquares[color];
+Bitboard_t ReadEnPassantSquares() {
+    return CurrentState(stack).enPassantSquares;
 }
 
 void ResetGameStateStack() {

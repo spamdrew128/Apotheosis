@@ -18,8 +18,7 @@ static bool GameStateIsCorrect(GameState_t expected) {
         (ReadHalfmoveClock() == expected.halfmoveClock) &&
         (ReadCastleSquares(white) == expected.castleSquares[white]) &&
         (ReadCastleSquares(black) == expected.castleSquares[black]) &&
-        (ReadEnPassantSquares(white) == expected.enPassantSquares[white]) &&
-        (ReadEnPassantSquares(black) == expected.enPassantSquares[black]);
+        (ReadEnPassantSquares() == expected.enPassantSquares);
 }
 
 static GameState_t GetSomeGamestate() {
@@ -28,9 +27,8 @@ static GameState_t GetSomeGamestate() {
     state.colorToMove = some_color_to_move;
     state.halfmoveClock = some_halfmove_clock;
     state.castleSquares[white] = some_white_castle_squares;
-    state.enPassantSquares[white] = some_white_enpassant_squares;
+    state.enPassantSquares = some_white_enpassant_squares;
     state.castleSquares[black] = some_black_castle_squares;
-    state.enPassantSquares[black] = some_black_enpassant_squares;
 
     return state;
 }
@@ -56,7 +54,7 @@ static void ShouldGetDefaultState() {
         .colorToMove = !some_color_to_move,
         .halfmoveClock = state.halfmoveClock + 1,
         .castleSquares = {state.castleSquares[white], state.castleSquares[black]},
-        .enPassantSquares = {empty_set, empty_set}
+        .enPassantSquares = empty_set
     };
 
     PrintResults(GameStateIsCorrect(expected));

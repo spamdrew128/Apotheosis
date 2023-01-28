@@ -187,6 +187,20 @@ static void InitPinMaskPositionInfo(BoardInfo_t* info) {
     UpdateEmpty(info);
 }
 
+// 1k6/8/8/r1pPK3/8/8/8/8
+static void InitEnPassantIllegalPositionInfo(BoardInfo_t* info) {
+    InitBoardInfo(info);
+    info->kings[white] = CreateBitboard(1, e5);
+    info->pawns[white] = CreateBitboard(1, d5);
+
+    info->kings[black] = CreateBitboard(1, b8);
+    info->pawns[black] = CreateBitboard(1, c5);
+    info->rooks[black] = CreateBitboard(1, a5);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
+}
+
 // TESTS
 static void TestWhiteUnsafeSquares() {
     BoardInfo_t info;
@@ -358,6 +372,17 @@ static void ShouldDefinePinmasks() {
     PrintResults(success);
 }
 
+static void ShouldIdentifyIllegalEnPassant() {
+    BoardInfo_t info;
+    InitEnPassantIllegalPositionInfo(&info);
+
+    Bitboard_t enPassantSquares = CreateBitboard(1, c6);
+
+    bool success = WestEnPassantIsLegal(&info, SoEaOne(enPassantSquares), white) == 0;
+
+    PrintResults(success);
+}
+
 void LegalsTDDRunner() {
     AddStartingGameState();
 
@@ -382,6 +407,8 @@ void LegalsTDDRunner() {
     ShouldIdentifyKnightAndSliderDoubleCheck();
 
     ShouldDefinePinmasks();
+
+    ShouldIdentifyIllegalEnPassant();
 
     ResetGameStateStack();
 }
