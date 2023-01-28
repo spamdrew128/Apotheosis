@@ -28,7 +28,7 @@ static void InitPinPositionInfo(BoardInfo_t* info) {
     info->kings[white] = CreateBitboard(1, d5);
     info->pawns[white] = CreateBitboard(2, c6,b7);
     info->rooks[white] = CreateBitboard(1, g5);
-    info->bishops[white] = CreateBitboard(1, f3);\
+    info->bishops[white] = CreateBitboard(1, f3);
     info->knights[white] = CreateBitboard(1, d3);
     info->queens[white] = CreateBitboard(1, e6);
 
@@ -48,15 +48,15 @@ static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
     BoardInfo_t info;
     InitPinPositionInfo(&info);
     
-    int expectedNumKingCaptures = 4;
-    int expectedNumPawnCaptures = 3;
-    int expectedNumRookCaptures = 4;
-    int expectedNumBishopCaptures = 7;
-    int expectedNumKnightsCaptures = 8;
-    int expectedNumQueenCaptures = 2;
+    int expectedNumKingCaptures = 0;
+    int expectedNumPawnCaptures = 4;
+    int expectedNumRookCaptures = 1;
+    int expectedNumBishopCaptures = 2;
+    int expectedNumKnightsCaptures = 0;
+    int expectedNumQueenCaptures = 1;
 
     MoveList_t moveList;
-    CompleteMovegen(&moveList, &info, white);
+    CapturesMovegen(&moveList, &info, white);
 
     bool success = 
         (CountPieceMoves(king, moveList, &info) == expectedNumKingCaptures) &&
