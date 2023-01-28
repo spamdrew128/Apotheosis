@@ -25,7 +25,6 @@ void UpdateEmpty(BoardInfo_t* boardInfo);
 
 void TranslateBitboardsToMailbox(BoardInfo_t* info);
 
-#define PieceOnSquare(boardInfoPtr, square) \
-    boardInfoPtr->mailbox[square]
+Piece_t PieceOnSquare(BoardInfo_t* boardInfo, Square_t square);
 
 #endif

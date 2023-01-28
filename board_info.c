@@ -50,3 +50,7 @@ void TranslateBitboardsToMailbox(BoardInfo_t* info) {
     AddPieceToMailbox(info, rook, info->rooks[white] | info->rooks[black]);
     AddPieceToMailbox(info, queen, info->queens[white] | info->queens[black]);
 }
+
+Piece_t PieceOnSquare(BoardInfo_t* boardInfo, Square_t square) {
+    return boardInfo->mailbox[square];
+}
