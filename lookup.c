@@ -130,6 +130,14 @@ static void InitDirectionalRays(Bitboard_t directionalRays[NUM_SQUARES][NUM_DIRE
     }
 }
 
+static void InitCastleSquares(Square_t ksCastleSquares[], Square_t qsCastleSquares[]) {
+    ksCastleSquares[white] = white_kingside_castle_sq;
+    ksCastleSquares[black] = black_kingside_castle_sq;
+
+    qsCastleSquares[white] = white_queenside_castle_sq;
+    qsCastleSquares[black] = black_queenside_castle_sq;
+}
+
 void InitLookup() {
     InitSingleBitset(lookup.singleBitsets);
     InitKnightAttacks(lookup.knightAttacks);
@@ -139,6 +147,7 @@ void InitLookup() {
     InitSlidingCheckmasks(lookup.slidingCheckmasks);
     InitPawnCheckmasks(lookup.pawnCheckmasks);
     InitDirectionalRays(lookup.directionalRays);
+    InitCastleSquares(lookup.ksCastleSquares, lookup.qsCastleSquares);
 }
 
 Bitboard_t GetSingleBitset(Square_t square) {
@@ -173,6 +182,14 @@ Bitboard_t GetPawnCheckmask(Square_t kingSquare, Color_t color) { // might be re
 
 Bitboard_t GetDirectionalRay(Square_t square, Direction_t direction) {
     return lookup.directionalRays[square][direction];
+}
+
+Square_t GetKingsideCastleSquare(Color_t color) {
+    return lookup.ksCastleSquares[color];
+}
+
+Square_t GetQueensideCastleSquare(Color_t color) {
+    return lookup.qsCastleSquares[color];
 }
 
 void TeardownLookup() {

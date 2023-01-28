@@ -1,6 +1,7 @@
 #include "legals.h"
 #include "movegen.h"
 #include "pieces.h"
+#include "lookup.h"
 
 typedef Bitboard_t (*UnsafeSquaresCallback_t)(BoardInfo_t* boardInfo);
 static UnsafeSquaresCallback_t UnsafeSquaresCallbacks[2] = { WhiteUnsafeSquares, BlackUnsafeSquares };
@@ -54,22 +55,30 @@ static void AddKingMoves(
     SerializeNormalMoves(moveList, kingSquare, kingLegalMoves);
 }
 
-static void _AddCastlingMovesHelper() {
+static void _AddCastlingMovesHelper(MoveList_t* moveList, Square_t kingSquare, Square_t castleSquare) {
+    InitializeNewMove(moveList);
+    Move_t* current = CurrentMove(moveList);
 
+    WriteToSquare(current, castleSquare);
+    WriteFromSquare(current, kingSquare);
+    WriteSpecialFlag(current, castle_flag);
 }
 
 static void AddCastlingMoves(
     MoveList_t* moveList,
     BoardInfo_t* boardInfo,
     Bitboard_t unsafeSquares,
+    Square_t kingSquare,
     Color_t color
 )
 {
-    // Bitboard_t kingBB = boardInfo->kings[white];
-
-    // if(qsCastleSquare) {
-
-    // }
+    if(CanCastleKingside(boardInfo, unsafeSquares, color)) {
+        _AddCastlingMovesHelper(moveList, kingSquare, GetKingsideCastleSquare(color));
+    }
+    
+    if(CanCastleQueenside(boardInfo, unsafeSquares, color)) {
+        _AddCastlingMovesHelper(moveList, kingSquare, GetQueensideCastleSquare(color));
+    }
 }
 
 static void AddKnightCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo, PinmaskContainer_t pinmasks, Bitboard_t checkmask, Color_t color) {

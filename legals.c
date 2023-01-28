@@ -99,24 +99,14 @@ Bitboard_t KingLegalMoves(Bitboard_t kingMoves, Bitboard_t unsafeSquares) {
     return kingMoves & ~unsafeSquares;
 }
 
-// void CastlingMoves(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color_t color) {
-//     Bitboard_t castlingMoves = empty_set;
-//     Bitboard_t kingsideSquare = ReadCastleSquares(color) & (boardInfo->kings[color] << 2);
-//     Bitboard_t queensideSquare = ReadCastleSquares(color) & (boardInfo->kings[color] >> 2);
-
-//     SetBits(&castlingMoves, KingsideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) * kingsideSquare);
-//     SetBits(&castlingMoves, QueensideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) * queensideSquare);
-//     return castlingMoves;
-// }
-
 bool CanCastleQueenside(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color_t color) {
-    Bitboard_t queensideSquare = ReadCastleSquares(color) & (boardInfo->kings[color] >> 2);
-    return QueensideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) && queensideSquare;
+    bool queensideSquareExists = ReadCastleSquares(color) & (boardInfo->kings[color] >> 2);
+    return QueensideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) && queensideSquareExists;
 }
 
 bool CanCastleKingside(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color_t color) {
-    Bitboard_t kingsideSquare = ReadCastleSquares(color) & (boardInfo->kings[color] << 2);
-    return KingsideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) && kingsideSquare;
+    bool kingsideSquareExists = ReadCastleSquares(color) & (boardInfo->kings[color] << 2);
+    return KingsideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) && kingsideSquareExists;
 }
 
 static Bitboard_t CalculateSliderCheckmask(
