@@ -15,6 +15,10 @@
         "board_info.h": "c",
         "board_info_tdd.h": "c",
         "movegen_tdd.h": "c",
-        "movegen.h": "c"
-    }
+        "movegen.h": "c",
+        "move.h": "c"
+    },
+    "editor.formatOnSave": false,
+    "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",
+    "clang-format.style": "Google"
 }

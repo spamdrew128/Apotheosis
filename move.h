@@ -31,14 +31,14 @@ enum specialFlags {
 
 #define InitalizeMove(move) move.data = 0
 
-#define ReadToSquare(move) move.data & to_square;
-#define ReadFromSquare(move) (move.data & from_square) >> from_square_offset;
-#define ReadPromotionPiece(move) (move.data & promotion_piece) >> promotion_piece_offset;
-#define ReadSpecialFlag(move) move.data & special_flags;
+#define ReadToSquare(move) move.data & to_square
+#define ReadFromSquare(move) (move.data & from_square) >> from_square_offset
+#define ReadPromotionPiece(move) (move.data & promotion_piece) >> promotion_piece_offset
+#define ReadSpecialFlag(move) move.data & special_flags
 
-#define WriteToSquare(move, square) move.data |= square;
-#define WriteFromSquare(move, square) move.data |= (square << from_square_offset);
-#define WritePromotionPiece(move, piece) move.data |= (piece << promotion_piece_offset);
-#define WriteSpecialFlag(move, specialFlag) move.data |= specialFlag;
+#define WriteToSquare(move, square) move.data |= square
+#define WriteFromSquare(move, square) move.data |= (square << from_square_offset)
+#define WritePromotionPiece(move, piece) move.data |= (piece << promotion_piece_offset)
+#define WriteSpecialFlag(move, specialFlag) move.data |= specialFlag
 
 #endif
