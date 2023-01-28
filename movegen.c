@@ -229,23 +229,24 @@ static void AddWhitePawnCaptures(
         (WhiteEastCaptureTargets(d12PinnedPawns, enemyPieces) & pinmasks.d12))
         & checkmask;
 
-    Bitboard_t eastCapturePromotions = FilterWhitePromotions(&eastCaptureTargets);
-
     Bitboard_t westCaptureTargets = 
         (WhiteWestCaptureTargets(freePawns, enemyPieces) |
         (WhiteWestCaptureTargets(d12PinnedPawns, enemyPieces) & pinmasks.d12))
         & checkmask;
 
+    Bitboard_t eastCapturePromotions = FilterWhitePromotions(&eastCaptureTargets);
     Bitboard_t westCapturePromotions = FilterWhitePromotions(&westCaptureTargets);
 
+    Bitboard_t epSquares = ReadEnPassantSquares(white);
+
     Bitboard_t eastEnPassantTargets = 
-        (WhiteEastEnPassantTargets(freePawns, ReadEnPassantSquares(white)) |
-        WhiteEastEnPassantTargets(d12PinnedPawns, ReadEnPassantSquares(white)) & pinmasks.d12)
+        (WhiteEastEnPassantTargets(freePawns, epSquares) |
+        WhiteEastEnPassantTargets(d12PinnedPawns, epSquares) & pinmasks.d12)
         & checkmask;
 
     Bitboard_t westEnPassantTargets = 
-        (WhiteWestEnPassantTargets(freePawns, ReadEnPassantSquares(white)) |
-        WhiteWestEnPassantTargets(d12PinnedPawns, ReadEnPassantSquares(white)) & pinmasks.d12)
+        (WhiteWestEnPassantTargets(freePawns, epSquares) |
+        WhiteWestEnPassantTargets(d12PinnedPawns, epSquares) & pinmasks.d12)
         & checkmask;
 };
 
