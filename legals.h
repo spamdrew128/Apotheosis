@@ -11,9 +11,9 @@
 
 typedef struct
 {
-    Bitboard_t hvPinmask;
-    Bitboard_t d12Pinmask;
-    Bitboard_t allPinmask;
+    Bitboard_t hv;
+    Bitboard_t d12;
+    Bitboard_t all;
 } PinmaskContainer_t;
 
 Bitboard_t WhiteUnsafeSquares(BoardInfo_t* boardInfo);
@@ -24,9 +24,9 @@ Bitboard_t KingLegalMoves(Bitboard_t kingMoves, Bitboard_t unsafeSquares);
 
 Bitboard_t CastlingMoves(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color_t color);
 
-#define InCheck(boardInfoPtr, unsafeSquares, color) unsafeSquares & (boardInfo)->kings[color]
-
 Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, Color_t color);
+
+bool InCheck(Bitboard_t kingBitboard, Bitboard_t unsafeSquares);
 
 bool IsDoubleCheck(BoardInfo_t* boardInfo, Bitboard_t checkmask, Color_t color);
 

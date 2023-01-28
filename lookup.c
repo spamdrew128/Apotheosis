@@ -66,7 +66,7 @@ static void FillSlidingCheckmask(Bitboard_t* checkmasks, Bitboard_t singleBitset
 
     singleBitset = DirectionFunc(singleBitset);
     while(singleBitset) {
-        SetBits(result, singleBitset);
+        SetBits(&result, singleBitset);
         checkmasks[LSB(singleBitset)] = result;
         singleBitset = DirectionFunc(singleBitset);
     }
@@ -108,7 +108,7 @@ static Bitboard_t GetSingleDirectionRay(Bitboard_t singleBitset, DirectionCallba
 
     singleBitset = DirectionFunc(singleBitset);
     while(singleBitset) {
-        SetBits(result, singleBitset);
+        SetBits(&result, singleBitset);
         singleBitset = DirectionFunc(singleBitset);
     }
 

@@ -21,52 +21,52 @@ void InterpretFEN(FEN_t fen, BoardInfo_t* info) {
         switch(fen[i])
         {
             case 'R':
-                SetBits(info->rooks[white], singleBitset);
+                SetBits(&info->rooks[white], singleBitset);
                 file++;
                 break;
             case 'N':
-                SetBits(info->knights[white], singleBitset);
+                SetBits(&info->knights[white], singleBitset);
                 file++;
                 break;
             case 'B':
-                SetBits(info->bishops[white], singleBitset);
+                SetBits(&info->bishops[white], singleBitset);
                 file++;
                 break;
             case 'Q':
-                SetBits(info->queens[white], singleBitset);
+                SetBits(&info->queens[white], singleBitset);
                 file++;
                 break;
             case 'K':
-                SetBits(info->kings[white], singleBitset);
+                SetBits(&info->kings[white], singleBitset);
                 file++;
                 break;
             case 'P':
-                SetBits(info->pawns[white], singleBitset);
+                SetBits(&info->pawns[white], singleBitset);
                 file++;
                 break;
 
             case 'r':
-                SetBits(info->rooks[black], singleBitset);
+                SetBits(&info->rooks[black], singleBitset);
                 file++;
                 break;
             case 'n':
-                SetBits(info->knights[black], singleBitset);
+                SetBits(&info->knights[black], singleBitset);
                 file++;
                 break;
             case 'b':
-                SetBits(info->bishops[black], singleBitset);
+                SetBits(&info->bishops[black], singleBitset);
                 file++;
                 break;
             case 'q':
-                SetBits(info->queens[black], singleBitset);
+                SetBits(&info->queens[black], singleBitset);
                 file++;
                 break;
             case 'k':
-                SetBits(info->kings[black], singleBitset);
+                SetBits(&info->kings[black], singleBitset);
                 file++;
                 break;
             case 'p':
-                SetBits(info->pawns[black], singleBitset);
+                SetBits(&info->pawns[black], singleBitset);
                 file++;
                 break;
 

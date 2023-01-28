@@ -16,12 +16,11 @@ typedef int Population_t;
 Population_t PopulationCount(Bitboard_t b);
 
 Square_t LSB(Bitboard_t b);
+Bitboard_t IsolateLSB(Bitboard_t b);
 
-#define ResetLSB(b) b &= b - 1
-#define IsolateLSB(b) b & -b
-
-#define SetBits(bitboard, mask) bitboard |= mask
-#define ResetBits(bitboard, mask) bitboard &= ~mask
-#define ToggleBits(bitboard, mask) bitboard ^= mask
+void ResetLSB(Bitboard_t* b);
+void SetBits(Bitboard_t* b, Bitboard_t mask);
+void ResetBits(Bitboard_t* b, Bitboard_t mask);
+void ToggleBits(Bitboard_t* b, Bitboard_t mask);
 
 #endif

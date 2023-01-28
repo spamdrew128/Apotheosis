@@ -22,7 +22,7 @@ void InitBoardInfo(BoardInfo_t* info) {
 static void AddPieceToMailbox(BoardInfo_t* info, Piece_t piece, Bitboard_t pieceBitboard) {
     while(pieceBitboard) {
         info->mailbox[LSB(pieceBitboard)] = piece;
-        ResetLSB(pieceBitboard);
+        ResetLSB(&pieceBitboard);
     }
 }
 

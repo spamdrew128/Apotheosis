@@ -40,7 +40,7 @@ static Bitboard_t FillMask(Bitboard_t singleBitset, DirectionCallback_t Directio
 
     singleBitset = DirectionFunc(singleBitset);
     while(NotEdge(singleBitset, edge)) {
-        SetBits(result, singleBitset);
+        SetBits(&result, singleBitset);
         singleBitset = DirectionFunc(singleBitset);
     }
 
@@ -52,7 +52,7 @@ static Bitboard_t FillAttacks(Bitboard_t singleBitset, Bitboard_t blockers, Dire
 
     do {
         singleBitset = DirectionFunc(singleBitset);
-        SetBits(result, singleBitset);
+        SetBits(&result, singleBitset);
     } while(singleBitset && !(singleBitset & blockers));
 
     return result;

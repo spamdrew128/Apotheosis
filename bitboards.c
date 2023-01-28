@@ -16,15 +16,34 @@ Bitboard_t NoWeOne (Bitboard_t b) {return (b & not_a_file) << 7;}
 Population_t PopulationCount(Bitboard_t b) {
     Population_t count = 0;
     while(b) {
-        ResetLSB(b);
+        ResetLSB(&b);
         count++;
     }
     return count;
 }
 
-inline Square_t LSB(Bitboard_t b) { // I hate macros and you can't force me to use them
+Square_t LSB(Bitboard_t b) { // I hate macros and you can't force me to use them
     assert(b);
     return __builtin_ctzll(b);
 }
 
+Bitboard_t IsolateLSB(Bitboard_t b) {
+    return b & -b;
+}
+
+void ResetLSB(Bitboard_t* b) {
+    *b &= *b - 1;
+}
+
+void SetBits(Bitboard_t* b, Bitboard_t mask) {
+    *b |= mask;
+}
+
+void ResetBits(Bitboard_t* b, Bitboard_t mask) {
+    *b &= ~mask;
+}
+
+void ToggleBits(Bitboard_t* b, Bitboard_t mask) {
+    *b ^= mask;
+}
 

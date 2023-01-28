@@ -60,8 +60,8 @@ static Bitboard_t QueenAttacks(Square_t square, Bitboard_t empty) {
 static Bitboard_t GetAllAttacks(Bitboard_t pieceLocations, Bitboard_t empty, GetAttacksCallback_t GetAttacksCallback) {
     Bitboard_t result = empty_set;
     while(pieceLocations) {
-        SetBits(result, GetAttacksCallback(LSB(pieceLocations), empty));
-        ResetLSB(pieceLocations);
+        SetBits(&result, GetAttacksCallback(LSB(pieceLocations), empty));
+        ResetLSB(&pieceLocations);
     }
 
     return result;
@@ -104,8 +104,8 @@ Bitboard_t CastlingMoves(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color
     Bitboard_t kingsideSquare = ReadCastleSquares(color) & (boardInfo->kings[color] << 2);
     Bitboard_t queensideSquare = ReadCastleSquares(color) & (boardInfo->kings[color] >> 2);
 
-    SetBits(castlingMoves, KingsideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) * kingsideSquare);
-    SetBits(castlingMoves, QueensideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) * queensideSquare);
+    SetBits(&castlingMoves, KingsideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) * kingsideSquare);
+    SetBits(&castlingMoves, QueensideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) * queensideSquare);
     return castlingMoves;
 }
 
@@ -121,9 +121,9 @@ static Bitboard_t CalculateSliderCheckmask(
 
     Bitboard_t checkmask = empty_set;
     while(checkingSliders) {
-        SetBits(checkmask, GetSlidingCheckmask(kingSquare, LSB(checkingSliders)));
+        SetBits(&checkmask, GetSlidingCheckmask(kingSquare, LSB(checkingSliders)));
 
-        ResetLSB(checkingSliders);
+        ResetLSB(&checkingSliders);
     }
 
     return checkmask;
@@ -143,12 +143,16 @@ Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, Color_t color) {
     );
 
     Bitboard_t pawnsCheckingKing = GetPawnCheckmask(kingSquare, color) & boardInfo->pawns[!color];
-    SetBits(checkmask, pawnsCheckingKing);
+    SetBits(&checkmask, pawnsCheckingKing);
 
     Bitboard_t knighsCheckingKing = GetKnightAttacks(kingSquare) & boardInfo->knights[!color];
-    SetBits(checkmask, knighsCheckingKing);
+    SetBits(&checkmask, knighsCheckingKing);
 
     return checkmask;
+}
+
+bool InCheck(Bitboard_t kingBitboard, Bitboard_t unsafeSquares) {
+    return unsafeSquares & kingBitboard;
 }
 
 bool IsDoubleCheck(BoardInfo_t* boardInfo, Bitboard_t checkmask, Color_t color) {
@@ -194,21 +198,21 @@ PinmaskContainer_t DefinePinmasks(BoardInfo_t* boardInfo, Color_t color) {
     );
 
     PinmaskContainer_t pinmasks;
-    pinmasks.hvPinmask = CalculateDirectionalPinmask(
+    pinmasks.hv = CalculateDirectionalPinmask(
         potentialPinmaskSquares,
         boardInfo->allPieces[color],
         kingSquare,
         hv_pinmask
     );
 
-    pinmasks.d12Pinmask = CalculateDirectionalPinmask(
+    pinmasks.d12 = CalculateDirectionalPinmask(
         potentialPinmaskSquares,
         boardInfo->allPieces[color],
         kingSquare,
         d12_pinmask
     );
 
-    pinmasks.allPinmask = pinmasks.hvPinmask | pinmasks.d12Pinmask;
+    pinmasks.all = pinmasks.hv | pinmasks.d12;
 
     return pinmasks;
 }

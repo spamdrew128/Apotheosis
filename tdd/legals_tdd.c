@@ -20,9 +20,9 @@ enum {
 
 static bool IsInCheck(BoardInfo_t* boardInfo, Color_t color) {
     if(color == white) {
-        return InCheck(boardInfo, WhiteUnsafeSquares(boardInfo), white);
+        return InCheck(boardInfo->kings[color], WhiteUnsafeSquares(boardInfo));
     } else {
-        return InCheck(boardInfo, BlackUnsafeSquares(boardInfo), black);
+        return InCheck(boardInfo->kings[color], BlackUnsafeSquares(boardInfo));
     }
 }
 
@@ -347,8 +347,8 @@ static void ShouldDefinePinmasks() {
     Bitboard_t expectedD12Pinmasks = CreateBitboard(3, e6,f7,g8);
 
     bool success = 
-        pinmasks.hvPinmask == expectedHVPinmasks &&
-        pinmasks.d12Pinmask == expectedD12Pinmasks;
+        pinmasks.hv == expectedHVPinmasks &&
+        pinmasks.d12 == expectedD12Pinmasks;
 
     PrintResults(success);
 }

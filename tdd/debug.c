@@ -7,7 +7,7 @@ static void FillBoardArray(char boardArray[], Bitboard_t b, char fillChar) {
     while(b) {
         Square_t square = __builtin_ctzll(b);
         boardArray[square] = fillChar;
-        ResetLSB(b);
+        ResetLSB(&b);
     }
 }
 
@@ -17,7 +17,7 @@ void PrintBitboard(Bitboard_t b) {
     while(b) {
         Square_t square = __builtin_ctzll(b);
         boardArray[square] = 1;
-        ResetLSB(b);
+        ResetLSB(&b);
     }
 
     printf("\n");
@@ -67,7 +67,7 @@ Bitboard_t CreateBitboard(int numOccupied, ...) {
 
     Bitboard_t bitboard = empty_set;
     for (int i = 0; i < numOccupied; i++) {
-        SetBits(bitboard, C64(1) << va_arg(valist, Square_t));
+        SetBits(&bitboard, C64(1) << va_arg(valist, Square_t));
     } 
 
     return bitboard;
