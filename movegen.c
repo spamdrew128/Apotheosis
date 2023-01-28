@@ -23,6 +23,14 @@ typedef Bitboard_t (*SliderCaptureTargetsCallback_t)(Square_t square, Bitboard_t
 
 typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t b);
 
+#define SerializePositionsIntoMoves(_positions, ...) \
+    do { \
+        while(_positions) { \
+            __VA_ARGS__ \
+            ResetLSB(&_positions); \
+        } \
+    } while(0)
+
 static Move_t* CurrentMove(MoveList_t* moveList) {
     return &(moveList->moves[moveList->maxIndex]);
 }
@@ -100,14 +108,6 @@ static void SerializePawnPromotions(
         ResetLSB(&pawnPositions);
     }
 }
-
-#define SerializePositionsIntoMoves(_positions, ...) \
-    do { \
-        while(_positions) { \
-            __VA_ARGS__ \
-            ResetLSB(&_positions); \
-        } \
-    } while(0)
 
 static void AddKingMoves(
     MoveList_t* moveList,
@@ -416,6 +416,37 @@ void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color
         enemyPieces,
         checkmask,
         color
+    );
+
+    AddBishopCaptures(
+        moveList,
+        boardInfo->bishops[color] & ~pinmasks.all,
+        boardInfo->bishops[color] & pinmasks.d12,
+        checkmask,
+        boardInfo->empty,
+        enemyPieces,
+        pinmasks
+    );
+
+    AddRookCaptures(
+        moveList,
+        boardInfo->rooks[color] & ~pinmasks.all,
+        boardInfo->rooks[color] & pinmasks.hv,
+        checkmask,
+        boardInfo->empty,
+        enemyPieces,
+        pinmasks
+    );
+
+    AddQueenCaptures(
+        moveList,
+        boardInfo->rooks[color] & ~pinmasks.all,
+        boardInfo->rooks[color] & pinmasks.hv,
+        boardInfo->rooks[color] & pinmasks.d12,
+        checkmask,
+        boardInfo->empty,
+        enemyPieces,
+        pinmasks
     );
 }
 
