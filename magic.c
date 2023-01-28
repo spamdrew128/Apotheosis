@@ -14,7 +14,7 @@ enum {
 };
 
 typedef Bitboard_t (*BlockersToAttacksCallback_t)(Square_t, Bitboard_t);
-typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t);
+typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t b);
 typedef Bitboard_t (*FindMaskCallback_t)(Square_t);
 
 typedef struct {

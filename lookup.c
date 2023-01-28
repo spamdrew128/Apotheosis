@@ -5,7 +5,7 @@
 
 static Lookup_t lookup;
 
-typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t);
+typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t b);
 
 static void InitSingleBitset(Bitboard_t singleBitsets[]) {
     for(Square_t i = 0; i < NUM_SQUARES; i++) {

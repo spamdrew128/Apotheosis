@@ -9,6 +9,8 @@ static UnsafeSquaresCallback_t UnsafeSquaresCallbacks[2] = { WhiteUnsafeSquares,
 
 typedef Bitboard_t (*SliderCaptureTargetsCallback_t)(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces);
 
+typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t b);
+
 static Move_t* CurrentMove(MoveList_t* moveList) {
     return &(moveList->moves[moveList->maxIndex]);
 }
@@ -32,6 +34,49 @@ static void SerializeNormalMoves(
         WriteFromSquare(current, pieceSquare);
 
         ResetLSB(&moves);
+    }
+}
+
+static void SerializePawnMoves(
+    MoveList_t* moveList,
+    Bitboard_t moves,
+    SpecialFlag_t flag,
+    DirectionCallback_t ShiftToPawnPos
+)
+{
+    Bitboard_t pawnPositions = ShiftToPawnPos(moves);
+    while(moves) {
+        InitializeNewMove(moveList);
+        Move_t* current = CurrentMove(moveList);
+
+        WriteToSquare(current, LSB(moves));
+        WriteFromSquare(current, LSB(pawnPositions));
+        WriteSpecialFlag(current, flag);
+
+        ResetLSB(&moves);\
+        ResetLSB(&pawnPositions);
+    }
+}
+
+static void SerializePawnPromotions(
+    MoveList_t* moveList,
+    Bitboard_t moves,
+    Piece_t promotionPiece,
+    DirectionCallback_t ShiftToPawnPos
+)
+{
+    Bitboard_t pawnPositions = ShiftToPawnPos(moves);
+    while(moves) {
+        InitializeNewMove(moveList);
+        Move_t* current = CurrentMove(moveList);
+
+        WriteToSquare(current, LSB(moves));
+        WriteFromSquare(current, LSB(pawnPositions));
+        WritePromotionPiece(current, promotionPiece);
+        WriteSpecialFlag(current, promotion_flag);
+
+        ResetLSB(&moves);\
+        ResetLSB(&pawnPositions);
     }
 }
 
@@ -184,10 +229,14 @@ static void AddWhitePawnCaptures(
         (WhiteEastCaptureTargets(d12PinnedPawns, enemyPieces) & pinmasks.d12))
         & checkmask;
 
+    Bitboard_t eastCapturePromotions = FilterWhitePromotions(&eastCaptureTargets);
+
     Bitboard_t westCaptureTargets = 
         (WhiteWestCaptureTargets(freePawns, enemyPieces) |
         (WhiteWestCaptureTargets(d12PinnedPawns, enemyPieces) & pinmasks.d12))
         & checkmask;
+
+    Bitboard_t westCapturePromotions = FilterWhitePromotions(&westCaptureTargets);
 
     Bitboard_t eastEnPassantTargets = 
         (WhiteEastEnPassantTargets(freePawns, ReadEnPassantSquares(white)) |
