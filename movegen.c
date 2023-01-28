@@ -2,6 +2,7 @@
 #include "movegen.h"
 #include "pieces.h"
 #include "lookup.h"
+#include "game_state.h"
 
 typedef Bitboard_t (*UnsafeSquaresCallback_t)(BoardInfo_t* boardInfo);
 static UnsafeSquaresCallback_t UnsafeSquaresCallbacks[2] = { WhiteUnsafeSquares, BlackUnsafeSquares };
@@ -167,6 +168,37 @@ static void AddQueenCaptures(
         SerializeNormalMoves(moveList, queenSquare, moves);
     });
 }
+
+static void AddWhitePawnCaptures(
+    MoveList_t* moveList,
+    Bitboard_t freePawns,
+    Bitboard_t d12PinnedPawns,
+    Bitboard_t checkmask,
+    Bitboard_t empty,
+    Bitboard_t enemyPieces,
+    PinmaskContainer_t pinmasks
+) 
+{
+    Bitboard_t eastCaptureTargets = 
+        (WhiteEastCaptureTargets(freePawns, enemyPieces) |
+        (WhiteEastCaptureTargets(d12PinnedPawns, enemyPieces) & pinmasks.d12))
+        & checkmask;
+
+    Bitboard_t westCaptureTargets = 
+        (WhiteWestCaptureTargets(freePawns, enemyPieces) |
+        (WhiteWestCaptureTargets(d12PinnedPawns, enemyPieces) & pinmasks.d12))
+        & checkmask;
+
+    Bitboard_t eastEnPassantTargets = 
+        (WhiteEastEnPassantTargets(freePawns, ReadEnPassantSquares(white)) |
+        WhiteEastEnPassantTargets(d12PinnedPawns, ReadEnPassantSquares(white)) & pinmasks.d12)
+        & checkmask;
+
+    Bitboard_t westEnPassantTargets = 
+        (WhiteWestEnPassantTargets(freePawns, ReadEnPassantSquares(white)) |
+        WhiteWestEnPassantTargets(d12PinnedPawns, ReadEnPassantSquares(white)) & pinmasks.d12)
+        & checkmask;
+};
 
 void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color) {
     moveList->maxIndex = 0;
