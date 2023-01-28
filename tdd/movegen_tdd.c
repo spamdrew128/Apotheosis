@@ -44,7 +44,32 @@ static void InitPinPositionInfo(BoardInfo_t* info) {
 }
 
 // TESTS
-static void ShouldCorrectlyEvaluatePosWithPins() {
+static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
+    BoardInfo_t info;
+    InitPinPositionInfo(&info);
+    
+    int expectedNumKingCaptures = 4;
+    int expectedNumPawnCaptures = 3;
+    int expectedNumRookCaptures = 4;
+    int expectedNumBishopCaptures = 7;
+    int expectedNumKnightsCaptures = 8;
+    int expectedNumQueenCaptures = 2;
+
+    MoveList_t moveList;
+    CompleteMovegen(&moveList, &info, white);
+
+    bool success = 
+        (CountPieceMoves(king, moveList, &info) == expectedNumKingCaptures) &&
+        (CountPieceMoves(pawn, moveList, &info) == expectedNumPawnCaptures) &&
+        (CountPieceMoves(rook, moveList, &info) == expectedNumRookCaptures) &&
+        (CountPieceMoves(bishop, moveList, &info) == expectedNumBishopCaptures) &&
+        (CountPieceMoves(knight, moveList, &info) == expectedNumKnightsCaptures) &&
+        (CountPieceMoves(queen, moveList, &info) == expectedNumQueenCaptures);
+
+    PrintResults(success);
+}
+
+static void ShouldCorrectlyEvaluateInPosWithPins() {
     BoardInfo_t info;
     InitPinPositionInfo(&info);
     
@@ -70,5 +95,6 @@ static void ShouldCorrectlyEvaluatePosWithPins() {
 }
 
 void MovegenTDDRunner() {
-    // ShouldCorrectlyEvaluatePosWithPins();
+    ShouldCorrectlyEvaluateCapturesInPosWithPins();
+    // ShouldCorrectlyEvaluateInPosWithPins();
 }

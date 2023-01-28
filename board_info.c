@@ -14,9 +14,7 @@ void InitBoardInfo(BoardInfo_t* info) {
 
     info->empty = empty_set;
 
-    for(int i = 0; i < NUM_SQUARES; i++) {
-        info->mailbox[i] = none_type;
-    }
+    TranslateBitboardsToMailbox(info);
 }
 
 static void AddPieceToMailbox(BoardInfo_t* info, Piece_t piece, Bitboard_t pieceBitboard) {
@@ -43,6 +41,7 @@ void UpdateEmpty(BoardInfo_t* boardInfo) {
 }
 
 void TranslateBitboardsToMailbox(BoardInfo_t* info) {
+    AddPieceToMailbox(info, none_type, full_set);
     AddPieceToMailbox(info, king, info->kings[white] | info->kings[black]);
     AddPieceToMailbox(info, pawn, info->pawns[white] | info->pawns[black]);
     AddPieceToMailbox(info, knight, info->knights[white] | info->knights[black]);

@@ -5,8 +5,6 @@
 #include "game_state.h"
 
 typedef Bitboard_t (*UnsafeSquaresCallback_t)(BoardInfo_t* boardInfo);
-static UnsafeSquaresCallback_t UnsafeSquaresCallbacks[2] = { WhiteUnsafeSquares, BlackUnsafeSquares };
-
 
 typedef void (*AddPawnCaptures_t)(
     MoveList_t* moveList,
@@ -17,7 +15,6 @@ typedef void (*AddPawnCaptures_t)(
     Bitboard_t checkmask,
     PinmaskContainer_t pinmasks
 );
-static AddPawnCaptures_t AddPawnCapturesCallbacks[2] = { AddWhitePawnCaptures, AddBlackPawnCaptures };
 
 typedef Bitboard_t (*SliderCaptureTargetsCallback_t)(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces);
 
@@ -381,12 +378,24 @@ static void AddBlackPawnCaptures(
     );
 };
 
+static UnsafeSquaresCallback_t UnsafeSquaresCallbacks[2] = { WhiteUnsafeSquares, BlackUnsafeSquares };
+static AddPawnCaptures_t AddPawnCapturesCallbacks[2] = { AddWhitePawnCaptures, AddBlackPawnCaptures };
+
 void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color) {
     moveList->maxIndex = 0;
 
     Bitboard_t unsafeSquares = UnsafeSquaresCallbacks[color](boardInfo);
 
-    AddKingCaptures(moveList, boardInfo, unsafeSquares, color); 
+    Square_t kingSquare = LSB(boardInfo->kings[color]);
+    Bitboard_t enemyPieces = boardInfo->allPieces[!color];
+
+    AddKingMoves(
+        moveList,
+        kingSquare,
+        KingCaptureTargets(kingSquare, enemyPieces),
+        unsafeSquares,
+        boardInfo->empty
+    ); 
 
     Bitboard_t checkmask = full_set;
     if(InCheck(boardInfo->kings[color], unsafeSquares)) {
@@ -397,8 +406,6 @@ void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color
     } 
 
     PinmaskContainer_t pinmasks = DefinePinmasks(boardInfo, color);
-
-    Bitboard_t enemyPieces = boardInfo->allPieces[!color];
 
     AddPawnCapturesCallbacks[color](
         moveList,

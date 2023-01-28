@@ -16,20 +16,20 @@ void InitMove(Move_t* move) {
     move->data = 0;
 }
 
-Square_t ReadToSquare(Move_t* move) {
-    return move->data & to_square;
+Square_t ReadToSquare(Move_t move) {
+    return move.data & to_square;
 }
 
-Square_t ReadFromSquare(Move_t* move) {
-    return (move->data & from_square) >> from_square_offset;
+Square_t ReadFromSquare(Move_t move) {
+    return (move.data & from_square) >> from_square_offset;
 }
 
-Square_t ReadPromotionPiece(Move_t* move) {
-    return (move->data & promotion_piece) >> promotion_piece_offset;
+Square_t ReadPromotionPiece(Move_t move) {
+    return (move.data & promotion_piece) >> promotion_piece_offset;
 }
 
-Square_t ReadSpecialFlag(Move_t* move) {
-    return move->data & special_flags;
+Square_t ReadSpecialFlag(Move_t move) {
+    return move.data & special_flags;
 }
 
 void WriteToSquare(Move_t* move, Square_t square) {
