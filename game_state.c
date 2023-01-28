@@ -13,13 +13,13 @@ enum {
     stack_empty = -1
 };
 
-#define CurrentState(stack) stack.gameStates[stack.top]
-
-#define NextState(stack) stack.gameStates[stack.top + 1]
-
 static Stack_t stack = {
     .top = stack_empty,
 };
+
+#define CurrentState(stack) stack.gameStates[stack.top]
+
+#define NextState(stack) stack.gameStates[stack.top + 1]
 
 GameState_t GetNewGameState() {
     return NextState(stack);

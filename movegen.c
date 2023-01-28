@@ -7,11 +7,14 @@ static UnsafeSquaresCallback_t UnsafeSquaresCallbacks[2] = { WhiteUnsafeSquares,
 
 typedef Bitboard_t (*SliderCaptureTargetsCallback_t)(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces);
 
-#define CurrentMove(moveListPtr) \
-    moveListPtr->moves[moveListPtr->maxIndex]
+Move_t* CurrentMove(MoveList_t* moveList) {
+    return &(moveList->moves[moveList->maxIndex]);
+}
 
-#define AddNewMove(moveListPtr) \
-    (moveListPtr->maxIndex)++; InitMove(CurrentMove(moveListPtr))
+void InitializeNewMove(MoveList_t* moveList) {
+    (moveList->maxIndex)++;
+    InitMove(CurrentMove(moveList));
+}
 
 #define SerializePositionsIntoMoves(_positions, ...) \
     do { \
