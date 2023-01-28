@@ -58,24 +58,33 @@ static void SerializePawnMoves(
     }
 }
 
+static void _SerializePawnPromotionsHelper(MoveList_t* moveList, Piece_t promotionType, Square_t to, Square_t from) {
+    InitializeNewMove(moveList);
+    Move_t* current = CurrentMove(moveList);
+
+    WriteToSquare(current, to);
+    WriteFromSquare(current, from);
+    WritePromotionPiece(current, promotionType);
+    WriteSpecialFlag(current, promotion_flag);
+}
+
 static void SerializePawnPromotions(
     MoveList_t* moveList,
     Bitboard_t moves,
-    Piece_t promotionPiece,
     DirectionCallback_t ShiftToPawnPos
 )
 {
     Bitboard_t pawnPositions = ShiftToPawnPos(moves);
     while(moves) {
-        InitializeNewMove(moveList);
-        Move_t* current = CurrentMove(moveList);
+        Square_t toSquare = LSB(moves);
+        Square_t fromSquare = LSB(pawnPositions);
 
-        WriteToSquare(current, LSB(moves));
-        WriteFromSquare(current, LSB(pawnPositions));
-        WritePromotionPiece(current, promotionPiece);
-        WriteSpecialFlag(current, promotion_flag);
+        _SerializePawnPromotionsHelper(moveList, queen, toSquare, fromSquare);
+        _SerializePawnPromotionsHelper(moveList, rook, toSquare, fromSquare);
+        _SerializePawnPromotionsHelper(moveList, bishop, toSquare, fromSquare);
+        _SerializePawnPromotionsHelper(moveList, knight, toSquare, fromSquare);
 
-        ResetLSB(&moves);\
+        ResetLSB(&moves);
         ResetLSB(&pawnPositions);
     }
 }
@@ -238,7 +247,6 @@ static void AddWhitePawnCaptures(
     Bitboard_t westCapturePromotions = FilterWhitePromotions(&westCaptureTargets);
 
     Bitboard_t epSquares = ReadEnPassantSquares(white);
-
     Bitboard_t eastEnPassantTargets = 
         (WhiteEastEnPassantTargets(freePawns, epSquares) |
         WhiteEastEnPassantTargets(d12PinnedPawns, epSquares) & pinmasks.d12)
@@ -248,6 +256,12 @@ static void AddWhitePawnCaptures(
         (WhiteWestEnPassantTargets(freePawns, epSquares) |
         WhiteWestEnPassantTargets(d12PinnedPawns, epSquares) & pinmasks.d12)
         & checkmask;
+
+    SerializePawnMoves(moveList, eastCaptureTargets, no_flag, SoWeOne);
+    SerializePawnPromotions(moveList, eastCapturePromotions, SoWeOne);
+    
+    SerializePawnMoves(moveList, westCaptureTargets, no_flag, SoEaOne);
+    SerializePawnPromotions(moveList, westCapturePromotions, SoEaOne);
 };
 
 void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color) {
