@@ -20,7 +20,7 @@ void InitializeNewMove(MoveList_t* moveList) {
     do { \
         while(_positions) { \
             __VA_ARGS__ \
-            ResetLSB(_positions); \
+            ResetLSB(&_positions); \
         } \
     } while(0) 
 
@@ -29,42 +29,9 @@ void InitializeNewMove(MoveList_t* moveList) {
         while(_moves) { \
             AddNewMove(_moveListPtr); \
             __VA_ARGS__ \
-            ResetLSB(_moves); \
+            ResetLSB(&_moves); \
         } \
     } while(0)
-
-// static void SerializeMovesIntoMovelist(MoveList_t* moveList, Bitboard_t newMoves, Square_t fromSquare, Piece_t piece) {
-//     while(newMoves) {
-//         AddNewMove(moveList);
-
-//         WriteToSquare(CurrentMove(moveList), LSB(newMoves));
-//         WriteFromSquare(CurrentMove(moveList), fromSquare);
-//         WriteSpecialFlag(CurrentMove(moveList), no_flag);
-
-//         ResetLSB(newMoves);
-//     }
-// }
-
-// static void SerializeSliderPostionsIntoMoves(
-//     MoveList_t* moveList,
-//     Bitboard_t sliders,
-//     Bitboard_t restriction,
-//     Bitboard_t empty,
-//     Bitboard_t enemyPieces,
-//     Piece_t pieceType,
-//     SliderCaptureTargetsCallback_t SliderCaptureTargetsCallback
-// ) 
-// {
-//     while(sliders) {
-//         Square_t sliderSquare = LSB(sliders);
-//         Bitboard_t sliderCaptures = 
-//             SliderCaptureTargetsCallback(sliderSquare, empty, enemyPieces) & restriction;
-
-//         SerializeMovesIntoMovelist(moveList, sliderCaptures, sliderSquare, pieceType);
-
-//         ResetLSB(sliders);
-//     }
-// }
 
 static void AddKingMoves(MoveList_t* moveList, BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color_t color) {
     Bitboard_t kingSquare = LSB(boardInfo->kings[color]);
@@ -159,37 +126,35 @@ static void AddQueenCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo, Pinma
     Bitboard_t hvPinnedQueens = boardInfo->queens[color] & pinmasks.hv;
     Bitboard_t d12PinnedQueens = boardInfo->queens[color] & pinmasks.d12;
     
-    Bitboard_t enemy = boardInfo->allPieces[!color];
+    Bitboard_t enemyPieces = boardInfo->allPieces[!color];
+    Bitboard_t empty = boardInfo->empty;
 
-    SerializeSliderPostionsIntoMoves(
-        moveList,
-        freeQueens,
-        checkmask,
-        boardInfo->empty,
-        enemy,
-        queen,
-        QueenCaptureTargets
-    );
+    SerializePositionsIntoMoves(freeQueens, {
+        Bitboard_t queenSquare = LSB(freeQueens);
+        Bitboard_t moves = QueenCaptureTargets(queenSquare, empty, enemyPieces) & checkmask;
+        SerializeMovesIntoMoveList(moveList, moves, {
+            WriteToSquare(CurrentMove(moveList), LSB(moves));
+            WriteFromSquare(CurrentMove(moveList), queenSquare);
+        });
+    });
 
-    SerializeSliderPostionsIntoMoves(
-        moveList,
-        hvPinnedQueens,
-        checkmask & pinmasks.hv,
-        boardInfo->empty,
-        enemy,
-        queen,
-        RookCaptureTargets
-    );
+    SerializePositionsIntoMoves(hvPinnedQueens, {
+        Bitboard_t queenSquare = LSB(hvPinnedQueens);
+        Bitboard_t moves = RookCaptureTargets(queenSquare, empty, enemyPieces) & checkmask & pinmasks.hv;
+        SerializeMovesIntoMoveList(moveList, moves, {
+            WriteToSquare(CurrentMove(moveList), LSB(moves));
+            WriteFromSquare(CurrentMove(moveList), queenSquare);
+        });
+    });
 
-    SerializeSliderPostionsIntoMoves(
-        moveList,
-        d12PinnedQueens,
-        checkmask & pinmasks.hv,
-        boardInfo->empty,
-        enemy,
-        queen,
-        BishopCaptureTargets
-    );
+    SerializePositionsIntoMoves(d12PinnedQueens, {
+        Bitboard_t queenSquare = LSB(d12PinnedQueens);
+        Bitboard_t moves = BishopCaptureTargets(queenSquare, empty, enemyPieces) & checkmask & pinmasks.d12;
+        SerializeMovesIntoMoveList(moveList, moves, {
+            WriteToSquare(CurrentMove(moveList), LSB(moves));
+            WriteFromSquare(CurrentMove(moveList), queenSquare);
+        });
+    });
 }
 
 static void SerializePawnMoves(
