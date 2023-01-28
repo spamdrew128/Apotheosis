@@ -7,6 +7,19 @@
 typedef Bitboard_t (*UnsafeSquaresCallback_t)(BoardInfo_t* boardInfo);
 static UnsafeSquaresCallback_t UnsafeSquaresCallbacks[2] = { WhiteUnsafeSquares, BlackUnsafeSquares };
 
+
+typedef void (*AddPawnCaptures_t)(
+    MoveList_t* moveList,
+    BoardInfo_t* boardInfo,
+    Bitboard_t freePawns,
+    Bitboard_t d12PinnedPawns,
+    Bitboard_t checkmask,
+    Bitboard_t empty,
+    Bitboard_t enemyPieces,
+    PinmaskContainer_t pinmasks
+);
+static AddPawnCaptures_t AddPawnCapturesCallbacks[2] = { AddWhitePawnCaptures, AddBlackPawnCaptures };
+
 typedef Bitboard_t (*SliderCaptureTargetsCallback_t)(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces);
 
 typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t b);
@@ -232,7 +245,7 @@ static void AddWhiteLegalEnPassant(
     Bitboard_t checkmask
 )
 {
-    Bitboard_t epSquares = ReadEnPassantSquares(white);
+    Bitboard_t epSquares = ReadEnPassantSquares();
 
     Bitboard_t eastLegalEnPassantTargets = 
         WhiteEastEnPassantTargets(d12PinnedPawns, epSquares) & pinmasks.d12 & checkmask;
@@ -253,6 +266,38 @@ static void AddWhiteLegalEnPassant(
 
     SerializePawnMoves(moveList, eastLegalEnPassantTargets, en_passant_flag, SoWeOne);
     SerializePawnMoves(moveList, westLegalEnPassantTargets, en_passant_flag, SoEaOne);
+}
+
+static void AddBlackLegalEnPassant(
+    MoveList_t* moveList,
+    BoardInfo_t* boardInfo,
+    Bitboard_t freePawns,
+    Bitboard_t d12PinnedPawns,
+    PinmaskContainer_t pinmasks,
+    Bitboard_t checkmask
+)
+{
+    Bitboard_t epSquares = ReadEnPassantSquares();
+
+    Bitboard_t eastLegalEnPassantTargets = 
+        BlackEastEnPassantTargets(d12PinnedPawns, epSquares) & pinmasks.d12 & checkmask;
+
+    Bitboard_t westLegalEnPassantTargets = 
+        BlackWestEnPassantTargets(d12PinnedPawns, epSquares) & pinmasks.d12 & checkmask;
+
+
+    Bitboard_t eastFreeEnPassant = BlackEastEnPassantTargets(freePawns, epSquares) & checkmask;
+    if(eastFreeEnPassant && EastEnPassantIsLegal(boardInfo, NoWeOne(eastFreeEnPassant), black)) {
+        SetBits(&eastLegalEnPassantTargets, eastFreeEnPassant);
+    }
+
+    Bitboard_t westFreeEnPassant = BlackEastEnPassantTargets(freePawns, epSquares) & checkmask;
+    if(westFreeEnPassant && WestEnPassantIsLegal(boardInfo, NoEaOne(westFreeEnPassant), black)) {
+        SetBits(&westLegalEnPassantTargets, westFreeEnPassant);
+    }
+
+    SerializePawnMoves(moveList, eastLegalEnPassantTargets, en_passant_flag, NoWeOne);
+    SerializePawnMoves(moveList, westLegalEnPassantTargets, en_passant_flag, NoEaOne);
 }
 
 static void AddWhitePawnCaptures(
@@ -286,6 +331,46 @@ static void AddWhitePawnCaptures(
     SerializePawnPromotions(moveList, westCapturePromotions, SoEaOne);
 
     AddWhiteLegalEnPassant(
+        moveList,
+        boardInfo,
+        freePawns,
+        d12PinnedPawns,
+        pinmasks,
+        checkmask
+    );
+};
+
+static void AddBlackPawnCaptures(
+    MoveList_t* moveList,
+    BoardInfo_t* boardInfo,
+    Bitboard_t freePawns,
+    Bitboard_t d12PinnedPawns,
+    Bitboard_t checkmask,
+    Bitboard_t empty,
+    Bitboard_t enemyPieces,
+    PinmaskContainer_t pinmasks
+) 
+{
+    Bitboard_t eastCaptureTargets = 
+        (BlackEastCaptureTargets(freePawns, enemyPieces) |
+        (BlackEastCaptureTargets(d12PinnedPawns, enemyPieces) & pinmasks.d12))
+        & checkmask;
+
+    Bitboard_t westCaptureTargets = 
+        (BlackWestCaptureTargets(freePawns, enemyPieces) |
+        (BlackWestCaptureTargets(d12PinnedPawns, enemyPieces) & pinmasks.d12))
+        & checkmask;
+
+    Bitboard_t eastCapturePromotions = FilterBlackPromotions(&eastCaptureTargets);
+    Bitboard_t westCapturePromotions = FilterBlackPromotions(&westCaptureTargets);
+
+    SerializePawnMoves(moveList, eastCaptureTargets, no_flag, NoWeOne);
+    SerializePawnPromotions(moveList, eastCapturePromotions, NoWeOne);
+
+    SerializePawnMoves(moveList, westCaptureTargets, no_flag, NoEaOne);
+    SerializePawnPromotions(moveList, westCapturePromotions, NoEaOne);
+
+    AddBlackLegalEnPassant(
         moveList,
         boardInfo,
         freePawns,
