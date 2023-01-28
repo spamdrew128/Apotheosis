@@ -41,10 +41,35 @@ static void SerializeNormalMoves(
         } \
     } while(0)
 
-static void AddKingMoves(MoveList_t* moveList, Bitboard_t kingSquare, Bitboard_t unsafeSquares, Bitboard_t empty) {
-    Bitboard_t kingLegalMoves = KingLegalMoves(KingMoveTargets(kingSquare, empty), unsafeSquares);
+static void AddKingMoves(
+    MoveList_t* moveList,
+    Bitboard_t kingSquare,
+    Bitboard_t kingPsuedolegals,
+    Bitboard_t unsafeSquares,
+    Bitboard_t empty
+)
+{
+    Bitboard_t kingLegalMoves = KingLegalMoves(kingPsuedolegals, unsafeSquares);
     
     SerializeNormalMoves(moveList, kingSquare, kingLegalMoves);
+}
+
+static void _AddCastlingMovesHelper() {
+
+}
+
+static void AddCastlingMoves(
+    MoveList_t* moveList,
+    BoardInfo_t* boardInfo,
+    Bitboard_t unsafeSquares,
+    Color_t color
+)
+{
+    // Bitboard_t kingBB = boardInfo->kings[white];
+
+    // if(qsCastleSquare) {
+
+    // }
 }
 
 static void AddKnightCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo, PinmaskContainer_t pinmasks, Bitboard_t checkmask, Color_t color) {

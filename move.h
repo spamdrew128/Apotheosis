@@ -18,10 +18,10 @@ enum specialFlags {
 
 void InitMove(Move_t* move);
 
-Square_t ReadToSquare(Move_t* move);
-Square_t ReadFromSquare(Move_t* move);
-Square_t ReadPromotionPiece(Move_t* move);
-Square_t ReadSpecialFlag(Move_t* move);
+Square_t ReadToSquare(Move_t move);
+Square_t ReadFromSquare(Move_t move);
+Square_t ReadPromotionPiece(Move_t move);
+Square_t ReadSpecialFlag(Move_t move);
 
 void WriteToSquare(Move_t* move, Square_t square);
 void WriteFromSquare(Move_t* move, Square_t square);

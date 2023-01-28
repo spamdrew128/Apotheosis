@@ -216,12 +216,13 @@ static void TestAllLegalCastling() {
     BoardInfo_t info;
     InitAllCastlingLegalInfo(&info);
 
-    Bitboard_t expectedWhiteCastling = white_queenside_castle_sq | white_kingside_castle_sq;
-    Bitboard_t expectedBlackCastling = black_queenside_castle_sq | black_kingside_castle_sq;
+    Bitboard_t expectedAllCastling = true;
 
     bool success = 
-        (CastlingMoves(&info, WhiteUnsafeSquares(&info), white) == expectedWhiteCastling) &&
-        (CastlingMoves(&info, BlackUnsafeSquares(&info), black) == expectedBlackCastling);
+        (CanCastleKingside(&info, WhiteUnsafeSquares(&info), white) == expectedAllCastling) &&
+        (CanCastleQueenside(&info, WhiteUnsafeSquares(&info), white) == expectedAllCastling) &&
+        (CanCastleKingside(&info, BlackUnsafeSquares(&info), black) == expectedAllCastling) &&
+        (CanCastleQueenside(&info, BlackUnsafeSquares(&info), black) == expectedAllCastling);
 
     PrintResults(success);
 }
@@ -230,9 +231,11 @@ static void ShouldntCastleThroughCheck() {
     BoardInfo_t info;
     InitWhiteCastlingIllegalInfo(&info);
 
-    Bitboard_t expectedWhiteCastling = empty_set;
+    Bitboard_t expectedAllWhiteCastling = false;
 
-    bool success = CastlingMoves(&info, WhiteUnsafeSquares(&info), white) == expectedWhiteCastling;
+    bool success = 
+        CanCastleKingside(&info, WhiteUnsafeSquares(&info), white) == expectedAllWhiteCastling &&
+        CanCastleQueenside(&info, WhiteUnsafeSquares(&info), white) == expectedAllWhiteCastling;
 
     PrintResults(success);
 }
@@ -241,9 +244,11 @@ static void ShouldntCastleThroughBlockers() {
     BoardInfo_t info;
     InitWhiteCastlingBlockedInfo(&info);
 
-    Bitboard_t expectedWhiteCastling = empty_set;
+    Bitboard_t expectedAllWhiteCastling = false;
 
-    bool success = CastlingMoves(&info, WhiteUnsafeSquares(&info), white) == expectedWhiteCastling;
+    bool success = 
+        CanCastleKingside(&info, WhiteUnsafeSquares(&info), white) == expectedAllWhiteCastling &&
+        CanCastleQueenside(&info, WhiteUnsafeSquares(&info), white) == expectedAllWhiteCastling;
 
     PrintResults(success);
 }
