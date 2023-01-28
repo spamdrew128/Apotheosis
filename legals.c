@@ -216,3 +216,29 @@ PinmaskContainer_t DefinePinmasks(BoardInfo_t* boardInfo, Color_t color) {
 
     return pinmasks;
 }
+
+bool EastEnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t friendlyPawnLocation, Color_t color) {
+    Bitboard_t enemyPawnLocation = EastOne(friendlyPawnLocation);
+    Square_t kingSquare = boardInfo->kings[color];
+
+    Bitboard_t enemyHvSliders = boardInfo->queens[!color] | boardInfo->rooks[!color];
+
+    return RookCaptureTargets(
+        kingSquare,
+        boardInfo->empty | enemyPawnLocation | friendlyPawnLocation,
+        enemyHvSliders
+    );
+}
+
+bool WestEnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t friendlyPawnLocation, Color_t color) {
+    Bitboard_t enemyPawnLocation = WestOne(friendlyPawnLocation);
+    Square_t kingSquare = boardInfo->kings[color];
+
+    Bitboard_t enemyHvSliders = boardInfo->queens[!color] | boardInfo->rooks[!color];
+
+    return RookCaptureTargets(
+        kingSquare,
+        boardInfo->empty | enemyPawnLocation | friendlyPawnLocation,
+        enemyHvSliders
+    );
+}

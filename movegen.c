@@ -223,8 +223,41 @@ static void AddQueenCaptures(
     });
 }
 
+static void AddWhiteLegalEnPassant(
+    MoveList_t* moveList,
+    BoardInfo_t* boardInfo,
+    Bitboard_t freePawns,
+    Bitboard_t d12PinnedPawns,
+    PinmaskContainer_t pinmasks,
+    Bitboard_t checkmask
+)
+{
+    Bitboard_t epSquares = ReadEnPassantSquares(white);
+
+    Bitboard_t eastLegalEnPassantTargets = 
+        WhiteEastEnPassantTargets(d12PinnedPawns, epSquares) & pinmasks.d12 & checkmask;
+
+    Bitboard_t westLegalEnPassantTargets = 
+        WhiteWestEnPassantTargets(d12PinnedPawns, epSquares) & pinmasks.d12 & checkmask;
+
+
+    Bitboard_t eastFreeEnPassant = WhiteEastEnPassantTargets(freePawns, epSquares) & checkmask;
+    if(eastFreeEnPassant && EastEnPassantIsLegal(boardInfo, SoWeOne(eastFreeEnPassant), white)) {
+        SetBits(&eastLegalEnPassantTargets, eastFreeEnPassant);
+    }
+
+    Bitboard_t westFreeEnPassant = WhiteEastEnPassantTargets(freePawns, epSquares) & checkmask;
+    if(westFreeEnPassant && WestEnPassantIsLegal(boardInfo, SoEaOne(westFreeEnPassant), white)) {
+        SetBits(&westLegalEnPassantTargets, westFreeEnPassant);
+    }
+
+    SerializePawnMoves(moveList, eastLegalEnPassantTargets, en_passant_flag, SoWeOne);
+    SerializePawnMoves(moveList, westLegalEnPassantTargets, en_passant_flag, SoEaOne);
+}
+
 static void AddWhitePawnCaptures(
     MoveList_t* moveList,
+    BoardInfo_t* boardInfo,
     Bitboard_t freePawns,
     Bitboard_t d12PinnedPawns,
     Bitboard_t checkmask,
@@ -246,22 +279,20 @@ static void AddWhitePawnCaptures(
     Bitboard_t eastCapturePromotions = FilterWhitePromotions(&eastCaptureTargets);
     Bitboard_t westCapturePromotions = FilterWhitePromotions(&westCaptureTargets);
 
-    Bitboard_t epSquares = ReadEnPassantSquares(white);
-    Bitboard_t eastEnPassantTargets = 
-        (WhiteEastEnPassantTargets(freePawns, epSquares) |
-        WhiteEastEnPassantTargets(d12PinnedPawns, epSquares) & pinmasks.d12)
-        & checkmask;
-
-    Bitboard_t westEnPassantTargets = 
-        (WhiteWestEnPassantTargets(freePawns, epSquares) |
-        WhiteWestEnPassantTargets(d12PinnedPawns, epSquares) & pinmasks.d12)
-        & checkmask;
-
     SerializePawnMoves(moveList, eastCaptureTargets, no_flag, SoWeOne);
     SerializePawnPromotions(moveList, eastCapturePromotions, SoWeOne);
-    
+
     SerializePawnMoves(moveList, westCaptureTargets, no_flag, SoEaOne);
     SerializePawnPromotions(moveList, westCapturePromotions, SoEaOne);
+
+    AddWhiteLegalEnPassant(
+        moveList,
+        boardInfo,
+        freePawns,
+        d12PinnedPawns,
+        pinmasks,
+        checkmask
+    );
 };
 
 void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color) {

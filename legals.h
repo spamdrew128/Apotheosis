@@ -34,4 +34,8 @@ bool IsDoubleCheck(BoardInfo_t* boardInfo, Bitboard_t checkmask, Color_t color);
 
 PinmaskContainer_t DefinePinmasks(BoardInfo_t* boardInfo, Color_t color);
 
+bool EastEnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t friendlyPawnLocation, Color_t color);
+
+bool WestEnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t friendlyPawnLocation, Color_t color);
+
 #endif
