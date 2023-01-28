@@ -11,7 +11,6 @@ pieces.c \
 magic.c \
 RNG.c \
 legals.c \
-movegen.c \
 game_state.c
 
 COMMON_OBJECTS= \
@@ -23,7 +22,6 @@ pieces.o \
 magic.o \
 RNG.o \
 legals.o \
-movegen.o \
 game_state.o
 
 MAIN=main
@@ -44,7 +42,6 @@ $(TDD)\FEN_tdd.c \
 $(TDD)\pieces_tdd.c \
 $(TDD)\magic_tdd.c \
 $(TDD)\legals_tdd.c \
-$(TDD)\movegen_tdd.c \
 $(TDD)\game_state_tdd.c
 
 D_OBJECTS= \
@@ -58,7 +55,6 @@ $(TDD)\FEN_tdd.o \
 $(TDD)\pieces_tdd.o \
 $(TDD)\magic_tdd.o \
 $(TDD)\legals_tdd.o \
-$(TDD)\movegen_tdd.o \
 $(TDD)\game_state_tdd.o
 
 BINARY=bin
