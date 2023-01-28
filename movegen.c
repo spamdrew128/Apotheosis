@@ -13,9 +13,8 @@ typedef void (*AddPawnCaptures_t)(
     BoardInfo_t* boardInfo,
     Bitboard_t freePawns,
     Bitboard_t d12PinnedPawns,
-    Bitboard_t checkmask,
-    Bitboard_t empty,
     Bitboard_t enemyPieces,
+    Bitboard_t checkmask,
     PinmaskContainer_t pinmasks
 );
 static AddPawnCaptures_t AddPawnCapturesCallbacks[2] = { AddWhitePawnCaptures, AddBlackPawnCaptures };
@@ -149,10 +148,14 @@ static void AddCastlingMoves(
     }
 }
 
-static void AddKnightCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo, PinmaskContainer_t pinmasks, Bitboard_t checkmask, Color_t color) {
-    Bitboard_t freeKnights = boardInfo->knights[color] & ~pinmasks.all;
-    Bitboard_t enemyPieces = boardInfo->allPieces[!color];
-
+static void AddKnightCaptures(
+    MoveList_t* moveList,
+    Bitboard_t freeKnights,
+    Bitboard_t enemyPieces,
+    Bitboard_t checkmask,
+    Color_t color 
+) 
+{
     SerializePositionsIntoMoves(freeKnights, {
         Bitboard_t knightSquare = LSB(freeKnights);
         Bitboard_t moves = KnightCaptureTargets(knightSquare, enemyPieces) & checkmask;
@@ -305,11 +308,10 @@ static void AddWhitePawnCaptures(
     BoardInfo_t* boardInfo,
     Bitboard_t freePawns,
     Bitboard_t d12PinnedPawns,
-    Bitboard_t checkmask,
-    Bitboard_t empty,
     Bitboard_t enemyPieces,
+    Bitboard_t checkmask,
     PinmaskContainer_t pinmasks
-) 
+)
 {
     Bitboard_t eastCaptureTargets = 
         (WhiteEastCaptureTargets(freePawns, enemyPieces) |
@@ -345,9 +347,8 @@ static void AddBlackPawnCaptures(
     BoardInfo_t* boardInfo,
     Bitboard_t freePawns,
     Bitboard_t d12PinnedPawns,
-    Bitboard_t checkmask,
-    Bitboard_t empty,
     Bitboard_t enemyPieces,
+    Bitboard_t checkmask,
     PinmaskContainer_t pinmasks
 ) 
 {
@@ -383,8 +384,7 @@ static void AddBlackPawnCaptures(
 void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color) {
     moveList->maxIndex = 0;
 
-    UnsafeSquaresCallback_t Callback = UnsafeSquaresCallbacks[color];
-    Bitboard_t unsafeSquares = Callback(boardInfo);
+    Bitboard_t unsafeSquares = UnsafeSquaresCallbacks[color](boardInfo);
 
     AddKingCaptures(moveList, boardInfo, unsafeSquares, color); 
 
@@ -397,6 +397,26 @@ void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color
     } 
 
     PinmaskContainer_t pinmasks = DefinePinmasks(boardInfo, color);
+
+    Bitboard_t enemyPieces = boardInfo->allPieces[!color];
+
+    AddPawnCapturesCallbacks[color](
+        moveList,
+        boardInfo,
+        boardInfo->pawns[color] & ~pinmasks.all,
+        boardInfo->pawns[color] & pinmasks.d12,
+        enemyPieces,
+        checkmask,
+        pinmasks
+    );
+
+    AddKnightCaptures(
+        moveList,
+        boardInfo->knights[color] & ~pinmasks.all,
+        enemyPieces,
+        checkmask,
+        color
+    );
 }
 
 void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color) {
