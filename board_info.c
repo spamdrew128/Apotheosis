@@ -26,6 +26,22 @@ static void AddPieceToMailbox(BoardInfo_t* info, Piece_t piece, Bitboard_t piece
     }
 }
 
+void UpdateAllPieces(BoardInfo_t* boardInfo) {
+    for(int i = 0; i < 2; i++) {
+        boardInfo->allPieces[i] =
+            boardInfo->pawns[i] |
+            boardInfo->knights[i] |
+            boardInfo->bishops[i] |
+            boardInfo->rooks[i] |
+            boardInfo->queens[i] |
+            boardInfo->kings[i];
+    }
+}
+
+void UpdateEmpty(BoardInfo_t* boardInfo) {
+    boardInfo->empty = ~(boardInfo->allPieces[white] | boardInfo->allPieces[black]);
+}
+
 void TranslateBitboardsToMailbox(BoardInfo_t* info) {
     AddPieceToMailbox(info, king, info->kings[white] | info->kings[black]);
     AddPieceToMailbox(info, pawn, info->pawns[white] | info->pawns[black]);

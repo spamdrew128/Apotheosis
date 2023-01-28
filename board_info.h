@@ -19,19 +19,9 @@ typedef struct {
 
 void InitBoardInfo(BoardInfo_t* info);
 
-#define UpdateAllPieces(boardInfoPtr) \
-    for(int i = 0; i < 2; i++) { \
-        boardInfoPtr->allPieces[i] = \
-            boardInfoPtr->pawns[i] | \
-            boardInfoPtr->knights[i] | \
-            boardInfoPtr->bishops[i] | \
-            boardInfoPtr->rooks[i] | \
-            boardInfoPtr->queens[i] | \
-            boardInfoPtr->kings[i]; \
-    }
+void UpdateAllPieces(BoardInfo_t* boardInfo);
 
-#define UpdateEmpty(boardInfoPtr) \
-    boardInfoPtr->empty = ~((boardInfoPtr)->allPieces[white] | (boardInfoPtr)->allPieces[black])
+void UpdateEmpty(BoardInfo_t* boardInfo);
 
 void TranslateBitboardsToMailbox(BoardInfo_t* info);
 

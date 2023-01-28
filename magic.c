@@ -23,11 +23,17 @@ typedef struct {
 } TempStorage_t;
 
 // To avoid lookup dependancies
-#define SquareToBitset(square) C64(1) << square
+Bitboard_t SquareToBitset(Square_t square) {
+    return C64(1) << square;
+}
 
-#define NotEdge(singleBitset, edge) singleBitset & ~(edge)
+bool NotEdge(Bitboard_t singleBitset, Bitboard_t edge) {
+   return singleBitset & ~edge;
+}
 
-#define DistinctBlockers(n) (int)(C64(1) << n)
+int DistinctBlockers(int n) {
+    return (int)(C64(1) << n);
+}
 
 static void ResetHashTable(Bitboard_t* hashTable, int tableEntries) {
     for(int i = 0; i < tableEntries; i++) {
