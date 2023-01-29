@@ -162,7 +162,7 @@ static void ShouldCorrectlyEvaluateInPosWithPins() {
     InitPinPositionInfo(&info);
     
     int expectedNumKingMoves = 4;
-    int expectedNumPawnMoves = 3;
+    int expectedNumPawnMoves = 6;
     int expectedNumRookMoves = 4;
     int expectedNumBishopMoves = 7;
     int expectedNumKnightsMoves = 8;
@@ -171,7 +171,14 @@ static void ShouldCorrectlyEvaluateInPosWithPins() {
     MoveList_t moveList;
     CompleteMovegen(&moveList, &info, white);
 
-    bool maxIndexIsCorrect = moveList.maxIndex == (4+3+4+7+8+2-1);
+    bool maxIndexIsCorrect = moveList.maxIndex == (
+        expectedNumKingMoves +
+        expectedNumPawnMoves +
+        expectedNumRookMoves +
+        expectedNumBishopMoves +
+        expectedNumKnightsMoves +
+        expectedNumQueenMoves -1);
+
     bool success = 
         (CountPieceMoves(king, moveList, &info) == expectedNumKingMoves) &&
         (CountPieceMoves(pawn, moveList, &info) == expectedNumPawnMoves) &&
