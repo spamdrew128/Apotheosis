@@ -17,7 +17,7 @@ enum color {
   black
 };
 
-typedef int Square_t;
+typedef uint8_t Square_t;
 enum squareLabels {
   a1, b1, c1, d1, e1, f1, g1, h1,
   a2, b2, c2, d2, e2, f2, g2, h2,
@@ -30,7 +30,7 @@ enum squareLabels {
   NUM_SQUARES
 };
 
-typedef int Piece_t;
+typedef uint8_t Piece_t;
 // ORDERING IS EXTREMELY IMPORTANT
 // CHANGING ORDER WILL F UP MOVE.H
 enum pieceTypes {
@@ -43,7 +43,7 @@ enum pieceTypes {
   none_type
 };
 
-typedef int Direction_t;
+typedef uint8_t Direction_t;
 enum directions {
     N,
     NE,

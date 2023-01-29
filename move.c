@@ -28,7 +28,7 @@ Square_t ReadPromotionPiece(Move_t move) {
     return (move.data & promotion_piece) >> promotion_piece_offset;
 }
 
-Square_t ReadSpecialFlag(Move_t move) {
+SpecialFlag_t ReadSpecialFlag(Move_t move) {
     return move.data & special_flags;
 }
 

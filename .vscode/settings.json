@@ -17,7 +17,8 @@
         "movegen_tdd.h": "c",
         "movegen.h": "c",
         "move.h": "c",
-        "debug.h": "c"
+        "debug.h": "c",
+        "pieces.h": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",

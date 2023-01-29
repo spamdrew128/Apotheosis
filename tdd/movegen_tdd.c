@@ -92,7 +92,6 @@ static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
         (CountPieceMoves(queen, moveList, &info) == expectedNumQueenCaptures);
 
     PrintResults(success);
-    PrintMoveList(&moveList, &info);
 }
 
 static void ShouldCorrectlyEvaluateDoubleEnPassant() {
