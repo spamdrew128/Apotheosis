@@ -149,6 +149,21 @@ static void AddCastlingMoves(
     }
 }
 
+static void AddKnightMoves(
+    MoveList_t* moveList,
+    Bitboard_t freeKnights,
+    Bitboard_t empty,
+    Bitboard_t checkmask,
+    Color_t color 
+) 
+{
+    SerializePositionsIntoMoves(freeKnights, {
+        Bitboard_t knightSquare = LSB(freeKnights);
+        Bitboard_t moves = KnightMoveTargets(knightSquare, empty) & checkmask;
+        SerializeNormalMoves(moveList, knightSquare, moves);
+    });
+}
+
 static void AddKnightCaptures(
     MoveList_t* moveList,
     Bitboard_t freeKnights,
@@ -161,6 +176,28 @@ static void AddKnightCaptures(
         Bitboard_t knightSquare = LSB(freeKnights);
         Bitboard_t moves = KnightCaptureTargets(knightSquare, enemyPieces) & checkmask;
         SerializeNormalMoves(moveList, knightSquare, moves);
+    });
+}
+
+static void AddBishopMoves(
+    MoveList_t* moveList,
+    Bitboard_t freeBishops,
+    Bitboard_t d12PinnedBishops,
+    Bitboard_t checkmask,
+    Bitboard_t empty,
+    PinmaskContainer_t pinmasks
+) 
+{
+    SerializePositionsIntoMoves(freeBishops, {
+        Bitboard_t bishopSquare = LSB(freeBishops);
+        Bitboard_t moves = BishopMoveTargets(bishopSquare, empty) & checkmask;
+        SerializeNormalMoves(moveList, bishopSquare, moves);
+    });
+
+    SerializePositionsIntoMoves(d12PinnedBishops, {
+        Bitboard_t bishopSquare = LSB(d12PinnedBishops);
+        Bitboard_t moves = BishopMoveTargets(bishopSquare, empty) & checkmask & pinmasks.d12;
+        SerializeNormalMoves(moveList, bishopSquare, moves);
     });
 }
 
@@ -187,6 +224,28 @@ static void AddBishopCaptures(
     });
 }
 
+static void AddRookMoves(
+    MoveList_t* moveList,
+    Bitboard_t freeRooks,
+    Bitboard_t hvPinnedRooks,
+    Bitboard_t checkmask,
+    Bitboard_t empty,
+    PinmaskContainer_t pinmasks
+) 
+{
+    SerializePositionsIntoMoves(freeRooks, {
+        Bitboard_t rookSquare = LSB(freeRooks);
+        Bitboard_t moves = RookMoveTargets(rookSquare, empty) & checkmask;
+        SerializeNormalMoves(moveList, rookSquare, moves);
+    });
+
+    SerializePositionsIntoMoves(hvPinnedRooks, {
+        Bitboard_t rookSquare = LSB(hvPinnedRooks);
+        Bitboard_t moves = RookMoveTargets(rookSquare, empty) & checkmask & pinmasks.hv;
+        SerializeNormalMoves(moveList, rookSquare, moves);
+    });
+}
+
 static void AddRookCaptures(
     MoveList_t* moveList,
     Bitboard_t freeRooks,
@@ -207,6 +266,35 @@ static void AddRookCaptures(
         Bitboard_t rookSquare = LSB(hvPinnedRooks);
         Bitboard_t moves = RookCaptureTargets(rookSquare, empty, enemyPieces) & checkmask & pinmasks.hv;
         SerializeNormalMoves(moveList, rookSquare, moves);
+    });
+}
+
+static void AddQueenMoves(
+    MoveList_t* moveList,
+    Bitboard_t freeQueens,
+    Bitboard_t hvPinnedQueens,
+    Bitboard_t d12PinnedQueens,
+    Bitboard_t checkmask,
+    Bitboard_t empty,
+    PinmaskContainer_t pinmasks
+) 
+{
+    SerializePositionsIntoMoves(freeQueens, {
+        Bitboard_t queenSquare = LSB(freeQueens);
+        Bitboard_t moves = QueenMoveTargets(queenSquare, empty) & checkmask;
+        SerializeNormalMoves(moveList, queenSquare, moves);
+    });
+
+    SerializePositionsIntoMoves(hvPinnedQueens, {
+        Bitboard_t queenSquare = LSB(hvPinnedQueens);
+        Bitboard_t moves = RookMoveTargets(queenSquare, empty) & checkmask & pinmasks.hv;
+        SerializeNormalMoves(moveList, queenSquare, moves);
+    });
+
+    SerializePositionsIntoMoves(d12PinnedQueens, {
+        Bitboard_t queenSquare = LSB(d12PinnedQueens);
+        Bitboard_t moves = BishopMoveTargets(queenSquare, empty) & checkmask & pinmasks.d12;
+        SerializeNormalMoves(moveList, queenSquare, moves);
     });
 }
 
