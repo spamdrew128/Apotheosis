@@ -68,6 +68,24 @@ static void InitDoubleEnPassantPosition(BoardInfo_t* info) {
     TranslateBitboardsToMailbox(info);
 }
 
+// 1b6/8/2pP4/4KPpr/8/8/8/8
+static void InitTrickyPinnedEnPassantPostitionInfo(BoardInfo_t* info) {
+    GameState_t state = GetBlankState();
+    state.enPassantSquares = CreateBitboard(2, g6,c7);
+    AddState(state);
+
+    InitBoardInfo(info);
+    info->kings[white] = CreateBitboard(1, e4);
+    info->pawns[white] = CreateBitboard(3, b3,a6,c6);
+
+    info->kings[black] = CreateBitboard(1, e6);
+    info->pawns[black] = CreateBitboard(3, b6,a3,c3);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
+    TranslateBitboardsToMailbox(info);
+}
+
 // TESTS
 static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
     BoardInfo_t info;
@@ -100,6 +118,27 @@ static void ShouldCorrectlyEvaluateDoubleEnPassant() {
     GameState_t state = GetBlankState();
     state.enPassantSquares = CreateBitboard(2, b2,b7);
     AddState(state);
+
+    int expectedNumPawnWhiteCaptures = 2;
+    int expectedNumPawnBlackCaptures = 2;
+
+    MoveList_t wMoveList;
+    CapturesMovegen(&wMoveList, &info, white);
+
+    MoveList_t bMoveList;
+    CapturesMovegen(&bMoveList, &info, black);
+
+    bool success = 
+        (CountPieceMoves(pawn, wMoveList, &info) == expectedNumPawnWhiteCaptures) &&
+        (CountPieceMoves(pawn, bMoveList, &info) == expectedNumPawnBlackCaptures);
+
+    PrintResults(success);
+    ResetGameStateStack();
+}
+
+static void ShouldCorrectlyEvaluatepinnedEnPassant() {
+    BoardInfo_t info;
+    InitTrickyPinnedEnPassantPostitionInfo(&info);
 
     int expectedNumPawnWhiteCaptures = 2;
     int expectedNumPawnBlackCaptures = 2;
