@@ -4,6 +4,10 @@
 #include "lookup.h"
 #include "game_state.h"
 
+enum {
+    movelist_empty = -1
+};
+
 typedef Bitboard_t (*UnsafeSquaresCallback_t)(BoardInfo_t* boardInfo);
 
 typedef void (*AddPawnCaptures_t)(
@@ -382,7 +386,7 @@ static UnsafeSquaresCallback_t UnsafeSquaresCallbacks[2] = { WhiteUnsafeSquares,
 static AddPawnCaptures_t AddPawnCapturesCallbacks[2] = { AddWhitePawnCaptures, AddBlackPawnCaptures };
 
 void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color) {
-    moveList->maxIndex = 0;
+    moveList->maxIndex = movelist_empty;
 
     Bitboard_t unsafeSquares = UnsafeSquaresCallbacks[color](boardInfo);
 
@@ -458,5 +462,5 @@ void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color
 }
 
 void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color) {
-
+    moveList->maxIndex = movelist_empty;
 }

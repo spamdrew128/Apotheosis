@@ -115,11 +115,6 @@ static void ShouldCorrectlyEvaluateDoubleEnPassant() {
         (CountPieceMoves(pawn, wMoveList, &info) == expectedNumPawnWhiteCaptures) &&
         (CountPieceMoves(pawn, bMoveList, &info) == expectedNumPawnBlackCaptures);
 
-
-    printf("\n");
-    PrintMoveList(&wMoveList, &info);
-    PrintMoveList(&bMoveList, &info);
-
     PrintResults(success);
     ResetGameStateStack();
 }
