@@ -23,8 +23,8 @@ int main(int argc, char** argv)
     PiecesTDDRunner();
     MagicTDDRunner();
     LegalsTDDRunner();
-    MovegenTDDRunner();
     GameStateTDDRunner();
+    MovegenTDDRunner();
 
     TeardownLookup();
 }
