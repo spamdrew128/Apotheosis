@@ -92,6 +92,7 @@ static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
         (CountPieceMoves(queen, moveList, &info) == expectedNumQueenCaptures);
 
     PrintResults(success);
+    PrintMoveList(&moveList, &info);
 }
 
 static void ShouldCorrectlyEvaluateDoubleEnPassant() {
@@ -115,6 +116,7 @@ static void ShouldCorrectlyEvaluateDoubleEnPassant() {
         (CountPieceMoves(pawn, bMoveList, &info) == expectedNumPawnBlackCaptures);
 
 
+    printf("\n");
     PrintMoveList(&wMoveList, &info);
     PrintMoveList(&bMoveList, &info);
 
