@@ -162,8 +162,8 @@ static void ShouldCorrectlyEvaluateInPosWithPins() {
     InitPinPositionInfo(&info);
     
     int expectedNumKingMoves = 4;
-    int expectedNumPawnMoves = 3;
-    int expectedNumRookMoves = 4;
+    int expectedNumPawnMoves = 9;
+    int expectedNumRookMoves = 3;
     int expectedNumBishopMoves = 7;
     int expectedNumKnightsMoves = 8;
     int expectedNumQueenMoves = 2;
@@ -171,13 +171,22 @@ static void ShouldCorrectlyEvaluateInPosWithPins() {
     MoveList_t moveList;
     CompleteMovegen(&moveList, &info, white);
 
+    int expectedMaxIndex = (
+        expectedNumKingMoves +
+        expectedNumPawnMoves +
+        expectedNumRookMoves +
+        expectedNumBishopMoves +
+        expectedNumKnightsMoves +
+        expectedNumQueenMoves -1);
+
     bool success = 
         (CountPieceMoves(king, moveList, &info) == expectedNumKingMoves) &&
         (CountPieceMoves(pawn, moveList, &info) == expectedNumPawnMoves) &&
         (CountPieceMoves(rook, moveList, &info) == expectedNumRookMoves) &&
         (CountPieceMoves(bishop, moveList, &info) == expectedNumBishopMoves) &&
         (CountPieceMoves(knight, moveList, &info) == expectedNumKnightsMoves) &&
-        (CountPieceMoves(queen, moveList, &info) == expectedNumQueenMoves);
+        (CountPieceMoves(queen, moveList, &info) == expectedNumQueenMoves) &&
+        moveList.maxIndex == expectedMaxIndex;
 
     PrintResults(success);
 }
@@ -186,5 +195,5 @@ void MovegenTDDRunner() {
     ShouldCorrectlyEvaluateCapturesInPosWithPins();
     ShouldCorrectlyEvaluateDoubleEnPassant();
     ShouldCorrectlyEvaluatePinnedEnPassant();
-    // ShouldCorrectlyEvaluateInPosWithPins();
+    ShouldCorrectlyEvaluateInPosWithPins();
 }
