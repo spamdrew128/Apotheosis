@@ -263,7 +263,7 @@ static void AddWhiteLegalEnPassant(
         SetBits(&eastLegalEnPassantTargets, eastFreeEnPassant);
     }
 
-    Bitboard_t westFreeEnPassant = WhiteEastEnPassantTargets(freePawns, epSquares) & checkmask;
+    Bitboard_t westFreeEnPassant = WhiteWestEnPassantTargets(freePawns, epSquares) & checkmask;
     if(westFreeEnPassant && WestEnPassantIsLegal(boardInfo, SoEaOne(westFreeEnPassant), white)) {
         SetBits(&westLegalEnPassantTargets, westFreeEnPassant);
     }
@@ -295,7 +295,7 @@ static void AddBlackLegalEnPassant(
         SetBits(&eastLegalEnPassantTargets, eastFreeEnPassant);
     }
 
-    Bitboard_t westFreeEnPassant = BlackEastEnPassantTargets(freePawns, epSquares) & checkmask;
+    Bitboard_t westFreeEnPassant = BlackWestEnPassantTargets(freePawns, epSquares) & checkmask;
     if(westFreeEnPassant && WestEnPassantIsLegal(boardInfo, NoEaOne(westFreeEnPassant), black)) {
         SetBits(&westLegalEnPassantTargets, westFreeEnPassant);
     }

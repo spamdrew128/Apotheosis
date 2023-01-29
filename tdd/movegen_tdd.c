@@ -68,18 +68,20 @@ static void InitDoubleEnPassantPosition(BoardInfo_t* info) {
     TranslateBitboardsToMailbox(info);
 }
 
-// 1b6/8/2pP4/4KPpr/8/8/8/8
+// 1b6/8/2pP4/4KPpr/8/8/8/k7
 static void InitTrickyPinnedEnPassantPostitionInfo(BoardInfo_t* info) {
     GameState_t state = GetBlankState();
     state.enPassantSquares = CreateBitboard(2, g6,c7);
     AddState(state);
 
     InitBoardInfo(info);
-    info->kings[white] = CreateBitboard(1, e4);
-    info->pawns[white] = CreateBitboard(3, b3,a6,c6);
+    info->kings[white] = CreateBitboard(1, e5);
+    info->pawns[white] = CreateBitboard(2, f5,d6);
 
-    info->kings[black] = CreateBitboard(1, e6);
-    info->pawns[black] = CreateBitboard(3, b6,a3,c3);
+    info->kings[black] = CreateBitboard(1, a1);
+    info->pawns[black] = CreateBitboard(2, g5,c6);
+    info->bishops[black] = CreateBitboard(1, b8);
+    info->rooks[black] = CreateBitboard(1, h5);
 
     UpdateAllPieces(info);
     UpdateEmpty(info);
@@ -136,22 +138,17 @@ static void ShouldCorrectlyEvaluateDoubleEnPassant() {
     ResetGameStateStack();
 }
 
-static void ShouldCorrectlyEvaluatepinnedEnPassant() {
+static void ShouldCorrectlyEvaluatePinnedEnPassant() {
     BoardInfo_t info;
     InitTrickyPinnedEnPassantPostitionInfo(&info);
 
-    int expectedNumPawnWhiteCaptures = 2;
-    int expectedNumPawnBlackCaptures = 2;
+    int expectedNumPawnWhiteCaptures = 1;
 
-    MoveList_t wMoveList;
-    CapturesMovegen(&wMoveList, &info, white);
-
-    MoveList_t bMoveList;
-    CapturesMovegen(&bMoveList, &info, black);
+    MoveList_t moveList;
+    CapturesMovegen(&moveList, &info, white);
 
     bool success = 
-        (CountPieceMoves(pawn, wMoveList, &info) == expectedNumPawnWhiteCaptures) &&
-        (CountPieceMoves(pawn, bMoveList, &info) == expectedNumPawnBlackCaptures);
+        CountPieceMoves(pawn, moveList, &info) == expectedNumPawnWhiteCaptures;
 
     PrintResults(success);
     ResetGameStateStack();
@@ -185,5 +182,6 @@ static void ShouldCorrectlyEvaluateInPosWithPins() {
 void MovegenTDDRunner() {
     ShouldCorrectlyEvaluateCapturesInPosWithPins();
     ShouldCorrectlyEvaluateDoubleEnPassant();
+    ShouldCorrectlyEvaluatePinnedEnPassant();
     // ShouldCorrectlyEvaluateInPosWithPins();
 }
