@@ -33,35 +33,35 @@ CFILES=$(MAIN).c $(COMMON_CFILES)
 OBJECTS=$(MAIN).o $(COMMON_OBJECTS)
 
 TDD=tdd
-TDD_MAIN=$(TDD)\main_tdd
+TDD_MAIN=$(TDD)/main_tdd
 
 D_CFILES= \
 $(TDD_MAIN).c \
 $(COMMON_CFILES) \
-$(TDD)\bitboards_tdd.c \
-$(TDD)\board_info_tdd.c \
-$(TDD)\lookup_tdd.c \
-$(TDD)\debug.c \
-$(TDD)\FEN_tdd.c \
-$(TDD)\pieces_tdd.c \
-$(TDD)\magic_tdd.c \
-$(TDD)\legals_tdd.c \
-$(TDD)\movegen_tdd.c \
-$(TDD)\game_state_tdd.c
+$(TDD)/bitboards_tdd.c \
+$(TDD)/board_info_tdd.c \
+$(TDD)/lookup_tdd.c \
+$(TDD)/debug.c \
+$(TDD)/FEN_tdd.c \
+$(TDD)/pieces_tdd.c \
+$(TDD)/magic_tdd.c \
+$(TDD)/legals_tdd.c \
+$(TDD)/movegen_tdd.c \
+$(TDD)/game_state_tdd.c
 
 D_OBJECTS= \
 $(TDD_MAIN).o \
 $(COMMON_OBJECTS) \
-$(TDD)\bitboards_tdd.o \
-$(TDD)\board_info_tdd.o \
-$(TDD)\lookup_tdd.o \
-$(TDD)\debug.o \
-$(TDD)\FEN_tdd.o \
-$(TDD)\pieces_tdd.o \
-$(TDD)\magic_tdd.o \
-$(TDD)\legals_tdd.o \
-$(TDD)\movegen_tdd.o \
-$(TDD)\game_state_tdd.o
+$(TDD)/bitboards_tdd.o \
+$(TDD)/board_info_tdd.o \
+$(TDD)/lookup_tdd.o \
+$(TDD)/debug.o \
+$(TDD)/FEN_tdd.o \
+$(TDD)/pieces_tdd.o \
+$(TDD)/magic_tdd.o \
+$(TDD)/legals_tdd.o \
+$(TDD)/movegen_tdd.o \
+$(TDD)/game_state_tdd.o
 
 BINARY=bin
 DEBUG_BINARY=debug
@@ -81,4 +81,4 @@ $(DEBUG_BINARY): $(D_OBJECTS)
 	$(CC) $(CFLAGS) -c -o $@ $^
 
 clean:
-	del $(BINARY).exe $(DEBUG_BINARY).exe $(OBJECTS) $(D_OBJECTS)
+	rm $(BINARY) $(DEBUG_BINARY) $(OBJECTS) $(D_OBJECTS)

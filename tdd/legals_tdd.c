@@ -7,6 +7,7 @@
 #include "pieces.h"
 #include "board_constants.h"
 #include "lookup.h"
+#include "game_state.h"
 
 enum {
     white_expected_unsafe = 0xfefb57be78800000,
@@ -19,19 +20,10 @@ enum {
 
 static bool IsInCheck(BoardInfo_t* boardInfo, Color_t color) {
     if(color == white) {
-        return InCheck(boardInfo, WhiteUnsafeSquares(boardInfo), white);
+        return InCheck(boardInfo->kings[color], WhiteUnsafeSquares(boardInfo));
     } else {
-        return InCheck(boardInfo, BlackUnsafeSquares(boardInfo), black);
+        return InCheck(boardInfo->kings[color], BlackUnsafeSquares(boardInfo));
     }
-}
-
-static Bitboard_t CombinePinmasks(Bitboard_t pinmaskList[NUM_DIRECTIONS]) {
-    Bitboard_t pinmask = empty_set;
-    for(Direction_t d = 0; d < NUM_DIRECTIONS; d++) {
-        SetBits(pinmask, pinmaskList[d]);
-    }
-
-    return pinmask;
 }
 
 // r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R
@@ -195,8 +187,21 @@ static void InitPinMaskPositionInfo(BoardInfo_t* info) {
     UpdateEmpty(info);
 }
 
-// TESTS
+// 1k6/8/8/r1pPK3/8/8/8/8
+static void InitEnPassantIllegalPositionInfo(BoardInfo_t* info) {
+    InitBoardInfo(info);
+    info->kings[white] = CreateBitboard(1, e5);
+    info->pawns[white] = CreateBitboard(1, d5);
 
+    info->kings[black] = CreateBitboard(1, b8);
+    info->pawns[black] = CreateBitboard(1, c5);
+    info->rooks[black] = CreateBitboard(1, a5);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
+}
+
+// TESTS
 static void TestWhiteUnsafeSquares() {
     BoardInfo_t info;
     InitMidgameInfo(&info);
@@ -225,12 +230,13 @@ static void TestAllLegalCastling() {
     BoardInfo_t info;
     InitAllCastlingLegalInfo(&info);
 
-    Bitboard_t expectedWhiteCastling = white_queenside_castle_sq | white_kingside_castle_sq;
-    Bitboard_t expectedBlackCastling = black_queenside_castle_sq | black_kingside_castle_sq;
+    Bitboard_t expectedAllCastling = true;
 
     bool success = 
-        (CastlingMoves(&info, WhiteUnsafeSquares(&info), white) == expectedWhiteCastling) &&
-        (CastlingMoves(&info, BlackUnsafeSquares(&info), black) == expectedBlackCastling);
+        (CanCastleKingside(&info, WhiteUnsafeSquares(&info), white) == expectedAllCastling) &&
+        (CanCastleQueenside(&info, WhiteUnsafeSquares(&info), white) == expectedAllCastling) &&
+        (CanCastleKingside(&info, BlackUnsafeSquares(&info), black) == expectedAllCastling) &&
+        (CanCastleQueenside(&info, BlackUnsafeSquares(&info), black) == expectedAllCastling);
 
     PrintResults(success);
 }
@@ -239,9 +245,11 @@ static void ShouldntCastleThroughCheck() {
     BoardInfo_t info;
     InitWhiteCastlingIllegalInfo(&info);
 
-    Bitboard_t expectedWhiteCastling = empty_set;
+    Bitboard_t expectedAllWhiteCastling = false;
 
-    bool success = CastlingMoves(&info, WhiteUnsafeSquares(&info), white) == expectedWhiteCastling;
+    bool success = 
+        CanCastleKingside(&info, WhiteUnsafeSquares(&info), white) == expectedAllWhiteCastling &&
+        CanCastleQueenside(&info, WhiteUnsafeSquares(&info), white) == expectedAllWhiteCastling;
 
     PrintResults(success);
 }
@@ -250,9 +258,11 @@ static void ShouldntCastleThroughBlockers() {
     BoardInfo_t info;
     InitWhiteCastlingBlockedInfo(&info);
 
-    Bitboard_t expectedWhiteCastling = empty_set;
+    Bitboard_t expectedAllWhiteCastling = false;
 
-    bool success = CastlingMoves(&info, WhiteUnsafeSquares(&info), white) == expectedWhiteCastling;
+    bool success = 
+        CanCastleKingside(&info, WhiteUnsafeSquares(&info), white) == expectedAllWhiteCastling &&
+        CanCastleQueenside(&info, WhiteUnsafeSquares(&info), white) == expectedAllWhiteCastling;
 
     PrintResults(success);
 }
@@ -350,16 +360,32 @@ static void ShouldDefinePinmasks() {
     BoardInfo_t info;
     InitPinMaskPositionInfo(&info);
 
-    Bitboard_t pinmaskList[NUM_DIRECTIONS];
-    DefinePinmasks(&info, white, pinmaskList);
+    PinmaskContainer_t pinmasks = DefinePinmasks(&info, white);
 
-    Bitboard_t expected = CreateBitboard(7, e5,f5,g5,h5,e6,f7,g8);
-    Bitboard_t actual = CombinePinmasks(pinmaskList);
+    Bitboard_t expectedHVPinmasks = CreateBitboard(4, e5,f5,g5,h5);
+    Bitboard_t expectedD12Pinmasks = CreateBitboard(3, e6,f7,g8);
 
-    PrintResults(expected == actual);
+    bool success = 
+        pinmasks.hv == expectedHVPinmasks &&
+        pinmasks.d12 == expectedD12Pinmasks;
+
+    PrintResults(success);
+}
+
+static void ShouldIdentifyIllegalEnPassant() {
+    BoardInfo_t info;
+    InitEnPassantIllegalPositionInfo(&info);
+
+    Bitboard_t enPassantSquares = CreateBitboard(1, c6);
+
+    bool success = WestEnPassantIsLegal(&info, SoEaOne(enPassantSquares), white) == 0;
+
+    PrintResults(success);
 }
 
 void LegalsTDDRunner() {
+    AddStartingGameState();
+
     TestWhiteUnsafeSquares();
     TestBlackUnsafeSquares();
 
@@ -381,4 +407,8 @@ void LegalsTDDRunner() {
     ShouldIdentifyKnightAndSliderDoubleCheck();
 
     ShouldDefinePinmasks();
+
+    ShouldIdentifyIllegalEnPassant();
+
+    ResetGameStateStack();
 }

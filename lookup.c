@@ -5,7 +5,7 @@
 
 static Lookup_t lookup;
 
-typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t);
+typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t b);
 
 static void InitSingleBitset(Bitboard_t singleBitsets[]) {
     for(Square_t i = 0; i < NUM_SQUARES; i++) {
@@ -66,7 +66,7 @@ static void FillSlidingCheckmask(Bitboard_t* checkmasks, Bitboard_t singleBitset
 
     singleBitset = DirectionFunc(singleBitset);
     while(singleBitset) {
-        SetBits(result, singleBitset);
+        SetBits(&result, singleBitset);
         checkmasks[LSB(singleBitset)] = result;
         singleBitset = DirectionFunc(singleBitset);
     }
@@ -108,7 +108,7 @@ static Bitboard_t GetSingleDirectionRay(Bitboard_t singleBitset, DirectionCallba
 
     singleBitset = DirectionFunc(singleBitset);
     while(singleBitset) {
-        SetBits(result, singleBitset);
+        SetBits(&result, singleBitset);
         singleBitset = DirectionFunc(singleBitset);
     }
 
@@ -130,6 +130,14 @@ static void InitDirectionalRays(Bitboard_t directionalRays[NUM_SQUARES][NUM_DIRE
     }
 }
 
+static void InitCastleSquares(Square_t ksCastleSquares[], Square_t qsCastleSquares[]) {
+    ksCastleSquares[white] = LSB(white_kingside_castle_sq);
+    ksCastleSquares[black] = LSB(black_kingside_castle_sq);
+
+    qsCastleSquares[white] = LSB(white_queenside_castle_sq);
+    qsCastleSquares[black] = LSB(black_queenside_castle_sq);
+}
+
 void InitLookup() {
     InitSingleBitset(lookup.singleBitsets);
     InitKnightAttacks(lookup.knightAttacks);
@@ -139,6 +147,7 @@ void InitLookup() {
     InitSlidingCheckmasks(lookup.slidingCheckmasks);
     InitPawnCheckmasks(lookup.pawnCheckmasks);
     InitDirectionalRays(lookup.directionalRays);
+    InitCastleSquares(lookup.ksCastleSquares, lookup.qsCastleSquares);
 }
 
 Bitboard_t GetSingleBitset(Square_t square) {
@@ -173,6 +182,14 @@ Bitboard_t GetPawnCheckmask(Square_t kingSquare, Color_t color) { // might be re
 
 Bitboard_t GetDirectionalRay(Square_t square, Direction_t direction) {
     return lookup.directionalRays[square][direction];
+}
+
+Square_t GetKingsideCastleSquare(Color_t color) {
+    return lookup.ksCastleSquares[color];
+}
+
+Square_t GetQueensideCastleSquare(Color_t color) {
+    return lookup.qsCastleSquares[color];
 }
 
 void TeardownLookup() {

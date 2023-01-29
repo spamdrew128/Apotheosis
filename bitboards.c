@@ -3,24 +3,6 @@
 #include <string.h>
 
 #include "bitboards.h"
-#include "lookup.h"
-
-void InitBoardInfo(BoardInfo_t* info) {
-    for(int i = 0; i < 2; i++) {
-        info->allPieces[i] = empty_set;
-        info->pawns[i] = empty_set;
-        info->knights[i] = empty_set;
-        info->bishops[i] = empty_set;
-        info->rooks[i] = empty_set;
-        info->queens[i] = empty_set;
-        info->kings[i] = empty_set;
-        info->enPassantSquares[i] = empty_set;
-    }
-
-    info->empty = empty_set;
-    info->castleSquares[white] = white_kingside_castle_sq | white_queenside_castle_sq;
-    info->castleSquares[black] = black_kingside_castle_sq | black_queenside_castle_sq;
-}
 
 Bitboard_t NortOne (Bitboard_t b) {return  b << 8;}
 Bitboard_t NoEaOne (Bitboard_t b) {return (b & not_h_file) << 9;}
@@ -34,15 +16,34 @@ Bitboard_t NoWeOne (Bitboard_t b) {return (b & not_a_file) << 7;}
 Population_t PopulationCount(Bitboard_t b) {
     Population_t count = 0;
     while(b) {
-        ResetLSB(b);
+        ResetLSB(&b);
         count++;
     }
     return count;
 }
 
-inline Square_t LSB(Bitboard_t b) { // I hate macros and you can't force me to use them
+Square_t LSB(Bitboard_t b) { // I hate macros and you can't force me to use them
     assert(b);
     return __builtin_ctzll(b);
 }
 
+Bitboard_t IsolateLSB(Bitboard_t b) {
+    return b & -b;
+}
+
+void ResetLSB(Bitboard_t* b) {
+    *b &= *b - 1;
+}
+
+void SetBits(Bitboard_t* b, Bitboard_t mask) {
+    *b |= mask;
+}
+
+void ResetBits(Bitboard_t* b, Bitboard_t mask) {
+    *b &= ~mask;
+}
+
+void ToggleBits(Bitboard_t* b, Bitboard_t mask) {
+    *b ^= mask;
+}
 

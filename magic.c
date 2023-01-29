@@ -14,7 +14,7 @@ enum {
 };
 
 typedef Bitboard_t (*BlockersToAttacksCallback_t)(Square_t, Bitboard_t);
-typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t);
+typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t b);
 typedef Bitboard_t (*FindMaskCallback_t)(Square_t);
 
 typedef struct {
@@ -23,11 +23,17 @@ typedef struct {
 } TempStorage_t;
 
 // To avoid lookup dependancies
-#define SquareToBitset(square) C64(1) << square
+Bitboard_t SquareToBitset(Square_t square) {
+    return C64(1) << square;
+}
 
-#define NotEdge(singleBitset, edge) singleBitset & ~(edge)
+bool NotEdge(Bitboard_t singleBitset, Bitboard_t edge) {
+   return singleBitset & ~edge;
+}
 
-#define DistinctBlockers(n) (int)(C64(1) << n)
+int DistinctBlockers(int n) {
+    return (int)(C64(1) << n);
+}
 
 static void ResetHashTable(Bitboard_t* hashTable, int tableEntries) {
     for(int i = 0; i < tableEntries; i++) {
@@ -40,7 +46,7 @@ static Bitboard_t FillMask(Bitboard_t singleBitset, DirectionCallback_t Directio
 
     singleBitset = DirectionFunc(singleBitset);
     while(NotEdge(singleBitset, edge)) {
-        SetBits(result, singleBitset);
+        SetBits(&result, singleBitset);
         singleBitset = DirectionFunc(singleBitset);
     }
 
@@ -52,7 +58,7 @@ static Bitboard_t FillAttacks(Bitboard_t singleBitset, Bitboard_t blockers, Dire
 
     do {
         singleBitset = DirectionFunc(singleBitset);
-        SetBits(result, singleBitset);
+        SetBits(&result, singleBitset);
     } while(singleBitset && !(singleBitset & blockers));
 
     return result;

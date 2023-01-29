@@ -2,18 +2,11 @@
 #define __MOVEGEN_H__
 
 #include "board_constants.h"
+#include "move.h"
 
 typedef struct {
-    Piece_t piece;
-    Bitboard_t toSquare;
-    Bitboard_t fromSquare;
-    Piece_t captureTargetType;
-    Piece_t promotionType;
-} Move_t;
-
-typedef struct {
-    Move_t moves[256];
-    int numMoves;
+    Move_t moves[MOVELIST_MAX];
+    int maxIndex;
 } MoveList_t;
 
 void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color);

@@ -4,11 +4,12 @@
 typedef unsigned long long Bitboard_t; // supported by MSC 13.00+ and C99 
 #define C64(constantU64) constantU64##ULL
 
-#define NUM_SQUARES 64
-#define NUM_DIRECTIONS 8
+#define MOVELIST_MAX 1024
+#define GAMESTATES_MAX 1024
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef bool Color_t;
 enum color {
@@ -16,7 +17,7 @@ enum color {
   black
 };
 
-typedef int Square_t;
+typedef uint8_t Square_t;
 enum squareLabels {
   a1, b1, c1, d1, e1, f1, g1, h1,
   a2, b2, c2, d2, e2, f2, g2, h2,
@@ -25,22 +26,24 @@ enum squareLabels {
   a5, b5, c5, d5, e5, f5, g5, h5,
   a6, b6, c6, d6, e6, f6, g6, h6,
   a7, b7, c7, d7, e7, f7, g7, h7,
-  a8, b8, c8, d8, e8, f8, g8, h8
+  a8, b8, c8, d8, e8, f8, g8, h8,
+  NUM_SQUARES
 };
 
-typedef int Piece_t;
+typedef uint8_t Piece_t;
+// ORDERING IS EXTREMELY IMPORTANT
+// CHANGING ORDER WILL F UP MOVE.H
 enum pieceTypes {
-  none,
-  pawn,
   knight,
   bishop,
   rook,
   queen,
-  king
+  pawn,
+  king,
+  none_type
 };
 
-
-typedef int Direction_t;
+typedef uint8_t Direction_t;
 enum directions {
     N,
     NE,
@@ -49,7 +52,8 @@ enum directions {
     S,
     SW,
     W,
-    NW
+    NW,
+    NUM_DIRECTIONS
 };
 
 enum squareSets {

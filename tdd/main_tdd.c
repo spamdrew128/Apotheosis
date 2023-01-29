@@ -9,18 +9,22 @@
 #include "magic_tdd.h"
 #include "legals_tdd.h"
 #include "movegen_tdd.h"
+#include "game_state_tdd.h"
+#include "board_info_tdd.h"
 
-int main(int argc, char *argv[])
+int main(int argc, char** argv)
 {
     InitLookup();
 
     LookupTDDRunner();
     BitboardsTDDRunner();
+    BoardInfoTDDRunner();
     FENTDDRunner();
     PiecesTDDRunner();
     MagicTDDRunner();
     LegalsTDDRunner();
     MovegenTDDRunner();
+    GameStateTDDRunner();
 
     TeardownLookup();
 }

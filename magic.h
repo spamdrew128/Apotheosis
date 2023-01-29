@@ -11,8 +11,8 @@ typedef uint32_t Hash_t;
 typedef struct {
     Bitboard_t mask;
     MagicBB_t magic;
-    uint8_t shift;
     Bitboard_t* hashTable;
+    uint8_t shift;
 } MagicEntry_t;
 
 void InitRookEntries(MagicEntry_t magicEntries[NUM_SQUARES]);
