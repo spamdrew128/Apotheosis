@@ -12,7 +12,7 @@
 // HELPERS
 static int CountPieceMoves(Piece_t piece, MoveList_t moveList, BoardInfo_t* info) {
     int count = 0;
-    for(int i = 0; i < moveList.maxIndex; i++) {
+    for(int i = 0; i <= moveList.maxIndex; i++) {
         Square_t fromSquare = ReadFromSquare(moveList.moves[i]);
         if(PieceOnSquare(info, fromSquare) == piece) {
             count++;
@@ -65,16 +65,6 @@ static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
         (CountPieceMoves(bishop, moveList, &info) == expectedNumBishopCaptures) &&
         (CountPieceMoves(knight, moveList, &info) == expectedNumKnightsCaptures) &&
         (CountPieceMoves(queen, moveList, &info) == expectedNumQueenCaptures);
-
-    printf("%d %d %d %d %d %d\n", 
-        (CountPieceMoves(king, moveList, &info) == expectedNumKingCaptures),
-        (CountPieceMoves(pawn, moveList, &info) == expectedNumPawnCaptures),
-        (CountPieceMoves(rook, moveList, &info) == expectedNumRookCaptures) ,
-        (CountPieceMoves(bishop, moveList, &info) == expectedNumBishopCaptures) ,
-        (CountPieceMoves(knight, moveList, &info) == expectedNumKnightsCaptures) ,
-        (CountPieceMoves(queen, moveList, &info) == expectedNumQueenCaptures));
-
-    PrintMoveList(&moveList, &info);
 
     PrintResults(success);
 }
