@@ -20,6 +20,16 @@ typedef void (*AddPawnCaptures_t)(
     PinmaskContainer_t pinmasks
 );
 
+typedef void (*AddPawnMoves_t)(
+    MoveList_t* moveList,
+    BoardInfo_t* boardInfo,
+    Bitboard_t freePawns,
+    Bitboard_t hvPinnedPawns,
+    Bitboard_t empty,
+    Bitboard_t checkmask,
+    PinmaskContainer_t pinmasks
+);
+
 typedef Bitboard_t (*SliderCaptureTargetsCallback_t)(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces);
 
 typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t b);
@@ -74,7 +84,7 @@ static void SerializePawnMoves(
         WriteFromSquare(current, LSB(pawnPositions));
         WriteSpecialFlag(current, flag);
 
-        ResetLSB(&moves);\
+        ResetLSB(&moves);
         ResetLSB(&pawnPositions);
     }
 }
@@ -470,7 +480,68 @@ static void AddBlackPawnCaptures(
     );
 };
 
+static void AddWhitePawnMoves(
+    MoveList_t* moveList,
+    BoardInfo_t* boardInfo,
+    Bitboard_t freePawns,
+    Bitboard_t hvPinnedPawns,
+    Bitboard_t empty,
+    Bitboard_t checkmask,
+    PinmaskContainer_t pinmasks
+)
+{
+    Bitboard_t singleMoveTargets = 
+        (WhiteSinglePushTargets(freePawns, empty) |
+        (WhiteSinglePushTargets(hvPinnedPawns, empty) & pinmasks.hv))
+        & checkmask;
+
+    Bitboard_t doubleMoveTargets = 
+        (WhiteDoublePushTargets(freePawns, empty) |
+        (WhiteDoublePushTargets(hvPinnedPawns, empty) & pinmasks.hv))
+        & checkmask;
+
+    Bitboard_t singleMovePromotions = FilterWhitePromotions(&singleMoveTargets);
+    Bitboard_t doubleMovePromotions = FilterWhitePromotions(&doubleMoveTargets);
+
+    SerializePawnMoves(moveList, singleMoveTargets, no_flag, SoutOne);
+    SerializePawnPromotions(moveList, singleMovePromotions, SoutOne);
+
+    SerializePawnMoves(moveList, doubleMoveTargets, no_flag, SoutTwo);
+    SerializePawnPromotions(moveList, doubleMovePromotions, SoutTwo);
+};
+
+static void AddBlackPawnMoves(
+    MoveList_t* moveList,
+    BoardInfo_t* boardInfo,
+    Bitboard_t freePawns,
+    Bitboard_t hvPinnedPawns,
+    Bitboard_t empty,
+    Bitboard_t checkmask,
+    PinmaskContainer_t pinmasks
+)
+{
+    Bitboard_t singleMoveTargets = 
+        (BlackSinglePushTargets(freePawns, empty) |
+        (BlackSinglePushTargets(hvPinnedPawns, empty) & pinmasks.hv))
+        & checkmask;
+
+    Bitboard_t doubleMoveTargets = 
+        (BlackDoublePushTargets(freePawns, empty) |
+        (BlackDoublePushTargets(hvPinnedPawns, empty) & pinmasks.hv))
+        & checkmask;
+
+    Bitboard_t singleMovePromotions = FilterBlackPromotions(&singleMoveTargets);
+    Bitboard_t doubleMovePromotions = FilterBlackPromotions(&doubleMoveTargets);
+
+    SerializePawnMoves(moveList, singleMoveTargets, no_flag, NortOne);
+    SerializePawnPromotions(moveList, singleMovePromotions, NortOne);
+
+    SerializePawnMoves(moveList, doubleMoveTargets, no_flag, NortTwo);
+    SerializePawnPromotions(moveList, doubleMovePromotions, NortTwo);
+};
+
 static UnsafeSquaresCallback_t UnsafeSquaresCallbacks[2] = { WhiteUnsafeSquares, BlackUnsafeSquares };
+static AddPawnMoves_t AddPawnMovesCallbacks[2] = { AddWhitePawnMoves, AddBlackPawnMoves };
 static AddPawnCaptures_t AddPawnCapturesCallbacks[2] = { AddWhitePawnCaptures, AddBlackPawnCaptures };
 
 static void AddAllCaptures(
