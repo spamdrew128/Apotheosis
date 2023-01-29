@@ -603,6 +603,61 @@ static void AddAllCaptures(
     );
 }
 
+static void AddAllQuietMoves(
+    MoveList_t* moveList,
+    BoardInfo_t* boardInfo,
+    PinmaskContainer_t pinmasks,
+    Bitboard_t checkmask,
+    Color_t color
+)
+{
+    AddPawnMovesCallbacks[color](
+        moveList,
+        boardInfo,
+        boardInfo->pawns[color] & ~pinmasks.all,
+        boardInfo->pawns[color] & pinmasks.hv,
+        boardInfo->empty,
+        checkmask,
+        pinmasks
+    );
+
+    AddKnightMoves(
+        moveList,
+        boardInfo->knights[color] & ~pinmasks.all,
+        boardInfo->empty,
+        checkmask,
+        color
+    );
+
+    AddBishopMoves(
+        moveList,
+        boardInfo->bishops[color] & ~pinmasks.all,
+        boardInfo->bishops[color] & pinmasks.d12,
+        checkmask,
+        boardInfo->empty,
+        pinmasks
+    );
+
+    AddRookMoves(
+        moveList,
+        boardInfo->rooks[color] & ~pinmasks.all,
+        boardInfo->rooks[color] & pinmasks.hv,
+        checkmask,
+        boardInfo->empty,
+        pinmasks
+    );
+
+    AddQueenMoves(
+        moveList,
+        boardInfo->queens[color] & ~pinmasks.all,
+        boardInfo->queens[color] & pinmasks.hv,
+        boardInfo->queens[color] & pinmasks.d12,
+        checkmask,
+        boardInfo->empty,
+        pinmasks
+    );
+}
+
 void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color) {
     moveList->maxIndex = movelist_empty;
 
@@ -641,4 +696,51 @@ void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color
 
 void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color) {
     moveList->maxIndex = movelist_empty;
+
+    Bitboard_t unsafeSquares = UnsafeSquaresCallbacks[color](boardInfo);
+
+    Square_t kingSquare = LSB(boardInfo->kings[color]);
+    Bitboard_t enemyPieces = boardInfo->allPieces[!color];
+
+    AddKingMoves(
+        moveList,
+        kingSquare,
+        KingCaptureTargets(kingSquare, enemyPieces),
+        unsafeSquares,
+        boardInfo->empty
+    );
+
+    Bitboard_t checkmask = full_set;
+    if(InCheck(boardInfo->kings[color], unsafeSquares)) {
+        checkmask = DefineCheckmask(boardInfo, color);
+        if(IsDoubleCheck(boardInfo, checkmask, color)) {
+            AddKingMoves(
+                moveList,
+                kingSquare,
+                KingMoveTargets(kingSquare, boardInfo->empty),
+                unsafeSquares,
+                boardInfo->empty
+            );
+            return;
+        }
+    }
+
+    PinmaskContainer_t pinmasks = DefinePinmasks(boardInfo, color);
+
+    AddAllCaptures(
+        moveList,
+        boardInfo,
+        pinmasks,
+        enemyPieces,
+        checkmask,
+        color
+    );
+
+    AddAllQuietMoves(
+        moveList,
+        boardInfo,
+        pinmasks,
+        checkmask,
+        color
+    );
 }
