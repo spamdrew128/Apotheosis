@@ -171,7 +171,7 @@ static void ShouldCorrectlyEvaluateInPosWithPins() {
     MoveList_t moveList;
     CompleteMovegen(&moveList, &info, white);
 
-    bool maxIndexIsCorrect = moveList.maxIndex == (
+    int expectedMaxIndex = (
         expectedNumKingMoves +
         expectedNumPawnMoves +
         expectedNumRookMoves +
@@ -185,9 +185,10 @@ static void ShouldCorrectlyEvaluateInPosWithPins() {
         (CountPieceMoves(rook, moveList, &info) == expectedNumRookMoves) &&
         (CountPieceMoves(bishop, moveList, &info) == expectedNumBishopMoves) &&
         (CountPieceMoves(knight, moveList, &info) == expectedNumKnightsMoves) &&
-        (CountPieceMoves(queen, moveList, &info) == expectedNumQueenMoves);
+        (CountPieceMoves(queen, moveList, &info) == expectedNumQueenMoves) &&
+        moveList.maxIndex == expectedMaxIndex;
 
-    PrintResults(success && maxIndexIsCorrect);
+    PrintResults(success);
 }
 
 void MovegenTDDRunner() {
