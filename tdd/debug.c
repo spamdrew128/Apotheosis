@@ -108,3 +108,43 @@ Bitboard_t CreateBitboard(int numOccupied, ...) {
 
     return bitboard;
 }
+
+static char RowToNumber(int row) {
+    return (char)(row + 49);
+}
+
+static char ColToLetter(int col) {
+    return (char)(col + 97);
+}
+
+static void SquareToString(Square_t square, char string[3]) {
+    int row = square / 8;
+    int col = square % 8;
+
+    string[0] = ColToLetter(col);
+    string[1] = RowToNumber(row);
+    string[2] = '\0';
+}
+
+static void PrintSingleTypeMoves(MoveList_t* moveList, BoardInfo_t* info, Piece_t type, const char* typeText) {
+    char fromText[3];
+    char toText[3];
+    for(int i = 0; i <= moveList->maxIndex; i++) {
+        Move_t current = moveList->moves[i];
+
+        if(PieceOnSquare(info, ReadFromSquare(current)) == type) {
+            SquareToString(ReadFromSquare(current), fromText);
+            SquareToString(ReadToSquare(current), toText);
+            printf("%s, From %s To %s\n", typeText, fromText, toText);
+        }
+    }
+}
+
+void PrintMoveList(MoveList_t* moveList, BoardInfo_t* info) {
+    PrintSingleTypeMoves(moveList, info, king, "King");
+    PrintSingleTypeMoves(moveList, info, queen, "Queen");
+    PrintSingleTypeMoves(moveList, info, rook, "Rook");
+    PrintSingleTypeMoves(moveList, info, bishop, "Bishop");
+    PrintSingleTypeMoves(moveList, info, knight, "Knight");
+    PrintSingleTypeMoves(moveList, info, pawn, "Pawn");
+}

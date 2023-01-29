@@ -74,6 +74,8 @@ static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
         (CountPieceMoves(knight, moveList, &info) == expectedNumKnightsCaptures) ,
         (CountPieceMoves(queen, moveList, &info) == expectedNumQueenCaptures));
 
+    PrintMoveList(&moveList, &info);
+
     PrintResults(success);
 }
 
