@@ -8,7 +8,7 @@
 #include "magic.h"
 #include "game_state.h"
 
-int main(int argc, char *argv[])
+int main(int argc, char** argv)
 {
     InitLookup();
     BoardInfo_t boardInfo;

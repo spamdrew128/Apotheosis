@@ -66,6 +66,14 @@ static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
         (CountPieceMoves(knight, moveList, &info) == expectedNumKnightsCaptures) &&
         (CountPieceMoves(queen, moveList, &info) == expectedNumQueenCaptures);
 
+    printf("%d %d %d %d %d %d\n", 
+        (CountPieceMoves(king, moveList, &info) == expectedNumKingCaptures),
+        (CountPieceMoves(pawn, moveList, &info) == expectedNumPawnCaptures),
+        (CountPieceMoves(rook, moveList, &info) == expectedNumRookCaptures) ,
+        (CountPieceMoves(bishop, moveList, &info) == expectedNumBishopCaptures) ,
+        (CountPieceMoves(knight, moveList, &info) == expectedNumKnightsCaptures) ,
+        (CountPieceMoves(queen, moveList, &info) == expectedNumQueenCaptures));
+
     PrintResults(success);
 }
 

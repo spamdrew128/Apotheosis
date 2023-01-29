@@ -15,6 +15,8 @@
 
 void PrintBitboard(Bitboard_t b);
 
+void PrintMailbox(BoardInfo_t *info);
+
 void PrintChessboard(BoardInfo_t* info);
 
 Bitboard_t CreateBitboard(int numOccupied, ...);

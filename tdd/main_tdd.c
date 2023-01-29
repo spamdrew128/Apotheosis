@@ -12,7 +12,7 @@
 #include "game_state_tdd.h"
 #include "board_info_tdd.h"
 
-int main(int argc, char *argv[])
+int main(int argc, char** argv)
 {
     InitLookup();
 

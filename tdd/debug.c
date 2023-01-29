@@ -34,6 +34,42 @@ void PrintBitboard(Bitboard_t b) {
     }
 }
 
+void PrintMailbox(BoardInfo_t *info) {
+    printf("\n");
+    for(int i = 7; i >= 0; i--) {
+        for(int j = 0; j < 8; j++) {
+            Piece_t piece = info->mailbox[i*8 + j];
+
+            switch (piece)
+            {
+            case queen:
+                printf("Q ");
+                break;
+            case rook:
+                printf("R ");
+                break;
+            case bishop:
+                printf("B ");
+                break;
+            case knight:
+                printf("N ");
+                break;
+            case king:
+                printf("K ");
+                break;
+            case pawn:
+                printf("P ");
+                break;
+            default:
+                printf(". ");
+                break;
+            }
+        }    
+        printf("\n");
+    }
+}
+
+
 void PrintChessboard(BoardInfo_t* info) {
     char boardArray[64] = {0};
     FillBoardArray(boardArray, full_set, '.');

@@ -447,9 +447,9 @@ void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color
 
     AddQueenCaptures(
         moveList,
-        boardInfo->rooks[color] & ~pinmasks.all,
-        boardInfo->rooks[color] & pinmasks.hv,
-        boardInfo->rooks[color] & pinmasks.d12,
+        boardInfo->queens[color] & ~pinmasks.all,
+        boardInfo->queens[color] & pinmasks.hv,
+        boardInfo->queens[color] & pinmasks.d12,
         checkmask,
         boardInfo->empty,
         enemyPieces,
