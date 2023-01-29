@@ -109,7 +109,8 @@ static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
         (CountPieceMoves(rook, moveList, &info) == expectedNumRookCaptures) &&
         (CountPieceMoves(bishop, moveList, &info) == expectedNumBishopCaptures) &&
         (CountPieceMoves(knight, moveList, &info) == expectedNumKnightsCaptures) &&
-        (CountPieceMoves(queen, moveList, &info) == expectedNumQueenCaptures);
+        (CountPieceMoves(queen, moveList, &info) == expectedNumQueenCaptures) &&
+        moveList.maxIndex == 7;
 
     PrintResults(success);
 }
@@ -132,7 +133,8 @@ static void ShouldCorrectlyEvaluateDoubleEnPassant() {
 
     bool success = 
         (CountPieceMoves(pawn, wMoveList, &info) == expectedNumPawnWhiteCaptures) &&
-        (CountPieceMoves(pawn, bMoveList, &info) == expectedNumPawnBlackCaptures);
+        (CountPieceMoves(pawn, bMoveList, &info) == expectedNumPawnBlackCaptures) &&
+        (wMoveList.maxIndex == 1) && (bMoveList.maxIndex == 1);
 
     PrintResults(success);
     ResetGameStateStack();
@@ -148,7 +150,8 @@ static void ShouldCorrectlyEvaluatePinnedEnPassant() {
     CapturesMovegen(&moveList, &info, white);
 
     bool success = 
-        CountPieceMoves(pawn, moveList, &info) == expectedNumPawnWhiteCaptures;
+        (CountPieceMoves(pawn, moveList, &info) == expectedNumPawnWhiteCaptures) &&
+        moveList.maxIndex == 0;
 
     PrintResults(success);
     ResetGameStateStack();
