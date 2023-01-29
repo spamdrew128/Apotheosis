@@ -5,6 +5,8 @@
 
 #include "board_constants.h"
 #include "bitboards.h"
+#include "board_info.h"
+#include "movegen.h"
 
 #define PrintResults(success) \
     if(success) {printf(".");} else {printf("\n%s Failure\n", __func__);}
@@ -14,7 +16,11 @@
 
 void PrintBitboard(Bitboard_t b);
 
+void PrintMailbox(BoardInfo_t *info);
+
 void PrintChessboard(BoardInfo_t* info);
+
+void PrintMoveList(MoveList_t* moveList, BoardInfo_t* info);
 
 Bitboard_t CreateBitboard(int numOccupied, ...);
 

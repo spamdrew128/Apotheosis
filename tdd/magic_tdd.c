@@ -3,7 +3,6 @@
 
 #include "debug.h"
 #include "magic_tdd.h"
-#include "magic.h"
 
 enum {
     corner_rook_index_bits = 12,
@@ -13,7 +12,7 @@ enum {
     bishop_9index_bits_area = SquareToBitset(d4) | SquareToBitset(e4) | SquareToBitset(d5) | SquareToBitset(e5),
     bishop_7index_bits_area = 0x00003C24243C0000,
     bishop_6index_bits_area = 0x8100000000000081,
-    bishop_5index_bits_area = 0x7EFFC3C3C3C3FF7E,
+    bishop_5index_bits_area = 0x7effc3c3c3c3ff7e,
 
     rook_square = d3,
     rook_blockers = SquareToBitset(b3) | SquareToBitset(g3) | SquareToBitset(d7) | SquareToBitset(d8),
@@ -40,8 +39,6 @@ static bool SquareIsEdge(Square_t square) {
 static bool SquareIsInBishopArea(Square_t square, Bitboard_t area) {
     return CreateBitboard(1, square) & area;
 }
-
-
 
 // TESTS
 static void RookMasksMatch(MagicEntry_t rMagicEntries[NUM_SQUARES]) {
@@ -114,14 +111,13 @@ static void TestQueenHashLookup(MagicEntry_t rMagicEntries[NUM_SQUARES], MagicEn
 }
 
 void MagicTDDRunner() {
-    // These tests suck to write so I'm not gonna do it for magics.
-    // Sue me.
-
     MagicEntry_t rMagicEntries[NUM_SQUARES];
     InitRookEntries(rMagicEntries);
     MagicEntry_t bMagicEntries[NUM_SQUARES];
     InitBishopEntries(bMagicEntries);
 
+    // These tests suck to write so I'm not gonna do it for magics.
+    // Sue me.
     RookMasksMatch(rMagicEntries);
     BishopsMasksMatch(bMagicEntries);
 

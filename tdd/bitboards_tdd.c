@@ -20,9 +20,6 @@ static void CanIdentifyLSB(Bitboard_t b, Square_t expected) {
 }
 
 void BitboardsTDDRunner() {
-    BoardInfo_t info;
-    InitBoardInfo(&info);
-
     CanCountPopulation(NineBitBitboard, 9);
     CanIdentifyLSB(d1_LSB, d1);
 }

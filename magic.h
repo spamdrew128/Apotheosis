@@ -11,8 +11,8 @@ typedef uint32_t Hash_t;
 typedef struct {
     Bitboard_t mask;
     MagicBB_t magic;
-    uint8_t shift;
     Bitboard_t* hashTable;
+    uint8_t shift;
 } MagicEntry_t;
 
 void InitRookEntries(MagicEntry_t magicEntries[NUM_SQUARES]);
@@ -22,5 +22,8 @@ void InitBishopEntries(MagicEntry_t magicEntries[NUM_SQUARES]);
 void FreeMagicEntries(MagicEntry_t magicEntries[NUM_SQUARES]);
 
 #define MagicHash(blockers, magic, shift) (blockers * magic) >> shift
+
+#define GetSlidingAttackSet(magicEntry, blockers) \
+    magicEntry.hashTable[ MagicHash(blockers, magicEntry.magic, magicEntry.shift) ]
 
 #endif
