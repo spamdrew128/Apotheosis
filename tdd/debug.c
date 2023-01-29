@@ -141,6 +141,7 @@ static void PrintSingleTypeMoves(MoveList_t* moveList, BoardInfo_t* info, Piece_
 }
 
 void PrintMoveList(MoveList_t* moveList, BoardInfo_t* info) {
+    printf("\n");
     PrintSingleTypeMoves(moveList, info, king, "King");
     PrintSingleTypeMoves(moveList, info, queen, "Queen");
     PrintSingleTypeMoves(moveList, info, rook, "Rook");
