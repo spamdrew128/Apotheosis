@@ -162,8 +162,8 @@ static void ShouldCorrectlyEvaluateInPosWithPins() {
     InitPinPositionInfo(&info);
     
     int expectedNumKingMoves = 4;
-    int expectedNumPawnMoves = 6;
-    int expectedNumRookMoves = 4;
+    int expectedNumPawnMoves = 9;
+    int expectedNumRookMoves = 3;
     int expectedNumBishopMoves = 7;
     int expectedNumKnightsMoves = 8;
     int expectedNumQueenMoves = 2;

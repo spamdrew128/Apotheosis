@@ -743,4 +743,13 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color
         checkmask,
         color
     );
+
+    // kingmoves here for ordering purposes
+    AddKingMoves(
+        moveList,
+        kingSquare,
+        KingMoveTargets(kingSquare, boardInfo->empty),
+        unsafeSquares,
+        boardInfo->empty
+    );
 }
