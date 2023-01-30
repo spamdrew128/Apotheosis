@@ -5,7 +5,9 @@ static void CastlingMakeHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
     Square_t toSquare = ReadToSquare(move);
 
     if(toSquare < fromSquare) { // queenside castle
-        boardInfo->kings[color] 
+        GenShiftWest(boardInfo->kings[color], 2);
+    } else {
+        GenShiftEast(boardInfo->kings[color], 2);
     }
 }
 
