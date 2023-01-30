@@ -40,6 +40,7 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
     if(toSquare < fromSquare) { // queenside castle
         boardInfo->kings[color] = GenShiftWest(kingBB, 2);
         ResetBits(&(boardInfo->allPieces[color]), kingBB);
+        SetBits(&(boardInfo->allPieces[color]), boardInfo->kings[color]);
         
         UpdateBoardInfoField(
             boardInfo,
@@ -52,6 +53,7 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
     } else {
         boardInfo->kings[color] = GenShiftEast(kingBB, 2);
         ResetBits(&(boardInfo->allPieces[color]), kingBB);
+        SetBits(&(boardInfo->allPieces[color]), boardInfo->kings[color]);
 
         UpdateBoardInfoField(
             boardInfo,
