@@ -12,6 +12,9 @@ Bitboard_t SoWeOne (Bitboard_t b);
 Bitboard_t WestOne (Bitboard_t b);
 Bitboard_t NoWeOne (Bitboard_t b);
 
+Bitboard_t NortTwo(Bitboard_t b);
+Bitboard_t SoutTwo(Bitboard_t b);
+
 typedef int Population_t;
 Population_t PopulationCount(Bitboard_t b);
 

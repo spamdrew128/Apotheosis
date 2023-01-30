@@ -13,6 +13,9 @@ Bitboard_t SoWeOne (Bitboard_t b) {return (b & not_a_file) >> 9;}
 Bitboard_t WestOne (Bitboard_t b) {return (b & not_a_file) >> 1;}
 Bitboard_t NoWeOne (Bitboard_t b) {return (b & not_a_file) << 7;}
 
+Bitboard_t NortTwo(Bitboard_t b) {return  b << 16;}
+Bitboard_t SoutTwo(Bitboard_t b) {return  b >> 16;}
+
 Population_t PopulationCount(Bitboard_t b) {
     Population_t count = 0;
     while(b) {
