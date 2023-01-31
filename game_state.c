@@ -72,9 +72,9 @@ Bitboard_t ReadEnPassantSquares() {
 }
 
 GameState_t ReadDefaultNextGameState() {
-    GameState_t nextState = *GetDefaultNextGameState();
+    GameState_t* nextState = GetDefaultNextGameState();
     stack.top--;
-    return nextState;
+    return *nextState;
 }
 
 void ResetGameStateStack() {
