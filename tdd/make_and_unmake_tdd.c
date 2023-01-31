@@ -72,6 +72,26 @@ static void InitKingsideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState_
     expectedState->enPassantSquares = temp.enPassantSquares;
 }
 
+// r3k2r/8/8/8/8/8/8/R4RK1
+static void InitQueensideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+    InitBoardInfo(expectedInfo);
+    expectedInfo->kings[white] = CreateBitboard(1, c1);
+    expectedInfo->rooks[white] = CreateBitboard(2, d1,h1);
+
+    expectedInfo->kings[black] = CreateBitboard(1, e8);
+    expectedInfo->rooks[black] = CreateBitboard(2, a8,h8);
+
+    UpdateAllPieces(expectedInfo);
+    UpdateEmpty(expectedInfo);
+    TranslateBitboardsToMailbox(expectedInfo);
+
+    GameState_t temp = GetDefaultNextGameState();
+    expectedState->halfmoveClock = temp.halfmoveClock;
+    expectedState->castleSquares[white] = empty_set;
+    expectedState->castleSquares[black] = temp.castleSquares[black];
+    expectedState->enPassantSquares = temp.enPassantSquares;
+}
+
 static void ShouldCastleKingside() {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
@@ -85,6 +105,26 @@ static void ShouldCastleKingside() {
     WriteSpecialFlag(&ksCastle, castle_flag);
 
     MakeMove(&info, ksCastle, white);
+
+    bool infoMatches = CompareInfo(&info, &expectedInfo);
+    bool stateMatches = CompareState(&expectedState);
+
+    PrintResults(infoMatches && stateMatches);
+}
+
+static void ShouldCastleQueenside() {
+    BoardInfo_t info;
+    BoardInfo_t expectedInfo;
+    GameState_t expectedState;
+    InitAllCastlingLegalInfo(&info);
+    InitQueensideCastleExpectedInfo(&expectedInfo, &expectedState);
+
+    Move_t qsCastle;
+    WriteFromSquare(&qsCastle, LSB(info.kings[white]));
+    WriteToSquare(&qsCastle, LSB(white_queenside_castle_sq));
+    WriteSpecialFlag(&qsCastle, castle_flag);
+
+    MakeMove(&info, qsCastle, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareState(&expectedState);
