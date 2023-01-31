@@ -197,6 +197,8 @@ static void ShouldCapturePromote() {
 
 void MakeAndUnmakeTDDRunner() {
     ShouldCastleKingside();
+    ShouldCastleQueenside();
+
     ShouldQuietPromote();
 
     ResetGameStateStack();
