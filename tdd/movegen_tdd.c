@@ -23,13 +23,13 @@ static int CountPieceMoves(Piece_t piece, MoveList_t moveList, BoardInfo_t* info
     return count;
 }
 
-static GameState_t GetBlankState() {
-    GameState_t blankState = GetNewGameState();
-    blankState.colorToMove = white;
-    blankState.castleSquares[white] = empty_set;
-    blankState.castleSquares[black] = empty_set;
-    blankState.enPassantSquares = empty_set;
-    blankState.halfmoveClock = 0;
+static GameState_t* GetBlankState() {
+    GameState_t* blankState = GetUninitializedNextGameState();
+    blankState->colorToMove = white;
+    blankState->castleSquares[white] = empty_set;
+    blankState->castleSquares[black] = empty_set;
+    blankState->enPassantSquares = empty_set;
+    blankState->halfmoveClock = 0;
     return blankState;
 }
 
@@ -70,9 +70,8 @@ static void InitDoubleEnPassantPosition(BoardInfo_t* info) {
 
 // 1b6/8/2pP4/4KPpr/8/8/8/k7
 static void InitTrickyPinnedEnPassantPostitionInfo(BoardInfo_t* info) {
-    GameState_t state = GetBlankState();
-    state.enPassantSquares = CreateBitboard(2, g6,c7);
-    AddState(state);
+    GameState_t* state = GetBlankState();
+    state->enPassantSquares = CreateBitboard(2, g6,c7);
 
     InitBoardInfo(info);
     info->kings[white] = CreateBitboard(1, e5);
@@ -118,9 +117,8 @@ static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
 static void ShouldCorrectlyEvaluateDoubleEnPassant() {
     BoardInfo_t info;
     InitDoubleEnPassantPosition(&info);
-    GameState_t state = GetBlankState();
-    state.enPassantSquares = CreateBitboard(2, b2,b7);
-    AddState(state);
+    GameState_t* state = GetBlankState();
+    state->enPassantSquares = CreateBitboard(2, b2,b7);
 
     int expectedNumPawnWhiteCaptures = 2;
     int expectedNumPawnBlackCaptures = 2;

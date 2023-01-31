@@ -104,9 +104,8 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
         );
     }
 
-    GameState_t nextState = GetDefaultNextGameState();
-    nextState.castleSquares[color] = empty_set;
-    AddState(nextState);
+    GameState_t* nextState = GetDefaultNextGameState();
+    nextState->castleSquares[color] = empty_set;
 
     UpdateEmpty(boardInfo);
 }
@@ -153,9 +152,8 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
 
     UpdateEmpty(boardInfo);
 
-    GameState_t nextState = GetDefaultNextGameState();
-    nextState.halfmoveClock = empty_set;
-    AddState(nextState);
+    GameState_t* nextState = GetDefaultNextGameState();
+    nextState->halfmoveClock = empty_set;
 }
 
 void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {

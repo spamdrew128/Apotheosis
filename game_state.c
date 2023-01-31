@@ -21,37 +21,32 @@ static Stack_t stack = {
 
 #define NextState(stack) stack.gameStates[stack.top + 1]
 
-GameState_t GetNewGameState() {
-    return NextState(stack);
+GameState_t* GetUninitializedNextGameState() {
+    stack.top++;
+    return &(CurrentState(stack));
 }
 
-GameState_t GetDefaultNextGameState() {
-    GameState_t defaultState = GetNewGameState();
+GameState_t* GetDefaultNextGameState() {
+    GameState_t* defaultState = &(NextState(stack));
 
-    defaultState.colorToMove = !ReadColorToMove();
-    defaultState.halfmoveClock = ReadHalfmoveClock() + 1;
-    defaultState.castleSquares[white] = ReadCastleSquares(white);
-    defaultState.castleSquares[black] = ReadCastleSquares(black);
-    defaultState.enPassantSquares = empty_set;
+    defaultState->colorToMove = !ReadColorToMove();
+    defaultState->halfmoveClock = ReadHalfmoveClock() + 1;
+    defaultState->castleSquares[white] = ReadCastleSquares(white);
+    defaultState->castleSquares[black] = ReadCastleSquares(black);
+    defaultState->enPassantSquares = empty_set;
 
+    stack.top++;
     return defaultState;
 }
 
 void AddStartingGameState() {
-    GameState_t gameStartState = GetNewGameState();
+    GameState_t* gameStartState = GetUninitializedNextGameState();
 
-    gameStartState.colorToMove = white;
-    gameStartState.halfmoveClock = 0;
-    gameStartState.castleSquares[white] = white_kingside_castle_sq | white_queenside_castle_sq;
-    gameStartState.castleSquares[black] = black_kingside_castle_sq | black_queenside_castle_sq;
-    gameStartState.enPassantSquares = empty_set;
-
-    AddState(gameStartState);
-}
-
-void AddState(GameState_t newState) {
-    NextState(stack) = newState;
-    stack.top++;
+    gameStartState->colorToMove = white;
+    gameStartState->halfmoveClock = 0;
+    gameStartState->castleSquares[white] = white_kingside_castle_sq | white_queenside_castle_sq;
+    gameStartState->castleSquares[black] = black_kingside_castle_sq | black_queenside_castle_sq;
+    gameStartState->enPassantSquares = empty_set;
 }
 
 void RevertState() {
@@ -73,6 +68,10 @@ Bitboard_t ReadCastleSquares(Color_t color) {
 
 Bitboard_t ReadEnPassantSquares() {
     return CurrentState(stack).enPassantSquares;
+}
+
+GameState_t ReadDefaultNextGameState() {
+    return *GetDefaultNextGameState();
 }
 
 void ResetGameStateStack() {
