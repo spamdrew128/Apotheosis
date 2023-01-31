@@ -65,7 +65,7 @@ static void InitKingsideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState_
     UpdateEmpty(expectedInfo);
     TranslateBitboardsToMailbox(expectedInfo);
 
-    GameState_t temp = GetDefaultNextGameState();
+    GameState_t temp = ReadDefaultNextGameState();
     expectedState->halfmoveClock = temp.halfmoveClock;
     expectedState->castleSquares[white] = empty_set;
     expectedState->castleSquares[black] = temp.castleSquares[black];
@@ -85,7 +85,7 @@ static void InitQueensideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState
     UpdateEmpty(expectedInfo);
     TranslateBitboardsToMailbox(expectedInfo);
 
-    GameState_t temp = GetDefaultNextGameState();
+    GameState_t temp = ReadDefaultNextGameState();
     expectedState->halfmoveClock = temp.halfmoveClock;
     expectedState->castleSquares[white] = empty_set;
     expectedState->castleSquares[black] = temp.castleSquares[black];
@@ -122,7 +122,7 @@ static void InitExpectedQuietPromotionPostionInfo(BoardInfo_t* expectedInfo, Gam
     UpdateEmpty(expectedInfo);
     TranslateBitboardsToMailbox(expectedInfo);
 
-    GameState_t temp = GetDefaultNextGameState();
+    GameState_t temp = ReadDefaultNextGameState();
     expectedState->halfmoveClock = 0;
     expectedState->castleSquares[white] = temp.castleSquares[white];
     expectedState->castleSquares[black] = temp.castleSquares[black];
@@ -142,7 +142,7 @@ static void InitExpectedCapturePromotionPostionInfo(BoardInfo_t* expectedInfo, G
     UpdateEmpty(expectedInfo);
     TranslateBitboardsToMailbox(expectedInfo);
 
-    GameState_t temp = GetDefaultNextGameState();
+    GameState_t temp = ReadDefaultNextGameState();
     expectedState->halfmoveClock = 0;
     expectedState->castleSquares[white] = temp.castleSquares[white];
     expectedState->castleSquares[black] = temp.castleSquares[black];
