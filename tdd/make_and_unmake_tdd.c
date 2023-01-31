@@ -92,6 +92,44 @@ static void InitQueensideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState
     expectedState->enPassantSquares = temp.enPassantSquares;
 }
 
+// 8/4P3/7K/8/8/7k/2p5/1Q6
+static void InitPromotionPostionInfo(BoardInfo_t* info) {
+    InitBoardInfo(info);
+    info->kings[white] = CreateBitboard(1, h6);
+    info->pawns[white] = CreateBitboard(1, e7);
+    info->queens[white] = CreateBitboard(1, b1);
+
+    info->kings[black] = CreateBitboard(1, h3);
+    info->pawns[black] = CreateBitboard(1, c2);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
+    TranslateBitboardsToMailbox(info);
+
+    AddStartingGameState();
+}
+
+// 8/4P3/7K/8/8/7k/2p5/1Q6
+static void InitExpectedPromotionPostionInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+    InitBoardInfo(expectedInfo);
+    expectedInfo->kings[white] = CreateBitboard(1, h6);
+    expectedInfo->queens[white] = CreateBitboard(1, b1,e8);
+
+    expectedInfo->kings[black] = CreateBitboard(1, h3);
+    expectedInfo->pawns[black] = CreateBitboard(1, c2);
+
+    UpdateAllPieces(expectedInfo);
+    UpdateEmpty(expectedInfo);
+    TranslateBitboardsToMailbox(expectedInfo);
+
+
+    GameState_t temp = GetDefaultNextGameState();
+    expectedState->halfmoveClock = 0;
+    expectedState->castleSquares[white] = temp.castleSquares[white];
+    expectedState->castleSquares[black] = temp.castleSquares[black];
+    expectedState->enPassantSquares = temp.enPassantSquares;
+}
+
 static void ShouldCastleKingside() {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
@@ -132,8 +170,34 @@ static void ShouldCastleQueenside() {
     PrintResults(infoMatches && stateMatches);
 }
 
+static void ShouldQuietPromote() {
+    BoardInfo_t info;
+    BoardInfo_t expectedInfo;
+    GameState_t expectedState;
+    InitPromotionPostionInfo(&info);
+    InitExpectedPromotionPostionInfo(&expectedInfo, &expectedState);
+
+    Move_t move;
+    WriteFromSquare(&move, e7);
+    WriteToSquare(&move, e8);
+    WritePromotionPiece(&move, queen);
+    WriteSpecialFlag(&move, promotion_flag);
+
+    MakeMove(&info, move, white);
+
+    bool infoMatches = CompareInfo(&info, &expectedInfo);
+    bool stateMatches = CompareState(&expectedState);
+
+    PrintResults(infoMatches && stateMatches);
+}
+
+static void ShouldCapturePromote() {
+    
+}
+
 void MakeAndUnmakeTDDRunner() {
     ShouldCastleKingside();
+    ShouldQuietPromote();
 
     ResetGameStateStack();
 }
