@@ -6,30 +6,30 @@ static void RemoveCapturedPiece(
     BoardInfo_t* boardInfo,
     Square_t capturedSquare,
     Piece_t type,
-    Color_t color
+    Color_t capturedPieceColor
 ) 
 {
     Bitboard_t caputuredBB = GetSingleBitset(capturedSquare);
 
     switch (type) {
         case queen:
-            ResetBits(&(boardInfo->queens[color]), caputuredBB);
+            ResetBits(&(boardInfo->queens[capturedPieceColor]), caputuredBB);
         break;
         case rook:
-            ResetBits(&(boardInfo->rooks[color]), caputuredBB);
+            ResetBits(&(boardInfo->rooks[capturedPieceColor]), caputuredBB);
         break;
         case bishop:
-            ResetBits(&(boardInfo->bishops[color]), caputuredBB);
+            ResetBits(&(boardInfo->bishops[capturedPieceColor]), caputuredBB);
         break;
         case knight:
-            ResetBits(&(boardInfo->knights[color]), caputuredBB);
+            ResetBits(&(boardInfo->knights[capturedPieceColor]), caputuredBB);
         break;
         case pawn:
-            ResetBits(&(boardInfo->pawns[color]), caputuredBB);
+            ResetBits(&(boardInfo->pawns[capturedPieceColor]), caputuredBB);
         break;
     }
 
-    ResetBits(&(boardInfo->allPieces[color]), caputuredBB);
+    ResetBits(&(boardInfo->allPieces[capturedPieceColor]), caputuredBB);
 }
 
 static void UpdateBoardInfoField(
@@ -122,7 +122,7 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
             boardInfo,
             toSquare,
             capturedPiece,
-            color
+            !color
         );
     }
 
