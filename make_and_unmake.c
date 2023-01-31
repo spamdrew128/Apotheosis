@@ -134,7 +134,7 @@ void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
             MakeCastlingHandler(boardInfo, move, color);
         break;
         case promotion_flag:
-        /* code */
+            MakePromotionHandler(boardInfo, move, color);
         break;
         case en_passant_flag:
         /* code */

@@ -138,6 +138,7 @@ static void ShouldCastleKingside() {
     InitKingsideCastleExpectedInfo(&expectedInfo, &expectedState);
 
     Move_t ksCastle;
+    InitMove(&ksCastle);
     WriteFromSquare(&ksCastle, LSB(info.kings[white]));
     WriteToSquare(&ksCastle, LSB(white_kingside_castle_sq));
     WriteSpecialFlag(&ksCastle, castle_flag);
@@ -158,6 +159,7 @@ static void ShouldCastleQueenside() {
     InitQueensideCastleExpectedInfo(&expectedInfo, &expectedState);
 
     Move_t qsCastle;
+    InitMove(&qsCastle);
     WriteFromSquare(&qsCastle, LSB(info.kings[white]));
     WriteToSquare(&qsCastle, LSB(white_queenside_castle_sq));
     WriteSpecialFlag(&qsCastle, castle_flag);
@@ -178,6 +180,7 @@ static void ShouldQuietPromote() {
     InitExpectedPromotionPostionInfo(&expectedInfo, &expectedState);
 
     Move_t move;
+    InitMove(&move);
     WriteFromSquare(&move, e7);
     WriteToSquare(&move, e8);
     WritePromotionPiece(&move, queen);
