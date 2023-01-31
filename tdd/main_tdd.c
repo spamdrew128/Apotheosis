@@ -25,6 +25,7 @@ int main(int argc, char** argv)
     LegalsTDDRunner();
     GameStateTDDRunner();
     MovegenTDDRunner();
+    // MakeAndUnmakeTDDRunner();
 
     TeardownLookup();
 }

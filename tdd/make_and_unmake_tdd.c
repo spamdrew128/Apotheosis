@@ -77,7 +77,7 @@ static void ShouldCastleKingside() {
     BoardInfo_t expectedInfo;
     GameState_t expectedState;
     InitAllCastlingLegalInfo(&info);
-    InitKingsideCastleExpectedInfo(&info, &expectedInfo);
+    InitKingsideCastleExpectedInfo(&expectedInfo, &expectedState);
 
     Move_t ksCastle;
     WriteFromSquare(&ksCastle, LSB(info.kings[white]));
