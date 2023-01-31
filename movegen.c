@@ -752,4 +752,12 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color
         unsafeSquares,
         boardInfo->empty
     );
+
+    AddCastlingMoves(
+        moveList,
+        boardInfo,
+        unsafeSquares,
+        kingSquare,
+        color
+    );
 }

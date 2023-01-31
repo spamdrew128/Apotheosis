@@ -32,8 +32,8 @@ static bool CompareState(GameState_t* expectedState) {
     return
         (ReadHalfmoveClock() == expectedState->halfmoveClock) &&
         (ReadEnPassantSquares() == expectedState->enPassantSquares) &&
-        (ReadCastleSquares() == expectedState->castleSquares[white]) &&
-        (ReadCastleSquares() == expectedState->castleSquares[black]);
+        (ReadCastleSquares(white) == expectedState->castleSquares[white]) &&
+        (ReadCastleSquares(black) == expectedState->castleSquares[black]);
 }
 
 // r3k2r/8/8/8/8/8/8/R3K2R
@@ -85,7 +85,7 @@ static void ShouldCastleKingside() {
     WriteSpecialFlag(&ksCastle, castle_flag);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
-    bool stateMatches = CompareState(&expectedInfo);
+    bool stateMatches = CompareState(&expectedState);
 
     PrintResults(infoMatches && stateMatches);
 }
