@@ -22,8 +22,9 @@ static Stack_t stack = {
 #define NextState(stack) stack.gameStates[stack.top + 1]
 
 GameState_t* GetUninitializedNextGameState() {
+    GameState_t* nextState = &(NextState(stack));
     stack.top++;
-    return &(CurrentState(stack));
+    return nextState;
 }
 
 GameState_t* GetDefaultNextGameState() {
@@ -71,7 +72,9 @@ Bitboard_t ReadEnPassantSquares() {
 }
 
 GameState_t ReadDefaultNextGameState() {
-    return *GetDefaultNextGameState();
+    GameState_t nextState = *GetDefaultNextGameState();
+    stack.top--;
+    return nextState;
 }
 
 void ResetGameStateStack() {
