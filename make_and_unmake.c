@@ -4,13 +4,31 @@
 
 static void RemoveCapturedPiece(
     BoardInfo_t* boardInfo,
-    Bitboard_t* infoField,
     Square_t capturedSquare,
+    Piece_t type,
     Color_t color
 ) 
 {
     Bitboard_t caputuredBB = GetSingleBitset(capturedSquare);
-    ResetBits(infoField, caputuredBB);
+
+    switch (type) {
+        case queen:
+            ResetBits(&(boardInfo->queens[color]), caputuredBB);
+        break;
+        case rook:
+            ResetBits(&(boardInfo->rooks[color]), caputuredBB);
+        break;
+        case bishop:
+            ResetBits(&(boardInfo->bishops[color]), caputuredBB);
+        break;
+        case knight:
+            ResetBits(&(boardInfo->knights[color]), caputuredBB);
+        break;
+        case pawn:
+            ResetBits(&(boardInfo->pawns[color]), caputuredBB);
+        break;
+    }
+
     ResetBits(&(boardInfo->allPieces[color]), caputuredBB);
 }
 
@@ -98,6 +116,16 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
     Square_t toSquare = ReadToSquare(move);
     Piece_t promotionPiece = ReadPromotionPiece(move);
 
+    Piece_t capturedPiece = PieceOnSquare(boardInfo, toSquare);
+    if(capturedPiece != none_type) {
+        RemoveCapturedPiece(
+            boardInfo,
+            toSquare,
+            capturedPiece,
+            color
+        );
+    }
+
     AddPieceToMailbox(boardInfo, fromSquare, promotionPiece);
     MovePieceInMailbox(boardInfo, toSquare, fromSquare);
 
@@ -124,6 +152,10 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
     }
 
     UpdateEmpty(boardInfo);
+
+    GameState_t nextState = GetDefaultNextGameState();
+    nextState.halfmoveClock = empty_set;
+    AddState(nextState);
 }
 
 void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {

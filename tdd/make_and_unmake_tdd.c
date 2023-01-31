@@ -110,10 +110,10 @@ static void InitPromotionPostionInfo(BoardInfo_t* info) {
 }
 
 // 8/4P3/7K/8/8/7k/2p5/1Q6
-static void InitExpectedPromotionPostionInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+static void InitExpectedQuietPromotionPostionInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
     InitBoardInfo(expectedInfo);
     expectedInfo->kings[white] = CreateBitboard(1, h6);
-    expectedInfo->queens[white] = CreateBitboard(1, b1,e8);
+    expectedInfo->queens[white] = CreateBitboard(2, b1,e8);
 
     expectedInfo->kings[black] = CreateBitboard(1, h3);
     expectedInfo->pawns[black] = CreateBitboard(1, c2);
@@ -122,6 +122,25 @@ static void InitExpectedPromotionPostionInfo(BoardInfo_t* expectedInfo, GameStat
     UpdateEmpty(expectedInfo);
     TranslateBitboardsToMailbox(expectedInfo);
 
+    GameState_t temp = GetDefaultNextGameState();
+    expectedState->halfmoveClock = 0;
+    expectedState->castleSquares[white] = temp.castleSquares[white];
+    expectedState->castleSquares[black] = temp.castleSquares[black];
+    expectedState->enPassantSquares = temp.enPassantSquares;
+}
+
+// 8/4P3/7K/8/8/7k/2p5/1Q6
+static void InitExpectedCapturePromotionPostionInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+    InitBoardInfo(expectedInfo);
+    expectedInfo->kings[white] = CreateBitboard(1, h6);
+    expectedInfo->pawns[white] = CreateBitboard(1, e7);
+
+    expectedInfo->kings[black] = CreateBitboard(1, h3);
+    expectedInfo->knights[black] = CreateBitboard(1, b1);
+
+    UpdateAllPieces(expectedInfo);
+    UpdateEmpty(expectedInfo);
+    TranslateBitboardsToMailbox(expectedInfo);
 
     GameState_t temp = GetDefaultNextGameState();
     expectedState->halfmoveClock = 0;
@@ -177,7 +196,7 @@ static void ShouldQuietPromote() {
     BoardInfo_t expectedInfo;
     GameState_t expectedState;
     InitPromotionPostionInfo(&info);
-    InitExpectedPromotionPostionInfo(&expectedInfo, &expectedState);
+    InitExpectedQuietPromotionPostionInfo(&expectedInfo, &expectedState);
 
     Move_t move;
     InitMove(&move);
@@ -195,7 +214,25 @@ static void ShouldQuietPromote() {
 }
 
 static void ShouldCapturePromote() {
-    
+    BoardInfo_t info;
+    BoardInfo_t expectedInfo;
+    GameState_t expectedState;
+    InitPromotionPostionInfo(&info);
+    InitExpectedCapturePromotionPostionInfo(&expectedInfo, &expectedState);
+
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, c2);
+    WriteToSquare(&move, b1);
+    WritePromotionPiece(&move, knight);
+    WriteSpecialFlag(&move, promotion_flag);
+
+    MakeMove(&info, move, black);
+
+    bool infoMatches = CompareInfo(&info, &expectedInfo);
+    bool stateMatches = CompareState(&expectedState);
+
+    PrintResults(infoMatches && stateMatches);
 }
 
 void MakeAndUnmakeTDDRunner() {
@@ -203,6 +240,7 @@ void MakeAndUnmakeTDDRunner() {
     ShouldCastleQueenside();
 
     ShouldQuietPromote();
+    ShouldCapturePromote();
 
     ResetGameStateStack();
 }
