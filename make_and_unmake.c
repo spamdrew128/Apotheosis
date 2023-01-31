@@ -93,6 +93,39 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
     UpdateEmpty(boardInfo);
 }
 
+static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
+    Square_t fromSquare = ReadFromSquare(move);
+    Square_t toSquare = ReadToSquare(move);
+    Piece_t promotionPiece = ReadPromotionPiece(move);
+
+    AddPieceToMailbox(boardInfo, fromSquare, promotionPiece);
+    MovePieceInMailbox(boardInfo, toSquare, fromSquare);
+
+    Bitboard_t fromBB = GetSingleBitset(fromSquare);
+    Bitboard_t toBB = GetSingleBitset(toSquare);
+
+    ResetBits(&(boardInfo->pawns[color]), fromBB);
+    ResetBits(&(boardInfo->allPieces[color]), fromBB);
+    SetBits(&(boardInfo->allPieces[color]), toBB);
+
+    switch (promotionPiece) {
+        case queen:
+            SetBits(&(boardInfo->queens[color]), toBB);
+        break;
+        case rook:
+            SetBits(&(boardInfo->rooks[color]), toBB);
+        break;
+        case bishop:
+            SetBits(&(boardInfo->bishops[color]), toBB);
+        break;
+        case knight:
+            SetBits(&(boardInfo->knights[color]), toBB);
+        break;
+    }
+
+    UpdateEmpty(boardInfo);
+}
+
 void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
     SpecialFlag_t specialFlag = ReadSpecialFlag(move);
     
