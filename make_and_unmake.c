@@ -34,29 +34,31 @@ static void UpdateBoardInfoField(
 }
 
 static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
-    Square_t fromSquare = ReadFromSquare(move);
-    Square_t toSquare = ReadToSquare(move);
+    Square_t kingFromSquare = ReadFromSquare(move);
+    Square_t kingToSquare = ReadToSquare(move);
 
-    Bitboard_t fromBB = boardInfo->kings[color];
+    Bitboard_t kingFromBB = boardInfo->kings[color];
 
-    if(toSquare < fromSquare) { // queenside castle
+    if(kingToSquare < kingFromSquare) { // queenside castle
         UpdateBoardInfoField(
             boardInfo,
             &(boardInfo->kings[color]),
-            fromBB,
-            GenShiftWest(fromBB, 2),
-            fromSquare,
-            toSquare,
+            kingFromBB,
+            GenShiftWest(kingFromBB, 2),
+            kingFromSquare,
+            kingToSquare,
             color
         );
 
+        Bitboard_t rookFromBB = GenShiftWest(kingFromBB, 4);
+        Bitboard_t rookToBB = GenShiftWest(kingFromBB, 1);
         UpdateBoardInfoField(
             boardInfo,
             &(boardInfo->rooks[color]),
-            GenShiftWest(fromBB, 4),
-            GenShiftWest(fromBB, 1),
-            fromSquare,
-            toSquare,
+            rookFromBB,
+            rookToBB,
+            LSB(rookFromBB),
+            LSB(rookToBB),
             color
         );
 
@@ -64,20 +66,22 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
         UpdateBoardInfoField(
             boardInfo,
             &(boardInfo->kings[color]),
-            fromBB,
-            GenShiftEast(fromBB, 2),
-            fromSquare,
-            toSquare,
+            kingFromBB,
+            GenShiftEast(kingFromBB, 2),
+            kingFromSquare,
+            kingToSquare,
             color
         );
 
+        Bitboard_t rookFromBB = GenShiftEast(kingFromBB, 3);
+        Bitboard_t rookToBB = GenShiftEast(kingFromBB, 1);
         UpdateBoardInfoField(
             boardInfo,
             &(boardInfo->rooks[color]),
-            GenShiftEast(fromBB, 3),
-            GenShiftEast(fromBB, 1),
-            fromSquare,
-            toSquare,
+            rookFromBB,
+            rookToBB,
+            LSB(rookFromBB),
+            LSB(rookToBB),
             color
         );
     }

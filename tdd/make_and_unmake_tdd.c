@@ -68,7 +68,7 @@ static void InitKingsideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState_
     GameState_t temp = GetDefaultNextGameState();
     expectedState->halfmoveClock = temp.halfmoveClock;
     expectedState->castleSquares[white] = empty_set;
-    expectedState->castleSquares[black] = empty_set;
+    expectedState->castleSquares[black] = temp.castleSquares[black];
     expectedState->enPassantSquares = temp.enPassantSquares;
 }
 
@@ -83,6 +83,8 @@ static void ShouldCastleKingside() {
     WriteFromSquare(&ksCastle, LSB(info.kings[white]));
     WriteToSquare(&ksCastle, LSB(white_kingside_castle_sq));
     WriteSpecialFlag(&ksCastle, castle_flag);
+
+    MakeMove(&info, ksCastle, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareState(&expectedState);

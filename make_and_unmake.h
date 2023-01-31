@@ -6,4 +6,6 @@
 #include "move.h"
 #include "movegen.h"
 
+void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color);
+
 #endif
