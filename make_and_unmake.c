@@ -19,6 +19,8 @@ static void UpdateBoardInfoField(
     Bitboard_t* infoField,
     Bitboard_t fromBB,
     Bitboard_t toBB,
+    Square_t fromSquare,
+    Square_t toSquare,
     Color_t color
 ) 
 {
@@ -28,7 +30,7 @@ static void UpdateBoardInfoField(
     ResetBits(&(boardInfo->allPieces[color]), fromBB);
     SetBits(&(boardInfo->allPieces[color]), toBB);
 
-    UpdateEmpty(boardInfo);
+    MovePieceInMailbox(boardInfo, toSquare, fromSquare);
 }
 
 static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
@@ -38,28 +40,44 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
     Bitboard_t kingBB = boardInfo->kings[color];
 
     if(toSquare < fromSquare) { // queenside castle
-        boardInfo->kings[color] = GenShiftWest(kingBB, 2);
-        ResetBits(&(boardInfo->allPieces[color]), kingBB);
-        SetBits(&(boardInfo->allPieces[color]), boardInfo->kings[color]);
-        
+        UpdateBoardInfoField(
+            boardInfo,
+            &(boardInfo->kings[color]),
+            kingBB,
+            GenShiftWest(kingBB, 2),
+            fromSquare,
+            toSquare,
+            color
+        );
+
         UpdateBoardInfoField(
             boardInfo,
             &(boardInfo->rooks[color]),
             GenShiftWest(kingBB, 4),
             GenShiftWest(kingBB, 1),
+            fromSquare,
+            toSquare,
             color
         );
 
     } else {
-        boardInfo->kings[color] = GenShiftEast(kingBB, 2);
-        ResetBits(&(boardInfo->allPieces[color]), kingBB);
-        SetBits(&(boardInfo->allPieces[color]), boardInfo->kings[color]);
+        UpdateBoardInfoField(
+            boardInfo,
+            &(boardInfo->kings[color]),
+            kingBB,
+            GenShiftEast(kingBB, 2),
+            fromSquare,
+            toSquare,
+            color
+        );
 
         UpdateBoardInfoField(
             boardInfo,
             &(boardInfo->rooks[color]),
             GenShiftEast(kingBB, 3),
             GenShiftEast(kingBB, 1),
+            fromSquare,
+            toSquare,
             color
         );
     }
@@ -67,6 +85,8 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
     GameState_t nextState = GetDefaultNextGameState();
     nextState.castleSquares[color] = empty_set;
     AddState(nextState);
+
+    UpdateEmpty(boardInfo);
 }
 
 void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
