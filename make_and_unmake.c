@@ -37,14 +37,14 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
     Square_t fromSquare = ReadFromSquare(move);
     Square_t toSquare = ReadToSquare(move);
 
-    Bitboard_t kingBB = boardInfo->kings[color];
+    Bitboard_t fromBB = boardInfo->kings[color];
 
     if(toSquare < fromSquare) { // queenside castle
         UpdateBoardInfoField(
             boardInfo,
             &(boardInfo->kings[color]),
-            kingBB,
-            GenShiftWest(kingBB, 2),
+            fromBB,
+            GenShiftWest(fromBB, 2),
             fromSquare,
             toSquare,
             color
@@ -53,8 +53,8 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
         UpdateBoardInfoField(
             boardInfo,
             &(boardInfo->rooks[color]),
-            GenShiftWest(kingBB, 4),
-            GenShiftWest(kingBB, 1),
+            GenShiftWest(fromBB, 4),
+            GenShiftWest(fromBB, 1),
             fromSquare,
             toSquare,
             color
@@ -64,8 +64,8 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
         UpdateBoardInfoField(
             boardInfo,
             &(boardInfo->kings[color]),
-            kingBB,
-            GenShiftEast(kingBB, 2),
+            fromBB,
+            GenShiftEast(fromBB, 2),
             fromSquare,
             toSquare,
             color
@@ -74,8 +74,8 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
         UpdateBoardInfoField(
             boardInfo,
             &(boardInfo->rooks[color]),
-            GenShiftEast(kingBB, 3),
-            GenShiftEast(kingBB, 1),
+            GenShiftEast(fromBB, 3),
+            GenShiftEast(fromBB, 1),
             fromSquare,
             toSquare,
             color
