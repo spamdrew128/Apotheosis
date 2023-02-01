@@ -4,6 +4,10 @@
 #include "board_info.h"
 #include "debug.h"
 
+enum {
+    some_halfmove_clock = 32
+};
+
 // HELPERS
 static bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo) {
     bool success = true;
@@ -149,6 +153,54 @@ static void InitExpectedCapturePromotionPostionInfo(BoardInfo_t* expectedInfo, G
     expectedState->enPassantSquares = temp.enPassantSquares;
 }
 
+// 8/8/4k3/6Pp/2Pp1K2/8/8/8
+static void InitBothSidesEnPassantInfo(BoardInfo_t* info) {
+    InitBoardInfo(info);
+    info->kings[white] = CreateBitboard(1, f4);
+    info->pawns[white] = CreateBitboard(2, c4,g5);
+
+    info->kings[black] = CreateBitboard(1, e6);
+    info->pawns[black] = CreateBitboard(2, d4,h5);
+
+    UpdateAllPieces(info);
+    UpdateEmpty(info);
+    TranslateBitboardsToMailbox(info);
+
+    GameState_t* state = GetUninitializedNextGameState();
+    state->halfmoveClock = some_halfmove_clock;
+    state->castleSquares[white] = empty_set;
+    state->castleSquares[black] = empty_set;
+    state->enPassantSquares = CreateBitboard(2, c3,h6);
+}
+
+static void InitSideEnPassantExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState, Color_t color) {
+    InitBoardInfo(expectedInfo);
+    if(color == white) {
+        expectedInfo->kings[white] = CreateBitboard(1, f4);
+        expectedInfo->pawns[white] = CreateBitboard(2, c4,h6);
+
+        expectedInfo->kings[black] = CreateBitboard(1, e6);
+        expectedInfo->pawns[black] = CreateBitboard(1, d4);
+    } else {
+        expectedInfo->kings[white] = CreateBitboard(1, f4);
+        expectedInfo->pawns[white] = CreateBitboard(1 ,g5);
+
+        expectedInfo->kings[black] = CreateBitboard(1, e6);
+        expectedInfo->pawns[black] = CreateBitboard(2, c3,h5);
+    }
+
+    UpdateAllPieces(expectedInfo);
+    UpdateEmpty(expectedInfo);
+    TranslateBitboardsToMailbox(expectedInfo);
+
+    GameState_t temp = ReadDefaultNextGameState();
+    expectedState->halfmoveClock = 0;
+    expectedState->castleSquares[white] = temp.castleSquares[white];
+    expectedState->castleSquares[black] = temp.castleSquares[black];
+    expectedState->enPassantSquares = empty_set;
+}
+
+// TESTS
 static void ShouldCastleKingside() {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
@@ -235,12 +287,78 @@ static void ShouldCapturePromote() {
     PrintResults(infoMatches && stateMatches);
 }
 
+static void ShouldWhiteEnPassant() {
+    BoardInfo_t info;
+    BoardInfo_t expectedInfo;
+    GameState_t expectedState;
+    InitBothSidesEnPassantInfo(&info);
+    InitSideEnPassantExpectedInfo(&expectedInfo, &expectedState, white);
+
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, g5);
+    WriteToSquare(&move, h6);
+    WriteSpecialFlag(&move, en_passant_flag);
+
+    MakeMove(&info, move, white);
+
+    bool infoMatches = CompareInfo(&info, &expectedInfo);
+    bool stateMatches = CompareState(&expectedState);
+
+    PrintResults(infoMatches && stateMatches);
+}
+
+static void ShouldBlackEnPassant() {
+    BoardInfo_t info;
+    BoardInfo_t expectedInfo;
+    GameState_t expectedState;
+    InitBothSidesEnPassantInfo(&info);
+    InitSideEnPassantExpectedInfo(&expectedInfo, &expectedState, black);
+
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, d4);
+    WriteToSquare(&move, c3);
+    WriteSpecialFlag(&move, en_passant_flag);
+
+    MakeMove(&info, move, black);
+
+    bool infoMatches = CompareInfo(&info, &expectedInfo);
+    bool stateMatches = CompareState(&expectedState);
+
+    PrintResults(infoMatches && stateMatches);
+}
+
+static void ShouldBlackEnPassant() {
+    BoardInfo_t info;
+    BoardInfo_t expectedInfo;
+    GameState_t expectedState;
+    InitBothSidesEnPassantInfo(&info);
+    InitExpectedCapturePromotionPostionInfo(&expectedInfo, &expectedState);
+
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, c2);
+    WriteToSquare(&move, b1);
+    WritePromotionPiece(&move, knight);
+    WriteSpecialFlag(&move, promotion_flag);
+
+    MakeMove(&info, move, black);
+
+    bool infoMatches = CompareInfo(&info, &expectedInfo);
+    bool stateMatches = CompareState(&expectedState);
+
+    PrintResults(infoMatches && stateMatches);
+}
+
 void MakeAndUnmakeTDDRunner() {
     ShouldCastleKingside();
     ShouldCastleQueenside();
 
     ShouldQuietPromote();
     ShouldCapturePromote();
+
+    ShouldEnPassant();
 
     ResetGameStateStack();
 }
