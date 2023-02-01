@@ -1,6 +1,24 @@
+#include <stdbool.h>
+
 #include "make_and_unmake.h"
 #include "game_state.h"
 #include "lookup.h"
+
+enum {
+    pawn_start_ranks = rank_2 | rank_7,
+    pawn_double_ranks = rank_4 | rank_5,
+    rook_start_squares = board_corners
+};
+
+static bool PawnIsDoublePushed(Bitboard_t fromBB, Bitboard_t toBB) {
+    return (fromBB & pawn_start_ranks) && (toBB & pawn_double_ranks);
+}
+
+static void UpdateCastleSquares(GameState_t* nextState, BoardInfo_t* info, Color_t color) {
+    Bitboard_t rooksInPlace = board_corners & info->rooks[color];
+    nextState->castleSquares[color] &= GenShiftWest(rooksInPlace, 1);
+    nextState->castleSquares[color] &= GenShiftEast(rooksInPlace, 2);
+}
 
 static void RemoveCapturedPiece(
     BoardInfo_t* boardInfo,
@@ -200,6 +218,69 @@ static void MakeEnPassantHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
     nextState->enPassantSquares = empty_set;
 }
 
+static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
+    Square_t fromSquare = ReadFromSquare(move);
+    Square_t toSquare = ReadToSquare(move);
+    Bitboard_t fromBB = GetSingleBitset(fromSquare);
+    Bitboard_t toBB = GetSingleBitset(toSquare);
+    GameState_t* nextState = GetDefaultNextGameState();
+
+    Piece_t capturedPiece = PieceOnSquare(boardInfo, toSquare);
+    if(capturedPiece != none_type) {
+        RemoveCapturedPiece(
+            boardInfo,
+            toSquare,
+            capturedPiece,
+            !color
+        );
+
+        nextState->halfmoveClock = 0;
+    }
+
+    Piece_t type = PieceOnSquare(boardInfo, fromSquare);
+    Bitboard_t* infoField;
+    switch (type) {
+        case pawn:
+            infoField = &(boardInfo->pawns[color]);
+            nextState->halfmoveClock = 0;
+
+            if(PawnIsDoublePushed(fromBB, toBB)) {
+                nextState->enPassantSquares = MakeSingleCallbacks[color](toBB);
+            }
+        break;
+        case rook:
+            infoField = &(boardInfo->rooks[color]);
+        break;
+        case bishop:
+            infoField = &(boardInfo->bishops[color]);
+        break;
+        case knight:
+            infoField = &(boardInfo->knights[color]);
+        break;
+        case queen: 
+            infoField = &(boardInfo->queens[color]);
+        break;
+        case king:
+            infoField = &(boardInfo->kings[color]);
+            nextState->castleSquares[color] = empty_set;
+        break;
+    }
+
+    UpdateBoardInfoField(
+        boardInfo,
+        infoField,
+        fromBB,
+        toBB,
+        fromSquare,
+        toSquare,
+        color
+    );
+
+    UpdateCastleSquares(nextState, boardInfo, color);
+
+    UpdateEmpty(boardInfo);
+}
+
 void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
     SpecialFlag_t specialFlag = ReadSpecialFlag(move);
     
@@ -214,6 +295,7 @@ void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
             MakeEnPassantHandler(boardInfo, move, color);
         break;
         default:
+            MakeMoveDefaultHandler(boardInfo, move, color);
         break;
     }
 }

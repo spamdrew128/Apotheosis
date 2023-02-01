@@ -402,6 +402,7 @@ static void ShouldMakeNormalQuietMoves() {
     bool stateMatches = CompareState(&expectedState);
 
     PrintResults(infoMatches && stateMatches);
+    PrintChessboard(&info); PrintChessboard(&expectedInfo);
 }
 
 static void ShouldDoublePushPawns(Color_t color) {
