@@ -42,32 +42,26 @@ static bool CompareState(GameState_t* expectedState) {
 
 // r3k2r/8/8/8/8/8/8/R3K2R
 static void InitAllCastlingLegalInfo(BoardInfo_t* info) {
-    InitBoardInfo(info);
-    info->kings[white] = CreateBitboard(1, e1);
-    info->rooks[white] = CreateBitboard(2, a1,h1);
+    InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, e1);
+        info->rooks[white] = CreateBitboard(2, a1,h1);
 
-    info->kings[black] = CreateBitboard(1, e8);
-    info->rooks[black] = CreateBitboard(2, a8,h8);
-
-    UpdateAllPieces(info);
-    UpdateEmpty(info);
-    TranslateBitboardsToMailbox(info);
+        info->kings[black] = CreateBitboard(1, e8);
+        info->rooks[black] = CreateBitboard(2, a8,h8);
+    });
 
     AddStartingGameState();
 }
 
 // r3k2r/8/8/8/8/8/8/R4RK1
 static void InitKingsideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
-    InitBoardInfo(expectedInfo);
-    expectedInfo->kings[white] = CreateBitboard(1, g1);
-    expectedInfo->rooks[white] = CreateBitboard(2, a1,f1);
+    InitTestInfo(expectedInfo, {
+        expectedInfo->kings[white] = CreateBitboard(1, g1);
+        expectedInfo->rooks[white] = CreateBitboard(2, a1,f1);
 
-    expectedInfo->kings[black] = CreateBitboard(1, e8);
-    expectedInfo->rooks[black] = CreateBitboard(2, a8,h8);
-
-    UpdateAllPieces(expectedInfo);
-    UpdateEmpty(expectedInfo);
-    TranslateBitboardsToMailbox(expectedInfo);
+        expectedInfo->kings[black] = CreateBitboard(1, e8);
+        expectedInfo->rooks[black] = CreateBitboard(2, a8,h8);
+    });
 
     GameState_t temp = ReadDefaultNextGameState();
     expectedState->halfmoveClock = temp.halfmoveClock;
@@ -78,16 +72,13 @@ static void InitKingsideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState_
 
 // r3k2r/8/8/8/8/8/8/R4RK1
 static void InitQueensideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
-    InitBoardInfo(expectedInfo);
-    expectedInfo->kings[white] = CreateBitboard(1, c1);
-    expectedInfo->rooks[white] = CreateBitboard(2, d1,h1);
+    InitTestInfo(expectedInfo, {
+        expectedInfo->kings[white] = CreateBitboard(1, c1);
+        expectedInfo->rooks[white] = CreateBitboard(2, d1,h1);
 
-    expectedInfo->kings[black] = CreateBitboard(1, e8);
-    expectedInfo->rooks[black] = CreateBitboard(2, a8,h8);
-
-    UpdateAllPieces(expectedInfo);
-    UpdateEmpty(expectedInfo);
-    TranslateBitboardsToMailbox(expectedInfo);
+        expectedInfo->kings[black] = CreateBitboard(1, e8);
+        expectedInfo->rooks[black] = CreateBitboard(2, a8,h8);
+    });
 
     GameState_t temp = ReadDefaultNextGameState();
     expectedState->halfmoveClock = temp.halfmoveClock;
@@ -98,33 +89,27 @@ static void InitQueensideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState
 
 // 8/4P3/7K/8/8/7k/2p5/1Q6
 static void InitPromotionPostionInfo(BoardInfo_t* info) {
-    InitBoardInfo(info);
-    info->kings[white] = CreateBitboard(1, h6);
-    info->pawns[white] = CreateBitboard(1, e7);
-    info->queens[white] = CreateBitboard(1, b1);
+    InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, h6);
+        info->pawns[white] = CreateBitboard(1, e7);
+        info->queens[white] = CreateBitboard(1, b1);
 
-    info->kings[black] = CreateBitboard(1, h3);
-    info->pawns[black] = CreateBitboard(1, c2);
-
-    UpdateAllPieces(info);
-    UpdateEmpty(info);
-    TranslateBitboardsToMailbox(info);
+        info->kings[black] = CreateBitboard(1, h3);
+        info->pawns[black] = CreateBitboard(1, c2);
+    });
 
     AddStartingGameState();
 }
 
 // 8/4P3/7K/8/8/7k/2p5/1Q6
 static void InitExpectedQuietPromotionPostionInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
-    InitBoardInfo(expectedInfo);
-    expectedInfo->kings[white] = CreateBitboard(1, h6);
-    expectedInfo->queens[white] = CreateBitboard(2, b1,e8);
+    InitTestInfo(expectedInfo, {
+        expectedInfo->kings[white] = CreateBitboard(1, h6);
+        expectedInfo->queens[white] = CreateBitboard(2, b1,e8);
 
-    expectedInfo->kings[black] = CreateBitboard(1, h3);
-    expectedInfo->pawns[black] = CreateBitboard(1, c2);
-
-    UpdateAllPieces(expectedInfo);
-    UpdateEmpty(expectedInfo);
-    TranslateBitboardsToMailbox(expectedInfo);
+        expectedInfo->kings[black] = CreateBitboard(1, h3);
+        expectedInfo->pawns[black] = CreateBitboard(1, c2);
+    });
 
     GameState_t temp = ReadDefaultNextGameState();
     expectedState->halfmoveClock = 0;
@@ -135,16 +120,13 @@ static void InitExpectedQuietPromotionPostionInfo(BoardInfo_t* expectedInfo, Gam
 
 // 8/4P3/7K/8/8/7k/2p5/1Q6
 static void InitExpectedCapturePromotionPostionInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
-    InitBoardInfo(expectedInfo);
-    expectedInfo->kings[white] = CreateBitboard(1, h6);
-    expectedInfo->pawns[white] = CreateBitboard(1, e7);
+    InitTestInfo(expectedInfo, {
+        expectedInfo->kings[white] = CreateBitboard(1, h6);
+        expectedInfo->pawns[white] = CreateBitboard(1, e7);
 
-    expectedInfo->kings[black] = CreateBitboard(1, h3);
-    expectedInfo->knights[black] = CreateBitboard(1, b1);
-
-    UpdateAllPieces(expectedInfo);
-    UpdateEmpty(expectedInfo);
-    TranslateBitboardsToMailbox(expectedInfo);
+        expectedInfo->kings[black] = CreateBitboard(1, h3);
+        expectedInfo->knights[black] = CreateBitboard(1, b1);
+    });
 
     GameState_t temp = ReadDefaultNextGameState();
     expectedState->halfmoveClock = 0;
@@ -155,16 +137,13 @@ static void InitExpectedCapturePromotionPostionInfo(BoardInfo_t* expectedInfo, G
 
 // 8/8/4k3/6Pp/2Pp1K2/8/8/8
 static void InitBothSidesEnPassantInfo(BoardInfo_t* info) {
-    InitBoardInfo(info);
-    info->kings[white] = CreateBitboard(1, f4);
-    info->pawns[white] = CreateBitboard(2, c4,g5);
+    InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, f4);
+        info->pawns[white] = CreateBitboard(2, c4,g5);
 
-    info->kings[black] = CreateBitboard(1, e6);
-    info->pawns[black] = CreateBitboard(2, d4,h5);
-
-    UpdateAllPieces(info);
-    UpdateEmpty(info);
-    TranslateBitboardsToMailbox(info);
+        info->kings[black] = CreateBitboard(1, e6);
+        info->pawns[black] = CreateBitboard(2, d4,h5);
+    });
 
     GameState_t* state = GetUninitializedNextGameState();
     state->halfmoveClock = some_halfmove_clock;
@@ -174,24 +153,23 @@ static void InitBothSidesEnPassantInfo(BoardInfo_t* info) {
 }
 
 static void InitSideEnPassantExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState, Color_t color) {
-    InitBoardInfo(expectedInfo);
     if(color == white) {
-        expectedInfo->kings[white] = CreateBitboard(1, f4);
-        expectedInfo->pawns[white] = CreateBitboard(2, c4,h6);
+        InitTestInfo(expectedInfo, {
+            expectedInfo->kings[white] = CreateBitboard(1, f4);
+            expectedInfo->pawns[white] = CreateBitboard(2, c4,h6);
 
-        expectedInfo->kings[black] = CreateBitboard(1, e6);
-        expectedInfo->pawns[black] = CreateBitboard(1, d4);
+            expectedInfo->kings[black] = CreateBitboard(1, e6);
+            expectedInfo->pawns[black] = CreateBitboard(1, d4);
+        });
     } else {
-        expectedInfo->kings[white] = CreateBitboard(1, f4);
-        expectedInfo->pawns[white] = CreateBitboard(1 ,g5);
+        InitTestInfo(expectedInfo, {
+            expectedInfo->kings[white] = CreateBitboard(1, f4);
+            expectedInfo->pawns[white] = CreateBitboard(1 ,g5);
 
-        expectedInfo->kings[black] = CreateBitboard(1, e6);
-        expectedInfo->pawns[black] = CreateBitboard(2, c3,h5);
+            expectedInfo->kings[black] = CreateBitboard(1, e6);
+            expectedInfo->pawns[black] = CreateBitboard(2, c3,h5);
+        });
     }
-
-    UpdateAllPieces(expectedInfo);
-    UpdateEmpty(expectedInfo);
-    TranslateBitboardsToMailbox(expectedInfo);
 
     GameState_t temp = ReadDefaultNextGameState();
     expectedState->halfmoveClock = 0;

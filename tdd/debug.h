@@ -13,11 +13,11 @@
 
 #define InitTestInfo(infoPtr, ...) \
     do { \
-        InitBoardInfo(info); \
+        InitBoardInfo(infoPtr); \
         __VA_ARGS__ \
-        UpdateAllPieces(info); \
-        UpdateEmpty(info); \
-        TranslateBitboardsToMailbox(info); \
+        UpdateAllPieces(infoPtr); \
+        UpdateEmpty(infoPtr); \
+        TranslateBitboardsToMailbox(infoPtr); \
     } while(0)
 
 // To avoid lookup dependancies
