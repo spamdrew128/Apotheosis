@@ -210,6 +210,51 @@ static void InitNormalQuietExpected(BoardInfo_t* expectedInfo, GameState_t* expe
     *expectedState = state;
 }
 
+static void InitPawnDoublePushExpected(BoardInfo_t* expectedInfo, GameState_t* expectedState, Color_t color) {
+    GameState_t state = ReadDefaultNextGameState();
+    state.halfmoveClock = 0;
+
+    if(color == white) {
+        InitTestInfo(expectedInfo, {
+            expectedInfo->kings[white] = CreateBitboard(1, b2);
+            expectedInfo->pawns[white] = CreateBitboard(1, f2);
+
+            expectedInfo->kings[black] = CreateBitboard(1, a6);
+            expectedInfo->pawns[black] = CreateBitboard(1, d7);
+            expectedInfo->knights[black] = CreateBitboard(1, e4);
+        });
+
+        state.enPassantSquares = CreateBitboard(1, f3);
+    } else {
+        InitTestInfo(expectedInfo, {
+            expectedInfo->kings[white] = CreateBitboard(1, b4);
+            expectedInfo->pawns[white] = CreateBitboard(1, f2);
+
+            expectedInfo->kings[black] = CreateBitboard(1, a6);
+            expectedInfo->pawns[black] = CreateBitboard(1, d5);
+            expectedInfo->knights[black] = CreateBitboard(1, e4);
+        });   
+
+        state.enPassantSquares = CreateBitboard(1, d6);
+    }
+
+    *expectedState = state;
+}
+
+static void InitNormalCaptureExpectedPosition(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+    InitTestInfo(expectedInfo, {
+        expectedInfo->kings[white] = CreateBitboard(1, b2);
+        expectedInfo->pawns[white] = CreateBitboard(1, f2);
+
+        expectedInfo->kings[black] = CreateBitboard(1, a6);
+        expectedInfo->pawns[black] = CreateBitboard(1, d7);
+        expectedInfo->knights[black] = CreateBitboard(1, e4);
+    });
+
+    GameState_t state = ReadDefaultNextGameState();
+    *expectedState = state;
+}
+
 // TESTS
 static void ShouldCastleKingside() {
     BoardInfo_t info;
@@ -359,12 +404,49 @@ static void ShouldMakeNormalQuietMoves() {
     PrintResults(infoMatches && stateMatches);
 }
 
-static void ShouldDoublePushPawns() {
+static void ShouldDoublePushPawns(Color_t color) {
+    BoardInfo_t info;
+    BoardInfo_t expectedInfo;
+    GameState_t expectedState;
+    InitNormalPosition(&info);
+    InitPawnDoublePushExpected(&expectedInfo, &expectedState, color);
 
+    Move_t move;
+    InitMove(&move);
+    if(color == white) {
+        WriteFromSquare(&move, f2);
+        WriteToSquare(&move, f4);
+    } else {
+        WriteFromSquare(&move, d7);
+        WriteToSquare(&move, d5);
+    }
+
+    MakeMove(&info, move, black);
+
+    bool infoMatches = CompareInfo(&info, &expectedInfo);
+    bool stateMatches = CompareState(&expectedState);
+
+    PrintResults(infoMatches && stateMatches);
 }
 
 static void ShouldMakeNormalCaptures() {
+    BoardInfo_t info;
+    BoardInfo_t expectedInfo;
+    GameState_t expectedState;
+    InitNormalPosition(&info);
+    InitNormalCaptureExpectedPosition(&expectedInfo, &expectedState);
 
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, e4);
+    WriteToSquare(&move, f2);
+
+    MakeMove(&info, move, black);
+
+    bool infoMatches = CompareInfo(&info, &expectedInfo);
+    bool stateMatches = CompareState(&expectedState);
+
+    PrintResults(infoMatches && stateMatches);
 }
 
 void MakeMoveTDDRunner() {
@@ -378,6 +460,9 @@ void MakeMoveTDDRunner() {
     ShouldBlackEnPassant();
 
     ShouldMakeNormalQuietMoves();
+    ShouldDoublePushPawns(white);
+    ShouldDoublePushPawns(black);
+    ShouldMakeNormalCaptures();
 
     ResetGameStateStack();
 }
