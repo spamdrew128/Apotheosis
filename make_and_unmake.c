@@ -156,6 +156,10 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
     nextState->halfmoveClock = empty_set;
 }
 
+static void MakeEnPassantHandler() {
+    
+}
+
 void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
     SpecialFlag_t specialFlag = ReadSpecialFlag(move);
     

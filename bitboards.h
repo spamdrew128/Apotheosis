@@ -3,6 +3,8 @@
 
 #include "board_constants.h"
 
+typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t b);
+
 Bitboard_t NortOne (Bitboard_t b);
 Bitboard_t NoEaOne (Bitboard_t b);
 Bitboard_t EastOne (Bitboard_t b);
