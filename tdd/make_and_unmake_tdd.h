@@ -3,6 +3,8 @@
 
 #include "make_and_unmake.h"
 
-void MakeAndUnmakeTDDRunner();
+void MakeMoveTDDRunner();
+
+void UnmakeMoveTDDRunner();
 
 #endif

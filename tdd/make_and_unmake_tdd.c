@@ -307,7 +307,7 @@ static void ShouldBlackEnPassant() {
     PrintResults(infoMatches && stateMatches);
 }
 
-void MakeAndUnmakeTDDRunner() {
+void MakeMoveTDDRunner() {
     ShouldCastleKingside();
     ShouldCastleQueenside();
 
@@ -318,4 +318,8 @@ void MakeAndUnmakeTDDRunner() {
     ShouldBlackEnPassant();
 
     ResetGameStateStack();
+}
+
+void UnmakeMoveTDDRunner() {
+    
 }
