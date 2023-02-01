@@ -156,8 +156,11 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
     nextState->halfmoveClock = empty_set;
 }
 
-static void MakeEnPassantHandler() {
-    
+static DirectionCallback_t MakeSingleCallbacks[2] = { NortOne, SoutOne };
+static DirectionCallback_t UnmakeSingleCallbacks[2] = { SoutOne, NortOne };
+
+static void MakeEnPassantHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
+
 }
 
 void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
