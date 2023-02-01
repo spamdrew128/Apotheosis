@@ -395,14 +395,13 @@ static void ShouldMakeNormalQuietMoves() {
     InitMove(&move);
     WriteFromSquare(&move, b2);
     WriteToSquare(&move, c3);
-
+    
     MakeMove(&info, move, black);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareState(&expectedState);
 
     PrintResults(infoMatches && stateMatches);
-    PrintChessboard(&info); PrintChessboard(&expectedInfo);
 }
 
 static void ShouldDoublePushPawns(Color_t color) {
