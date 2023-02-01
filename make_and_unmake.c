@@ -9,27 +9,38 @@ static void RemoveCapturedPiece(
     Color_t capturedPieceColor
 ) 
 {
-    Bitboard_t caputuredBB = GetSingleBitset(capturedSquare);
+    Bitboard_t capturedBB = GetSingleBitset(capturedSquare);
 
     switch (type) {
         case queen:
-            ResetBits(&(boardInfo->queens[capturedPieceColor]), caputuredBB);
+            ResetBits(&(boardInfo->queens[capturedPieceColor]), capturedBB);
         break;
         case rook:
-            ResetBits(&(boardInfo->rooks[capturedPieceColor]), caputuredBB);
+            ResetBits(&(boardInfo->rooks[capturedPieceColor]), capturedBB);
         break;
         case bishop:
-            ResetBits(&(boardInfo->bishops[capturedPieceColor]), caputuredBB);
+            ResetBits(&(boardInfo->bishops[capturedPieceColor]), capturedBB);
         break;
         case knight:
-            ResetBits(&(boardInfo->knights[capturedPieceColor]), caputuredBB);
+            ResetBits(&(boardInfo->knights[capturedPieceColor]), capturedBB);
         break;
         case pawn:
-            ResetBits(&(boardInfo->pawns[capturedPieceColor]), caputuredBB);
+            ResetBits(&(boardInfo->pawns[capturedPieceColor]), capturedBB);
         break;
     }
 
-    ResetBits(&(boardInfo->allPieces[capturedPieceColor]), caputuredBB);
+    ResetBits(&(boardInfo->allPieces[capturedPieceColor]), capturedBB);
+}
+
+static void RemoveCapturedEnPassant(
+    BoardInfo_t* boardInfo,
+    Bitboard_t enPassantBB,
+    Color_t capturedPieceColor
+)
+{
+    ResetBits(&(boardInfo->pawns[capturedPieceColor]), enPassantBB);
+    ResetBits(&(boardInfo->allPieces[capturedPieceColor]), enPassantBB);
+    RemovePieceFromMailbox(boardInfo, LSB(enPassantBB));
 }
 
 static void UpdateBoardInfoField(
@@ -156,11 +167,37 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
     nextState->halfmoveClock = empty_set;
 }
 
-static DirectionCallback_t MakeSingleCallbacks[2] = { NortOne, SoutOne };
-static DirectionCallback_t UnmakeSingleCallbacks[2] = { SoutOne, NortOne };
+static DirectionCallback_t MakeSingleCallbacks[2] = { SoutOne, NortOne };
+static DirectionCallback_t UnmakeSingleCallbacks[2] = { NortOne, SoutOne };
 
 static void MakeEnPassantHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
+    Square_t fromSquare = ReadFromSquare(move);
+    Square_t toSquare = ReadToSquare(move);
+    Bitboard_t fromBB = GetSingleBitset(fromSquare);
+    Bitboard_t toBB = GetSingleBitset(toSquare);
+    Bitboard_t enPassantBB = MakeSingleCallbacks[color](toBB);
 
+    RemoveCapturedEnPassant(
+        boardInfo,
+        enPassantBB,
+        !color
+    );
+
+    UpdateBoardInfoField(
+        boardInfo,
+        &(boardInfo->pawns[color]),
+        fromBB,
+        toBB,
+        fromSquare,
+        toSquare,
+        color
+    );
+
+    UpdateEmpty(boardInfo);
+
+    GameState_t* nextState = GetDefaultNextGameState();
+    nextState->halfmoveClock = empty_set;
+    nextState->enPassantSquares = empty_set;
 }
 
 void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
@@ -174,7 +211,7 @@ void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
             MakePromotionHandler(boardInfo, move, color);
         break;
         case en_passant_flag:
-        /* code */
+            MakeEnPassantHandler(boardInfo, move, color);
         break;
         default:
         break;
