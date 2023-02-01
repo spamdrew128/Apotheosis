@@ -178,6 +178,38 @@ static void InitSideEnPassantExpectedInfo(BoardInfo_t* expectedInfo, GameState_t
     expectedState->enPassantSquares = empty_set;
 }
 
+// 8/3p4/k7/8/4n3/8/1K3P2/8
+static void InitNormalPosition(BoardInfo_t* info) {
+    InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, b2);
+        info->pawns[white] = CreateBitboard(1, f2);
+
+        info->kings[black] = CreateBitboard(1, a6);
+        info->pawns[black] = CreateBitboard(1, d7);
+        info->knights[black] = CreateBitboard(1, e4);
+    });
+
+    GameState_t* state = GetUninitializedNextGameState();
+    state->halfmoveClock = some_halfmove_clock;
+    state->enPassantSquares = empty_set;
+    state->castleSquares[white] = empty_set;
+    state->castleSquares[black] = empty_set;
+}
+
+static void InitNormalQuietExpected(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+    InitTestInfo(expectedInfo, {
+        expectedInfo->kings[white] = CreateBitboard(1, c3);
+        expectedInfo->pawns[white] = CreateBitboard(1, f2);
+
+        expectedInfo->kings[black] = CreateBitboard(1, a6);
+        expectedInfo->pawns[black] = CreateBitboard(1, d7);
+        expectedInfo->knights[black] = CreateBitboard(1, e4);
+    });
+
+    GameState_t state = ReadDefaultNextGameState();
+    *expectedState = state;
+}
+
 // TESTS
 static void ShouldCastleKingside() {
     BoardInfo_t info;
@@ -307,6 +339,34 @@ static void ShouldBlackEnPassant() {
     PrintResults(infoMatches && stateMatches);
 }
 
+static void ShouldMakeNormalQuietMoves() {
+    BoardInfo_t info;
+    BoardInfo_t expectedInfo;
+    GameState_t expectedState;
+    InitNormalPosition(&info);
+    InitNormalQuietExpected(&expectedInfo, &expectedState);
+
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, b2);
+    WriteToSquare(&move, c3);
+
+    MakeMove(&info, move, black);
+
+    bool infoMatches = CompareInfo(&info, &expectedInfo);
+    bool stateMatches = CompareState(&expectedState);
+
+    PrintResults(infoMatches && stateMatches);
+}
+
+static void ShouldDoublePushPawns() {
+
+}
+
+static void ShouldMakeNormalCaptures() {
+
+}
+
 void MakeMoveTDDRunner() {
     ShouldCastleKingside();
     ShouldCastleQueenside();
@@ -317,9 +377,11 @@ void MakeMoveTDDRunner() {
     ShouldWhiteEnPassant();
     ShouldBlackEnPassant();
 
+    ShouldMakeNormalQuietMoves();
+
     ResetGameStateStack();
 }
 
 void UnmakeMoveTDDRunner() {
-    
+
 }
