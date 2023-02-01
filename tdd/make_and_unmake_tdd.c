@@ -329,28 +329,6 @@ static void ShouldBlackEnPassant() {
     PrintResults(infoMatches && stateMatches);
 }
 
-static void ShouldBlackEnPassant() {
-    BoardInfo_t info;
-    BoardInfo_t expectedInfo;
-    GameState_t expectedState;
-    InitBothSidesEnPassantInfo(&info);
-    InitExpectedCapturePromotionPostionInfo(&expectedInfo, &expectedState);
-
-    Move_t move;
-    InitMove(&move);
-    WriteFromSquare(&move, c2);
-    WriteToSquare(&move, b1);
-    WritePromotionPiece(&move, knight);
-    WriteSpecialFlag(&move, promotion_flag);
-
-    MakeMove(&info, move, black);
-
-    bool infoMatches = CompareInfo(&info, &expectedInfo);
-    bool stateMatches = CompareState(&expectedState);
-
-    PrintResults(infoMatches && stateMatches);
-}
-
 void MakeAndUnmakeTDDRunner() {
     ShouldCastleKingside();
     ShouldCastleQueenside();
@@ -358,7 +336,8 @@ void MakeAndUnmakeTDDRunner() {
     ShouldQuietPromote();
     ShouldCapturePromote();
 
-    ShouldEnPassant();
+    ShouldWhiteEnPassant();
+    ShouldBlackEnPassant();
 
     ResetGameStateStack();
 }
