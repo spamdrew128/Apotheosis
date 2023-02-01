@@ -11,6 +11,15 @@
 #define PrintResults(success) \
     if(success) {printf(".");} else {printf("\n%s Failure\n", __func__);}
 
+#define InitTestInfo(infoPtr, ...) \
+    do { \
+        InitBoardInfo(infoPtr); \
+        __VA_ARGS__ \
+        UpdateAllPieces(infoPtr); \
+        UpdateEmpty(infoPtr); \
+        TranslateBitboardsToMailbox(infoPtr); \
+    } while(0)
+
 // To avoid lookup dependancies
 #define SquareToBitset(square) C64(1) << square
 

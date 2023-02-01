@@ -28,128 +28,111 @@ static bool IsInCheck(BoardInfo_t* boardInfo, Color_t color) {
 
 // r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R
 static void InitMidgameInfo(BoardInfo_t* info) {
-    InitBoardInfo(info);
-    info->pawns[white] = CreateBitboard(7, a2,b2,c2,d5,e4,f2,g5);
-    info->knights[white] = CreateBitboard(2, c3,f3);
-    info->bishops[white] = CreateBitboard(1, f1);
-    info->rooks[white] = CreateBitboard(2, d1,h1);
-    info->queens[white] = CreateBitboard(1, h6);
-    info->kings[white] = CreateBitboard(1, c1);
+    InitTestInfo(info, {
+        info->pawns[white] = CreateBitboard(7, a2,b2,c2,d5,e4,f2,g5);
+        info->knights[white] = CreateBitboard(2, c3,f3);
+        info->bishops[white] = CreateBitboard(1, f1);
+        info->rooks[white] = CreateBitboard(2, d1,h1);
+        info->queens[white] = CreateBitboard(1, h6);
+        info->kings[white] = CreateBitboard(1, c1);
 
-    info->pawns[black] = CreateBitboard(8, a7,b7,c6,d6,e5,f7,g6,h7);
-    info->knights[black] = CreateBitboard(2, e7,f6);
-    info->bishops[black] = CreateBitboard(1, c8);
-    info->rooks[black] = CreateBitboard(2, a8,f8);
-    info->queens[black] = CreateBitboard(1, e8);
-    info->kings[black] = CreateBitboard(1, g8);
-
-    UpdateAllPieces(info);
-    UpdateEmpty(info);
+        info->pawns[black] = CreateBitboard(8, a7,b7,c6,d6,e5,f7,g6,h7);
+        info->knights[black] = CreateBitboard(2, e7,f6);
+        info->bishops[black] = CreateBitboard(1, c8);
+        info->rooks[black] = CreateBitboard(2, a8,f8);
+        info->queens[black] = CreateBitboard(1, e8);
+        info->kings[black] = CreateBitboard(1, g8);
+    });
 }
 
 // 8/8/8/8/4K3/8/8/k3r3
 static void InitKingLegalsTestInfo(BoardInfo_t* info) {
-    InitBoardInfo(info);
-    info->kings[white] = CreateBitboard(1, e4);
+    InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, e4);
 
-    info->rooks[black] = CreateBitboard(1, e1);
-    info->kings[black] = CreateBitboard(1, a1);
-
-    UpdateAllPieces(info);
-    UpdateEmpty(info);
+        info->rooks[black] = CreateBitboard(1, e1);
+        info->kings[black] = CreateBitboard(1, a1);
+    });
 }
 
 // r3k2r/8/8/8/8/8/8/R3K2R
 static void InitAllCastlingLegalInfo(BoardInfo_t* info) {
-    InitBoardInfo(info);
-    info->kings[white] = CreateBitboard(1, e1);
-    info->rooks[white] = CreateBitboard(2, a1,h1);
+        InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, e1);
+        info->rooks[white] = CreateBitboard(2, a1,h1);
 
-    info->kings[black] = CreateBitboard(1, e8);
-    info->rooks[black] = CreateBitboard(2, a8,h8);
-
-    UpdateAllPieces(info);
-    UpdateEmpty(info);
+        info->kings[black] = CreateBitboard(1, e8);
+        info->rooks[black] = CreateBitboard(2, a8,h8);
+    });
 }
 
 // 4k1r1/8/8/7b/8/8/8/R3K2R
 static void InitWhiteCastlingIllegalInfo(BoardInfo_t* info) {
-    InitBoardInfo(info);
-    info->kings[white] = CreateBitboard(1, e1);
-    info->rooks[white] = CreateBitboard(2, a1,h1);
+    InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, e1);
+        info->rooks[white] = CreateBitboard(2, a1,h1);
 
-    info->kings[black] = CreateBitboard(1, e8);
-    info->bishops[black] = CreateBitboard(1, h5);
-    info->rooks[black] = CreateBitboard(1, g8);
-
-    UpdateAllPieces(info);
-    UpdateEmpty(info);
+        info->kings[black] = CreateBitboard(1, e8);
+        info->bishops[black] = CreateBitboard(1, h5);
+        info->rooks[black] = CreateBitboard(1, g8);
+    });
 }
 
 // 4k3/8/8/8/8/8/8/Rb2Kb1R
 static void InitWhiteCastlingBlockedInfo(BoardInfo_t* info) {
-    InitBoardInfo(info);
-    info->kings[white] = CreateBitboard(1, e1);
-    info->rooks[white] = CreateBitboard(2, a1,h1);
+    InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, e1);
+        info->rooks[white] = CreateBitboard(2, a1,h1);
 
-    info->kings[black] = CreateBitboard(1, e8);
-    info->bishops[black] = CreateBitboard(2, b1,f1);
-
-    UpdateAllPieces(info);
-    UpdateEmpty(info);
+        info->kings[black] = CreateBitboard(1, e8);
+        info->bishops[black] = CreateBitboard(2, b1,f1);
+    });
 }
 
 // 7k/2q5/8/5b2/3K4/8/1b6/3b4
 static void InitWhiteSlidingCheckmaskTestInfo(BoardInfo_t* info) {
-    InitBoardInfo(info);
-    info->kings[white] = CreateBitboard(1, d4);
+    InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, d4);
 
-    info->kings[black] = CreateBitboard(1, h8);
-    info->bishops[black] = CreateBitboard(3, d1,b2,f5);
-    info->queens[black] = CreateBitboard(1, c7);
-
-    UpdateAllPieces(info);
-    UpdateEmpty(info);
+        info->kings[black] = CreateBitboard(1, h8);
+        info->bishops[black] = CreateBitboard(3, d1,b2,f5);
+        info->queens[black] = CreateBitboard(1, c7);
+    });
 }
 
 // 7k/8/2p2pp1/4p3/3K4/8/8/8
 static void InitWhitePawnCheckmaskTestInfo(BoardInfo_t* info) {
-    InitBoardInfo(info);
-    info->kings[white] = CreateBitboard(1, d4);
+    InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, d4);
 
-    info->kings[black] = CreateBitboard(1, h8);
-    info->pawns[black] = CreateBitboard(4, e5,c6,f6,g6);
-
-    UpdateAllPieces(info);
-    UpdateEmpty(info);
+        info->kings[black] = CreateBitboard(1, h8);
+        info->pawns[black] = CreateBitboard(4, e5,c6,f6,g6);
+    });
 }
 
 // 8/7K/2P5/3k2P1/4P3/2P5/8/8
 static void InitBlackPawnCheckmaskTestInfo(BoardInfo_t* info) {
-    InitBoardInfo(info);
-    info->kings[white] = CreateBitboard(1, h7);
-    info->pawns[white] = CreateBitboard(4, c3,e4,g5,c6);
+    InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, h7);
+        info->pawns[white] = CreateBitboard(4, c3,e4,g5,c6);
 
-    info->kings[black] = CreateBitboard(1, d5);
-
-    UpdateAllPieces(info);
-    UpdateEmpty(info);
+        info->kings[black] = CreateBitboard(1, d5);
+    });
 }
 
 // 7k/2n5/7q/2K5/4n3/1b1N4/8/8
 static void InitWhiteKnightCheckmaskTestInfo(BoardInfo_t* info) {
-    InitBoardInfo(info);
-    info->kings[white] = CreateBitboard(1, c5);
-    info->knights[white] = CreateBitboard(1, d3);
+    InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, c5);
+        info->knights[white] = CreateBitboard(1, d3);
 
-    info->kings[black] = CreateBitboard(1, h8);
-    info->knights[black] = CreateBitboard(2, e4,c7);
-    info->bishops[black] = CreateBitboard(1, b3);
-    info->queens[black] = CreateBitboard(1, h6);
-
-    UpdateAllPieces(info);
-    UpdateEmpty(info);
+        info->kings[black] = CreateBitboard(1, h8);
+        info->knights[black] = CreateBitboard(2, e4,c7);
+        info->bishops[black] = CreateBitboard(1, b3);
+        info->queens[black] = CreateBitboard(1, h6);
+    });
 }
+
 
 // 3r3k/2q5/8/5b2/3K4/8/1b6/3b4
 static void InitDoubleSlidingCheckTestInfo(BoardInfo_t* info) {
@@ -171,34 +154,30 @@ static void InitDoubleKnightAndSlidingCheckTestInfo(BoardInfo_t* info) {
 
 // q5bk/1P6/2P1Q3/3K2Rr/8/8/3n4/3r4
 static void InitPinMaskPositionInfo(BoardInfo_t* info) {
-    InitBoardInfo(info);
-    info->kings[white] = CreateBitboard(1, d5);
-    info->pawns[white] = CreateBitboard(2, c6,b7);
-    info->rooks[white] = CreateBitboard(1, g5);
-    info->queens[white] = CreateBitboard(1, e6);
+    InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, d5);
+        info->pawns[white] = CreateBitboard(2, c6,b7);
+        info->rooks[white] = CreateBitboard(1, g5);
+        info->queens[white] = CreateBitboard(1, e6);
 
-    info->kings[black] = CreateBitboard(1, h8);
-    info->knights[black] = CreateBitboard(1, d2);
-    info->bishops[black] = CreateBitboard(1, g8);
-    info->rooks[black] = CreateBitboard(2, d1,h5);
-    info->queens[black] = CreateBitboard(1, a8);
-
-    UpdateAllPieces(info);
-    UpdateEmpty(info);
+        info->kings[black] = CreateBitboard(1, h8);
+        info->knights[black] = CreateBitboard(1, d2);
+        info->bishops[black] = CreateBitboard(1, g8);
+        info->rooks[black] = CreateBitboard(2, d1,h5);
+        info->queens[black] = CreateBitboard(1, a8);
+    });
 }
 
 // 1k6/8/8/r1pPK3/8/8/8/8
 static void InitEnPassantIllegalPositionInfo(BoardInfo_t* info) {
-    InitBoardInfo(info);
-    info->kings[white] = CreateBitboard(1, e5);
-    info->pawns[white] = CreateBitboard(1, d5);
+    InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, e5);
+        info->pawns[white] = CreateBitboard(1, d5);
 
-    info->kings[black] = CreateBitboard(1, b8);
-    info->pawns[black] = CreateBitboard(1, c5);
-    info->rooks[black] = CreateBitboard(1, a5);
-
-    UpdateAllPieces(info);
-    UpdateEmpty(info);
+        info->kings[black] = CreateBitboard(1, b8);
+        info->pawns[black] = CreateBitboard(1, c5);
+        info->rooks[black] = CreateBitboard(1, a5);
+    });
 }
 
 // TESTS
