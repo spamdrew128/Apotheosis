@@ -145,6 +145,7 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
     Square_t fromSquare = ReadFromSquare(move);
     Square_t toSquare = ReadToSquare(move);
     Piece_t promotionPiece = ReadPromotionPiece(move);
+    GameState_t* nextState = GetDefaultNextGameState();
 
     Piece_t capturedPiece = PieceOnSquare(boardInfo, toSquare);
     if(capturedPiece != none_type) {
@@ -154,6 +155,9 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
             capturedPiece,
             !color
         );
+
+        nextState->capturedPiece = capturedPiece;
+        UpdateCastleSquares(nextState, boardInfo, !color);
     }
 
     AddPieceToMailbox(boardInfo, fromSquare, promotionPiece);
@@ -183,9 +187,7 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
 
     UpdateEmpty(boardInfo);
 
-    GameState_t* nextState = GetDefaultNextGameState();
     nextState->halfmoveClock = empty_set;
-    nextState->capturedPiece = capturedPiece;
 }
 
 static DirectionCallback_t MakeSingleCallbacks[2] = { SoutOne, NortOne };

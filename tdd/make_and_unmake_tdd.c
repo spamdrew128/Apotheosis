@@ -126,6 +126,7 @@ static void InitExpectedCapturePromotionPostionInfo(BoardInfo_t* expectedInfo, G
     GameState_t nextState = ReadDefaultNextGameState();
     nextState.halfmoveClock = 0;
     nextState.capturedPiece = queen;
+    nextState.castleSquares[white] = empty_set;
     *expectedState = nextState;
 }
 
@@ -276,13 +277,13 @@ static void InitBreakCastlingPositionExpected(BoardInfo_t* expectedInfo, GameSta
     *expectedState = nextState;
 }
 
-// rn2k3/P7/8/8/8/1K6/8/8
+// rn2k3/1P6/8/8/8/1K6/8/8
 static void InitPromotionCastleBreakPosition(BoardInfo_t* info) {
     InitTestInfo(info, {
         info->kings[white] = CreateBitboard(1, b3);
-        info->pawns[white] = CreateBitboard(1, a7);
+        info->pawns[white] = CreateBitboard(1, b7);
 
-        info->kings[black] = CreateBitboard(1, e6);
+        info->kings[black] = CreateBitboard(1, e8);
         info->rooks[black] = CreateBitboard(1, a8);
         info->knights[black] = CreateBitboard(1, b8);
     });
@@ -299,16 +300,16 @@ static void InitPromotionCastleBreakPosition(BoardInfo_t* info) {
 static void InitPromotionCastleBreakPositionExpected(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
     InitTestInfo(expectedInfo, {
         expectedInfo->kings[white] = CreateBitboard(1, b3);
-        expectedInfo->knights[white] = CreateBitboard(1, b8);
+        expectedInfo->knights[white] = CreateBitboard(1, a8);
 
-        expectedInfo->kings[black] = CreateBitboard(1, e6);
-        expectedInfo->rooks[black] = CreateBitboard(1, a8);
+        expectedInfo->kings[black] = CreateBitboard(1, e8);
+        expectedInfo->knights[black] = CreateBitboard(1, b8);
     });
 
     GameState_t nextState = ReadDefaultNextGameState();
     nextState.halfmoveClock = 0;
     nextState.castleSquares[black] = empty_set;
-    nextState.capturedPiece = knight;
+    nextState.capturedPiece = rook;
     *expectedState = nextState;
 }
 
@@ -535,8 +536,8 @@ static void PromotionCaptureShouldRemoveCastleSquares() {
 
     Move_t move;
     InitMove(&move);
-    WriteFromSquare(&move, a7);
-    WriteToSquare(&move, b8);
+    WriteFromSquare(&move, b7);
+    WriteToSquare(&move, a8);
     WritePromotionPiece(&move, knight);
     WriteSpecialFlag(&move, promotion_flag);
 
