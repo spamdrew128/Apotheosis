@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <assert.h>
 
 #include "make_and_unmake.h"
 #include "game_state.h"
@@ -16,8 +17,9 @@ static bool PawnIsDoublePushed(Bitboard_t fromBB, Bitboard_t toBB) {
 
 static void UpdateCastleSquares(GameState_t* nextState, BoardInfo_t* info, Color_t color) {
     Bitboard_t rooksInPlace = board_corners & info->rooks[color];
-    nextState->castleSquares[color] &= GenShiftWest(rooksInPlace, 1);
-    nextState->castleSquares[color] &= GenShiftEast(rooksInPlace, 2);
+    Bitboard_t validCastlingMask = GenShiftWest(rooksInPlace, 1) | GenShiftEast(rooksInPlace, 2);
+    
+    nextState->castleSquares[color] &= validCastlingMask;
 }
 
 static void RemoveCapturedPiece(
@@ -235,6 +237,7 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_t 
         );
 
         nextState->halfmoveClock = 0;
+        UpdateCastleSquares(nextState, boardInfo, !color); // if we captured, we might have messed up our opponent's castling rights
     }
 
     Piece_t type = PieceOnSquare(boardInfo, fromSquare);
@@ -263,6 +266,9 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_t 
         case king:
             infoField = &(boardInfo->kings[color]);
             nextState->castleSquares[color] = empty_set;
+        break;
+        default:
+            assert(!"ERROR: Moved none_type Piece!");
         break;
     }
 

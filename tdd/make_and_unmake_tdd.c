@@ -255,6 +255,29 @@ static void InitNormalCaptureExpectedPosition(BoardInfo_t* expectedInfo, GameSta
     *expectedState = state;
 }
 
+// r3k2r/8/5b2/8/8/8/8/R3K2R
+static void InitBreakCastlingPosition(BoardInfo_t* info) {
+    InitAllCastlingLegalInfo(info);
+    info->bishops[black] = CreateBitboard(1, f6);
+    AddPieceToMailbox(info, f6, bishop);
+}
+
+static void InitBreakCastlingPositionExpected(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+    InitTestInfo(expectedInfo, {
+        expectedInfo->kings[white] = CreateBitboard(1, e1);
+        expectedInfo->rooks[white] = CreateBitboard(1, h1);
+
+        expectedInfo->kings[black] = CreateBitboard(1, e8);
+        expectedInfo->rooks[black] = CreateBitboard(2, a8,h8);
+        expectedInfo->bishops[black] = CreateBitboard(1, a1);
+    });
+
+    GameState_t nextState = ReadDefaultNextGameState();
+    nextState.halfmoveClock = 0;
+    nextState.castleSquares[white] = CreateBitboard(1, g1);
+    *expectedState = nextState;
+}
+
 // TESTS
 static void ShouldCastleKingside() {
     BoardInfo_t info;
@@ -449,6 +472,26 @@ static void ShouldMakeNormalCaptures() {
     PrintResults(infoMatches && stateMatches);
 }
 
+static void CapturingRookShouldRemoveCastleSquares() {
+    BoardInfo_t info;
+    BoardInfo_t expectedInfo;
+    GameState_t expectedState;
+    InitBreakCastlingPosition(&info);
+    InitBreakCastlingPositionExpected(&expectedInfo, &expectedState);
+
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, f6);
+    WriteToSquare(&move, a1);
+
+    MakeMove(&info, move, black);
+
+    bool infoMatches = CompareInfo(&info, &expectedInfo);
+    bool stateMatches = CompareState(&expectedState);
+
+    PrintResults(infoMatches && stateMatches);
+}
+
 void MakeMoveTDDRunner() {
     ShouldCastleKingside();
     ShouldCastleQueenside();
@@ -463,6 +506,8 @@ void MakeMoveTDDRunner() {
     ShouldDoublePushPawns(white);
     ShouldDoublePushPawns(black);
     ShouldMakeNormalCaptures();
+
+    CapturingRookShouldRemoveCastleSquares();
 
     ResetGameStateStack();
 }
