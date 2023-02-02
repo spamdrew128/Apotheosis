@@ -30,7 +30,7 @@ GameState_t* GetUninitializedNextGameState() {
 GameState_t* GetDefaultNextGameState() {
     GameState_t* defaultState = &(NextState(stack));
 
-    defaultState->colorToMove = !ReadColorToMove();
+    defaultState->capturedPiece = ReadCapturedPiece();
     defaultState->halfmoveClock = ReadHalfmoveClock() + 1;
     defaultState->castleSquares[white] = ReadCastleSquares(white);
     defaultState->castleSquares[black] = ReadCastleSquares(black);
@@ -43,7 +43,7 @@ GameState_t* GetDefaultNextGameState() {
 void AddStartingGameState() {
     GameState_t* gameStartState = GetUninitializedNextGameState();
 
-    gameStartState->colorToMove = white;
+    gameStartState->capturedPiece = none_type;
     gameStartState->halfmoveClock = 0;
     gameStartState->castleSquares[white] = white_kingside_castle_sq | white_queenside_castle_sq;
     gameStartState->castleSquares[black] = black_kingside_castle_sq | black_queenside_castle_sq;
@@ -55,8 +55,8 @@ void RevertState() {
     stack.top--;
 }
 
-Color_t ReadColorToMove() {
-    return CurrentState(stack).colorToMove;
+Piece_t ReadCapturedPiece() {
+    return CurrentState(stack).capturedPiece;
 }
 
 HalfmoveCount_t ReadHalfmoveClock() {

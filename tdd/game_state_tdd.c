@@ -3,7 +3,7 @@
 #include "debug.h"
 
 enum {
-    some_color_to_move = black,
+    some_captured_piece = queen,
     some_halfmove_clock = 16,
     some_white_castle_squares = 0x562a,
     some_white_enpassant_squares = 0x8,
@@ -14,7 +14,7 @@ enum {
 // HELPERS
 static bool GameStateIsCorrect(GameState_t* expected) {
     return 
-        (ReadColorToMove() == expected->colorToMove) &&
+        (ReadCapturedPiece() == expected->capturedPiece) &&
         (ReadHalfmoveClock() == expected->halfmoveClock) &&
         (ReadCastleSquares(white) == expected->castleSquares[white]) &&
         (ReadCastleSquares(black) == expected->castleSquares[black]) &&
@@ -24,7 +24,7 @@ static bool GameStateIsCorrect(GameState_t* expected) {
 static GameState_t* GetSomeGamestate() {
     GameState_t* state = GetUninitializedNextGameState();
 
-    state->colorToMove = some_color_to_move;
+    state->capturedPiece = some_captured_piece;
     state->halfmoveClock = some_halfmove_clock;
     state->castleSquares[white] = some_white_castle_squares;
     state->enPassantSquares = some_white_enpassant_squares;
@@ -45,7 +45,7 @@ static void ShouldGetDefaultState() {
     GameState_t* state = GetSomeGamestate();
 
     GameState_t expected = {
-        .colorToMove = !some_color_to_move,
+        .capturedPiece = some_captured_piece,
         .halfmoveClock = state->halfmoveClock + 1,
         .castleSquares = {state->castleSquares[white], state->castleSquares[black]},
         .enPassantSquares = empty_set

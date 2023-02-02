@@ -25,7 +25,7 @@ static int CountPieceMoves(Piece_t piece, MoveList_t moveList, BoardInfo_t* info
 
 static GameState_t* GetBlankState() {
     GameState_t* blankState = GetUninitializedNextGameState();
-    blankState->colorToMove = white;
+    blankState->capturedPiece = none_type;
     blankState->castleSquares[white] = empty_set;
     blankState->castleSquares[black] = empty_set;
     blankState->enPassantSquares = empty_set;
