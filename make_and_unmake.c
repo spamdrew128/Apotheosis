@@ -185,6 +185,7 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
 
     GameState_t* nextState = GetDefaultNextGameState();
     nextState->halfmoveClock = empty_set;
+    nextState->capturedPiece = capturedPiece;
 }
 
 static DirectionCallback_t MakeSingleCallbacks[2] = { SoutOne, NortOne };
@@ -218,6 +219,7 @@ static void MakeEnPassantHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
     GameState_t* nextState = GetDefaultNextGameState();
     nextState->halfmoveClock = empty_set;
     nextState->enPassantSquares = empty_set;
+    nextState->capturedPiece = pawn;
 }
 
 static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
@@ -237,6 +239,7 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_t 
         );
 
         nextState->halfmoveClock = 0;
+        // nextState->capturedPiece = capturedPiece;
         UpdateCastleSquares(nextState, boardInfo, !color); // if we captured, we might have messed up our opponent's castling rights
     }
 

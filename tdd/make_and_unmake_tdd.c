@@ -247,6 +247,7 @@ static void InitNormalCaptureExpectedPosition(BoardInfo_t* expectedInfo, GameSta
 
     GameState_t state = ReadDefaultNextGameState();
     state.halfmoveClock = 0;
+    state.capturedPiece = pawn;
     *expectedState = state;
 }
 
