@@ -217,7 +217,7 @@ static void InitPawnDoublePushExpected(BoardInfo_t* expectedInfo, GameState_t* e
     if(color == white) {
         InitTestInfo(expectedInfo, {
             expectedInfo->kings[white] = CreateBitboard(1, b2);
-            expectedInfo->pawns[white] = CreateBitboard(1, f2);
+            expectedInfo->pawns[white] = CreateBitboard(1, f4);
 
             expectedInfo->kings[black] = CreateBitboard(1, a6);
             expectedInfo->pawns[black] = CreateBitboard(1, d7);
@@ -227,7 +227,7 @@ static void InitPawnDoublePushExpected(BoardInfo_t* expectedInfo, GameState_t* e
         state.enPassantSquares = CreateBitboard(1, f3);
     } else {
         InitTestInfo(expectedInfo, {
-            expectedInfo->kings[white] = CreateBitboard(1, b4);
+            expectedInfo->kings[white] = CreateBitboard(1, b2);
             expectedInfo->pawns[white] = CreateBitboard(1, f2);
 
             expectedInfo->kings[black] = CreateBitboard(1, a6);
@@ -244,14 +244,14 @@ static void InitPawnDoublePushExpected(BoardInfo_t* expectedInfo, GameState_t* e
 static void InitNormalCaptureExpectedPosition(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
     InitTestInfo(expectedInfo, {
         expectedInfo->kings[white] = CreateBitboard(1, b2);
-        expectedInfo->pawns[white] = CreateBitboard(1, f2);
 
         expectedInfo->kings[black] = CreateBitboard(1, a6);
         expectedInfo->pawns[black] = CreateBitboard(1, d7);
-        expectedInfo->knights[black] = CreateBitboard(1, e4);
+        expectedInfo->knights[black] = CreateBitboard(1, f2);
     });
 
     GameState_t state = ReadDefaultNextGameState();
+    state.halfmoveClock = 0;
     *expectedState = state;
 }
 
@@ -395,8 +395,8 @@ static void ShouldMakeNormalQuietMoves() {
     InitMove(&move);
     WriteFromSquare(&move, b2);
     WriteToSquare(&move, c3);
-    
-    MakeMove(&info, move, black);
+
+    MakeMove(&info, move, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareState(&expectedState);
@@ -416,12 +416,12 @@ static void ShouldDoublePushPawns(Color_t color) {
     if(color == white) {
         WriteFromSquare(&move, f2);
         WriteToSquare(&move, f4);
+        MakeMove(&info, move, white);
     } else {
         WriteFromSquare(&move, d7);
         WriteToSquare(&move, d5);
+        MakeMove(&info, move, black);
     }
-
-    MakeMove(&info, move, black);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareState(&expectedState);
