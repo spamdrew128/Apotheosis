@@ -3,6 +3,8 @@
 
 #include "board_constants.h"
 
+typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t b); // putting this here cuz I use it everywhere
+
 Bitboard_t NortOne (Bitboard_t b);
 Bitboard_t NoEaOne (Bitboard_t b);
 Bitboard_t EastOne (Bitboard_t b);
@@ -14,6 +16,9 @@ Bitboard_t NoWeOne (Bitboard_t b);
 
 Bitboard_t NortTwo(Bitboard_t b);
 Bitboard_t SoutTwo(Bitboard_t b);
+
+Bitboard_t GenShiftEast(Bitboard_t b, uint8_t shift);
+Bitboard_t GenShiftWest(Bitboard_t b, uint8_t shift);
 
 typedef int Population_t;
 Population_t PopulationCount(Bitboard_t b);

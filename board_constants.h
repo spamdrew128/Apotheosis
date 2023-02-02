@@ -78,6 +78,7 @@ enum squareSets {
   h1_a8_diagonal            = C64(0x0102040810204080),
   light_squares             = C64(0x55aa55aa55aa55aa),
   dark_squares              = C64(0xaa55aa55aa55aa55),
+  board_corners             = C64(0x8100000000000081),
   white_queenside_castle_sq = C64(1) << c1,
   white_kingside_castle_sq  = C64(1) << g1,
   black_queenside_castle_sq = C64(1) << c8,

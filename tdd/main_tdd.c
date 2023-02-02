@@ -11,6 +11,7 @@
 #include "movegen_tdd.h"
 #include "game_state_tdd.h"
 #include "board_info_tdd.h"
+#include "make_and_unmake_tdd.h"
 
 int main(int argc, char** argv)
 {
@@ -25,6 +26,7 @@ int main(int argc, char** argv)
     LegalsTDDRunner();
     GameStateTDDRunner();
     MovegenTDDRunner();
+    MakeMoveTDDRunner();
 
     TeardownLookup();
 }

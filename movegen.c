@@ -32,7 +32,7 @@ typedef void (*AddPawnMoves_t)(
 
 typedef Bitboard_t (*SliderCaptureTargetsCallback_t)(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces);
 
-typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t b);
+
 
 #define SerializePositionsIntoMoves(_positions, ...) \
     do { \
@@ -751,5 +751,13 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color
         KingMoveTargets(kingSquare, boardInfo->empty),
         unsafeSquares,
         boardInfo->empty
+    );
+
+    AddCastlingMoves(
+        moveList,
+        boardInfo,
+        unsafeSquares,
+        kingSquare,
+        color
     );
 }
