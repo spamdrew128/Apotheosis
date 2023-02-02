@@ -305,3 +305,7 @@ void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
         break;
     }
 }
+
+void UnmakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
+    
+}

@@ -152,8 +152,8 @@ static void InitBothSidesEnPassantInfo(BoardInfo_t* info) {
     state->enPassantSquares = CreateBitboard(2, c3,h6);
 }
 
-static void InitSideEnPassantExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState, Color_t color) {
-    if(color == white) {
+static void InitSideEnPassantExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState, Color_t moveColor) {
+    if(moveColor == white) {
         InitTestInfo(expectedInfo, {
             expectedInfo->kings[white] = CreateBitboard(1, f4);
             expectedInfo->pawns[white] = CreateBitboard(2, c4,h6);
@@ -210,11 +210,11 @@ static void InitNormalQuietExpected(BoardInfo_t* expectedInfo, GameState_t* expe
     *expectedState = state;
 }
 
-static void InitPawnDoublePushExpected(BoardInfo_t* expectedInfo, GameState_t* expectedState, Color_t color) {
+static void InitPawnDoublePushExpected(BoardInfo_t* expectedInfo, GameState_t* expectedState, Color_t moveColor) {
     GameState_t state = ReadDefaultNextGameState();
     state.halfmoveClock = 0;
 
-    if(color == white) {
+    if(moveColor == white) {
         InitTestInfo(expectedInfo, {
             expectedInfo->kings[white] = CreateBitboard(1, b2);
             expectedInfo->pawns[white] = CreateBitboard(1, f4);
@@ -427,16 +427,16 @@ static void ShouldMakeNormalQuietMoves() {
     PrintResults(infoMatches && stateMatches);
 }
 
-static void ShouldDoublePushPawns(Color_t color) {
+static void ShouldDoublePushPawns(Color_t moveColor) {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
     GameState_t expectedState;
     InitNormalPosition(&info);
-    InitPawnDoublePushExpected(&expectedInfo, &expectedState, color);
+    InitPawnDoublePushExpected(&expectedInfo, &expectedState, moveColor);
 
     Move_t move;
     InitMove(&move);
-    if(color == white) {
+    if(moveColor == white) {
         WriteFromSquare(&move, f2);
         WriteToSquare(&move, f4);
         MakeMove(&info, move, white);
@@ -510,6 +510,19 @@ void MakeMoveTDDRunner() {
     CapturingRookShouldRemoveCastleSquares();
 
     ResetGameStateStack();
+}
+
+// UMAKE HELPERS
+static bool GenericTestUnmake(BoardInfo_t* startInfo, GameState_t originalState, Move_t move, Color_t moveColor) {
+    BoardInfo_t expectedInfo = *startInfo;
+
+    MakeMove(startInfo, move, moveColor);
+    UnmakeMove(startInfo, move, moveColor);
+
+    bool infoMatches = CompareInfo(startInfo, &expectedInfo);
+    bool stateMatches = CompareState(&originalState);
+
+    return infoMatches && stateMatches;
 }
 
 void UnmakeMoveTDDRunner() {

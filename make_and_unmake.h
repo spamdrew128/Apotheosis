@@ -6,6 +6,8 @@
 #include "move.h"
 #include "movegen.h"
 
-void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color);
+void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t moveColor);
+
+void UnmakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t moveColor);
 
 #endif
