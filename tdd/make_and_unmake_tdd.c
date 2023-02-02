@@ -513,8 +513,13 @@ void MakeMoveTDDRunner() {
 }
 
 // UMAKE HELPERS
-static bool GenericTestUnmake(BoardInfo_t* startInfo, GameState_t originalState, Move_t move, Color_t moveColor) {
+static bool GenericTestUnmake(BoardInfo_t* startInfo, Move_t move, Color_t moveColor) {
     BoardInfo_t expectedInfo = *startInfo;
+    GameState_t originalState;
+    originalState.halfmoveClock = ReadHalfmoveClock();
+    originalState.castleSquares[white] = ReadCastleSquares(white);
+    originalState.castleSquares[black] = ReadCastleSquares(black);
+    originalState.enPassantSquares = ReadEnPassantSquares();
 
     MakeMove(startInfo, move, moveColor);
     UnmakeMove(startInfo, move, moveColor);
