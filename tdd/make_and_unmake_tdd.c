@@ -37,7 +37,8 @@ static bool CompareState(GameState_t* expectedState) {
         (ReadHalfmoveClock() == expectedState->halfmoveClock) &&
         (ReadEnPassantSquares() == expectedState->enPassantSquares) &&
         (ReadCastleSquares(white) == expectedState->castleSquares[white]) &&
-        (ReadCastleSquares(black) == expectedState->castleSquares[black]);
+        (ReadCastleSquares(black) == expectedState->castleSquares[black]) &&
+        (ReadCapturedPiece() == expectedState->capturedPiece);
 }
 
 // r3k2r/8/8/8/8/8/8/R3K2R
@@ -63,11 +64,9 @@ static void InitKingsideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState_
         expectedInfo->rooks[black] = CreateBitboard(2, a8,h8);
     });
 
-    GameState_t temp = ReadDefaultNextGameState();
-    expectedState->halfmoveClock = temp.halfmoveClock;
-    expectedState->castleSquares[white] = empty_set;
-    expectedState->castleSquares[black] = temp.castleSquares[black];
-    expectedState->enPassantSquares = temp.enPassantSquares;
+    GameState_t nextState = ReadDefaultNextGameState();
+    nextState.castleSquares[white] = empty_set;
+    *expectedState = nextState;
 }
 
 // r3k2r/8/8/8/8/8/8/R4RK1
@@ -80,11 +79,9 @@ static void InitQueensideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState
         expectedInfo->rooks[black] = CreateBitboard(2, a8,h8);
     });
 
-    GameState_t temp = ReadDefaultNextGameState();
-    expectedState->halfmoveClock = temp.halfmoveClock;
-    expectedState->castleSquares[white] = empty_set;
-    expectedState->castleSquares[black] = temp.castleSquares[black];
-    expectedState->enPassantSquares = temp.enPassantSquares;
+    GameState_t nextState = ReadDefaultNextGameState();
+    nextState.castleSquares[white] = empty_set;
+    *expectedState = nextState;
 }
 
 // 8/4P3/7K/8/8/7k/2p5/1Q6
@@ -111,11 +108,9 @@ static void InitExpectedQuietPromotionPostionInfo(BoardInfo_t* expectedInfo, Gam
         expectedInfo->pawns[black] = CreateBitboard(1, c2);
     });
 
-    GameState_t temp = ReadDefaultNextGameState();
-    expectedState->halfmoveClock = 0;
-    expectedState->castleSquares[white] = temp.castleSquares[white];
-    expectedState->castleSquares[black] = temp.castleSquares[black];
-    expectedState->enPassantSquares = temp.enPassantSquares;
+    GameState_t nextState = ReadDefaultNextGameState();
+    nextState.halfmoveClock = 0;
+    *expectedState = nextState;
 }
 
 // 8/4P3/7K/8/8/7k/2p5/1Q6
@@ -128,11 +123,10 @@ static void InitExpectedCapturePromotionPostionInfo(BoardInfo_t* expectedInfo, G
         expectedInfo->knights[black] = CreateBitboard(1, b1);
     });
 
-    GameState_t temp = ReadDefaultNextGameState();
-    expectedState->halfmoveClock = 0;
-    expectedState->castleSquares[white] = temp.castleSquares[white];
-    expectedState->castleSquares[black] = temp.castleSquares[black];
-    expectedState->enPassantSquares = temp.enPassantSquares;
+    GameState_t nextState = ReadDefaultNextGameState();
+    nextState.halfmoveClock = 0;
+    nextState.capturedPiece = queen;
+    *expectedState = nextState;
 }
 
 // 8/8/4k3/6Pp/2Pp1K2/8/8/8
@@ -150,6 +144,7 @@ static void InitBothSidesEnPassantInfo(BoardInfo_t* info) {
     state->castleSquares[white] = empty_set;
     state->castleSquares[black] = empty_set;
     state->enPassantSquares = CreateBitboard(2, c3,h6);
+    state->capturedPiece = none_type;
 }
 
 static void InitSideEnPassantExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState, Color_t moveColor) {
@@ -171,11 +166,11 @@ static void InitSideEnPassantExpectedInfo(BoardInfo_t* expectedInfo, GameState_t
         });
     }
 
-    GameState_t temp = ReadDefaultNextGameState();
-    expectedState->halfmoveClock = 0;
-    expectedState->castleSquares[white] = temp.castleSquares[white];
-    expectedState->castleSquares[black] = temp.castleSquares[black];
-    expectedState->enPassantSquares = empty_set;
+    GameState_t nextState = ReadDefaultNextGameState();
+    nextState.halfmoveClock = 0;
+    nextState.enPassantSquares = empty_set;
+    nextState.capturedPiece = pawn;
+    *expectedState = nextState;
 }
 
 // 8/3p4/k7/8/4n3/8/1K3P2/8
