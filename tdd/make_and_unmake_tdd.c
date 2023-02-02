@@ -588,6 +588,35 @@ static bool GenericTestUnmake(BoardInfo_t* startInfo, Move_t move, Color_t moveC
     return infoMatches && stateMatches;
 }
 
-void UnmakeMoveTDDRunner() {
+static void ShouldCastleKingsideUnmake(){
+    BoardInfo_t info;
+    InitAllCastlingLegalInfo(&info);
 
+    Move_t ksCastle;
+    InitMove(&ksCastle);
+    WriteFromSquare(&ksCastle, LSB(info.kings[white]));
+    WriteToSquare(&ksCastle, LSB(white_kingside_castle_sq));
+    WriteSpecialFlag(&ksCastle, castle_flag);
+
+    PrintResults(GenericTestUnmake(&info, ksCastle, white));
+}
+
+static void ShouldCastleQueensideUnmake() {
+    BoardInfo_t info;
+    InitAllCastlingLegalInfo(&info);
+
+    Move_t qsCastle;
+    InitMove(&qsCastle);
+    WriteFromSquare(&qsCastle, LSB(info.kings[white]));
+    WriteToSquare(&qsCastle, LSB(white_queenside_castle_sq));
+    WriteSpecialFlag(&qsCastle, castle_flag);
+
+    PrintResults(GenericTestUnmake(&info, qsCastle, white));
+}
+
+void UnmakeMoveTDDRunner() {
+    ShouldCastleKingsideUnmake();
+    ShouldCastleQueensideUnmake();
+
+    ResetGameStateStack();
 }
