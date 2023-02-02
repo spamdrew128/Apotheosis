@@ -189,6 +189,7 @@ static void InitNormalPosition(BoardInfo_t* info) {
     state->enPassantSquares = empty_set;
     state->castleSquares[white] = empty_set;
     state->castleSquares[black] = empty_set;
+    state->capturedPiece = none_type;
 }
 
 static void InitNormalQuietExpected(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
@@ -271,6 +272,43 @@ static void InitBreakCastlingPositionExpected(BoardInfo_t* expectedInfo, GameSta
     GameState_t nextState = ReadDefaultNextGameState();
     nextState.halfmoveClock = 0;
     nextState.castleSquares[white] = CreateBitboard(1, g1);
+    nextState.capturedPiece = rook;
+    *expectedState = nextState;
+}
+
+// rn2k3/P7/8/8/8/1K6/8/8
+static void InitPromotionCastleBreakPosition(BoardInfo_t* info) {
+    InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, b3);
+        info->pawns[white] = CreateBitboard(1, a7);
+
+        info->kings[black] = CreateBitboard(1, e6);
+        info->rooks[black] = CreateBitboard(1, a8);
+        info->knights[black] = CreateBitboard(1, b8);
+    });
+
+    GameState_t* state = GetUninitializedNextGameState();
+    state->halfmoveClock = some_halfmove_clock;
+    state->enPassantSquares = empty_set;
+    state->castleSquares[white] = empty_set;
+    state->castleSquares[black] = CreateBitboard(1, c8);
+    state->capturedPiece = none_type;
+}
+
+// 4k1nr/7P/8/8/8/1K6/8/8
+static void InitPromotionCastleBreakPositionExpected(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+    InitTestInfo(expectedInfo, {
+        expectedInfo->kings[white] = CreateBitboard(1, b3);
+        expectedInfo->knights[white] = CreateBitboard(1, b8);
+
+        expectedInfo->kings[black] = CreateBitboard(1, e6);
+        expectedInfo->rooks[black] = CreateBitboard(1, a8);
+    });
+
+    GameState_t nextState = ReadDefaultNextGameState();
+    nextState.halfmoveClock = 0;
+    nextState.castleSquares[black] = empty_set;
+    nextState.capturedPiece = knight;
     *expectedState = nextState;
 }
 
@@ -488,6 +526,28 @@ static void CapturingRookShouldRemoveCastleSquares() {
     PrintResults(infoMatches && stateMatches);
 }
 
+static void PromotionCaptureShouldRemoveCastleSquares() {
+    BoardInfo_t info;
+    BoardInfo_t expectedInfo;
+    GameState_t expectedState;
+    InitPromotionCastleBreakPosition(&info);
+    InitPromotionCastleBreakPositionExpected(&expectedInfo, &expectedState);
+
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, a7);
+    WriteToSquare(&move, b8);
+    WritePromotionPiece(&move, knight);
+    WriteSpecialFlag(&move, promotion_flag);
+
+    MakeMove(&info, move, white);
+
+    bool infoMatches = CompareInfo(&info, &expectedInfo);
+    bool stateMatches = CompareState(&expectedState);
+
+    PrintResults(infoMatches && stateMatches);
+}
+
 void MakeMoveTDDRunner() {
     ShouldCastleKingside();
     ShouldCastleQueenside();
@@ -504,6 +564,7 @@ void MakeMoveTDDRunner() {
     ShouldMakeNormalCaptures();
 
     CapturingRookShouldRemoveCastleSquares();
+    PromotionCaptureShouldRemoveCastleSquares();
 
     ResetGameStateStack();
 }
