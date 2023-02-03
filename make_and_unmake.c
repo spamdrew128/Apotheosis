@@ -311,6 +311,70 @@ void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
     }
 }
 
+static void UnmakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
+    Square_t kingOriginalSquare = ReadFromSquare(move);
+    Square_t kingCurrentSquare = ReadToSquare(move);
+    Bitboard_t kingOriginalBB = GetSingleBitset(kingOriginalSquare);
+    Bitboard_t kingCurrentBB = GetSingleBitset(kingCurrentSquare);       
+
+    UpdateBoardInfoField(
+        boardInfo,
+        &(boardInfo->kings[color]),
+        kingCurrentBB,
+        kingOriginalBB,
+        kingCurrentSquare,
+        kingOriginalSquare,
+        color
+    );
+
+    if(kingCurrentSquare < kingOriginalSquare) { // queenside castle)
+        Bitboard_t rookCurrentBB = GenShiftWest(kingOriginalBB, 1);
+        Bitboard_t rookOriginalBB = GenShiftWest(kingOriginalBB, 4);
+
+        UpdateBoardInfoField(
+            boardInfo,
+            &(boardInfo->rooks[color]),
+            rookCurrentBB,
+            rookOriginalBB,
+            LSB(rookCurrentBB),
+            LSB(rookOriginalBB),
+            color
+        );
+    } else {
+        Bitboard_t rookCurrentBB = GenShiftEast(kingOriginalBB, 1);
+        Bitboard_t rookOriginalBB = GenShiftEast(kingOriginalBB, 3);
+
+        UpdateBoardInfoField(
+            boardInfo,
+            &(boardInfo->rooks[color]),
+            rookCurrentBB,
+            rookOriginalBB,
+            LSB(rookCurrentBB),
+            LSB(rookOriginalBB),
+            color
+        );
+    }
+
+    UpdateEmpty(boardInfo);
+}
+
 void UnmakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
+    SpecialFlag_t specialFlag = ReadSpecialFlag(move);
     
+    switch (specialFlag) {
+        case castle_flag:
+            UnmakeCastlingHandler(boardInfo, move, color);
+        break;
+        case promotion_flag:
+            // UnmakePromotionHandler(boardInfo, move, color);
+        break;
+        case en_passant_flag:
+            // UnmakeEnPassantHandler(boardInfo, move, color);
+        break;
+        default:
+            // UnmakeMoveDefaultHandler(boardInfo, move, color);
+        break;
+    }
+
+    RevertState();
 }

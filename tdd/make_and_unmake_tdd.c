@@ -578,6 +578,7 @@ static bool GenericTestUnmake(BoardInfo_t* startInfo, Move_t move, Color_t moveC
     originalState.castleSquares[white] = ReadCastleSquares(white);
     originalState.castleSquares[black] = ReadCastleSquares(black);
     originalState.enPassantSquares = ReadEnPassantSquares();
+    originalState.capturedPiece = ReadCapturedPiece();
 
     MakeMove(startInfo, move, moveColor);
     UnmakeMove(startInfo, move, moveColor);
