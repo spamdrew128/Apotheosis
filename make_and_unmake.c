@@ -258,23 +258,7 @@ static void RevertPieceCapture(
 {
     Bitboard_t capturedBB = GetSingleBitset(capturedSquare);
 
-    switch (type) {
-        case queen:
-            SetBits(&(boardInfo->queens[capturedPieceColor]), capturedBB);
-        break;
-        case rook:
-            SetBits(&(boardInfo->rooks[capturedPieceColor]), capturedBB);
-        break;
-        case bishop:
-            SetBits(&(boardInfo->bishops[capturedPieceColor]), capturedBB);
-        break;
-        case knight:
-            SetBits(&(boardInfo->knights[capturedPieceColor]), capturedBB);
-        break;
-        case pawn:
-            SetBits(&(boardInfo->pawns[capturedPieceColor]), capturedBB);
-        break;
-    }
+    SetBits(GetPieceInfoField(boardInfo, type, capturedPieceColor), capturedBB);
 
     SetBits(&(boardInfo->allPieces[capturedPieceColor]), capturedBB);
     AddPieceToMailbox(boardInfo, capturedSquare, type);
@@ -364,6 +348,10 @@ static void UnmakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t 
             !color
         );
     }
+}
+
+static void UnmakeEnPassantHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
+
 }
 
 void UnmakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
