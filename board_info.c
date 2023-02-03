@@ -72,21 +72,15 @@ Bitboard_t* GetPieceInfoField(BoardInfo_t* boardInfo, Piece_t piece, Color_t col
     {
         case knight:
             return &(boardInfo->knights[color]);
-        break;
         case bishop:
             return &(boardInfo->bishops[color]);
-        break;
         case rook:
             return &(boardInfo->rooks[color]);
-        break;
         case queen:
             return &(boardInfo->queens[color]);
-        break;
             case pawn:
             return &(boardInfo->pawns[color]);
-        break;
         default:
             return &(boardInfo->kings[color]);
-        break;
     }
 }

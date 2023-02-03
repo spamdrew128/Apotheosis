@@ -31,23 +31,7 @@ static void RemoveCapturedPiece(
 {
     Bitboard_t capturedBB = GetSingleBitset(capturedSquare);
 
-    switch (type) {
-        case queen:
-            ResetBits(&(boardInfo->queens[capturedPieceColor]), capturedBB);
-        break;
-        case rook:
-            ResetBits(&(boardInfo->rooks[capturedPieceColor]), capturedBB);
-        break;
-        case bishop:
-            ResetBits(&(boardInfo->bishops[capturedPieceColor]), capturedBB);
-        break;
-        case knight:
-            ResetBits(&(boardInfo->knights[capturedPieceColor]), capturedBB);
-        break;
-        case pawn:
-            ResetBits(&(boardInfo->pawns[capturedPieceColor]), capturedBB);
-        break;
-    }
+    ResetBits(GetPieceInfoField(boardInfo, type, capturedPieceColor), capturedBB);
 
     ResetBits(&(boardInfo->allPieces[capturedPieceColor]), capturedBB);
 }
@@ -159,20 +143,7 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
     ResetBits(&(boardInfo->allPieces[color]), fromBB);
     SetBits(&(boardInfo->allPieces[color]), toBB);
 
-    switch (promotionPiece) {
-        case queen:
-            SetBits(&(boardInfo->queens[color]), toBB);
-        break;
-        case rook:
-            SetBits(&(boardInfo->rooks[color]), toBB);
-        break;
-        case bishop:
-            SetBits(&(boardInfo->bishops[color]), toBB);
-        break;
-        case knight:
-            SetBits(&(boardInfo->knights[color]), toBB);
-        break;
-    }
+    SetBits(GetPieceInfoField(boardInfo, promotionPiece, color), toBB);
 
     nextState->halfmoveClock = empty_set;
 }
@@ -231,40 +202,24 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_t 
     }
 
     Piece_t type = PieceOnSquare(boardInfo, fromSquare);
-    Bitboard_t* infoField;
     switch (type) {
         case pawn:
-            infoField = &(boardInfo->pawns[color]);
             nextState->halfmoveClock = 0;
 
             if(PawnIsDoublePushed(fromBB, toBB)) {
                 nextState->enPassantSquares = MakeSingleCallbacks[color](toBB);
             }
         break;
-        case rook:
-            infoField = &(boardInfo->rooks[color]);
-        break;
-        case bishop:
-            infoField = &(boardInfo->bishops[color]);
-        break;
-        case knight:
-            infoField = &(boardInfo->knights[color]);
-        break;
-        case queen: 
-            infoField = &(boardInfo->queens[color]);
-        break;
         case king:
-            infoField = &(boardInfo->kings[color]);
             nextState->castleSquares[color] = empty_set;
         break;
         default:
-            assert(!"ERROR: Moved none_type Piece!");
         break;
     }
 
     UpdateBoardInfoField(
         boardInfo,
-        infoField,
+        GetPieceInfoField(boardInfo, type, color),
         fromBB,
         toBB,
         fromSquare,
