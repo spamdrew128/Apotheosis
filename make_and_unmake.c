@@ -148,15 +148,20 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
     nextState->halfmoveClock = empty_set;
 }
 
-static DirectionCallback_t MakeSingleCallbacks[2] = { SoutOne, NortOne };
-static DirectionCallback_t UnmakeSingleCallbacks[2] = { NortOne, SoutOne };
+static Bitboard_t GetEnPassantBB(Bitboard_t toBB, Color_t color) {
+    if(color == white) {
+        return SoutOne(toBB);
+    } else {
+        return NortOne(toBB);
+    }
+}
 
 static void MakeEnPassantHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
     Square_t fromSquare = ReadFromSquare(move);
     Square_t toSquare = ReadToSquare(move);
     Bitboard_t fromBB = GetSingleBitset(fromSquare);
     Bitboard_t toBB = GetSingleBitset(toSquare);
-    Bitboard_t enPassantBB = MakeSingleCallbacks[color](toBB);
+    Bitboard_t enPassantBB = GetEnPassantBB(toBB, color);
 
     RemoveCapturedEnPassant(
         boardInfo,
@@ -207,7 +212,7 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_t 
             nextState->halfmoveClock = 0;
 
             if(PawnIsDoublePushed(fromBB, toBB)) {
-                nextState->enPassantSquares = MakeSingleCallbacks[color](toBB);
+                nextState->enPassantSquares = GetEnPassantBB(toBB, color);
             }
         break;
         case king:
