@@ -67,16 +67,26 @@ void MovePieceInMailbox(BoardInfo_t* boardInfo, Square_t toSquare, Square_t from
     RemovePieceFromMailbox(boardInfo, fromSquare);
 }
 
-typedef Bitboard_t* (*InfoFieldHelper_t)(BoardInfo_t* boardInfo, Color_t color);
-static Bitboard_t* KnightInfoField(BoardInfo_t* boardInfo, Color_t color) { return &(boardInfo->knights[color]); }
-static Bitboard_t* BishopInfoField(BoardInfo_t* boardInfo, Color_t color) { return &(boardInfo->bishops[color]); }
-static Bitboard_t* RookInfoField(BoardInfo_t* boardInfo, Color_t color) { return &(boardInfo->rooks[color]); }
-static Bitboard_t* QueenInfoField(BoardInfo_t* boardInfo, Color_t color) { return &(boardInfo->queens[color]); }
-static Bitboard_t* PawnInfoField(BoardInfo_t* boardInfo, Color_t color) { return &(boardInfo->pawns[color]); }
-static Bitboard_t* KingInfoField(BoardInfo_t* boardInfo, Color_t color) { return &(boardInfo->kings[color]); }
-
-static InfoFieldHelper_t infoFieldHelpers[NUM_PIECES] = { KnightInfoField, BishopInfoField, RookInfoField, QueenInfoField, PawnInfoField, KingInfoField };
-
 Bitboard_t* GetPieceInfoField(BoardInfo_t* boardInfo, Piece_t piece, Color_t color) {
-    return infoFieldHelpers[piece](boardInfo, color);
+    switch(piece)
+    {
+        case knight:
+            return &(boardInfo->knights[color]);
+        break;
+        case bishop:
+            return &(boardInfo->bishops[color]);
+        break;
+        case rook:
+            return &(boardInfo->rooks[color]);
+        break;
+        case queen:
+            return &(boardInfo->queens[color]);
+        break;
+            case pawn:
+            return &(boardInfo->pawns[color]);
+        break;
+        case king:
+            return &(boardInfo->kings[color]);
+        break;
+    }
 }
