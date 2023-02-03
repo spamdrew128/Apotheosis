@@ -640,8 +640,6 @@ static void ShouldCapturePromoteUnmake() {
     WritePromotionPiece(&move, knight);
     WriteSpecialFlag(&move, promotion_flag);
 
-    MakeMove(&info, move, black);
-
     PrintResults(GenericTestUnmake(&info, move, black));
 }
 
