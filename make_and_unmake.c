@@ -213,8 +213,6 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_t 
         case king:
             nextState->castleSquares[color] = empty_set;
         break;
-        default:
-        break;
     }
 
     UpdateBoardInfoField(

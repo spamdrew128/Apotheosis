@@ -643,12 +643,41 @@ static void ShouldCapturePromoteUnmake() {
     PrintResults(GenericTestUnmake(&info, move, black));
 }
 
+static void ShouldWhiteEnPassantUnmake() {
+    BoardInfo_t info;
+    InitBothSidesEnPassantInfo(&info);
+
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, g5);
+    WriteToSquare(&move, h6);
+    WriteSpecialFlag(&move, en_passant_flag);
+
+    PrintResults(GenericTestUnmake(&info, move, white));
+}
+
+static void ShouldBlackEnPassantUnmake() {
+    BoardInfo_t info;
+    InitBothSidesEnPassantInfo(&info);
+
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, d4);
+    WriteToSquare(&move, c3);
+    WriteSpecialFlag(&move, en_passant_flag);
+
+    PrintResults(GenericTestUnmake(&info, move, black));
+}
+
 void UnmakeMoveTDDRunner() {
     ShouldCastleKingsideUnmake();
     ShouldCastleQueensideUnmake();
 
     ShouldQuietPromoteUnmake();
     ShouldCapturePromoteUnmake();
+
+    ShouldWhiteEnPassantUnmake();
+    ShouldBlackEnPassantUnmake();
 
     ResetGameStateStack();
 }
