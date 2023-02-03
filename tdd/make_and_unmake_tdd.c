@@ -615,9 +615,42 @@ static void ShouldCastleQueensideUnmake() {
     PrintResults(GenericTestUnmake(&info, qsCastle, white));
 }
 
+static void ShouldQuietPromoteUnmake() {
+    BoardInfo_t info;
+    InitPromotionPostionInfo(&info);
+
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, e7);
+    WriteToSquare(&move, e8);
+    WritePromotionPiece(&move, queen);
+    WriteSpecialFlag(&move, promotion_flag);
+
+    PrintResults(GenericTestUnmake(&info, move, white));
+}
+
+static void ShouldCapturePromoteUnmake() {
+    BoardInfo_t info;
+    InitPromotionPostionInfo(&info);
+
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, c2);
+    WriteToSquare(&move, b1);
+    WritePromotionPiece(&move, knight);
+    WriteSpecialFlag(&move, promotion_flag);
+
+    MakeMove(&info, move, black);
+
+    PrintResults(GenericTestUnmake(&info, move, black));
+}
+
 void UnmakeMoveTDDRunner() {
     ShouldCastleKingsideUnmake();
     ShouldCastleQueensideUnmake();
+
+    ShouldQuietPromoteUnmake();
+    ShouldCapturePromoteUnmake();
 
     ResetGameStateStack();
 }
