@@ -87,18 +87,19 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
     Square_t kingToSquare = ReadToSquare(move);
 
     Bitboard_t kingFromBB = boardInfo->kings[color];
+    Bitboard_t kingToBB = GetSingleBitset(kingToSquare);
+
+    UpdateBoardInfoField(
+        boardInfo,
+        &(boardInfo->kings[color]),
+        kingFromBB,
+        kingToBB,
+        kingFromSquare,
+        kingToSquare,
+        color
+    );
 
     if(kingToSquare < kingFromSquare) { // queenside castle
-        UpdateBoardInfoField(
-            boardInfo,
-            &(boardInfo->kings[color]),
-            kingFromBB,
-            GenShiftWest(kingFromBB, 2),
-            kingFromSquare,
-            kingToSquare,
-            color
-        );
-
         Bitboard_t rookFromBB = GenShiftWest(kingFromBB, 4);
         Bitboard_t rookToBB = GenShiftWest(kingFromBB, 1);
         UpdateBoardInfoField(
@@ -112,16 +113,6 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
         );
 
     } else {
-        UpdateBoardInfoField(
-            boardInfo,
-            &(boardInfo->kings[color]),
-            kingFromBB,
-            GenShiftEast(kingFromBB, 2),
-            kingFromSquare,
-            kingToSquare,
-            color
-        );
-
         Bitboard_t rookFromBB = GenShiftEast(kingFromBB, 3);
         Bitboard_t rookToBB = GenShiftEast(kingFromBB, 1);
         UpdateBoardInfoField(
@@ -137,8 +128,6 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
 
     GameState_t* nextState = GetDefaultNextGameState();
     nextState->castleSquares[color] = empty_set;
-
-    UpdateEmpty(boardInfo);
 }
 
 static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
@@ -185,8 +174,6 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
         break;
     }
 
-    UpdateEmpty(boardInfo);
-
     nextState->halfmoveClock = empty_set;
 }
 
@@ -215,8 +202,6 @@ static void MakeEnPassantHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
         toSquare,
         color
     );
-
-    UpdateEmpty(boardInfo);
 
     GameState_t* nextState = GetDefaultNextGameState();
     nextState->halfmoveClock = empty_set;
@@ -288,8 +273,6 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_t 
     );
 
     UpdateCastleSquares(nextState, boardInfo, color);
-
-    UpdateEmpty(boardInfo);
 }
 
 void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
@@ -309,6 +292,8 @@ void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
             MakeMoveDefaultHandler(boardInfo, move, color);
         break;
     }
+
+    UpdateEmpty(boardInfo);
 }
 
 static void UnmakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
@@ -354,8 +339,6 @@ static void UnmakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t c
             color
         );
     }
-
-    UpdateEmpty(boardInfo);
 }
 
 void UnmakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
@@ -376,5 +359,6 @@ void UnmakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
         break;
     }
 
+    UpdateEmpty(boardInfo);
     RevertState();
 }
