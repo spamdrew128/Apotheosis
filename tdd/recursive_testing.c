@@ -50,7 +50,7 @@ static void UnmakeTest(BoardInfo_t* boardInfo, int depth, Color_t color) {
 
         if(!UnmakeSuccess(boardInfo, &initialInfo, &initalState)) {
             PrintChessboard(&initialInfo);
-            PrintMove(move);
+            PrintMove(move, true);
             PrintChessboard(boardInfo);
             printf("test number %lld\n", tests);
             assert(false);
@@ -68,7 +68,7 @@ void UnmakeRecursiveTestRunner(FEN_t fen, int depth, bool runTests) {
     }
 }
 
-static void SplitPERFT(BoardInfo_t* boardInfo, int depth, PerftCount_t* count, Color_t color) {
+static void _SplitPERFTHelper(BoardInfo_t* boardInfo, int depth, PerftCount_t* count, Color_t color) {
     MoveList_t moveList;
     CompleteMovegen(&moveList, boardInfo, &stack, color);
 
@@ -77,7 +77,7 @@ static void SplitPERFT(BoardInfo_t* boardInfo, int depth, PerftCount_t* count, C
             Move_t move = moveList.moves[i];
             MakeMove(boardInfo, &stack, move, color);
 
-            SplitPERFT(boardInfo, depth-1, count, !color);
+            _SplitPERFTHelper(boardInfo, depth-1, count, !color);
 
             UnmakeMove(boardInfo, &stack, move, color);
         }
@@ -87,14 +87,44 @@ static void SplitPERFT(BoardInfo_t* boardInfo, int depth, PerftCount_t* count, C
     }
 }
 
+static void PrintSplitPerftResults(Move_t move, PerftCount_t count) {
+    PrintMove(move, false);
+    printf(" - %lld\n", count);
+}
+
+static PerftCount_t SplitPERFT(BoardInfo_t* boardInfo, int depth, Color_t color) {
+    MoveList_t moveList;
+    CompleteMovegen(&moveList, boardInfo, &stack, color);
+    PerftCount_t total = 0;
+
+    for(int i = 0; i <= moveList.maxIndex; i++) {
+        Move_t move = moveList.moves[i];
+        MakeMove(boardInfo, &stack, move, color);
+
+        PerftCount_t count = 0;
+        if(depth > 1) {
+            _SplitPERFTHelper(boardInfo, depth-1, &count, !color);
+            PrintSplitPerftResults(move, count);
+            total += count;
+        } else {
+            PrintSplitPerftResults(move, 1);
+            total += 1;
+        }
+
+        UnmakeMove(boardInfo, &stack, move, color);
+    }
+
+    return total;
+}
+
 void PERFTRunner(FEN_t fen, int depth, bool runTests) {
     TestSetup();
     if(runTests) {
         BoardInfo_t info;
         Color_t color = InterpretFEN(fen, &info, &stack);
 
-        PerftCount_t count = 0;
-        SplitPERFT(&info, depth, &count, color);
-        printf("\nDepth %d found %lld positions\n", depth, count);
+        printf("\n");
+        PerftCount_t totalCount = SplitPERFT(&info, depth, color);
+        printf("\nDepth %d found %lld positions\n", depth, totalCount);
     }
 }
