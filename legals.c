@@ -99,13 +99,13 @@ Bitboard_t KingLegalMoves(Bitboard_t kingMoves, Bitboard_t unsafeSquares) {
     return kingMoves & ~unsafeSquares;
 }
 
-bool CanCastleQueenside(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color_t color) {
-    bool queensideSquareExists = ReadCastleSquaresOld(color) & GenShiftWest(boardInfo->kings[color], 2);
+bool CanCastleQueenside(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Bitboard_t castlingRights, Color_t color) {
+    bool queensideSquareExists = castlingRights & GenShiftWest(boardInfo->kings[color], 2);
     return QueensideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) && queensideSquareExists;
 }
 
-bool CanCastleKingside(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Color_t color) {
-    bool kingsideSquareExists = ReadCastleSquaresOld(color) & GenShiftEast(boardInfo->kings[color], 2);
+bool CanCastleKingside(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, Bitboard_t castlingRights, Color_t color) {
+    bool kingsideSquareExists = castlingRights & GenShiftEast(boardInfo->kings[color], 2);
     return KingsideCastlingIsSafe(color, unsafeSquares, boardInfo->empty) && kingsideSquareExists;
 }
 
