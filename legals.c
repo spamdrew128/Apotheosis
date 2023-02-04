@@ -171,11 +171,12 @@ static Bitboard_t CalculateDirectionalPinmask(
     Bitboard_t pinmask = empty_set;
 
     for(Direction_t direction = pinmaskType; direction < NUM_DIRECTIONS; direction += 2) {
-        Bitboard_t directionalRay = GetDirectionalRay(kingSquare, direction);
-        Bitboard_t friendlyPiecesOnRay = allPieces & GetDirectionalRay(kingSquare, direction);
+        Bitboard_t directionalPinmask = GetDirectionalRay(kingSquare, direction) & potentialPinmaskSquares;
+        Bitboard_t affectedPieces = 
+            directionalPinmask & allPieces;
 
-        bool isValidPin = PopulationCount(friendlyPiecesOnRay) == 1;
-        pinmask |= (directionalRay & potentialPinmaskSquares) * isValidPin;
+        bool isValidPin = PopulationCount(affectedPieces) == 1;
+        pinmask |= directionalPinmask * isValidPin;
     }
 
     return pinmask;
