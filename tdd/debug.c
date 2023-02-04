@@ -158,8 +158,8 @@ void PrintMove(Move_t move) {
     printf("\nMove from %s To %s\n", fromText, toText);
 }
 
-void AddGameStateToStack(GameStateOld_t stateToAdd) {
-    GameStateOld_t* gameState = GetEmptyNextGameStateOld();
+void AddGameStateToStack(GameState_t stateToAdd, GameStack_t* stack) {
+    GameState_t* gameState = GetEmptyNextGameState(stack);
     *gameState = stateToAdd;
 }
 

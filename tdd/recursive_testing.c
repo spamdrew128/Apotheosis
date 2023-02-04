@@ -33,7 +33,7 @@ static void UnmakeTest(BoardInfo_t* boardInfo, int depth, Color_t color) {
     }
 
     MoveList_t moveList;
-    CompleteMovegen(&moveList, boardInfo, color);
+    CompleteMovegen(&moveList, boardInfo, &stack, color);
     BoardInfo_t initialInfo = *boardInfo;
     GameStateOld_t initalState = ReadCurrentGameStateOld();
 
@@ -73,7 +73,7 @@ static void SplitPERFT(BoardInfo_t* boardInfo, int depth, Color_t color) {
     }
 
     MoveList_t moveList;
-    CompleteMovegen(&moveList, boardInfo, color);
+    CompleteMovegen(&moveList, boardInfo, &stack, color);
 
     for(int i = 0; i <= moveList.maxIndex; i++) {
         tests++;
