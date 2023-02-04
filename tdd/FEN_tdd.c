@@ -47,7 +47,7 @@ static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo) {
     UpdateEmpty(expectedInfo);
 }
 
-static bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo) {
+static bool FENCompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo) {
     bool success = true;
     for(int i = 0; i < 2; i++) {
         success = success &&
@@ -74,7 +74,7 @@ static void StartFENInterpretedCorrectly() {
     InterpretFEN(START_FEN, &info);
     InitStartFENExpectedInfo(&expectedInfo);
 
-    PrintResults(CompareInfo(&info, &expectedInfo));
+    PrintResults(FENCompareInfo(&info, &expectedInfo));
 }
 
 static void ComplexFENInterpretedCorrectly() {
@@ -85,7 +85,7 @@ static void ComplexFENInterpretedCorrectly() {
     InterpretFEN(COMPLEX_FEN, &info);
     InitComplexFENExpectedInfo(&expectedInfo);
 
-    PrintResults(CompareInfo(&info, &expectedInfo));
+    PrintResults(FENCompareInfo(&info, &expectedInfo));
 }
 
 void FENTDDRunner() {

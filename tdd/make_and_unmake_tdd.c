@@ -9,29 +9,6 @@ enum {
 };
 
 // HELPERS
-static bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo) {
-    bool success = true;
-    for(int i = 0; i < 2; i++) {
-        success = success &&
-            (info->allPieces[i] == expectedInfo->allPieces[i]) &&
-            (info->pawns[i] == expectedInfo->pawns[i]) &&
-            (info->knights[i] == expectedInfo->knights[i]) &&
-            (info->bishops[i] == expectedInfo->bishops[i]) &&
-            (info->rooks[i] == expectedInfo->rooks[i]) &&
-            (info->queens[i] == expectedInfo->queens[i]) &&
-            (info->kings[i] == expectedInfo->kings[i]);
-    }
-
-    success = success && (info->empty == expectedInfo->empty);
-
-    for(int i = 0; i < NUM_SQUARES; i++) {
-        success = success && 
-            PieceOnSquare(info, i) == PieceOnSquare(expectedInfo, i);
-    }
-
-    return success;
-}
-
 static bool CompareState(GameState_t* expectedState) {
     return
         (ReadHalfmoveClock() == expectedState->halfmoveClock) &&

@@ -36,4 +36,6 @@ Bitboard_t CreateBitboard(int numOccupied, ...);
 
 void AddGameStateToStack(GameState_t stateToAdd);
 
+bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo);
+
 #endif

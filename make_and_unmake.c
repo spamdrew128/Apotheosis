@@ -387,7 +387,7 @@ static void UnmakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_
 
     UpdateBoardInfoField(
         boardInfo,
-        GetPieceInfoField(boardInfo, PieceOnSquare(boardInfo, currentSquare), color),
+        GetPieceInfoField(boardInfo, piece, color),
         currentBB,
         originalBB,
         currentSquare,
