@@ -151,7 +151,7 @@ void PrintMoveList(MoveList_t* moveList, BoardInfo_t* info) {
 }
 
 void AddGameStateToStack(GameState_t stateToAdd) {
-    GameState_t* gameState = GetUninitializedNextGameState();
+    GameState_t* gameState = GetEmptyNextGameState();
     *gameState = stateToAdd;
 }
 

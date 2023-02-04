@@ -6,6 +6,6 @@
 
 typedef const char* FEN_t;
 
-void InterpretFEN(FEN_t fen, BoardInfo_t* info);
+Color_t InterpretFEN(FEN_t fen, BoardInfo_t* info);
 
 #endif

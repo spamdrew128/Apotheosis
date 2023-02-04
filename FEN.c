@@ -9,7 +9,18 @@ static int CharToInt(char c) {
     return ((int) c) - 48;
 }
 
-void InterpretFEN(FEN_t fen, BoardInfo_t* info) {
+static Color_t CharToColor(char c) {
+    if(c == 'w' || c == 'W') {
+        return white;
+    } else if(c == 'b' || c == 'B') {
+        return black;
+    } else {
+        assert(!"ERROR: Unrecognized Color");
+    }
+    return 0;
+}
+
+Color_t InterpretFEN(FEN_t fen, BoardInfo_t* info) {
     int rank = 7; // a8 - h8
     int file = 0;
 
@@ -91,4 +102,8 @@ void InterpretFEN(FEN_t fen, BoardInfo_t* info) {
 
     UpdateAllPieces(info);
     UpdateEmpty(info);
+    TranslateBitboardsToMailbox(info);
+
+    // i++;
+    // Color_t colorToMove = CharToColor(fen[i]);
 }

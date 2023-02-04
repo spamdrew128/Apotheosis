@@ -12,7 +12,7 @@ typedef struct {
     Bitboard_t castleSquares[2];
 } GameState_t;
 
-GameState_t* GetUninitializedNextGameState();
+GameState_t* GetEmptyNextGameState();
 
 GameState_t* GetDefaultNextGameState();
 

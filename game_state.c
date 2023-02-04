@@ -21,8 +21,15 @@ static Stack_t stack = {
 
 #define NextState(stack) stack.gameStates[stack.top + 1]
 
-GameState_t* GetUninitializedNextGameState() {
+GameState_t* GetEmptyNextGameState() {
     GameState_t* nextState = &(NextState(stack));
+
+    nextState->capturedPiece = none_type;
+    nextState->halfmoveClock = 0;
+    nextState->castleSquares[white] = empty_set;
+    nextState->castleSquares[black] = empty_set;
+    nextState->enPassantSquares = empty_set;
+
     stack.top++;
     return nextState;
 }
@@ -41,7 +48,7 @@ GameState_t* GetDefaultNextGameState() {
 }
 
 void AddStartingGameState() {
-    GameState_t* gameStartState = GetUninitializedNextGameState();
+    GameState_t* gameStartState = GetEmptyNextGameState();
 
     gameStartState->capturedPiece = none_type;
     gameStartState->halfmoveClock = 0;

@@ -117,7 +117,7 @@ static void InitBothSidesEnPassantInfo(BoardInfo_t* info) {
         info->pawns[black] = CreateBitboard(2, d4,h5);
     });
 
-    GameState_t* state = GetUninitializedNextGameState();
+    GameState_t* state = GetEmptyNextGameState();
     state->halfmoveClock = some_halfmove_clock;
     state->castleSquares[white] = empty_set;
     state->castleSquares[black] = empty_set;
@@ -162,7 +162,7 @@ static void InitNormalPosition(BoardInfo_t* info) {
         info->knights[black] = CreateBitboard(1, e4);
     });
 
-    GameState_t* state = GetUninitializedNextGameState();
+    GameState_t* state = GetEmptyNextGameState();
     state->halfmoveClock = some_halfmove_clock;
     state->enPassantSquares = empty_set;
     state->castleSquares[white] = empty_set;
@@ -265,7 +265,7 @@ static void InitPromotionCastleBreakPosition(BoardInfo_t* info) {
         info->knights[black] = CreateBitboard(1, b8);
     });
 
-    GameState_t* state = GetUninitializedNextGameState();
+    GameState_t* state = GetEmptyNextGameState();
     state->halfmoveClock = some_halfmove_clock;
     state->enPassantSquares = empty_set;
     state->castleSquares[white] = empty_set;
