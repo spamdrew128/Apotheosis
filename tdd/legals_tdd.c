@@ -7,7 +7,7 @@
 #include "pieces.h"
 #include "board_constants.h"
 #include "lookup.h"
-#include "game_state.h"
+#include "game_state_old.h"
 
 enum {
     white_expected_unsafe = 0xfefb57be78800000,

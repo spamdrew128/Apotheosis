@@ -1,6 +1,6 @@
 #include "make_and_unmake_tdd.h"
 #include "movegen.h"
-#include "game_state.h"
+#include "game_state_old.h"
 #include "board_info.h"
 #include "debug.h"
 

@@ -6,7 +6,7 @@
 #include "FEN.h"
 #include "pieces.h"
 #include "magic.h"
-#include "game_state.h"
+#include "game_state_old.h"
 
 int main(int argc, char** argv)
 {

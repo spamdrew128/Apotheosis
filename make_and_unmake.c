@@ -2,7 +2,7 @@
 #include <assert.h>
 
 #include "make_and_unmake.h"
-#include "game_state.h"
+#include "game_state_old.h"
 #include "lookup.h"
 
 enum {

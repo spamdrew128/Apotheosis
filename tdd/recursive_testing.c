@@ -2,7 +2,7 @@
 
 #include "recursive_testing.h"
 #include "debug.h"
-#include "game_state.h"
+#include "game_state_old.h"
 #include "movegen.h"
 #include "make_and_unmake.h"
 

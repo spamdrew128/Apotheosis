@@ -2,7 +2,7 @@
 #include "movegen.h"
 #include "pieces.h"
 #include "lookup.h"
-#include "game_state.h"
+#include "game_state_old.h"
 
 enum {
     movelist_empty = -1

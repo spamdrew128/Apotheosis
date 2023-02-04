@@ -5,7 +5,7 @@
 #include "FEN.h"
 #include "lookup.h"
 #include "board_constants.h"
-#include "game_state.h"
+#include "game_state_old.h"
 
 static int CharToInt(char c) {
     return ((int) c) - 48;

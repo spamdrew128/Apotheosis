@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "game_state.h"
+#include "game_state_old.h"
 
 typedef struct {
     GameStateOld_t gameStates[GAMESTATES_MAX];

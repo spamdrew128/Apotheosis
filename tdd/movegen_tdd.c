@@ -8,7 +8,7 @@
 #include "board_constants.h"
 #include "lookup.h"
 #include "move.h"
-#include "game_state.h"
+#include "game_state_old.h"
 
 // HELPERS
 static int CountPieceMoves(Piece_t piece, MoveList_t moveList, BoardInfo_t* info) {
