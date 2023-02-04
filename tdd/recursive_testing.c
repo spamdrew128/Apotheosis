@@ -19,7 +19,8 @@ static bool UnmakeSuccess(BoardInfo_t* info, BoardInfo_t* originalInfo, GameStat
     return true;
 }
 
-static int tests = 0;
+static int tests;
+
 static void UnmakeTest(BoardInfo_t* boardInfo, int depth, Color_t color) {
     if(depth == 0) {
         return;
@@ -32,9 +33,6 @@ static void UnmakeTest(BoardInfo_t* boardInfo, int depth, Color_t color) {
 
     for(int i = 0; i <= moveList.maxIndex; i++) {
         tests++;
-        if(tests == 32808) {
-            printf("here");
-        }
 
         Move_t move = moveList.moves[i];
         MakeMove(boardInfo, move, color);
@@ -54,6 +52,7 @@ static void UnmakeTest(BoardInfo_t* boardInfo, int depth, Color_t color) {
 }
 
 void UnmakeRecursiveTestRunner(FEN_t fen, int depth, bool runTests) {
+    tests = 0;
     if(runTests) {
         BoardInfo_t info;
         Color_t color = InterpretFEN(fen, &info);
@@ -61,6 +60,31 @@ void UnmakeRecursiveTestRunner(FEN_t fen, int depth, bool runTests) {
     }
 }
 
-void PERFTRunner(FEN_t fen, int depth, bool runTests) {
+static void SplitPERFT(BoardInfo_t* boardInfo, int depth, Color_t color) {
+    if(depth == 0) {
+        return;
+    }
 
+    MoveList_t moveList;
+    CompleteMovegen(&moveList, boardInfo, color);
+
+    for(int i = 0; i <= moveList.maxIndex; i++) {
+        tests++;
+        Move_t move = moveList.moves[i];
+        MakeMove(boardInfo, move, color);
+
+        SplitPERFT(boardInfo, depth-1, !color);
+
+        UnmakeMove(boardInfo, move, color);
+    }
+}
+
+void PERFTRunner(FEN_t fen, int depth, bool runTests) {
+    tests = 0;
+    if(runTests) {
+        BoardInfo_t info;
+        Color_t color = InterpretFEN(fen, &info);
+        SplitPERFT(&info, depth, color);
+        printf("%d test run\n", tests);
+    }
 }
