@@ -2,7 +2,7 @@
 
 #include "recursive_testing.h"
 #include "debug.h"
-#include "game_state_old.h"
+#include "game_state.h"
 #include "movegen.h"
 #include "make_and_unmake.h"
 
@@ -12,9 +12,9 @@ static void TestSetup() {
     InitGameStack(&stack);
 }
 
-static bool UnmakeSuccess(BoardInfo_t* info, BoardInfo_t* originalInfo, GameStateOld_t* initalState) {
+static bool UnmakeSuccess(BoardInfo_t* info, BoardInfo_t* originalInfo, GameState_t* initalState) {
     bool infoMatches = CompareInfo(info, originalInfo);
-    bool stateMatches = CompareStateOld(initalState);
+    bool stateMatches = CompareState(initalState, &stack);
 
     if(!(infoMatches && stateMatches)) {
         printf("\ninfoMatches: %d\n", infoMatches);
@@ -35,7 +35,7 @@ static void UnmakeTest(BoardInfo_t* boardInfo, int depth, Color_t color) {
     MoveList_t moveList;
     CompleteMovegen(&moveList, boardInfo, &stack, color);
     BoardInfo_t initialInfo = *boardInfo;
-    GameStateOld_t initalState = ReadCurrentGameStateOld();
+    GameState_t initalState = ReadCurrentGameState(&stack);
 
     for(int i = 0; i <= moveList.maxIndex; i++) {
         tests++;
