@@ -178,11 +178,15 @@ Color_t InterpretFEN(FEN_t fen, BoardInfo_t* info, GameStack_t* stack) {
 
     i += 2;
     GameState_t* gameState = GetEmptyNextGameState(stack);
-    while (fen[i] != ' ')
-    {
-        UpdateCastlingRights(gameState, fen[i]);
+    if(fen[i] != '-') {
+        while (fen[i] != ' ')
+        {
+            UpdateCastlingRights(gameState, fen[i]);
+            i++;
+        }   
+    } else {
         i++;
-    }   
+    }
 
     i++;
     UpdateEnPassant(fen, &i, gameState);
