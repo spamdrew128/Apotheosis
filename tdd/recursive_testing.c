@@ -8,7 +8,7 @@
 
 static bool UnmakeSuccess(BoardInfo_t* info, BoardInfo_t* originalInfo, GameStateOld_t* initalState) {
     bool infoMatches = CompareInfo(info, originalInfo);
-    bool stateMatches = CompareState(initalState);
+    bool stateMatches = CompareStateOld(initalState);
 
     if(!(infoMatches && stateMatches)) {
         printf("\ninfoMatches: %d\n", infoMatches);

@@ -78,7 +78,7 @@ static void ComplexFENInterpretedCorrectly() {
     InterpretFEN(COMPLEX_FEN, &info);
 
 
-    PrintResults(CompareInfo(&info, &expectedInfo) && CompareState(&expectedState));
+    PrintResults(CompareInfo(&info, &expectedInfo) && CompareStateOld(&expectedState));
 }
 
 void FENTDDRunner() {

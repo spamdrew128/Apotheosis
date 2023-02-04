@@ -8,6 +8,7 @@
 #include "board_info.h"
 #include "movegen.h"
 #include "game_state_old.h"
+#include "game_state.h"
 
 #define PrintResults(success) \
     if(success) {printf(".");} else {printf("\n%s Failure\n", __func__);}
@@ -40,6 +41,6 @@ void AddGameStateToStack(GameStateOld_t stateToAdd);
 
 bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo);
 
-bool CompareState(GameStateOld_t* expectedState);
+bool CompareStateOld(GameStateOld_t* expectedState);
 
 #endif

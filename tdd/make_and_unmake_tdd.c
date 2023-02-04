@@ -299,7 +299,7 @@ static void ShouldCastleKingside() {
     MakeMove(&info, ksCastle, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
-    bool stateMatches = CompareState(&expectedState);
+    bool stateMatches = CompareStateOld(&expectedState);
 
     PrintResults(infoMatches && stateMatches);
 }
@@ -320,7 +320,7 @@ static void ShouldCastleQueenside() {
     MakeMove(&info, qsCastle, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
-    bool stateMatches = CompareState(&expectedState);
+    bool stateMatches = CompareStateOld(&expectedState);
 
     PrintResults(infoMatches && stateMatches);
 }
@@ -342,7 +342,7 @@ static void ShouldQuietPromote() {
     MakeMove(&info, move, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
-    bool stateMatches = CompareState(&expectedState);
+    bool stateMatches = CompareStateOld(&expectedState);
 
     PrintResults(infoMatches && stateMatches);
 }
@@ -364,7 +364,7 @@ static void ShouldCapturePromote() {
     MakeMove(&info, move, black);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
-    bool stateMatches = CompareState(&expectedState);
+    bool stateMatches = CompareStateOld(&expectedState);
 
     PrintResults(infoMatches && stateMatches);
 }
@@ -385,7 +385,7 @@ static void ShouldWhiteEnPassant() {
     MakeMove(&info, move, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
-    bool stateMatches = CompareState(&expectedState);
+    bool stateMatches = CompareStateOld(&expectedState);
 
     PrintResults(infoMatches && stateMatches);
 }
@@ -406,7 +406,7 @@ static void ShouldBlackEnPassant() {
     MakeMove(&info, move, black);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
-    bool stateMatches = CompareState(&expectedState);
+    bool stateMatches = CompareStateOld(&expectedState);
 
     PrintResults(infoMatches && stateMatches);
 }
@@ -426,7 +426,7 @@ static void ShouldMakeNormalQuietMoves() {
     MakeMove(&info, move, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
-    bool stateMatches = CompareState(&expectedState);
+    bool stateMatches = CompareStateOld(&expectedState);
 
     PrintResults(infoMatches && stateMatches);
 }
@@ -451,7 +451,7 @@ static void ShouldDoublePushPawns(Color_t moveColor) {
     }
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
-    bool stateMatches = CompareState(&expectedState);
+    bool stateMatches = CompareStateOld(&expectedState);
 
     PrintResults(infoMatches && stateMatches);
 }
@@ -471,7 +471,7 @@ static void ShouldMakeNormalCaptures() {
     MakeMove(&info, move, black);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
-    bool stateMatches = CompareState(&expectedState);
+    bool stateMatches = CompareStateOld(&expectedState);
 
     PrintResults(infoMatches && stateMatches);
 }
@@ -491,7 +491,7 @@ static void CapturingRookShouldRemoveCastleSquares() {
     MakeMove(&info, move, black);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
-    bool stateMatches = CompareState(&expectedState);
+    bool stateMatches = CompareStateOld(&expectedState);
 
     PrintResults(infoMatches && stateMatches);
 }
@@ -513,7 +513,7 @@ static void PromotionCaptureShouldRemoveCastleSquares() {
     MakeMove(&info, move, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
-    bool stateMatches = CompareState(&expectedState);
+    bool stateMatches = CompareStateOld(&expectedState);
 
     PrintResults(infoMatches && stateMatches);
 }
@@ -553,7 +553,7 @@ static bool GenericTestUnmake(BoardInfo_t* startInfo, Move_t move, Color_t moveC
     UnmakeMove(startInfo, move, moveColor);
 
     bool infoMatches = CompareInfo(startInfo, &expectedInfo);
-    bool stateMatches = CompareState(&originalState);
+    bool stateMatches = CompareStateOld(&originalState);
 
     return infoMatches && stateMatches;
 }
