@@ -32,8 +32,8 @@ int main(int argc, char** argv)
 
     UnmakeRecursiveTestRunner("r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R w Kq - 0 1", 5, false);
 
-    FEN_t fen = "rnbqk1nr/pppp1ppp/4p3/P7/1b6/8/1PPPPPPP/RNBQKBNR w KQkq - 1 3";
-    PERFTRunner(fen, 1, true);
+    FEN_t fen = "r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R w Kq - 0 1";
+    PERFTRunner(fen, 4, true);
 
     TeardownLookup();
 }
