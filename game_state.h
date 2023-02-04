@@ -15,28 +15,28 @@ typedef struct {
 typedef struct {
     GameState_t gameStates[GAMESTATES_MAX];
     int top;
-} GameStateStack_t;
+} GameStack_t;
 
-void InitGameStateStack(GameStateStack_t* stack);
+void InitGameStateStack(GameStack_t* stack);
 
-GameState_t* GetEmptyNextGameState(GameStateStack_t* stack);
+GameState_t* GetEmptyNextGameState(GameStack_t* stack);
 
-GameState_t* GetDefaultNextGameState(GameStateStack_t* stack);
+GameState_t* GetDefaultNextGameState(GameStack_t* stack);
 
-void AddStartingGameState(GameStateStack_t* stack);
+void AddStartingGameState(GameStack_t* stack);
 
-void RevertState(GameStateStack_t* stack);
+void RevertState(GameStack_t* stack);
 
-Piece_t ReadCapturedPiece(GameStateStack_t* stack);
+Piece_t ReadCapturedPiece(GameStack_t* stack);
 
-HalfmoveCount_t ReadHalfmoveClock(GameStateStack_t* stack);
+HalfmoveCount_t ReadHalfmoveClock(GameStack_t* stack);
 
-Bitboard_t ReadCastleSquares(GameStateStack_t* stack, Color_t color);
+Bitboard_t ReadCastleSquares(GameStack_t* stack, Color_t color);
 
-Bitboard_t ReadEnPassantSquares(GameStateStack_t* stack);
+Bitboard_t ReadEnPassantSquares(GameStack_t* stack);
 
-GameState_t ReadDefaultNextGameState(GameStateStack_t* stack);
+GameState_t ReadDefaultNextGameState(GameStack_t* stack);
 
-void ResetGameStateStack(GameStateStack_t* stack);
+void ResetGameStateStack(GameStack_t* stack);
 
 #endif
