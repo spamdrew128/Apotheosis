@@ -4,8 +4,8 @@
 #include <stdbool.h>
 #include "FEN.h"
 
-void UnmakeRecursiveTestRunner(bool runTests, int depth, FEN_t fen);
+void UnmakeRecursiveTestRunner(FEN_t fen, int depth, bool runTests);
 
-void PERFTRunner(bool runTests, int depth, FEN_t fen);
+void PERFTRunner(FEN_t fen, int depth, bool runTests);
 
 #endif
