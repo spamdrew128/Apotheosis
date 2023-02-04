@@ -302,7 +302,7 @@ static void ShouldCastleKingside() {
     WriteToSquare(&ksCastle, LSB(white_kingside_castle_bb));
     WriteSpecialFlag(&ksCastle, castle_flag);
 
-    MakeMove(&info, ksCastle, white);
+    MakeMove(&info, &stack, ksCastle, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareStateOld(&expectedState);
@@ -324,7 +324,7 @@ static void ShouldCastleQueenside() {
     WriteToSquare(&qsCastle, LSB(white_queenside_castle_bb));
     WriteSpecialFlag(&qsCastle, castle_flag);
 
-    MakeMove(&info, qsCastle, white);
+    MakeMove(&info, &stack, qsCastle, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareStateOld(&expectedState);
@@ -347,7 +347,7 @@ static void ShouldQuietPromote() {
     WritePromotionPiece(&move, queen);
     WriteSpecialFlag(&move, promotion_flag);
 
-    MakeMove(&info, move, white);
+    MakeMove(&info, &stack, move, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareStateOld(&expectedState);
@@ -370,7 +370,7 @@ static void ShouldCapturePromote() {
     WritePromotionPiece(&move, knight);
     WriteSpecialFlag(&move, promotion_flag);
 
-    MakeMove(&info, move, black);
+    MakeMove(&info, &stack, move, black);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareStateOld(&expectedState);
@@ -392,7 +392,7 @@ static void ShouldWhiteEnPassant() {
     WriteToSquare(&move, h6);
     WriteSpecialFlag(&move, en_passant_flag);
 
-    MakeMove(&info, move, white);
+    MakeMove(&info, &stack, move, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareStateOld(&expectedState);
@@ -414,7 +414,7 @@ static void ShouldBlackEnPassant() {
     WriteToSquare(&move, c3);
     WriteSpecialFlag(&move, en_passant_flag);
 
-    MakeMove(&info, move, black);
+    MakeMove(&info, &stack, move, black);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareStateOld(&expectedState);
@@ -435,7 +435,7 @@ static void ShouldMakeNormalQuietMoves() {
     WriteFromSquare(&move, b2);
     WriteToSquare(&move, c3);
 
-    MakeMove(&info, move, white);
+    MakeMove(&info, &stack, move, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareStateOld(&expectedState);
@@ -456,11 +456,11 @@ static void ShouldDoublePushPawns(Color_t moveColor) {
     if(moveColor == white) {
         WriteFromSquare(&move, f2);
         WriteToSquare(&move, f4);
-        MakeMove(&info, move, white);
+        MakeMove(&info, &stack, move, white);
     } else {
         WriteFromSquare(&move, d7);
         WriteToSquare(&move, d5);
-        MakeMove(&info, move, black);
+        MakeMove(&info, &stack, move, black);
     }
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
@@ -482,7 +482,7 @@ static void ShouldMakeNormalCaptures() {
     WriteFromSquare(&move, e4);
     WriteToSquare(&move, f2);
 
-    MakeMove(&info, move, black);
+    MakeMove(&info, &stack, move, black);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareStateOld(&expectedState);
@@ -503,7 +503,7 @@ static void CapturingRookShouldRemoveCastleSquares() {
     WriteFromSquare(&move, f6);
     WriteToSquare(&move, a1);
 
-    MakeMove(&info, move, black);
+    MakeMove(&info, &stack, move, black);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareStateOld(&expectedState);
@@ -526,7 +526,7 @@ static void PromotionCaptureShouldRemoveCastleSquares() {
     WritePromotionPiece(&move, knight);
     WriteSpecialFlag(&move, promotion_flag);
 
-    MakeMove(&info, move, white);
+    MakeMove(&info, &stack, move, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareStateOld(&expectedState);
@@ -565,8 +565,8 @@ static bool GenericTestUnmake(BoardInfo_t* startInfo, Move_t move, Color_t moveC
     originalState.enPassantSquares = ReadEnPassantSquaresOld();
     originalState.capturedPiece = ReadCapturedPieceOld();
 
-    MakeMove(startInfo, move, moveColor);
-    UnmakeMove(startInfo, move, moveColor);
+    MakeMove(startInfo, &stack, move, moveColor);
+    UnmakeMove(startInfo, &stack, move, moveColor);
 
     bool infoMatches = CompareInfo(startInfo, &expectedInfo);
     bool stateMatches = CompareStateOld(&originalState);

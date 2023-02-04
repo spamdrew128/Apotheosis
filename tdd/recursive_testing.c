@@ -41,11 +41,11 @@ static void UnmakeTest(BoardInfo_t* boardInfo, int depth, Color_t color) {
         tests++;
 
         Move_t move = moveList.moves[i];
-        MakeMove(boardInfo, move, color);
+        MakeMove(boardInfo, &stack, move, color);
 
         UnmakeTest(boardInfo, depth-1, !color);
 
-        UnmakeMove(boardInfo, move, color);
+        UnmakeMove(boardInfo, &stack, move, color);
 
         if(!UnmakeSuccess(boardInfo, &initialInfo, &initalState)) {
             PrintChessboard(&initialInfo);
@@ -78,11 +78,11 @@ static void SplitPERFT(BoardInfo_t* boardInfo, int depth, Color_t color) {
     for(int i = 0; i <= moveList.maxIndex; i++) {
         tests++;
         Move_t move = moveList.moves[i];
-        MakeMove(boardInfo, move, color);
+        MakeMove(boardInfo, &stack, move, color);
 
         SplitPERFT(boardInfo, depth-1, !color);
 
-        UnmakeMove(boardInfo, move, color);
+        UnmakeMove(boardInfo, &stack, move, color);
     }
 }
 

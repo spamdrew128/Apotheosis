@@ -233,21 +233,21 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_t 
     UpdateCastleSquares(nextState, boardInfo, color);
 }
 
-void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
+void MakeMove(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, Color_t moveColor) {
     SpecialFlag_t specialFlag = ReadSpecialFlag(move);
     
     switch (specialFlag) {
         case castle_flag:
-            MakeCastlingHandler(boardInfo, move, color);
+            MakeCastlingHandler(boardInfo, move, moveColor);
         break;
         case promotion_flag:
-            MakePromotionHandler(boardInfo, move, color);
+            MakePromotionHandler(boardInfo, move, moveColor);
         break;
         case en_passant_flag:
-            MakeEnPassantHandler(boardInfo, move, color);
+            MakeEnPassantHandler(boardInfo, move, moveColor);
         break;
         default:
-            MakeMoveDefaultHandler(boardInfo, move, color);
+            MakeMoveDefaultHandler(boardInfo, move, moveColor);
         break;
     }
 
@@ -407,21 +407,21 @@ static void UnmakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_
     }
 }
 
-void UnmakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
+void UnmakeMove(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, Color_t moveColor) {
     SpecialFlag_t specialFlag = ReadSpecialFlag(move);
     
     switch (specialFlag) {
         case castle_flag:
-            UnmakeCastlingHandler(boardInfo, move, color);
+            UnmakeCastlingHandler(boardInfo, move, moveColor);
         break;
         case promotion_flag:
-            UnmakePromotionHandler(boardInfo, move, color);
+            UnmakePromotionHandler(boardInfo, move, moveColor);
         break;
         case en_passant_flag:
-            UnmakeEnPassantHandler(boardInfo, move, color);
+            UnmakeEnPassantHandler(boardInfo, move, moveColor);
         break;
         default:
-            UnmakeMoveDefaultHandler(boardInfo, move, color);
+            UnmakeMoveDefaultHandler(boardInfo, move, moveColor);
         break;
     }
 
