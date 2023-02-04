@@ -29,5 +29,7 @@ int main(int argc, char** argv)
     MakeMoveTDDRunner();
     UnmakeMoveTDDRunner();
 
+    UnmakeRecursiveTestRunner();
+
     TeardownLookup();
 }

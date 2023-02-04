@@ -50,7 +50,8 @@ $(TDD)\magic_tdd.c \
 $(TDD)\legals_tdd.c \
 $(TDD)\movegen_tdd.c \
 $(TDD)\game_state_tdd.c \
-$(TDD)\make_and_unmake_tdd.c
+$(TDD)\make_and_unmake_tdd.c \
+$(TDD)\recursive_testing.c
 
 D_OBJECTS= \
 $(TDD_MAIN).o \
@@ -65,7 +66,8 @@ $(TDD)\magic_tdd.o \
 $(TDD)\legals_tdd.o \
 $(TDD)\movegen_tdd.o \
 $(TDD)\game_state_tdd.o \
-$(TDD)\make_and_unmake_tdd.o
+$(TDD)\make_and_unmake_tdd.o \
+$(TDD)\recursive_testing.o
 
 BINARY=bin
 DEBUG_BINARY=debug
