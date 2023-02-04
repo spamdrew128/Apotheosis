@@ -10,15 +10,6 @@
 
 // HELPERS
 
-static bool CompareState(GameState_t* expectedState) {
-    return
-        (ReadHalfmoveClock() == expectedState->halfmoveClock) &&
-        (ReadEnPassantSquares() == expectedState->enPassantSquares) &&
-        (ReadCastleSquares(white) == expectedState->castleSquares[white]) &&
-        (ReadCastleSquares(black) == expectedState->castleSquares[black]) &&
-        (ReadCapturedPiece() == expectedState->capturedPiece);
-}
-
 static void InitStartFENExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
     InitTestInfo(expectedInfo, {
         expectedInfo->pawns[white] = rank_2;

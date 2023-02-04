@@ -177,3 +177,12 @@ bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo) {
 
     return success;
 }
+
+bool CompareState(GameState_t* expectedState) {
+    return
+        (ReadHalfmoveClock() == expectedState->halfmoveClock) &&
+        (ReadEnPassantSquares() == expectedState->enPassantSquares) &&
+        (ReadCastleSquares(white) == expectedState->castleSquares[white]) &&
+        (ReadCastleSquares(black) == expectedState->castleSquares[black]) &&
+        (ReadCapturedPiece() == expectedState->capturedPiece);
+}

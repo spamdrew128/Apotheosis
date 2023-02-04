@@ -9,14 +9,6 @@ enum {
 };
 
 // HELPERS
-static bool CompareState(GameState_t* expectedState) {
-    return
-        (ReadHalfmoveClock() == expectedState->halfmoveClock) &&
-        (ReadEnPassantSquares() == expectedState->enPassantSquares) &&
-        (ReadCastleSquares(white) == expectedState->castleSquares[white]) &&
-        (ReadCastleSquares(black) == expectedState->castleSquares[black]) &&
-        (ReadCapturedPiece() == expectedState->capturedPiece);
-}
 
 // r3k2r/8/8/8/8/8/8/R3K2R
 static void InitAllCastlingLegalInfo(BoardInfo_t* info) {

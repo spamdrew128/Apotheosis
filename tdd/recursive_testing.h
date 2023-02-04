@@ -2,6 +2,7 @@
 #define __RECURSIVE_TESTING_H__
 
 #include <stdbool.h>
+#include "FEN.h"
 
 void UnmakeRecursiveTestRunner(bool runTests, int depth, FEN_t fen);
 

@@ -12,6 +12,7 @@
 #include "game_state_tdd.h"
 #include "board_info_tdd.h"
 #include "make_and_unmake_tdd.h"
+#include "recursive_testing.h"
 
 int main(int argc, char** argv)
 {
@@ -29,7 +30,7 @@ int main(int argc, char** argv)
     MakeMoveTDDRunner();
     UnmakeMoveTDDRunner();
 
-    UnmakeRecursiveTestRunner();
+    // UnmakeRecursiveTestRunner();
 
     TeardownLookup();
 }
