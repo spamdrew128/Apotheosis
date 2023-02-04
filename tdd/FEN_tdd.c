@@ -72,8 +72,8 @@ static void StartFENInterpretedCorrectly() {
     GameState_t expectedState;
 
     InitBoardInfo(&info);
-    InterpretFEN(START_FEN, &info);
     InitStartFENExpectedInfo(&expectedInfo, &expectedState);
+    InterpretFEN(START_FEN, &info);
 
     PrintResults(CompareInfo(&info, &expectedInfo));
 }
@@ -84,8 +84,9 @@ static void ComplexFENInterpretedCorrectly() {
     GameState_t expectedState;
     
     InitBoardInfo(&info);
-    InterpretFEN(COMPLEX_FEN, &info);
     InitComplexFENExpectedInfo(&expectedInfo, &expectedState);
+    InterpretFEN(COMPLEX_FEN, &info);
+
 
     PrintResults(CompareInfo(&info, &expectedInfo) && CompareState(&expectedState));
 }
