@@ -1,7 +1,9 @@
 #ifndef __BOARD_CONSTANTS_H__
 #define __BOARD_CONSTANTS_H__
 
-typedef unsigned long long Bitboard_t; // supported by MSC 13.00+ and C99 
+#include <stdint.h>
+
+typedef uint64_t Bitboard_t; // supported by MSC 13.00+ and C99 
 #define C64(constantU64) constantU64##ULL
 
 #define MOVELIST_MAX 1024
