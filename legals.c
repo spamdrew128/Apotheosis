@@ -4,7 +4,6 @@
 #include "lookup.h"
 #include "stdbool.h"
 #include "pieces.h"
-#include "game_state_old.h"
 
 typedef Bitboard_t (*GetAttacksCallback_t)(Square_t square, Bitboard_t empty);
 
