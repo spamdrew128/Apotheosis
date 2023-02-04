@@ -6,10 +6,20 @@
 #include "bitboards.h"
 #include "board_info.h"
 
-#define COMPLEX_FEN "r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R w KQkq e3 34 56"
+#define COMPLEX_FEN "r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R w K e3 34 56"
 
 // HELPERS
-static void InitStartFENExpectedInfo(BoardInfo_t* expectedInfo) {
+
+static bool CompareState(GameState_t* expectedState) {
+    return
+        (ReadHalfmoveClock() == expectedState->halfmoveClock) &&
+        (ReadEnPassantSquares() == expectedState->enPassantSquares) &&
+        (ReadCastleSquares(white) == expectedState->castleSquares[white]) &&
+        (ReadCastleSquares(black) == expectedState->castleSquares[black]) &&
+        (ReadCapturedPiece() == expectedState->capturedPiece);
+}
+
+static void InitStartFENExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
     InitTestInfo(expectedInfo, {
         expectedInfo->pawns[white] = rank_2;
         expectedInfo->knights[white] = CreateBitboard(2, b1,g1);
@@ -25,9 +35,13 @@ static void InitStartFENExpectedInfo(BoardInfo_t* expectedInfo) {
         expectedInfo->queens[black] = CreateBitboard(1, d8);
         expectedInfo->kings[black] = CreateBitboard(1, e8);
     });
+
+    AddStartingGameState();
+    *expectedState = ReadCurrentGameState();
+    RevertState();
 }
 
-static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo) {
+static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
     InitTestInfo(expectedInfo, {
         expectedInfo->pawns[white] = CreateBitboard(7, a2,b2,c2,d5,e4,f2,g5);
         expectedInfo->knights[white] = CreateBitboard(2, c3,f3);
@@ -43,16 +57,23 @@ static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo) {
         expectedInfo->queens[black] = CreateBitboard(1, e8);
         expectedInfo->kings[black] = CreateBitboard(1, g8);
     });
+
+    GameState_t* state = GetEmptyNextGameState();
+    state->halfmoveClock = 34;
+    state->castleSquares[white] = white_kingside_castle_bb;
+    state->enPassantSquares = CreateBitboard(1, e3);
+    *expectedState = *state;
 }
 
 // TESTS
 static void StartFENInterpretedCorrectly() {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
+    GameState_t expectedState;
 
     InitBoardInfo(&info);
     InterpretFEN(START_FEN, &info);
-    InitStartFENExpectedInfo(&expectedInfo);
+    InitStartFENExpectedInfo(&expectedInfo, &expectedState);
 
     PrintResults(CompareInfo(&info, &expectedInfo));
 }
@@ -60,12 +81,13 @@ static void StartFENInterpretedCorrectly() {
 static void ComplexFENInterpretedCorrectly() {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
+    GameState_t expectedState;
     
     InitBoardInfo(&info);
     InterpretFEN(COMPLEX_FEN, &info);
-    InitComplexFENExpectedInfo(&expectedInfo);
+    InitComplexFENExpectedInfo(&expectedInfo, &expectedState);
 
-    PrintResults(CompareInfo(&info, &expectedInfo));
+    PrintResults(CompareInfo(&info, &expectedInfo) && CompareState(&expectedState));
 }
 
 void FENTDDRunner() {

@@ -28,6 +28,8 @@ Bitboard_t ReadCastleSquares(Color_t color);
 
 Bitboard_t ReadEnPassantSquares();
 
+GameState_t ReadCurrentGameState();
+
 GameState_t ReadDefaultNextGameState();
 
 void ResetGameStateStack();
