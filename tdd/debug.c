@@ -158,8 +158,8 @@ void PrintMove(Move_t move) {
     printf("\nMove from %s To %s\n", fromText, toText);
 }
 
-void AddGameStateToStack(GameState_t stateToAdd) {
-    GameState_t* gameState = GetEmptyNextGameState();
+void AddGameStateToStack(GameState_t stateToAdd, GameStack_t* stack) {
+    GameState_t* gameState = GetEmptyNextGameState(stack);
     *gameState = stateToAdd;
 }
 
@@ -186,11 +186,11 @@ bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo) {
     return success;
 }
 
-bool CompareState(GameState_t* expectedState) {
+bool CompareState(GameState_t* expectedState, GameStack_t* stack) {
     return
-        (ReadHalfmoveClock() == expectedState->halfmoveClock) &&
-        (ReadEnPassantSquares() == expectedState->enPassantSquares) &&
-        (ReadCastleSquares(white) == expectedState->castleSquares[white]) &&
-        (ReadCastleSquares(black) == expectedState->castleSquares[black]) &&
-        (ReadCapturedPiece() == expectedState->capturedPiece);
+        (ReadHalfmoveClock(stack) == expectedState->halfmoveClock) &&
+        (ReadEnPassantSquares(stack) == expectedState->enPassantSquares) &&
+        (ReadCastleSquares(stack, white) == expectedState->castleSquares[white]) &&
+        (ReadCastleSquares(stack, black) == expectedState->castleSquares[black]) &&
+        (ReadCapturedPiece(stack) == expectedState->capturedPiece);
 }

@@ -36,10 +36,10 @@ void PrintMove(Move_t move);
 
 Bitboard_t CreateBitboard(int numOccupied, ...);
 
-void AddGameStateToStack(GameState_t stateToAdd);
+void AddGameStateToStack(GameState_t stateToAdd, GameStack_t* stack);
 
 bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo);
 
-bool CompareState(GameState_t* expectedState);
+bool CompareState(GameState_t* expectedState, GameStack_t* stack);
 
 #endif

@@ -13,7 +13,8 @@ int main(int argc, char** argv)
     InitLookup();
     BoardInfo_t boardInfo;
     InitBoardInfo(&boardInfo);
-    InterpretFEN(START_FEN, &boardInfo);
+    GameStack_t stack;
+    InterpretFEN(START_FEN, &boardInfo, &stack);
     
     // Todo: GAME LOOP
 

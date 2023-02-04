@@ -5,7 +5,6 @@
 #include "FEN.h"
 #include "lookup.h"
 #include "board_constants.h"
-#include "game_state.h"
 
 static int CharToInt(char c) {
     return ((int) c) - 48;
@@ -86,8 +85,9 @@ static void UpdateHalfmoveClock(FEN_t fen, int i, GameState_t* state) {
     state->halfmoveClock = halfmoves;
 }
 
-Color_t InterpretFEN(FEN_t fen, BoardInfo_t* info) {
+Color_t InterpretFEN(FEN_t fen, BoardInfo_t* info, GameStack_t* stack) {
     InitBoardInfo(info);
+    InitGameStack(stack);
 
     int rank = 7; // a8 - h8
     int file = 0;
@@ -177,7 +177,7 @@ Color_t InterpretFEN(FEN_t fen, BoardInfo_t* info) {
     Color_t colorToMove = CharToColor(fen[i]);
 
     i += 2;
-    GameState_t* gameState = GetEmptyNextGameState();
+    GameState_t* gameState = GetEmptyNextGameState(stack);
     while (fen[i] != ' ')
     {
         UpdateCastlingRights(gameState, fen[i]);
