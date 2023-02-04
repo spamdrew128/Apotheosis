@@ -36,7 +36,7 @@ static GameState_t* GetSomeGamestate(GameStack_t* stack) {
 // TESTS
 static void ShouldAddState() {
     GameStack_t stack;
-    InitGameStateStack(&stack);
+    InitGameStack(&stack);
     GameState_t* state = GetSomeGamestate(&stack);
 
     PrintResults(GameStateIsCorrect(&stack, state));
@@ -44,7 +44,7 @@ static void ShouldAddState() {
 
 static void ShouldGetDefaultState() {
     GameStack_t stack;
-    InitGameStateStack(&stack);
+    InitGameStack(&stack);
     GameState_t* state = GetSomeGamestate(&stack);
 
     GameState_t expected = {
@@ -61,7 +61,7 @@ static void ShouldGetDefaultState() {
 
 static void ShouldRevertState() {
     GameStack_t stack;
-    InitGameStateStack(&stack);
+    InitGameStack(&stack);
     GameState_t* state1 = GetSomeGamestate(&stack);
     GetDefaultNextGameState(&stack);
 

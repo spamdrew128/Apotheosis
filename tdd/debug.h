@@ -43,4 +43,6 @@ bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo);
 
 bool CompareStateOld(GameStateOld_t* expectedState);
 
+bool CompareState(GameState_t* expectedState, GameStack_t* stack);
+
 #endif

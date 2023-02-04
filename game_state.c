@@ -12,7 +12,7 @@ enum {
     stack_empty = -1
 };
 
-void InitGameStateStack(GameStack_t* stack) {
+void InitGameStack(GameStack_t* stack) {
     stack->top = stack_empty;
 }
 

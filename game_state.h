@@ -17,7 +17,7 @@ typedef struct {
     int top;
 } GameStack_t;
 
-void InitGameStateStack(GameStack_t* stack);
+void InitGameStack(GameStack_t* stack);
 
 GameState_t* GetEmptyNextGameState(GameStack_t* stack);
 
@@ -34,6 +34,8 @@ HalfmoveCount_t ReadHalfmoveClock(GameStack_t* stack);
 Bitboard_t ReadCastleSquares(GameStack_t* stack, Color_t color);
 
 Bitboard_t ReadEnPassantSquares(GameStack_t* stack);
+
+GameState_t ReadCurrentGameState(GameStack_t* stack);
 
 GameState_t ReadDefaultNextGameState(GameStack_t* stack);
 
