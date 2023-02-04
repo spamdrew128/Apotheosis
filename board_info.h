@@ -33,4 +33,6 @@ void RemovePieceFromMailbox(BoardInfo_t* boardInfo, Square_t square);
 
 void MovePieceInMailbox(BoardInfo_t* boardInfo, Square_t toSquare, Square_t fromSquare);
 
+Bitboard_t* GetPieceInfoField(BoardInfo_t* boardInfo, Piece_t piece, Color_t color);
+
 #endif

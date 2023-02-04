@@ -31,23 +31,7 @@ static void RemoveCapturedPiece(
 {
     Bitboard_t capturedBB = GetSingleBitset(capturedSquare);
 
-    switch (type) {
-        case queen:
-            ResetBits(&(boardInfo->queens[capturedPieceColor]), capturedBB);
-        break;
-        case rook:
-            ResetBits(&(boardInfo->rooks[capturedPieceColor]), capturedBB);
-        break;
-        case bishop:
-            ResetBits(&(boardInfo->bishops[capturedPieceColor]), capturedBB);
-        break;
-        case knight:
-            ResetBits(&(boardInfo->knights[capturedPieceColor]), capturedBB);
-        break;
-        case pawn:
-            ResetBits(&(boardInfo->pawns[capturedPieceColor]), capturedBB);
-        break;
-    }
+    ResetBits(GetPieceInfoField(boardInfo, type, capturedPieceColor), capturedBB);
 
     ResetBits(&(boardInfo->allPieces[capturedPieceColor]), capturedBB);
 }
@@ -87,18 +71,19 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
     Square_t kingToSquare = ReadToSquare(move);
 
     Bitboard_t kingFromBB = boardInfo->kings[color];
+    Bitboard_t kingToBB = GetSingleBitset(kingToSquare);
+
+    UpdateBoardInfoField(
+        boardInfo,
+        &(boardInfo->kings[color]),
+        kingFromBB,
+        kingToBB,
+        kingFromSquare,
+        kingToSquare,
+        color
+    );
 
     if(kingToSquare < kingFromSquare) { // queenside castle
-        UpdateBoardInfoField(
-            boardInfo,
-            &(boardInfo->kings[color]),
-            kingFromBB,
-            GenShiftWest(kingFromBB, 2),
-            kingFromSquare,
-            kingToSquare,
-            color
-        );
-
         Bitboard_t rookFromBB = GenShiftWest(kingFromBB, 4);
         Bitboard_t rookToBB = GenShiftWest(kingFromBB, 1);
         UpdateBoardInfoField(
@@ -112,16 +97,6 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
         );
 
     } else {
-        UpdateBoardInfoField(
-            boardInfo,
-            &(boardInfo->kings[color]),
-            kingFromBB,
-            GenShiftEast(kingFromBB, 2),
-            kingFromSquare,
-            kingToSquare,
-            color
-        );
-
         Bitboard_t rookFromBB = GenShiftEast(kingFromBB, 3);
         Bitboard_t rookToBB = GenShiftEast(kingFromBB, 1);
         UpdateBoardInfoField(
@@ -137,14 +112,13 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
 
     GameState_t* nextState = GetDefaultNextGameState();
     nextState->castleSquares[color] = empty_set;
-
-    UpdateEmpty(boardInfo);
 }
 
 static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
     Square_t fromSquare = ReadFromSquare(move);
     Square_t toSquare = ReadToSquare(move);
     Piece_t promotionPiece = ReadPromotionPiece(move);
+    GameState_t* nextState = GetDefaultNextGameState();
 
     Piece_t capturedPiece = PieceOnSquare(boardInfo, toSquare);
     if(capturedPiece != none_type) {
@@ -154,6 +128,9 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
             capturedPiece,
             !color
         );
+
+        nextState->capturedPiece = capturedPiece;
+        UpdateCastleSquares(nextState, boardInfo, !color);
     }
 
     AddPieceToMailbox(boardInfo, fromSquare, promotionPiece);
@@ -166,36 +143,25 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
     ResetBits(&(boardInfo->allPieces[color]), fromBB);
     SetBits(&(boardInfo->allPieces[color]), toBB);
 
-    switch (promotionPiece) {
-        case queen:
-            SetBits(&(boardInfo->queens[color]), toBB);
-        break;
-        case rook:
-            SetBits(&(boardInfo->rooks[color]), toBB);
-        break;
-        case bishop:
-            SetBits(&(boardInfo->bishops[color]), toBB);
-        break;
-        case knight:
-            SetBits(&(boardInfo->knights[color]), toBB);
-        break;
-    }
+    SetBits(GetPieceInfoField(boardInfo, promotionPiece, color), toBB);
 
-    UpdateEmpty(boardInfo);
-
-    GameState_t* nextState = GetDefaultNextGameState();
     nextState->halfmoveClock = empty_set;
 }
 
-static DirectionCallback_t MakeSingleCallbacks[2] = { SoutOne, NortOne };
-static DirectionCallback_t UnmakeSingleCallbacks[2] = { NortOne, SoutOne };
+static Bitboard_t GetEnPassantBB(Bitboard_t toBB, Color_t color) {
+    if(color == white) {
+        return SoutOne(toBB);
+    } else {
+        return NortOne(toBB);
+    }
+}
 
 static void MakeEnPassantHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
     Square_t fromSquare = ReadFromSquare(move);
     Square_t toSquare = ReadToSquare(move);
     Bitboard_t fromBB = GetSingleBitset(fromSquare);
     Bitboard_t toBB = GetSingleBitset(toSquare);
-    Bitboard_t enPassantBB = MakeSingleCallbacks[color](toBB);
+    Bitboard_t enPassantBB = GetEnPassantBB(toBB, color);
 
     RemoveCapturedEnPassant(
         boardInfo,
@@ -213,11 +179,10 @@ static void MakeEnPassantHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
         color
     );
 
-    UpdateEmpty(boardInfo);
-
     GameState_t* nextState = GetDefaultNextGameState();
     nextState->halfmoveClock = empty_set;
     nextState->enPassantSquares = empty_set;
+    nextState->capturedPiece = pawn;
 }
 
 static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
@@ -237,44 +202,27 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_t 
         );
 
         nextState->halfmoveClock = 0;
+        nextState->capturedPiece = capturedPiece;
         UpdateCastleSquares(nextState, boardInfo, !color); // if we captured, we might have messed up our opponent's castling rights
     }
 
     Piece_t type = PieceOnSquare(boardInfo, fromSquare);
-    Bitboard_t* infoField;
     switch (type) {
         case pawn:
-            infoField = &(boardInfo->pawns[color]);
             nextState->halfmoveClock = 0;
 
             if(PawnIsDoublePushed(fromBB, toBB)) {
-                nextState->enPassantSquares = MakeSingleCallbacks[color](toBB);
+                nextState->enPassantSquares = GetEnPassantBB(toBB, color);
             }
         break;
-        case rook:
-            infoField = &(boardInfo->rooks[color]);
-        break;
-        case bishop:
-            infoField = &(boardInfo->bishops[color]);
-        break;
-        case knight:
-            infoField = &(boardInfo->knights[color]);
-        break;
-        case queen: 
-            infoField = &(boardInfo->queens[color]);
-        break;
         case king:
-            infoField = &(boardInfo->kings[color]);
             nextState->castleSquares[color] = empty_set;
-        break;
-        default:
-            assert(!"ERROR: Moved none_type Piece!");
         break;
     }
 
     UpdateBoardInfoField(
         boardInfo,
-        infoField,
+        GetPieceInfoField(boardInfo, type, color),
         fromBB,
         toBB,
         fromSquare,
@@ -283,8 +231,6 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_t 
     );
 
     UpdateCastleSquares(nextState, boardInfo, color);
-
-    UpdateEmpty(boardInfo);
 }
 
 void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
@@ -304,4 +250,181 @@ void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
             MakeMoveDefaultHandler(boardInfo, move, color);
         break;
     }
+
+    UpdateEmpty(boardInfo);
+}
+
+static void RevertPieceCapture(
+    BoardInfo_t* boardInfo,
+    Square_t capturedSquare,
+    Bitboard_t capturedBB,
+    Piece_t type,
+    Color_t capturedPieceColor
+) 
+{
+    SetBits(GetPieceInfoField(boardInfo, type, capturedPieceColor), capturedBB);
+
+    SetBits(&(boardInfo->allPieces[capturedPieceColor]), capturedBB);
+    AddPieceToMailbox(boardInfo, capturedSquare, type);
+}
+
+static void UnmakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
+    Square_t kingOriginalSquare = ReadFromSquare(move);
+    Square_t kingCurrentSquare = ReadToSquare(move);
+    Bitboard_t kingOriginalBB = GetSingleBitset(kingOriginalSquare);
+    Bitboard_t kingCurrentBB = GetSingleBitset(kingCurrentSquare);       
+
+    UpdateBoardInfoField(
+        boardInfo,
+        &(boardInfo->kings[color]),
+        kingCurrentBB,
+        kingOriginalBB,
+        kingCurrentSquare,
+        kingOriginalSquare,
+        color
+    );
+
+    if(kingCurrentSquare < kingOriginalSquare) { // queenside castle)
+        Bitboard_t rookCurrentBB = GenShiftWest(kingOriginalBB, 1);
+        Bitboard_t rookOriginalBB = GenShiftWest(kingOriginalBB, 4);
+
+        UpdateBoardInfoField(
+            boardInfo,
+            &(boardInfo->rooks[color]),
+            rookCurrentBB,
+            rookOriginalBB,
+            LSB(rookCurrentBB),
+            LSB(rookOriginalBB),
+            color
+        );
+    } else {
+        Bitboard_t rookCurrentBB = GenShiftEast(kingOriginalBB, 1);
+        Bitboard_t rookOriginalBB = GenShiftEast(kingOriginalBB, 3);
+
+        UpdateBoardInfoField(
+            boardInfo,
+            &(boardInfo->rooks[color]),
+            rookCurrentBB,
+            rookOriginalBB,
+            LSB(rookCurrentBB),
+            LSB(rookOriginalBB),
+            color
+        );
+    }
+}
+
+static void UnmakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
+    Square_t originalSquare = ReadFromSquare(move);
+    Square_t currentSquare = ReadToSquare(move);
+    Bitboard_t originalBB = GetSingleBitset(originalSquare);
+    Bitboard_t currentBB = GetSingleBitset(currentSquare);
+    Piece_t promotionPiece = ReadPromotionPiece(move);
+    Piece_t capturedPiece = ReadCapturedPiece(move);
+
+    RemoveCapturedPiece( // treats the promoted piece as if it is captured
+        boardInfo,
+        currentSquare,
+        promotionPiece,
+        color
+    );
+
+    AddPieceToMailbox(boardInfo, currentSquare, pawn);
+
+    UpdateBoardInfoField(
+        boardInfo,
+        &(boardInfo->pawns[color]),
+        currentBB,
+        originalBB,
+        currentSquare,
+        originalSquare,
+        color
+    );
+
+    if(capturedPiece != none_type) {
+        RevertPieceCapture(
+            boardInfo,
+            currentSquare,
+            currentBB,
+            capturedPiece,
+            !color
+        );
+    }
+}
+
+static void UnmakeEnPassantHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
+    Square_t originalSquare = ReadFromSquare(move);
+    Square_t currentSquare = ReadToSquare(move);
+    Bitboard_t originalBB = GetSingleBitset(originalSquare);
+    Bitboard_t currentBB = GetSingleBitset(currentSquare);
+    Bitboard_t enPassantBB = GetEnPassantBB(currentBB, color);
+
+    RevertPieceCapture(
+        boardInfo,
+        LSB(enPassantBB),
+        enPassantBB,
+        pawn,
+        !color
+    );
+
+    UpdateBoardInfoField(
+        boardInfo,
+        &(boardInfo->pawns[color]),
+        currentBB,
+        originalBB,
+        currentSquare,
+        originalSquare,
+        color
+    );
+}
+
+static void UnmakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
+    Square_t originalSquare = ReadFromSquare(move);
+    Square_t currentSquare = ReadToSquare(move);
+    Bitboard_t originalBB = GetSingleBitset(originalSquare);
+    Bitboard_t currentBB = GetSingleBitset(currentSquare);
+
+    Piece_t piece = PieceOnSquare(boardInfo, currentSquare);
+
+    UpdateBoardInfoField(
+        boardInfo,
+        GetPieceInfoField(boardInfo, PieceOnSquare(boardInfo, currentSquare), color),
+        currentBB,
+        originalBB,
+        currentSquare,
+        originalSquare,
+        color
+    );
+  
+    Piece_t capturedPiece = ReadCapturedPiece();
+    if(capturedPiece != none_type) {
+        RevertPieceCapture(
+            boardInfo,
+            currentSquare,
+            currentBB,
+            capturedPiece,
+            !color
+        );
+    }
+}
+
+void UnmakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
+    SpecialFlag_t specialFlag = ReadSpecialFlag(move);
+    
+    switch (specialFlag) {
+        case castle_flag:
+            UnmakeCastlingHandler(boardInfo, move, color);
+        break;
+        case promotion_flag:
+            UnmakePromotionHandler(boardInfo, move, color);
+        break;
+        case en_passant_flag:
+            UnmakeEnPassantHandler(boardInfo, move, color);
+        break;
+        default:
+            UnmakeMoveDefaultHandler(boardInfo, move, color);
+        break;
+    }
+
+    UpdateEmpty(boardInfo);
+    RevertState();
 }

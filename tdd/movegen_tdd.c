@@ -25,7 +25,7 @@ static int CountPieceMoves(Piece_t piece, MoveList_t moveList, BoardInfo_t* info
 
 static GameState_t* GetBlankState() {
     GameState_t* blankState = GetUninitializedNextGameState();
-    blankState->colorToMove = white;
+    blankState->capturedPiece = none_type;
     blankState->castleSquares[white] = empty_set;
     blankState->castleSquares[black] = empty_set;
     blankState->enPassantSquares = empty_set;
@@ -49,6 +49,8 @@ static void InitPinPositionInfo(BoardInfo_t* info) {
         info->rooks[black] = CreateBitboard(2, d1,h5);
         info->queens[black] = CreateBitboard(1, a8);
     });
+
+    AddGameStateToStack(*GetBlankState());
 }
 
 // 8/8/PpP1k3/8/4K3/pPp5/8/8
@@ -60,13 +62,14 @@ static void InitDoubleEnPassantPosition(BoardInfo_t* info) {
         info->kings[black] = CreateBitboard(1, e6);
         info->pawns[black] = CreateBitboard(3, b6,a3,c3);
     });
+
+    GameState_t* state = GetBlankState();
+    state->enPassantSquares = CreateBitboard(2, b2,b7);
+    AddGameStateToStack(*state);
 }
 
 // 1b6/8/2pP4/4KPpr/8/8/8/k7
 static void InitTrickyPinnedEnPassantPostitionInfo(BoardInfo_t* info) {
-    GameState_t* state = GetBlankState();
-    state->enPassantSquares = CreateBitboard(2, g6,c7);
-
     InitTestInfo(info, {
         info->kings[white] = CreateBitboard(1, e5);
         info->pawns[white] = CreateBitboard(2, f5,d6);
@@ -76,13 +79,17 @@ static void InitTrickyPinnedEnPassantPostitionInfo(BoardInfo_t* info) {
         info->bishops[black] = CreateBitboard(1, b8);
         info->rooks[black] = CreateBitboard(1, h5);
     });
+
+    GameState_t* state = GetBlankState();
+    state->enPassantSquares = CreateBitboard(2, g6,c7);
+    AddGameStateToStack(*state);
 }
 
 // TESTS
 static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
     BoardInfo_t info;
     InitPinPositionInfo(&info);
-    
+
     int expectedNumKingCaptures = 0;
     int expectedNumPawnCaptures = 4;
     int expectedNumRookCaptures = 1;
@@ -108,8 +115,6 @@ static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
 static void ShouldCorrectlyEvaluateDoubleEnPassant() {
     BoardInfo_t info;
     InitDoubleEnPassantPosition(&info);
-    GameState_t* state = GetBlankState();
-    state->enPassantSquares = CreateBitboard(2, b2,b7);
 
     int expectedNumPawnWhiteCaptures = 2;
     int expectedNumPawnBlackCaptures = 2;
@@ -181,8 +186,12 @@ static void ShouldCorrectlyEvaluateInPosWithPins() {
 }
 
 void MovegenTDDRunner() {
+    AddStartingGameState();
+
     ShouldCorrectlyEvaluateCapturesInPosWithPins();
     ShouldCorrectlyEvaluateDoubleEnPassant();
     ShouldCorrectlyEvaluatePinnedEnPassant();
     ShouldCorrectlyEvaluateInPosWithPins();
+
+    ResetGameStateStack();
 }

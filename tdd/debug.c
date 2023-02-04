@@ -149,3 +149,8 @@ void PrintMoveList(MoveList_t* moveList, BoardInfo_t* info) {
     PrintSingleTypeMoves(moveList, info, knight, "Knight");
     PrintSingleTypeMoves(moveList, info, pawn, "Pawn");
 }
+
+void AddGameStateToStack(GameState_t stateToAdd) {
+    GameState_t* gameState = GetUninitializedNextGameState();
+    *gameState = stateToAdd;
+}

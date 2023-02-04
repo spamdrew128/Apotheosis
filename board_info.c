@@ -66,3 +66,21 @@ void MovePieceInMailbox(BoardInfo_t* boardInfo, Square_t toSquare, Square_t from
     boardInfo->mailbox[toSquare] = boardInfo->mailbox[fromSquare];
     RemovePieceFromMailbox(boardInfo, fromSquare);
 }
+
+Bitboard_t* GetPieceInfoField(BoardInfo_t* boardInfo, Piece_t piece, Color_t color) {
+    switch(piece)
+    {
+        case knight:
+            return &(boardInfo->knights[color]);
+        case bishop:
+            return &(boardInfo->bishops[color]);
+        case rook:
+            return &(boardInfo->rooks[color]);
+        case queen:
+            return &(boardInfo->queens[color]);
+            case pawn:
+            return &(boardInfo->pawns[color]);
+        default:
+            return &(boardInfo->kings[color]);
+    }
+}

@@ -27,6 +27,7 @@ int main(int argc, char** argv)
     GameStateTDDRunner();
     MovegenTDDRunner();
     MakeMoveTDDRunner();
+    UnmakeMoveTDDRunner();
 
     TeardownLookup();
 }

@@ -37,7 +37,8 @@ static bool CompareState(GameState_t* expectedState) {
         (ReadHalfmoveClock() == expectedState->halfmoveClock) &&
         (ReadEnPassantSquares() == expectedState->enPassantSquares) &&
         (ReadCastleSquares(white) == expectedState->castleSquares[white]) &&
-        (ReadCastleSquares(black) == expectedState->castleSquares[black]);
+        (ReadCastleSquares(black) == expectedState->castleSquares[black]) &&
+        (ReadCapturedPiece() == expectedState->capturedPiece);
 }
 
 // r3k2r/8/8/8/8/8/8/R3K2R
@@ -63,11 +64,9 @@ static void InitKingsideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState_
         expectedInfo->rooks[black] = CreateBitboard(2, a8,h8);
     });
 
-    GameState_t temp = ReadDefaultNextGameState();
-    expectedState->halfmoveClock = temp.halfmoveClock;
-    expectedState->castleSquares[white] = empty_set;
-    expectedState->castleSquares[black] = temp.castleSquares[black];
-    expectedState->enPassantSquares = temp.enPassantSquares;
+    GameState_t nextState = ReadDefaultNextGameState();
+    nextState.castleSquares[white] = empty_set;
+    *expectedState = nextState;
 }
 
 // r3k2r/8/8/8/8/8/8/R4RK1
@@ -80,11 +79,9 @@ static void InitQueensideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState
         expectedInfo->rooks[black] = CreateBitboard(2, a8,h8);
     });
 
-    GameState_t temp = ReadDefaultNextGameState();
-    expectedState->halfmoveClock = temp.halfmoveClock;
-    expectedState->castleSquares[white] = empty_set;
-    expectedState->castleSquares[black] = temp.castleSquares[black];
-    expectedState->enPassantSquares = temp.enPassantSquares;
+    GameState_t nextState = ReadDefaultNextGameState();
+    nextState.castleSquares[white] = empty_set;
+    *expectedState = nextState;
 }
 
 // 8/4P3/7K/8/8/7k/2p5/1Q6
@@ -111,11 +108,9 @@ static void InitExpectedQuietPromotionPostionInfo(BoardInfo_t* expectedInfo, Gam
         expectedInfo->pawns[black] = CreateBitboard(1, c2);
     });
 
-    GameState_t temp = ReadDefaultNextGameState();
-    expectedState->halfmoveClock = 0;
-    expectedState->castleSquares[white] = temp.castleSquares[white];
-    expectedState->castleSquares[black] = temp.castleSquares[black];
-    expectedState->enPassantSquares = temp.enPassantSquares;
+    GameState_t nextState = ReadDefaultNextGameState();
+    nextState.halfmoveClock = 0;
+    *expectedState = nextState;
 }
 
 // 8/4P3/7K/8/8/7k/2p5/1Q6
@@ -128,11 +123,11 @@ static void InitExpectedCapturePromotionPostionInfo(BoardInfo_t* expectedInfo, G
         expectedInfo->knights[black] = CreateBitboard(1, b1);
     });
 
-    GameState_t temp = ReadDefaultNextGameState();
-    expectedState->halfmoveClock = 0;
-    expectedState->castleSquares[white] = temp.castleSquares[white];
-    expectedState->castleSquares[black] = temp.castleSquares[black];
-    expectedState->enPassantSquares = temp.enPassantSquares;
+    GameState_t nextState = ReadDefaultNextGameState();
+    nextState.halfmoveClock = 0;
+    nextState.capturedPiece = queen;
+    nextState.castleSquares[white] = empty_set;
+    *expectedState = nextState;
 }
 
 // 8/8/4k3/6Pp/2Pp1K2/8/8/8
@@ -150,10 +145,11 @@ static void InitBothSidesEnPassantInfo(BoardInfo_t* info) {
     state->castleSquares[white] = empty_set;
     state->castleSquares[black] = empty_set;
     state->enPassantSquares = CreateBitboard(2, c3,h6);
+    state->capturedPiece = none_type;
 }
 
-static void InitSideEnPassantExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState, Color_t color) {
-    if(color == white) {
+static void InitSideEnPassantExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState, Color_t moveColor) {
+    if(moveColor == white) {
         InitTestInfo(expectedInfo, {
             expectedInfo->kings[white] = CreateBitboard(1, f4);
             expectedInfo->pawns[white] = CreateBitboard(2, c4,h6);
@@ -171,11 +167,11 @@ static void InitSideEnPassantExpectedInfo(BoardInfo_t* expectedInfo, GameState_t
         });
     }
 
-    GameState_t temp = ReadDefaultNextGameState();
-    expectedState->halfmoveClock = 0;
-    expectedState->castleSquares[white] = temp.castleSquares[white];
-    expectedState->castleSquares[black] = temp.castleSquares[black];
-    expectedState->enPassantSquares = empty_set;
+    GameState_t nextState = ReadDefaultNextGameState();
+    nextState.halfmoveClock = 0;
+    nextState.enPassantSquares = empty_set;
+    nextState.capturedPiece = pawn;
+    *expectedState = nextState;
 }
 
 // 8/3p4/k7/8/4n3/8/1K3P2/8
@@ -194,6 +190,7 @@ static void InitNormalPosition(BoardInfo_t* info) {
     state->enPassantSquares = empty_set;
     state->castleSquares[white] = empty_set;
     state->castleSquares[black] = empty_set;
+    state->capturedPiece = none_type;
 }
 
 static void InitNormalQuietExpected(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
@@ -210,11 +207,11 @@ static void InitNormalQuietExpected(BoardInfo_t* expectedInfo, GameState_t* expe
     *expectedState = state;
 }
 
-static void InitPawnDoublePushExpected(BoardInfo_t* expectedInfo, GameState_t* expectedState, Color_t color) {
+static void InitPawnDoublePushExpected(BoardInfo_t* expectedInfo, GameState_t* expectedState, Color_t moveColor) {
     GameState_t state = ReadDefaultNextGameState();
     state.halfmoveClock = 0;
 
-    if(color == white) {
+    if(moveColor == white) {
         InitTestInfo(expectedInfo, {
             expectedInfo->kings[white] = CreateBitboard(1, b2);
             expectedInfo->pawns[white] = CreateBitboard(1, f4);
@@ -252,6 +249,7 @@ static void InitNormalCaptureExpectedPosition(BoardInfo_t* expectedInfo, GameSta
 
     GameState_t state = ReadDefaultNextGameState();
     state.halfmoveClock = 0;
+    state.capturedPiece = pawn;
     *expectedState = state;
 }
 
@@ -275,6 +273,43 @@ static void InitBreakCastlingPositionExpected(BoardInfo_t* expectedInfo, GameSta
     GameState_t nextState = ReadDefaultNextGameState();
     nextState.halfmoveClock = 0;
     nextState.castleSquares[white] = CreateBitboard(1, g1);
+    nextState.capturedPiece = rook;
+    *expectedState = nextState;
+}
+
+// rn2k3/1P6/8/8/8/1K6/8/8
+static void InitPromotionCastleBreakPosition(BoardInfo_t* info) {
+    InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, b3);
+        info->pawns[white] = CreateBitboard(1, b7);
+
+        info->kings[black] = CreateBitboard(1, e8);
+        info->rooks[black] = CreateBitboard(1, a8);
+        info->knights[black] = CreateBitboard(1, b8);
+    });
+
+    GameState_t* state = GetUninitializedNextGameState();
+    state->halfmoveClock = some_halfmove_clock;
+    state->enPassantSquares = empty_set;
+    state->castleSquares[white] = empty_set;
+    state->castleSquares[black] = CreateBitboard(1, c8);
+    state->capturedPiece = none_type;
+}
+
+// 4k1nr/7P/8/8/8/1K6/8/8
+static void InitPromotionCastleBreakPositionExpected(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+    InitTestInfo(expectedInfo, {
+        expectedInfo->kings[white] = CreateBitboard(1, b3);
+        expectedInfo->knights[white] = CreateBitboard(1, a8);
+
+        expectedInfo->kings[black] = CreateBitboard(1, e8);
+        expectedInfo->knights[black] = CreateBitboard(1, b8);
+    });
+
+    GameState_t nextState = ReadDefaultNextGameState();
+    nextState.halfmoveClock = 0;
+    nextState.castleSquares[black] = empty_set;
+    nextState.capturedPiece = rook;
     *expectedState = nextState;
 }
 
@@ -427,16 +462,16 @@ static void ShouldMakeNormalQuietMoves() {
     PrintResults(infoMatches && stateMatches);
 }
 
-static void ShouldDoublePushPawns(Color_t color) {
+static void ShouldDoublePushPawns(Color_t moveColor) {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
     GameState_t expectedState;
     InitNormalPosition(&info);
-    InitPawnDoublePushExpected(&expectedInfo, &expectedState, color);
+    InitPawnDoublePushExpected(&expectedInfo, &expectedState, moveColor);
 
     Move_t move;
     InitMove(&move);
-    if(color == white) {
+    if(moveColor == white) {
         WriteFromSquare(&move, f2);
         WriteToSquare(&move, f4);
         MakeMove(&info, move, white);
@@ -492,6 +527,28 @@ static void CapturingRookShouldRemoveCastleSquares() {
     PrintResults(infoMatches && stateMatches);
 }
 
+static void PromotionCaptureShouldRemoveCastleSquares() {
+    BoardInfo_t info;
+    BoardInfo_t expectedInfo;
+    GameState_t expectedState;
+    InitPromotionCastleBreakPosition(&info);
+    InitPromotionCastleBreakPositionExpected(&expectedInfo, &expectedState);
+
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, b7);
+    WriteToSquare(&move, a8);
+    WritePromotionPiece(&move, knight);
+    WriteSpecialFlag(&move, promotion_flag);
+
+    MakeMove(&info, move, white);
+
+    bool infoMatches = CompareInfo(&info, &expectedInfo);
+    bool stateMatches = CompareState(&expectedState);
+
+    PrintResults(infoMatches && stateMatches);
+}
+
 void MakeMoveTDDRunner() {
     ShouldCastleKingside();
     ShouldCastleQueenside();
@@ -508,10 +565,146 @@ void MakeMoveTDDRunner() {
     ShouldMakeNormalCaptures();
 
     CapturingRookShouldRemoveCastleSquares();
+    PromotionCaptureShouldRemoveCastleSquares();
 
     ResetGameStateStack();
 }
 
-void UnmakeMoveTDDRunner() {
+// UMAKE HELPERS
+static bool GenericTestUnmake(BoardInfo_t* startInfo, Move_t move, Color_t moveColor) {
+    BoardInfo_t expectedInfo = *startInfo;
+    GameState_t originalState;
+    originalState.halfmoveClock = ReadHalfmoveClock();
+    originalState.castleSquares[white] = ReadCastleSquares(white);
+    originalState.castleSquares[black] = ReadCastleSquares(black);
+    originalState.enPassantSquares = ReadEnPassantSquares();
+    originalState.capturedPiece = ReadCapturedPiece();
 
+    MakeMove(startInfo, move, moveColor);
+    UnmakeMove(startInfo, move, moveColor);
+
+    bool infoMatches = CompareInfo(startInfo, &expectedInfo);
+    bool stateMatches = CompareState(&originalState);
+
+    return infoMatches && stateMatches;
+}
+
+static void ShouldCastleKingsideUnmake(){
+    BoardInfo_t info;
+    InitAllCastlingLegalInfo(&info);
+
+    Move_t ksCastle;
+    InitMove(&ksCastle);
+    WriteFromSquare(&ksCastle, LSB(info.kings[white]));
+    WriteToSquare(&ksCastle, LSB(white_kingside_castle_sq));
+    WriteSpecialFlag(&ksCastle, castle_flag);
+
+    PrintResults(GenericTestUnmake(&info, ksCastle, white));
+}
+
+static void ShouldCastleQueensideUnmake() {
+    BoardInfo_t info;
+    InitAllCastlingLegalInfo(&info);
+
+    Move_t qsCastle;
+    InitMove(&qsCastle);
+    WriteFromSquare(&qsCastle, LSB(info.kings[white]));
+    WriteToSquare(&qsCastle, LSB(white_queenside_castle_sq));
+    WriteSpecialFlag(&qsCastle, castle_flag);
+
+    PrintResults(GenericTestUnmake(&info, qsCastle, white));
+}
+
+static void ShouldQuietPromoteUnmake() {
+    BoardInfo_t info;
+    InitPromotionPostionInfo(&info);
+
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, e7);
+    WriteToSquare(&move, e8);
+    WritePromotionPiece(&move, queen);
+    WriteSpecialFlag(&move, promotion_flag);
+
+    PrintResults(GenericTestUnmake(&info, move, white));
+}
+
+static void ShouldCapturePromoteUnmake() {
+    BoardInfo_t info;
+    InitPromotionPostionInfo(&info);
+
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, c2);
+    WriteToSquare(&move, b1);
+    WritePromotionPiece(&move, knight);
+    WriteSpecialFlag(&move, promotion_flag);
+
+    PrintResults(GenericTestUnmake(&info, move, black));
+}
+
+static void ShouldWhiteEnPassantUnmake() {
+    BoardInfo_t info;
+    InitBothSidesEnPassantInfo(&info);
+
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, g5);
+    WriteToSquare(&move, h6);
+    WriteSpecialFlag(&move, en_passant_flag);
+
+    PrintResults(GenericTestUnmake(&info, move, white));
+}
+
+static void ShouldBlackEnPassantUnmake() {
+    BoardInfo_t info;
+    InitBothSidesEnPassantInfo(&info);
+
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, d4);
+    WriteToSquare(&move, c3);
+    WriteSpecialFlag(&move, en_passant_flag);
+
+    PrintResults(GenericTestUnmake(&info, move, black));
+}
+
+static void ShouldUnmakeNormalQuietMoves() {
+    BoardInfo_t info;
+    InitNormalPosition(&info);
+
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, b2);
+    WriteToSquare(&move, c3);
+
+    PrintResults(GenericTestUnmake(&info, move, white));
+}
+
+static void ShouldUnmakeNormalCaptures() {
+    BoardInfo_t info;
+    InitNormalPosition(&info);
+
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, e4);
+    WriteToSquare(&move, f2);
+
+    PrintResults(GenericTestUnmake(&info, move, black));
+}
+
+void UnmakeMoveTDDRunner() {
+    ShouldCastleKingsideUnmake();
+    ShouldCastleQueensideUnmake();
+
+    ShouldQuietPromoteUnmake();
+    ShouldCapturePromoteUnmake();
+
+    ShouldWhiteEnPassantUnmake();
+    ShouldBlackEnPassantUnmake();
+
+    ShouldUnmakeNormalQuietMoves();
+    ShouldUnmakeNormalCaptures();
+
+    ResetGameStateStack();
 }
