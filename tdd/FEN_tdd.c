@@ -8,8 +8,9 @@
 
 #define COMPLEX_FEN "r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R w K e3 34 56"
 
-// HELPERS
 
+
+// HELPERS
 static void InitStartFENExpectedInfo(BoardInfo_t* expectedInfo, GameStateOld_t* expectedState) {
     InitTestInfo(expectedInfo, {
         expectedInfo->pawns[white] = rank_2;

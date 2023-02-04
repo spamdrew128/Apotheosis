@@ -79,7 +79,3 @@ GameState_t ReadDefaultNextGameState(GameStack_t* stack) {
     stack->top--;
     return *nextState;
 }
-
-void ResetGameStateStack(GameStack_t* stack) {
-    stack->top = stack_empty;
-}

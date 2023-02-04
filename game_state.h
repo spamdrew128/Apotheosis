@@ -37,6 +37,4 @@ Bitboard_t ReadEnPassantSquares(GameStack_t* stack);
 
 GameState_t ReadDefaultNextGameState(GameStack_t* stack);
 
-void ResetGameStateStack(GameStack_t* stack);
-
 #endif

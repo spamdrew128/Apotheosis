@@ -40,7 +40,6 @@ static void ShouldAddState() {
     GameState_t* state = GetSomeGamestate(&stack);
 
     PrintResults(GameStateIsCorrect(&stack, state));
-    ResetGameStateStack(&stack);
 }
 
 static void ShouldGetDefaultState() {
@@ -58,7 +57,6 @@ static void ShouldGetDefaultState() {
     GetDefaultNextGameState(&stack);
 
     PrintResults(GameStateIsCorrect(&stack, &expected));
-    ResetGameStateStack(&stack);
 }
 
 static void ShouldRevertState() {
@@ -70,7 +68,6 @@ static void ShouldRevertState() {
     RevertState(&stack);
 
     PrintResults(GameStateIsCorrect(&stack, state1));
-    ResetGameStateStack(&stack);
 }
 
 void GameStateTDDRunner() {
