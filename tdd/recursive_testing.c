@@ -6,6 +6,8 @@
 #include "movegen.h"
 #include "make_and_unmake.h"
 
+typedef uint64_t PerftCount_t;
+
 static GameStack_t stack;
 
 static void TestSetup() {
@@ -25,8 +27,7 @@ static bool UnmakeSuccess(BoardInfo_t* info, BoardInfo_t* originalInfo, GameStat
     return true;
 }
 
-static int tests;
-
+static PerftCount_t tests;
 static void UnmakeTest(BoardInfo_t* boardInfo, int depth, Color_t color) {
     if(depth == 0) {
         return;
@@ -51,7 +52,7 @@ static void UnmakeTest(BoardInfo_t* boardInfo, int depth, Color_t color) {
             PrintChessboard(&initialInfo);
             PrintMove(move);
             PrintChessboard(boardInfo);
-            printf("test number %d\n", tests);
+            printf("test number %lld\n", tests);
             assert(false);
         }
     }
@@ -67,8 +68,9 @@ void UnmakeRecursiveTestRunner(FEN_t fen, int depth, bool runTests) {
     }
 }
 
-static void SplitPERFT(BoardInfo_t* boardInfo, int depth, Color_t color) {
+static void SplitPERFT(BoardInfo_t* boardInfo, int depth, PerftCount_t* count, Color_t color) {
     if(depth == 0) {
+        (*count)++;
         return;
     }
 
@@ -76,23 +78,23 @@ static void SplitPERFT(BoardInfo_t* boardInfo, int depth, Color_t color) {
     CompleteMovegen(&moveList, boardInfo, &stack, color);
 
     for(int i = 0; i <= moveList.maxIndex; i++) {
-        tests++;
         Move_t move = moveList.moves[i];
         MakeMove(boardInfo, &stack, move, color);
 
-        SplitPERFT(boardInfo, depth-1, !color);
+        SplitPERFT(boardInfo, depth-1, count, !color);
 
         UnmakeMove(boardInfo, &stack, move, color);
     }
 }
 
 void PERFTRunner(FEN_t fen, int depth, bool runTests) {
-    tests = 0;
     TestSetup();
     if(runTests) {
         BoardInfo_t info;
         Color_t color = InterpretFEN(fen, &info, &stack);
-        SplitPERFT(&info, depth, color);
-        printf("%d test run\n", tests);
+
+        PerftCount_t count = 0;
+        SplitPERFT(&info, depth, &count, color);
+        printf("\nDepth %d found %lld\n", depth, count);
     }
 }
