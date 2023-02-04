@@ -32,8 +32,6 @@ typedef void (*AddPawnMoves_t)(
 
 typedef Bitboard_t (*SliderCaptureTargetsCallback_t)(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces);
 
-typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t b);
-
 #define SerializePositionsIntoMoves(_positions, ...) \
     do { \
         while(_positions) { \
@@ -540,9 +538,8 @@ static void AddBlackPawnMoves(
     SerializePawnPromotions(moveList, doubleMovePromotions, NortTwo);
 };
 
-static UnsafeSquaresCallback_t UnsafeSquaresCallbacks[2] = { WhiteUnsafeSquares, BlackUnsafeSquares };
-static AddPawnMoves_t AddPawnMovesCallbacks[2] = { AddWhitePawnMoves, AddBlackPawnMoves };
-static AddPawnCaptures_t AddPawnCapturesCallbacks[2] = { AddWhitePawnCaptures, AddBlackPawnCaptures };
+// static AddPawnMoves_t AddPawnMovesCallbacks[2] = { AddWhitePawnMoves, AddBlackPawnMoves };
+// static AddPawnCaptures_t AddPawnCapturesCallbacks[2] = { AddWhitePawnCaptures, AddBlackPawnCaptures };
 
 static void AddAllCaptures(
     MoveList_t* moveList,
@@ -553,15 +550,27 @@ static void AddAllCaptures(
     Color_t color
 )
 {
-    AddPawnCapturesCallbacks[color](
-        moveList,
-        boardInfo,
-        boardInfo->pawns[color] & ~pinmasks.all,
-        boardInfo->pawns[color] & pinmasks.d12,
-        enemyPieces,
-        checkmask,
-        pinmasks
-    );
+    if(color == white) {
+        AddWhitePawnCaptures(
+            moveList,
+            boardInfo,
+            boardInfo->pawns[color] & ~pinmasks.all,
+            boardInfo->pawns[color] & pinmasks.d12,
+            enemyPieces,
+            checkmask,
+            pinmasks        
+        );
+    } else {
+        AddBlackPawnCaptures(
+            moveList,
+            boardInfo,
+            boardInfo->pawns[color] & ~pinmasks.all,
+            boardInfo->pawns[color] & pinmasks.d12,
+            enemyPieces,
+            checkmask,
+            pinmasks        
+        );        
+    }
 
     AddKnightCaptures(
         moveList,
@@ -611,15 +620,27 @@ static void AddAllQuietMoves(
     Color_t color
 )
 {
-    AddPawnMovesCallbacks[color](
-        moveList,
-        boardInfo,
-        boardInfo->pawns[color] & ~pinmasks.all,
-        boardInfo->pawns[color] & pinmasks.hv,
-        boardInfo->empty,
-        checkmask,
-        pinmasks
-    );
+    if(color == white) {
+        AddWhitePawnMoves(
+            moveList,
+            boardInfo,
+            boardInfo->pawns[color] & ~pinmasks.all,
+            boardInfo->pawns[color] & pinmasks.hv,
+            boardInfo->empty,
+            checkmask,
+            pinmasks
+        );
+    } else {
+        AddBlackPawnMoves(
+            moveList,
+            boardInfo,
+            boardInfo->pawns[color] & ~pinmasks.all,
+            boardInfo->pawns[color] & pinmasks.hv,
+            boardInfo->empty,
+            checkmask,
+            pinmasks
+        );
+    }
 
     AddKnightMoves(
         moveList,
@@ -661,7 +682,12 @@ static void AddAllQuietMoves(
 void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color) {
     moveList->maxIndex = movelist_empty;
 
-    Bitboard_t unsafeSquares = UnsafeSquaresCallbacks[color](boardInfo);
+    Bitboard_t unsafeSquares;
+    if(color == white) {
+        unsafeSquares = WhiteUnsafeSquares(boardInfo);
+    } else {
+        unsafeSquares = BlackUnsafeSquares(boardInfo);
+    }
 
     Square_t kingSquare = LSB(boardInfo->kings[color]);
     Bitboard_t enemyPieces = boardInfo->allPieces[!color];
@@ -697,7 +723,12 @@ void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color
 void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color) {
     moveList->maxIndex = movelist_empty;
 
-    Bitboard_t unsafeSquares = UnsafeSquaresCallbacks[color](boardInfo);
+    Bitboard_t unsafeSquares;
+    if(color == white) {
+        unsafeSquares = WhiteUnsafeSquares(boardInfo);
+    } else {
+        unsafeSquares = BlackUnsafeSquares(boardInfo);
+    }
 
     Square_t kingSquare = LSB(boardInfo->kings[color]);
     Bitboard_t enemyPieces = boardInfo->allPieces[!color];
@@ -751,5 +782,13 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color
         KingMoveTargets(kingSquare, boardInfo->empty),
         unsafeSquares,
         boardInfo->empty
+    );
+
+    AddCastlingMoves(
+        moveList,
+        boardInfo,
+        unsafeSquares,
+        kingSquare,
+        color
     );
 }

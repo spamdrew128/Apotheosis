@@ -2,6 +2,7 @@
 #define __MOVEGEN_H__
 
 #include "board_constants.h"
+#include "board_info.h"
 #include "move.h"
 
 typedef struct {

@@ -23,76 +23,73 @@ static int CountPieceMoves(Piece_t piece, MoveList_t moveList, BoardInfo_t* info
     return count;
 }
 
-static GameState_t GetBlankState() {
-    GameState_t blankState = GetNewGameState();
-    blankState.colorToMove = white;
-    blankState.castleSquares[white] = empty_set;
-    blankState.castleSquares[black] = empty_set;
-    blankState.enPassantSquares = empty_set;
-    blankState.halfmoveClock = 0;
+static GameState_t* GetBlankState() {
+    GameState_t* blankState = GetUninitializedNextGameState();
+    blankState->capturedPiece = none_type;
+    blankState->castleSquares[white] = empty_set;
+    blankState->castleSquares[black] = empty_set;
+    blankState->enPassantSquares = empty_set;
+    blankState->halfmoveClock = 0;
     return blankState;
 }
 
 // q5bk/1P6/2P1Q3/3K2Rr/8/3N1B2/3n4/3r4
 static void InitPinPositionInfo(BoardInfo_t* info) {
-    InitBoardInfo(info);
-    info->kings[white] = CreateBitboard(1, d5);
-    info->pawns[white] = CreateBitboard(2, c6,b7);
-    info->rooks[white] = CreateBitboard(1, g5);
-    info->bishops[white] = CreateBitboard(1, f3);
-    info->knights[white] = CreateBitboard(1, d3);
-    info->queens[white] = CreateBitboard(1, e6);
+    InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, d5);
+        info->pawns[white] = CreateBitboard(2, c6,b7);
+        info->rooks[white] = CreateBitboard(1, g5);
+        info->bishops[white] = CreateBitboard(1, f3);
+        info->knights[white] = CreateBitboard(1, d3);
+        info->queens[white] = CreateBitboard(1, e6);
 
-    info->kings[black] = CreateBitboard(1, h8);
-    info->knights[black] = CreateBitboard(1, d2);
-    info->bishops[black] = CreateBitboard(1, g8);
-    info->rooks[black] = CreateBitboard(2, d1,h5);
-    info->queens[black] = CreateBitboard(1, a8);
+        info->kings[black] = CreateBitboard(1, h8);
+        info->knights[black] = CreateBitboard(1, d2);
+        info->bishops[black] = CreateBitboard(1, g8);
+        info->rooks[black] = CreateBitboard(2, d1,h5);
+        info->queens[black] = CreateBitboard(1, a8);
+    });
 
-    UpdateAllPieces(info);
-    UpdateEmpty(info);
-    TranslateBitboardsToMailbox(info);
+    AddGameStateToStack(*GetBlankState());
 }
 
 // 8/8/PpP1k3/8/4K3/pPp5/8/8
 static void InitDoubleEnPassantPosition(BoardInfo_t* info) {
-    InitBoardInfo(info);
-    info->kings[white] = CreateBitboard(1, e4);
-    info->pawns[white] = CreateBitboard(3, b3,a6,c6);
+    InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, e4);
+        info->pawns[white] = CreateBitboard(3, b3,a6,c6);
 
-    info->kings[black] = CreateBitboard(1, e6);
-    info->pawns[black] = CreateBitboard(3, b6,a3,c3);
+        info->kings[black] = CreateBitboard(1, e6);
+        info->pawns[black] = CreateBitboard(3, b6,a3,c3);
+    });
 
-    UpdateAllPieces(info);
-    UpdateEmpty(info);
-    TranslateBitboardsToMailbox(info);
+    GameState_t* state = GetBlankState();
+    state->enPassantSquares = CreateBitboard(2, b2,b7);
+    AddGameStateToStack(*state);
 }
 
 // 1b6/8/2pP4/4KPpr/8/8/8/k7
 static void InitTrickyPinnedEnPassantPostitionInfo(BoardInfo_t* info) {
-    GameState_t state = GetBlankState();
-    state.enPassantSquares = CreateBitboard(2, g6,c7);
-    AddState(state);
+    InitTestInfo(info, {
+        info->kings[white] = CreateBitboard(1, e5);
+        info->pawns[white] = CreateBitboard(2, f5,d6);
 
-    InitBoardInfo(info);
-    info->kings[white] = CreateBitboard(1, e5);
-    info->pawns[white] = CreateBitboard(2, f5,d6);
+        info->kings[black] = CreateBitboard(1, a1);
+        info->pawns[black] = CreateBitboard(2, g5,c6);
+        info->bishops[black] = CreateBitboard(1, b8);
+        info->rooks[black] = CreateBitboard(1, h5);
+    });
 
-    info->kings[black] = CreateBitboard(1, a1);
-    info->pawns[black] = CreateBitboard(2, g5,c6);
-    info->bishops[black] = CreateBitboard(1, b8);
-    info->rooks[black] = CreateBitboard(1, h5);
-
-    UpdateAllPieces(info);
-    UpdateEmpty(info);
-    TranslateBitboardsToMailbox(info);
+    GameState_t* state = GetBlankState();
+    state->enPassantSquares = CreateBitboard(2, g6,c7);
+    AddGameStateToStack(*state);
 }
 
 // TESTS
 static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
     BoardInfo_t info;
     InitPinPositionInfo(&info);
-    
+
     int expectedNumKingCaptures = 0;
     int expectedNumPawnCaptures = 4;
     int expectedNumRookCaptures = 1;
@@ -118,9 +115,6 @@ static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
 static void ShouldCorrectlyEvaluateDoubleEnPassant() {
     BoardInfo_t info;
     InitDoubleEnPassantPosition(&info);
-    GameState_t state = GetBlankState();
-    state.enPassantSquares = CreateBitboard(2, b2,b7);
-    AddState(state);
 
     int expectedNumPawnWhiteCaptures = 2;
     int expectedNumPawnBlackCaptures = 2;
@@ -192,8 +186,12 @@ static void ShouldCorrectlyEvaluateInPosWithPins() {
 }
 
 void MovegenTDDRunner() {
+    AddStartingGameState();
+
     ShouldCorrectlyEvaluateCapturesInPosWithPins();
     ShouldCorrectlyEvaluateDoubleEnPassant();
     ShouldCorrectlyEvaluatePinnedEnPassant();
     ShouldCorrectlyEvaluateInPosWithPins();
+
+    ResetGameStateStack();
 }

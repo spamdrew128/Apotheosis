@@ -17,7 +17,7 @@ void InitBoardInfo(BoardInfo_t* info) {
     TranslateBitboardsToMailbox(info);
 }
 
-static void AddPieceToMailbox(BoardInfo_t* info, Piece_t piece, Bitboard_t pieceBitboard) {
+static void AddPieceBBToMailbox(BoardInfo_t* info, Piece_t piece, Bitboard_t pieceBitboard) {
     while(pieceBitboard) {
         info->mailbox[LSB(pieceBitboard)] = piece;
         ResetLSB(&pieceBitboard);
@@ -41,15 +41,46 @@ void UpdateEmpty(BoardInfo_t* boardInfo) {
 }
 
 void TranslateBitboardsToMailbox(BoardInfo_t* info) {
-    AddPieceToMailbox(info, none_type, full_set);
-    AddPieceToMailbox(info, king, info->kings[white] | info->kings[black]);
-    AddPieceToMailbox(info, pawn, info->pawns[white] | info->pawns[black]);
-    AddPieceToMailbox(info, knight, info->knights[white] | info->knights[black]);
-    AddPieceToMailbox(info, bishop, info->bishops[white] | info->bishops[black]);
-    AddPieceToMailbox(info, rook, info->rooks[white] | info->rooks[black]);
-    AddPieceToMailbox(info, queen, info->queens[white] | info->queens[black]);
+    AddPieceBBToMailbox(info, none_type, full_set);
+    AddPieceBBToMailbox(info, king, info->kings[white] | info->kings[black]);
+    AddPieceBBToMailbox(info, pawn, info->pawns[white] | info->pawns[black]);
+    AddPieceBBToMailbox(info, knight, info->knights[white] | info->knights[black]);
+    AddPieceBBToMailbox(info, bishop, info->bishops[white] | info->bishops[black]);
+    AddPieceBBToMailbox(info, rook, info->rooks[white] | info->rooks[black]);
+    AddPieceBBToMailbox(info, queen, info->queens[white] | info->queens[black]);
 }
 
 Piece_t PieceOnSquare(BoardInfo_t* boardInfo, Square_t square) {
     return boardInfo->mailbox[square];
+}
+
+void AddPieceToMailbox(BoardInfo_t* boardInfo, Square_t square, Piece_t piece) {
+    boardInfo->mailbox[square] = piece;
+}
+
+void RemovePieceFromMailbox(BoardInfo_t* boardInfo, Square_t square) {
+    boardInfo->mailbox[square] = none_type;
+}
+
+void MovePieceInMailbox(BoardInfo_t* boardInfo, Square_t toSquare, Square_t fromSquare) {
+    boardInfo->mailbox[toSquare] = boardInfo->mailbox[fromSquare];
+    RemovePieceFromMailbox(boardInfo, fromSquare);
+}
+
+Bitboard_t* GetPieceInfoField(BoardInfo_t* boardInfo, Piece_t piece, Color_t color) {
+    switch(piece)
+    {
+        case knight:
+            return &(boardInfo->knights[color]);
+        case bishop:
+            return &(boardInfo->bishops[color]);
+        case rook:
+            return &(boardInfo->rooks[color]);
+        case queen:
+            return &(boardInfo->queens[color]);
+            case pawn:
+            return &(boardInfo->pawns[color]);
+        default:
+            return &(boardInfo->kings[color]);
+    }
 }

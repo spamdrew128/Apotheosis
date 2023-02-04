@@ -7,9 +7,19 @@
 #include "bitboards.h"
 #include "board_info.h"
 #include "movegen.h"
+#include "game_state.h"
 
 #define PrintResults(success) \
     if(success) {printf(".");} else {printf("\n%s Failure\n", __func__);}
+
+#define InitTestInfo(infoPtr, ...) \
+    do { \
+        InitBoardInfo(infoPtr); \
+        __VA_ARGS__ \
+        UpdateAllPieces(infoPtr); \
+        UpdateEmpty(infoPtr); \
+        TranslateBitboardsToMailbox(infoPtr); \
+    } while(0)
 
 // To avoid lookup dependancies
 #define SquareToBitset(square) C64(1) << square
@@ -23,5 +33,7 @@ void PrintChessboard(BoardInfo_t* info);
 void PrintMoveList(MoveList_t* moveList, BoardInfo_t* info);
 
 Bitboard_t CreateBitboard(int numOccupied, ...);
+
+void AddGameStateToStack(GameState_t stateToAdd);
 
 #endif

@@ -16,6 +16,14 @@ Bitboard_t NoWeOne (Bitboard_t b) {return (b & not_a_file) << 7;}
 Bitboard_t NortTwo(Bitboard_t b) {return  b << 16;}
 Bitboard_t SoutTwo(Bitboard_t b) {return  b >> 16;}
 
+Bitboard_t GenShiftEast(Bitboard_t b, uint8_t shift) {
+    return b << shift;
+}
+
+Bitboard_t GenShiftWest(Bitboard_t b, uint8_t shift) {
+    return b >> shift;
+}
+
 Population_t PopulationCount(Bitboard_t b) {
     Population_t count = 0;
     while(b) {

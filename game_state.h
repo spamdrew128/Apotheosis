@@ -6,29 +6,29 @@
 
 typedef uint16_t HalfmoveCount_t;
 typedef struct {
-    Color_t colorToMove;
+    Piece_t capturedPiece;
     HalfmoveCount_t halfmoveClock;
     Bitboard_t enPassantSquares;
     Bitboard_t castleSquares[2];
 } GameState_t;
 
-GameState_t GetNewGameState();
+GameState_t* GetUninitializedNextGameState();
 
-GameState_t GetDefaultNextGameState();
+GameState_t* GetDefaultNextGameState();
 
 void AddStartingGameState();
 
-void AddState(GameState_t newState);
-
 void RevertState();
 
-Color_t ReadColorToMove();
+Piece_t ReadCapturedPiece();
 
 HalfmoveCount_t ReadHalfmoveClock();
 
 Bitboard_t ReadCastleSquares(Color_t color);
 
 Bitboard_t ReadEnPassantSquares();
+
+GameState_t ReadDefaultNextGameState();
 
 void ResetGameStateStack();
 

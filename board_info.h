@@ -27,4 +27,12 @@ void TranslateBitboardsToMailbox(BoardInfo_t* info);
 
 Piece_t PieceOnSquare(BoardInfo_t* boardInfo, Square_t square);
 
+void AddPieceToMailbox(BoardInfo_t* boardInfo, Square_t square, Piece_t piece);
+
+void RemovePieceFromMailbox(BoardInfo_t* boardInfo, Square_t square);
+
+void MovePieceInMailbox(BoardInfo_t* boardInfo, Square_t toSquare, Square_t fromSquare);
+
+Bitboard_t* GetPieceInfoField(BoardInfo_t* boardInfo, Piece_t piece, Color_t color);
+
 #endif
