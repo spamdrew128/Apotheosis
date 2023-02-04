@@ -3,8 +3,8 @@
 
 #include <stdbool.h>
 
-void UnmakeRecursiveTestRunner(bool runTests);
+void UnmakeRecursiveTestRunner(bool runTests, int depth, FEN_t fen);
 
-void PERFTRunner(bool runTests);
+void PERFTRunner(bool runTests, int depth, FEN_t fen);
 
 #endif
