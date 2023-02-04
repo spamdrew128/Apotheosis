@@ -131,11 +131,11 @@ static void InitDirectionalRays(Bitboard_t directionalRays[NUM_SQUARES][NUM_DIRE
 }
 
 static void InitCastleSquares(Square_t ksCastleSquares[], Square_t qsCastleSquares[]) {
-    ksCastleSquares[white] = LSB(white_kingside_castle_sq);
-    ksCastleSquares[black] = LSB(black_kingside_castle_sq);
+    ksCastleSquares[white] = LSB(white_kingside_castle_bb);
+    ksCastleSquares[black] = LSB(black_kingside_castle_bb);
 
-    qsCastleSquares[white] = LSB(white_queenside_castle_sq);
-    qsCastleSquares[black] = LSB(black_queenside_castle_sq);
+    qsCastleSquares[white] = LSB(white_queenside_castle_bb);
+    qsCastleSquares[black] = LSB(black_queenside_castle_bb);
 }
 
 void InitLookup() {

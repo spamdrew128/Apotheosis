@@ -22,7 +22,7 @@ static bool GameStateIsCorrect(GameState_t* expected) {
 }
 
 static GameState_t* GetSomeGamestate() {
-    GameState_t* state = GetUninitializedNextGameState();
+    GameState_t* state = GetEmptyNextGameState();
 
     state->capturedPiece = some_captured_piece;
     state->halfmoveClock = some_halfmove_clock;

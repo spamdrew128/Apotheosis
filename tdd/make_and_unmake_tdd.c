@@ -117,7 +117,7 @@ static void InitBothSidesEnPassantInfo(BoardInfo_t* info) {
         info->pawns[black] = CreateBitboard(2, d4,h5);
     });
 
-    GameState_t* state = GetUninitializedNextGameState();
+    GameState_t* state = GetEmptyNextGameState();
     state->halfmoveClock = some_halfmove_clock;
     state->castleSquares[white] = empty_set;
     state->castleSquares[black] = empty_set;
@@ -162,7 +162,7 @@ static void InitNormalPosition(BoardInfo_t* info) {
         info->knights[black] = CreateBitboard(1, e4);
     });
 
-    GameState_t* state = GetUninitializedNextGameState();
+    GameState_t* state = GetEmptyNextGameState();
     state->halfmoveClock = some_halfmove_clock;
     state->enPassantSquares = empty_set;
     state->castleSquares[white] = empty_set;
@@ -265,7 +265,7 @@ static void InitPromotionCastleBreakPosition(BoardInfo_t* info) {
         info->knights[black] = CreateBitboard(1, b8);
     });
 
-    GameState_t* state = GetUninitializedNextGameState();
+    GameState_t* state = GetEmptyNextGameState();
     state->halfmoveClock = some_halfmove_clock;
     state->enPassantSquares = empty_set;
     state->castleSquares[white] = empty_set;
@@ -301,7 +301,7 @@ static void ShouldCastleKingside() {
     Move_t ksCastle;
     InitMove(&ksCastle);
     WriteFromSquare(&ksCastle, LSB(info.kings[white]));
-    WriteToSquare(&ksCastle, LSB(white_kingside_castle_sq));
+    WriteToSquare(&ksCastle, LSB(white_kingside_castle_bb));
     WriteSpecialFlag(&ksCastle, castle_flag);
 
     MakeMove(&info, ksCastle, white);
@@ -322,7 +322,7 @@ static void ShouldCastleQueenside() {
     Move_t qsCastle;
     InitMove(&qsCastle);
     WriteFromSquare(&qsCastle, LSB(info.kings[white]));
-    WriteToSquare(&qsCastle, LSB(white_queenside_castle_sq));
+    WriteToSquare(&qsCastle, LSB(white_queenside_castle_bb));
     WriteSpecialFlag(&qsCastle, castle_flag);
 
     MakeMove(&info, qsCastle, white);
@@ -573,7 +573,7 @@ static void ShouldCastleKingsideUnmake(){
     Move_t ksCastle;
     InitMove(&ksCastle);
     WriteFromSquare(&ksCastle, LSB(info.kings[white]));
-    WriteToSquare(&ksCastle, LSB(white_kingside_castle_sq));
+    WriteToSquare(&ksCastle, LSB(white_kingside_castle_bb));
     WriteSpecialFlag(&ksCastle, castle_flag);
 
     PrintResults(GenericTestUnmake(&info, ksCastle, white));
@@ -586,7 +586,7 @@ static void ShouldCastleQueensideUnmake() {
     Move_t qsCastle;
     InitMove(&qsCastle);
     WriteFromSquare(&qsCastle, LSB(info.kings[white]));
-    WriteToSquare(&qsCastle, LSB(white_queenside_castle_sq));
+    WriteToSquare(&qsCastle, LSB(white_queenside_castle_bb));
     WriteSpecialFlag(&qsCastle, castle_flag);
 
     PrintResults(GenericTestUnmake(&info, qsCastle, white));

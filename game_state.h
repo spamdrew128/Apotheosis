@@ -12,7 +12,7 @@ typedef struct {
     Bitboard_t castleSquares[2];
 } GameState_t;
 
-GameState_t* GetUninitializedNextGameState();
+GameState_t* GetEmptyNextGameState();
 
 GameState_t* GetDefaultNextGameState();
 
@@ -27,6 +27,8 @@ HalfmoveCount_t ReadHalfmoveClock();
 Bitboard_t ReadCastleSquares(Color_t color);
 
 Bitboard_t ReadEnPassantSquares();
+
+GameState_t ReadCurrentGameState();
 
 GameState_t ReadDefaultNextGameState();
 

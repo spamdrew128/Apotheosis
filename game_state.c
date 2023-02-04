@@ -21,8 +21,15 @@ static Stack_t stack = {
 
 #define NextState(stack) stack.gameStates[stack.top + 1]
 
-GameState_t* GetUninitializedNextGameState() {
+GameState_t* GetEmptyNextGameState() {
     GameState_t* nextState = &(NextState(stack));
+
+    nextState->capturedPiece = none_type;
+    nextState->halfmoveClock = 0;
+    nextState->castleSquares[white] = empty_set;
+    nextState->castleSquares[black] = empty_set;
+    nextState->enPassantSquares = empty_set;
+
     stack.top++;
     return nextState;
 }
@@ -41,12 +48,12 @@ GameState_t* GetDefaultNextGameState() {
 }
 
 void AddStartingGameState() {
-    GameState_t* gameStartState = GetUninitializedNextGameState();
+    GameState_t* gameStartState = GetEmptyNextGameState();
 
     gameStartState->capturedPiece = none_type;
     gameStartState->halfmoveClock = 0;
-    gameStartState->castleSquares[white] = white_kingside_castle_sq | white_queenside_castle_sq;
-    gameStartState->castleSquares[black] = black_kingside_castle_sq | black_queenside_castle_sq;
+    gameStartState->castleSquares[white] = white_kingside_castle_bb | white_queenside_castle_bb;
+    gameStartState->castleSquares[black] = black_kingside_castle_bb | black_queenside_castle_bb;
     gameStartState->enPassantSquares = empty_set;
 }
 
