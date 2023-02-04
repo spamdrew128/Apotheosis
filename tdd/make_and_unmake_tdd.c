@@ -301,7 +301,7 @@ static void ShouldCastleKingside() {
     Move_t ksCastle;
     InitMove(&ksCastle);
     WriteFromSquare(&ksCastle, LSB(info.kings[white]));
-    WriteToSquare(&ksCastle, LSB(white_kingside_castle_sq));
+    WriteToSquare(&ksCastle, LSB(white_kingside_castle_bb));
     WriteSpecialFlag(&ksCastle, castle_flag);
 
     MakeMove(&info, ksCastle, white);
@@ -322,7 +322,7 @@ static void ShouldCastleQueenside() {
     Move_t qsCastle;
     InitMove(&qsCastle);
     WriteFromSquare(&qsCastle, LSB(info.kings[white]));
-    WriteToSquare(&qsCastle, LSB(white_queenside_castle_sq));
+    WriteToSquare(&qsCastle, LSB(white_queenside_castle_bb));
     WriteSpecialFlag(&qsCastle, castle_flag);
 
     MakeMove(&info, qsCastle, white);
@@ -573,7 +573,7 @@ static void ShouldCastleKingsideUnmake(){
     Move_t ksCastle;
     InitMove(&ksCastle);
     WriteFromSquare(&ksCastle, LSB(info.kings[white]));
-    WriteToSquare(&ksCastle, LSB(white_kingside_castle_sq));
+    WriteToSquare(&ksCastle, LSB(white_kingside_castle_bb));
     WriteSpecialFlag(&ksCastle, castle_flag);
 
     PrintResults(GenericTestUnmake(&info, ksCastle, white));
@@ -586,7 +586,7 @@ static void ShouldCastleQueensideUnmake() {
     Move_t qsCastle;
     InitMove(&qsCastle);
     WriteFromSquare(&qsCastle, LSB(info.kings[white]));
-    WriteToSquare(&qsCastle, LSB(white_queenside_castle_sq));
+    WriteToSquare(&qsCastle, LSB(white_queenside_castle_bb));
     WriteSpecialFlag(&qsCastle, castle_flag);
 
     PrintResults(GenericTestUnmake(&info, qsCastle, white));

@@ -6,7 +6,7 @@
 #include "bitboards.h"
 #include "board_info.h"
 
-#define COMPLEX_FEN "r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R"
+#define COMPLEX_FEN "r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R w KQkq - 34 56"
 
 // HELPERS
 static void InitStartFENExpectedInfo(BoardInfo_t* expectedInfo) {
@@ -45,24 +45,6 @@ static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo) {
     });
 }
 
-static bool FENCompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo) {
-    bool success = true;
-    for(int i = 0; i < 2; i++) {
-        success = success &&
-            (info->allPieces[i] == expectedInfo->allPieces[i]) &&
-            (info->pawns[i] == expectedInfo->pawns[i]) &&
-            (info->knights[i] == expectedInfo->knights[i]) &&
-            (info->bishops[i] == expectedInfo->bishops[i]) &&
-            (info->rooks[i] == expectedInfo->rooks[i]) &&
-            (info->queens[i] == expectedInfo->queens[i]) &&
-            (info->kings[i] == expectedInfo->kings[i]);
-    }
-
-    success = success && (info->empty == expectedInfo->empty);
-
-    return success;
-}
-
 // TESTS
 static void StartFENInterpretedCorrectly() {
     BoardInfo_t info;
@@ -72,7 +54,7 @@ static void StartFENInterpretedCorrectly() {
     InterpretFEN(START_FEN, &info);
     InitStartFENExpectedInfo(&expectedInfo);
 
-    PrintResults(FENCompareInfo(&info, &expectedInfo));
+    PrintResults(CompareInfo(&info, &expectedInfo));
 }
 
 static void ComplexFENInterpretedCorrectly() {
@@ -83,7 +65,7 @@ static void ComplexFENInterpretedCorrectly() {
     InterpretFEN(COMPLEX_FEN, &info);
     InitComplexFENExpectedInfo(&expectedInfo);
 
-    PrintResults(FENCompareInfo(&info, &expectedInfo));
+    PrintResults(CompareInfo(&info, &expectedInfo));
 }
 
 void FENTDDRunner() {

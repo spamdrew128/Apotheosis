@@ -52,8 +52,8 @@ void AddStartingGameState() {
 
     gameStartState->capturedPiece = none_type;
     gameStartState->halfmoveClock = 0;
-    gameStartState->castleSquares[white] = white_kingside_castle_sq | white_queenside_castle_sq;
-    gameStartState->castleSquares[black] = black_kingside_castle_sq | black_queenside_castle_sq;
+    gameStartState->castleSquares[white] = white_kingside_castle_bb | white_queenside_castle_bb;
+    gameStartState->castleSquares[black] = black_kingside_castle_bb | black_queenside_castle_bb;
     gameStartState->enPassantSquares = empty_set;
 }
 
