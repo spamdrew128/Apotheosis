@@ -15,7 +15,7 @@ static bool PawnIsDoublePushed(Bitboard_t fromBB, Bitboard_t toBB) {
     return (fromBB & pawn_start_ranks) && (toBB & pawn_double_ranks);
 }
 
-static void UpdateCastleSquares(GameState_t* nextState, BoardInfo_t* info, Color_t color) {
+static void UpdateCastleSquares(GameStateOld_t* nextState, BoardInfo_t* info, Color_t color) {
     Bitboard_t rooksInPlace = board_corners & info->rooks[color];
     Bitboard_t validCastlingMask = GenShiftWest(rooksInPlace, 1) | GenShiftEast(rooksInPlace, 2);
     
@@ -110,7 +110,7 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, Move_t move, Color_t col
         );
     }
 
-    GameState_t* nextState = GetDefaultNextGameState();
+    GameStateOld_t* nextState = GetDefaultNextGameStateOld();
     nextState->castleSquares[color] = empty_set;
 }
 
@@ -118,7 +118,7 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
     Square_t fromSquare = ReadFromSquare(move);
     Square_t toSquare = ReadToSquare(move);
     Piece_t promotionPiece = ReadPromotionPiece(move);
-    GameState_t* nextState = GetDefaultNextGameState();
+    GameStateOld_t* nextState = GetDefaultNextGameStateOld();
 
     Piece_t capturedPiece = PieceOnSquare(boardInfo, toSquare);
     if(capturedPiece != none_type) {
@@ -179,7 +179,7 @@ static void MakeEnPassantHandler(BoardInfo_t* boardInfo, Move_t move, Color_t co
         color
     );
 
-    GameState_t* nextState = GetDefaultNextGameState();
+    GameStateOld_t* nextState = GetDefaultNextGameStateOld();
     nextState->halfmoveClock = empty_set;
     nextState->enPassantSquares = empty_set;
     nextState->capturedPiece = pawn;
@@ -190,7 +190,7 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_t 
     Square_t toSquare = ReadToSquare(move);
     Bitboard_t fromBB = GetSingleBitset(fromSquare);
     Bitboard_t toBB = GetSingleBitset(toSquare);
-    GameState_t* nextState = GetDefaultNextGameState();
+    GameStateOld_t* nextState = GetDefaultNextGameStateOld();
 
     Piece_t capturedPiece = PieceOnSquare(boardInfo, toSquare);
     if(capturedPiece != none_type) {
@@ -319,7 +319,7 @@ static void UnmakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t 
     Bitboard_t originalBB = GetSingleBitset(originalSquare);
     Bitboard_t currentBB = GetSingleBitset(currentSquare);
     Piece_t promotionPiece = ReadPromotionPiece(move);
-    Piece_t capturedPiece = ReadCapturedPiece(move);
+    Piece_t capturedPiece = ReadCapturedPieceOld(move);
 
     RemoveCapturedPiece( // treats the promoted piece as if it is captured
         boardInfo,
@@ -395,7 +395,7 @@ static void UnmakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_
         color
     );
   
-    Piece_t capturedPiece = ReadCapturedPiece();
+    Piece_t capturedPiece = ReadCapturedPieceOld();
     if(capturedPiece != none_type) {
         RevertPieceCapture(
             boardInfo,
@@ -426,5 +426,5 @@ void UnmakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
     }
 
     UpdateEmpty(boardInfo);
-    RevertState();
+    RevertStateOld();
 }

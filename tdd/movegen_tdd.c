@@ -23,8 +23,8 @@ static int CountPieceMoves(Piece_t piece, MoveList_t moveList, BoardInfo_t* info
     return count;
 }
 
-static GameState_t* GetBlankState() {
-    GameState_t* blankState = GetEmptyNextGameState();
+static GameStateOld_t* GetBlankState() {
+    GameStateOld_t* blankState = GetEmptyNextGameStateOld();
     blankState->capturedPiece = none_type;
     blankState->castleSquares[white] = empty_set;
     blankState->castleSquares[black] = empty_set;
@@ -63,7 +63,7 @@ static void InitDoubleEnPassantPosition(BoardInfo_t* info) {
         info->pawns[black] = CreateBitboard(3, b6,a3,c3);
     });
 
-    GameState_t* state = GetBlankState();
+    GameStateOld_t* state = GetBlankState();
     state->enPassantSquares = CreateBitboard(2, b2,b7);
     AddGameStateToStack(*state);
 }
@@ -80,7 +80,7 @@ static void InitTrickyPinnedEnPassantPostitionInfo(BoardInfo_t* info) {
         info->rooks[black] = CreateBitboard(1, h5);
     });
 
-    GameState_t* state = GetBlankState();
+    GameStateOld_t* state = GetBlankState();
     state->enPassantSquares = CreateBitboard(2, g6,c7);
     AddGameStateToStack(*state);
 }
@@ -131,7 +131,7 @@ static void ShouldCorrectlyEvaluateDoubleEnPassant() {
         (wMoveList.maxIndex == 1) && (bMoveList.maxIndex == 1);
 
     PrintResults(success);
-    ResetGameStateStack();
+    ResetGameStateStackOld();
 }
 
 static void ShouldCorrectlyEvaluatePinnedEnPassant() {
@@ -148,7 +148,7 @@ static void ShouldCorrectlyEvaluatePinnedEnPassant() {
         moveList.maxIndex == 0;
 
     PrintResults(success);
-    ResetGameStateStack();
+    ResetGameStateStackOld();
 }
 
 static void ShouldCorrectlyEvaluateInPosWithPins() {
@@ -186,12 +186,12 @@ static void ShouldCorrectlyEvaluateInPosWithPins() {
 }
 
 void MovegenTDDRunner() {
-    AddStartingGameState();
+    AddStartingGameStateOld();
 
     ShouldCorrectlyEvaluateCapturesInPosWithPins();
     ShouldCorrectlyEvaluateDoubleEnPassant();
     ShouldCorrectlyEvaluatePinnedEnPassant();
     ShouldCorrectlyEvaluateInPosWithPins();
 
-    ResetGameStateStack();
+    ResetGameStateStackOld();
 }

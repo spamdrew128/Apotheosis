@@ -345,7 +345,7 @@ static void AddWhiteLegalEnPassant(
     Bitboard_t checkmask
 )
 {
-    Bitboard_t epSquares = ReadEnPassantSquares();
+    Bitboard_t epSquares = ReadEnPassantSquaresOld();
 
     Bitboard_t eastLegalEnPassantTargets = 
         WhiteEastEnPassantTargets(d12PinnedPawns, epSquares) & pinmasks.d12 & checkmask;
@@ -377,7 +377,7 @@ static void AddBlackLegalEnPassant(
     Bitboard_t checkmask
 )
 {
-    Bitboard_t epSquares = ReadEnPassantSquares();
+    Bitboard_t epSquares = ReadEnPassantSquaresOld();
 
     Bitboard_t eastLegalEnPassantTargets = 
         BlackEastEnPassantTargets(d12PinnedPawns, epSquares) & pinmasks.d12 & checkmask;

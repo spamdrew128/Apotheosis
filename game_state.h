@@ -1,5 +1,5 @@
-#ifndef __GAME_STATE_H__
-#define __GAME_STATE_H__
+#ifndef __GAME_STATE_OLD_H__
+#define __GAME_STATE_OLD_H__
 
 #include <stdint.h>
 #include "board_constants.h"
@@ -10,28 +10,28 @@ typedef struct {
     HalfmoveCount_t halfmoveClock;
     Bitboard_t enPassantSquares;
     Bitboard_t castleSquares[2];
-} GameState_t;
+} GameStateOld_t;
 
-GameState_t* GetEmptyNextGameState();
+GameStateOld_t* GetEmptyNextGameStateOld();
 
-GameState_t* GetDefaultNextGameState();
+GameStateOld_t* GetDefaultNextGameStateOld();
 
-void AddStartingGameState();
+void AddStartingGameStateOld();
 
-void RevertState();
+void RevertStateOld();
 
-Piece_t ReadCapturedPiece();
+Piece_t ReadCapturedPieceOld();
 
-HalfmoveCount_t ReadHalfmoveClock();
+HalfmoveCount_t ReadHalfmoveClockOld();
 
-Bitboard_t ReadCastleSquares(Color_t color);
+Bitboard_t ReadCastleSquaresOld(Color_t color);
 
-Bitboard_t ReadEnPassantSquares();
+Bitboard_t ReadEnPassantSquaresOld();
 
-GameState_t ReadCurrentGameState();
+GameStateOld_t ReadCurrentGameStateOld();
 
-GameState_t ReadDefaultNextGameState();
+GameStateOld_t ReadDefaultNextGameStateOld();
 
-void ResetGameStateStack();
+void ResetGameStateStackOld();
 
 #endif

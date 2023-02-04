@@ -6,7 +6,7 @@
 #include "movegen.h"
 #include "make_and_unmake.h"
 
-static bool UnmakeSuccess(BoardInfo_t* info, BoardInfo_t* originalInfo, GameState_t* initalState) {
+static bool UnmakeSuccess(BoardInfo_t* info, BoardInfo_t* originalInfo, GameStateOld_t* initalState) {
     bool infoMatches = CompareInfo(info, originalInfo);
     bool stateMatches = CompareState(initalState);
 
@@ -29,7 +29,7 @@ static void UnmakeTest(BoardInfo_t* boardInfo, int depth, Color_t color) {
     MoveList_t moveList;
     CompleteMovegen(&moveList, boardInfo, color);
     BoardInfo_t initialInfo = *boardInfo;
-    GameState_t initalState = ReadCurrentGameState();
+    GameStateOld_t initalState = ReadCurrentGameStateOld();
 
     for(int i = 0; i <= moveList.maxIndex; i++) {
         tests++;

@@ -10,7 +10,7 @@
 
 // HELPERS
 
-static void InitStartFENExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+static void InitStartFENExpectedInfo(BoardInfo_t* expectedInfo, GameStateOld_t* expectedState) {
     InitTestInfo(expectedInfo, {
         expectedInfo->pawns[white] = rank_2;
         expectedInfo->knights[white] = CreateBitboard(2, b1,g1);
@@ -27,12 +27,12 @@ static void InitStartFENExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* exp
         expectedInfo->kings[black] = CreateBitboard(1, e8);
     });
 
-    AddStartingGameState();
-    *expectedState = ReadCurrentGameState();
-    RevertState();
+    AddStartingGameStateOld();
+    *expectedState = ReadCurrentGameStateOld();
+    RevertStateOld();
 }
 
-static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo, GameStateOld_t* expectedState) {
     InitTestInfo(expectedInfo, {
         expectedInfo->pawns[white] = CreateBitboard(7, a2,b2,c2,d5,e4,f2,g5);
         expectedInfo->knights[white] = CreateBitboard(2, c3,f3);
@@ -49,7 +49,7 @@ static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* e
         expectedInfo->kings[black] = CreateBitboard(1, g8);
     });
 
-    GameState_t* state = GetEmptyNextGameState();
+    GameStateOld_t* state = GetEmptyNextGameStateOld();
     state->halfmoveClock = 34;
     state->castleSquares[white] = white_kingside_castle_bb;
     state->enPassantSquares = CreateBitboard(1, e3);
@@ -60,7 +60,7 @@ static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* e
 static void StartFENInterpretedCorrectly() {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
-    GameState_t expectedState;
+    GameStateOld_t expectedState;
 
     InitStartFENExpectedInfo(&expectedInfo, &expectedState);
     InterpretFEN(START_FEN, &info);
@@ -71,7 +71,7 @@ static void StartFENInterpretedCorrectly() {
 static void ComplexFENInterpretedCorrectly() {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
-    GameState_t expectedState;
+    GameStateOld_t expectedState;
     
     InitComplexFENExpectedInfo(&expectedInfo, &expectedState);
     InterpretFEN(COMPLEX_FEN, &info);
@@ -84,5 +84,5 @@ void FENTDDRunner() {
     StartFENInterpretedCorrectly();
     ComplexFENInterpretedCorrectly();
 
-    ResetGameStateStack();
+    ResetGameStateStackOld();
 }   

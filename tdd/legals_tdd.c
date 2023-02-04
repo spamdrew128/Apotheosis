@@ -363,7 +363,7 @@ static void ShouldIdentifyIllegalEnPassant() {
 }
 
 void LegalsTDDRunner() {
-    AddStartingGameState();
+    AddStartingGameStateOld();
 
     TestWhiteUnsafeSquares();
     TestBlackUnsafeSquares();
@@ -389,5 +389,5 @@ void LegalsTDDRunner() {
 
     ShouldIdentifyIllegalEnPassant();
 
-    ResetGameStateStack();
+    ResetGameStateStackOld();
 }

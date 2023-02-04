@@ -22,7 +22,7 @@ static Color_t CharToColor(char c) {
     return 0;
 }
 
-static void UpdateCastlingRights(GameState_t* state, char c) {
+static void UpdateCastlingRights(GameStateOld_t* state, char c) {
     switch (c)
     {
         case 'K':
@@ -59,7 +59,7 @@ static Bitboard_t SquareCharsToBitboard(char col, char row) {
     return GetSingleBitset(square);
 }
 
-static void UpdateEnPassant(FEN_t fen, int* i, GameState_t* state) {
+static void UpdateEnPassant(FEN_t fen, int* i, GameStateOld_t* state) {
     if(fen[*i] == '-') {
         (*i)++;
     } else {
@@ -68,7 +68,7 @@ static void UpdateEnPassant(FEN_t fen, int* i, GameState_t* state) {
     }
 }
 
-static void UpdateHalfmoveClock(FEN_t fen, int i, GameState_t* state) {
+static void UpdateHalfmoveClock(FEN_t fen, int i, GameStateOld_t* state) {
     HalfmoveCount_t halfmoves = 0;
 
     int numDigits = 0;
@@ -177,7 +177,7 @@ Color_t InterpretFEN(FEN_t fen, BoardInfo_t* info) {
     Color_t colorToMove = CharToColor(fen[i]);
 
     i += 2;
-    GameState_t* gameState = GetEmptyNextGameState();
+    GameStateOld_t* gameState = GetEmptyNextGameStateOld();
     while (fen[i] != ' ')
     {
         UpdateCastlingRights(gameState, fen[i]);

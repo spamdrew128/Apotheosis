@@ -5,7 +5,7 @@
 #include "game_state.h"
 
 typedef struct {
-    GameState_t gameStates[GAMESTATES_MAX];
+    GameStateOld_t gameStates[GAMESTATES_MAX];
     int top;
 } Stack_t;
 
@@ -21,8 +21,8 @@ static Stack_t stack = {
 
 #define NextState(stack) stack.gameStates[stack.top + 1]
 
-GameState_t* GetEmptyNextGameState() {
-    GameState_t* nextState = &(NextState(stack));
+GameStateOld_t* GetEmptyNextGameStateOld() {
+    GameStateOld_t* nextState = &(NextState(stack));
 
     nextState->capturedPiece = none_type;
     nextState->halfmoveClock = 0;
@@ -34,21 +34,21 @@ GameState_t* GetEmptyNextGameState() {
     return nextState;
 }
 
-GameState_t* GetDefaultNextGameState() {
-    GameState_t* defaultState = &(NextState(stack));
+GameStateOld_t* GetDefaultNextGameStateOld() {
+    GameStateOld_t* defaultState = &(NextState(stack));
 
     defaultState->capturedPiece = none_type;
-    defaultState->halfmoveClock = ReadHalfmoveClock() + 1;
-    defaultState->castleSquares[white] = ReadCastleSquares(white);
-    defaultState->castleSquares[black] = ReadCastleSquares(black);
+    defaultState->halfmoveClock = ReadHalfmoveClockOld() + 1;
+    defaultState->castleSquares[white] = ReadCastleSquaresOld(white);
+    defaultState->castleSquares[black] = ReadCastleSquaresOld(black);
     defaultState->enPassantSquares = empty_set;
 
     stack.top++;
     return defaultState;
 }
 
-void AddStartingGameState() {
-    GameState_t* gameStartState = GetEmptyNextGameState();
+void AddStartingGameStateOld() {
+    GameStateOld_t* gameStartState = GetEmptyNextGameStateOld();
 
     gameStartState->capturedPiece = none_type;
     gameStartState->halfmoveClock = 0;
@@ -57,37 +57,37 @@ void AddStartingGameState() {
     gameStartState->enPassantSquares = empty_set;
 }
 
-void RevertState() {
+void RevertStateOld() {
     assert(stack.top >= 0);
     stack.top--;
 }
 
-Piece_t ReadCapturedPiece() {
+Piece_t ReadCapturedPieceOld() {
     return CurrentState(stack).capturedPiece;
 }
 
-HalfmoveCount_t ReadHalfmoveClock() {
+HalfmoveCount_t ReadHalfmoveClockOld() {
     return CurrentState(stack).halfmoveClock;
 }
 
-Bitboard_t ReadCastleSquares(Color_t color) {
+Bitboard_t ReadCastleSquaresOld(Color_t color) {
     return CurrentState(stack).castleSquares[color];
 }
 
-Bitboard_t ReadEnPassantSquares() {
+Bitboard_t ReadEnPassantSquaresOld() {
     return CurrentState(stack).enPassantSquares;
 }
 
-GameState_t ReadCurrentGameState() {
+GameStateOld_t ReadCurrentGameStateOld() {
     return CurrentState(stack);
 }
 
-GameState_t ReadDefaultNextGameState() {
-    GameState_t* nextState = GetDefaultNextGameState();
+GameStateOld_t ReadDefaultNextGameStateOld() {
+    GameStateOld_t* nextState = GetDefaultNextGameStateOld();
     stack.top--;
     return *nextState;
 }
 
-void ResetGameStateStack() {
+void ResetGameStateStackOld() {
     stack.top = stack_empty;
 }

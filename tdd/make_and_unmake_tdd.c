@@ -20,11 +20,11 @@ static void InitAllCastlingLegalInfo(BoardInfo_t* info) {
         info->rooks[black] = CreateBitboard(2, a8,h8);
     });
 
-    AddStartingGameState();
+    AddStartingGameStateOld();
 }
 
 // r3k2r/8/8/8/8/8/8/R4RK1
-static void InitKingsideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+static void InitKingsideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameStateOld_t* expectedState) {
     InitTestInfo(expectedInfo, {
         expectedInfo->kings[white] = CreateBitboard(1, g1);
         expectedInfo->rooks[white] = CreateBitboard(2, a1,f1);
@@ -33,13 +33,13 @@ static void InitKingsideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState_
         expectedInfo->rooks[black] = CreateBitboard(2, a8,h8);
     });
 
-    GameState_t nextState = ReadDefaultNextGameState();
+    GameStateOld_t nextState = ReadDefaultNextGameStateOld();
     nextState.castleSquares[white] = empty_set;
     *expectedState = nextState;
 }
 
 // r3k2r/8/8/8/8/8/8/R4RK1
-static void InitQueensideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+static void InitQueensideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameStateOld_t* expectedState) {
     InitTestInfo(expectedInfo, {
         expectedInfo->kings[white] = CreateBitboard(1, c1);
         expectedInfo->rooks[white] = CreateBitboard(2, d1,h1);
@@ -48,7 +48,7 @@ static void InitQueensideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState
         expectedInfo->rooks[black] = CreateBitboard(2, a8,h8);
     });
 
-    GameState_t nextState = ReadDefaultNextGameState();
+    GameStateOld_t nextState = ReadDefaultNextGameStateOld();
     nextState.castleSquares[white] = empty_set;
     *expectedState = nextState;
 }
@@ -64,11 +64,11 @@ static void InitPromotionPostionInfo(BoardInfo_t* info) {
         info->pawns[black] = CreateBitboard(1, c2);
     });
 
-    AddStartingGameState();
+    AddStartingGameStateOld();
 }
 
 // 8/4P3/7K/8/8/7k/2p5/1Q6
-static void InitExpectedQuietPromotionPostionInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+static void InitExpectedQuietPromotionPostionInfo(BoardInfo_t* expectedInfo, GameStateOld_t* expectedState) {
     InitTestInfo(expectedInfo, {
         expectedInfo->kings[white] = CreateBitboard(1, h6);
         expectedInfo->queens[white] = CreateBitboard(2, b1,e8);
@@ -77,13 +77,13 @@ static void InitExpectedQuietPromotionPostionInfo(BoardInfo_t* expectedInfo, Gam
         expectedInfo->pawns[black] = CreateBitboard(1, c2);
     });
 
-    GameState_t nextState = ReadDefaultNextGameState();
+    GameStateOld_t nextState = ReadDefaultNextGameStateOld();
     nextState.halfmoveClock = 0;
     *expectedState = nextState;
 }
 
 // 8/4P3/7K/8/8/7k/2p5/1Q6
-static void InitExpectedCapturePromotionPostionInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+static void InitExpectedCapturePromotionPostionInfo(BoardInfo_t* expectedInfo, GameStateOld_t* expectedState) {
     InitTestInfo(expectedInfo, {
         expectedInfo->kings[white] = CreateBitboard(1, h6);
         expectedInfo->pawns[white] = CreateBitboard(1, e7);
@@ -92,7 +92,7 @@ static void InitExpectedCapturePromotionPostionInfo(BoardInfo_t* expectedInfo, G
         expectedInfo->knights[black] = CreateBitboard(1, b1);
     });
 
-    GameState_t nextState = ReadDefaultNextGameState();
+    GameStateOld_t nextState = ReadDefaultNextGameStateOld();
     nextState.halfmoveClock = 0;
     nextState.capturedPiece = queen;
     nextState.castleSquares[white] = empty_set;
@@ -109,7 +109,7 @@ static void InitBothSidesEnPassantInfo(BoardInfo_t* info) {
         info->pawns[black] = CreateBitboard(2, d4,h5);
     });
 
-    GameState_t* state = GetEmptyNextGameState();
+    GameStateOld_t* state = GetEmptyNextGameStateOld();
     state->halfmoveClock = some_halfmove_clock;
     state->castleSquares[white] = empty_set;
     state->castleSquares[black] = empty_set;
@@ -117,7 +117,7 @@ static void InitBothSidesEnPassantInfo(BoardInfo_t* info) {
     state->capturedPiece = none_type;
 }
 
-static void InitSideEnPassantExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState, Color_t moveColor) {
+static void InitSideEnPassantExpectedInfo(BoardInfo_t* expectedInfo, GameStateOld_t* expectedState, Color_t moveColor) {
     if(moveColor == white) {
         InitTestInfo(expectedInfo, {
             expectedInfo->kings[white] = CreateBitboard(1, f4);
@@ -136,7 +136,7 @@ static void InitSideEnPassantExpectedInfo(BoardInfo_t* expectedInfo, GameState_t
         });
     }
 
-    GameState_t nextState = ReadDefaultNextGameState();
+    GameStateOld_t nextState = ReadDefaultNextGameStateOld();
     nextState.halfmoveClock = 0;
     nextState.enPassantSquares = empty_set;
     nextState.capturedPiece = pawn;
@@ -154,7 +154,7 @@ static void InitNormalPosition(BoardInfo_t* info) {
         info->knights[black] = CreateBitboard(1, e4);
     });
 
-    GameState_t* state = GetEmptyNextGameState();
+    GameStateOld_t* state = GetEmptyNextGameStateOld();
     state->halfmoveClock = some_halfmove_clock;
     state->enPassantSquares = empty_set;
     state->castleSquares[white] = empty_set;
@@ -162,7 +162,7 @@ static void InitNormalPosition(BoardInfo_t* info) {
     state->capturedPiece = none_type;
 }
 
-static void InitNormalQuietExpected(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+static void InitNormalQuietExpected(BoardInfo_t* expectedInfo, GameStateOld_t* expectedState) {
     InitTestInfo(expectedInfo, {
         expectedInfo->kings[white] = CreateBitboard(1, c3);
         expectedInfo->pawns[white] = CreateBitboard(1, f2);
@@ -172,12 +172,12 @@ static void InitNormalQuietExpected(BoardInfo_t* expectedInfo, GameState_t* expe
         expectedInfo->knights[black] = CreateBitboard(1, e4);
     });
 
-    GameState_t state = ReadDefaultNextGameState();
+    GameStateOld_t state = ReadDefaultNextGameStateOld();
     *expectedState = state;
 }
 
-static void InitPawnDoublePushExpected(BoardInfo_t* expectedInfo, GameState_t* expectedState, Color_t moveColor) {
-    GameState_t state = ReadDefaultNextGameState();
+static void InitPawnDoublePushExpected(BoardInfo_t* expectedInfo, GameStateOld_t* expectedState, Color_t moveColor) {
+    GameStateOld_t state = ReadDefaultNextGameStateOld();
     state.halfmoveClock = 0;
 
     if(moveColor == white) {
@@ -207,7 +207,7 @@ static void InitPawnDoublePushExpected(BoardInfo_t* expectedInfo, GameState_t* e
     *expectedState = state;
 }
 
-static void InitNormalCaptureExpectedPosition(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+static void InitNormalCaptureExpectedPosition(BoardInfo_t* expectedInfo, GameStateOld_t* expectedState) {
     InitTestInfo(expectedInfo, {
         expectedInfo->kings[white] = CreateBitboard(1, b2);
 
@@ -216,7 +216,7 @@ static void InitNormalCaptureExpectedPosition(BoardInfo_t* expectedInfo, GameSta
         expectedInfo->knights[black] = CreateBitboard(1, f2);
     });
 
-    GameState_t state = ReadDefaultNextGameState();
+    GameStateOld_t state = ReadDefaultNextGameStateOld();
     state.halfmoveClock = 0;
     state.capturedPiece = pawn;
     *expectedState = state;
@@ -229,7 +229,7 @@ static void InitBreakCastlingPosition(BoardInfo_t* info) {
     AddPieceToMailbox(info, f6, bishop);
 }
 
-static void InitBreakCastlingPositionExpected(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+static void InitBreakCastlingPositionExpected(BoardInfo_t* expectedInfo, GameStateOld_t* expectedState) {
     InitTestInfo(expectedInfo, {
         expectedInfo->kings[white] = CreateBitboard(1, e1);
         expectedInfo->rooks[white] = CreateBitboard(1, h1);
@@ -239,7 +239,7 @@ static void InitBreakCastlingPositionExpected(BoardInfo_t* expectedInfo, GameSta
         expectedInfo->bishops[black] = CreateBitboard(1, a1);
     });
 
-    GameState_t nextState = ReadDefaultNextGameState();
+    GameStateOld_t nextState = ReadDefaultNextGameStateOld();
     nextState.halfmoveClock = 0;
     nextState.castleSquares[white] = CreateBitboard(1, g1);
     nextState.capturedPiece = rook;
@@ -257,7 +257,7 @@ static void InitPromotionCastleBreakPosition(BoardInfo_t* info) {
         info->knights[black] = CreateBitboard(1, b8);
     });
 
-    GameState_t* state = GetEmptyNextGameState();
+    GameStateOld_t* state = GetEmptyNextGameStateOld();
     state->halfmoveClock = some_halfmove_clock;
     state->enPassantSquares = empty_set;
     state->castleSquares[white] = empty_set;
@@ -266,7 +266,7 @@ static void InitPromotionCastleBreakPosition(BoardInfo_t* info) {
 }
 
 // 4k1nr/7P/8/8/8/1K6/8/8
-static void InitPromotionCastleBreakPositionExpected(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
+static void InitPromotionCastleBreakPositionExpected(BoardInfo_t* expectedInfo, GameStateOld_t* expectedState) {
     InitTestInfo(expectedInfo, {
         expectedInfo->kings[white] = CreateBitboard(1, b3);
         expectedInfo->knights[white] = CreateBitboard(1, a8);
@@ -275,7 +275,7 @@ static void InitPromotionCastleBreakPositionExpected(BoardInfo_t* expectedInfo, 
         expectedInfo->knights[black] = CreateBitboard(1, b8);
     });
 
-    GameState_t nextState = ReadDefaultNextGameState();
+    GameStateOld_t nextState = ReadDefaultNextGameStateOld();
     nextState.halfmoveClock = 0;
     nextState.castleSquares[black] = empty_set;
     nextState.capturedPiece = rook;
@@ -286,7 +286,7 @@ static void InitPromotionCastleBreakPositionExpected(BoardInfo_t* expectedInfo, 
 static void ShouldCastleKingside() {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
-    GameState_t expectedState;
+    GameStateOld_t expectedState;
     InitAllCastlingLegalInfo(&info);
     InitKingsideCastleExpectedInfo(&expectedInfo, &expectedState);
 
@@ -307,7 +307,7 @@ static void ShouldCastleKingside() {
 static void ShouldCastleQueenside() {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
-    GameState_t expectedState;
+    GameStateOld_t expectedState;
     InitAllCastlingLegalInfo(&info);
     InitQueensideCastleExpectedInfo(&expectedInfo, &expectedState);
 
@@ -328,7 +328,7 @@ static void ShouldCastleQueenside() {
 static void ShouldQuietPromote() {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
-    GameState_t expectedState;
+    GameStateOld_t expectedState;
     InitPromotionPostionInfo(&info);
     InitExpectedQuietPromotionPostionInfo(&expectedInfo, &expectedState);
 
@@ -350,7 +350,7 @@ static void ShouldQuietPromote() {
 static void ShouldCapturePromote() {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
-    GameState_t expectedState;
+    GameStateOld_t expectedState;
     InitPromotionPostionInfo(&info);
     InitExpectedCapturePromotionPostionInfo(&expectedInfo, &expectedState);
 
@@ -372,7 +372,7 @@ static void ShouldCapturePromote() {
 static void ShouldWhiteEnPassant() {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
-    GameState_t expectedState;
+    GameStateOld_t expectedState;
     InitBothSidesEnPassantInfo(&info);
     InitSideEnPassantExpectedInfo(&expectedInfo, &expectedState, white);
 
@@ -393,7 +393,7 @@ static void ShouldWhiteEnPassant() {
 static void ShouldBlackEnPassant() {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
-    GameState_t expectedState;
+    GameStateOld_t expectedState;
     InitBothSidesEnPassantInfo(&info);
     InitSideEnPassantExpectedInfo(&expectedInfo, &expectedState, black);
 
@@ -414,7 +414,7 @@ static void ShouldBlackEnPassant() {
 static void ShouldMakeNormalQuietMoves() {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
-    GameState_t expectedState;
+    GameStateOld_t expectedState;
     InitNormalPosition(&info);
     InitNormalQuietExpected(&expectedInfo, &expectedState);
 
@@ -434,7 +434,7 @@ static void ShouldMakeNormalQuietMoves() {
 static void ShouldDoublePushPawns(Color_t moveColor) {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
-    GameState_t expectedState;
+    GameStateOld_t expectedState;
     InitNormalPosition(&info);
     InitPawnDoublePushExpected(&expectedInfo, &expectedState, moveColor);
 
@@ -459,7 +459,7 @@ static void ShouldDoublePushPawns(Color_t moveColor) {
 static void ShouldMakeNormalCaptures() {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
-    GameState_t expectedState;
+    GameStateOld_t expectedState;
     InitNormalPosition(&info);
     InitNormalCaptureExpectedPosition(&expectedInfo, &expectedState);
 
@@ -479,7 +479,7 @@ static void ShouldMakeNormalCaptures() {
 static void CapturingRookShouldRemoveCastleSquares() {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
-    GameState_t expectedState;
+    GameStateOld_t expectedState;
     InitBreakCastlingPosition(&info);
     InitBreakCastlingPositionExpected(&expectedInfo, &expectedState);
 
@@ -499,7 +499,7 @@ static void CapturingRookShouldRemoveCastleSquares() {
 static void PromotionCaptureShouldRemoveCastleSquares() {
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
-    GameState_t expectedState;
+    GameStateOld_t expectedState;
     InitPromotionCastleBreakPosition(&info);
     InitPromotionCastleBreakPositionExpected(&expectedInfo, &expectedState);
 
@@ -536,18 +536,18 @@ void MakeMoveTDDRunner() {
     CapturingRookShouldRemoveCastleSquares();
     PromotionCaptureShouldRemoveCastleSquares();
 
-    ResetGameStateStack();
+    ResetGameStateStackOld();
 }
 
 // UMAKE HELPERS
 static bool GenericTestUnmake(BoardInfo_t* startInfo, Move_t move, Color_t moveColor) {
     BoardInfo_t expectedInfo = *startInfo;
-    GameState_t originalState;
-    originalState.halfmoveClock = ReadHalfmoveClock();
-    originalState.castleSquares[white] = ReadCastleSquares(white);
-    originalState.castleSquares[black] = ReadCastleSquares(black);
-    originalState.enPassantSquares = ReadEnPassantSquares();
-    originalState.capturedPiece = ReadCapturedPiece();
+    GameStateOld_t originalState;
+    originalState.halfmoveClock = ReadHalfmoveClockOld();
+    originalState.castleSquares[white] = ReadCastleSquaresOld(white);
+    originalState.castleSquares[black] = ReadCastleSquaresOld(black);
+    originalState.enPassantSquares = ReadEnPassantSquaresOld();
+    originalState.capturedPiece = ReadCapturedPieceOld();
 
     MakeMove(startInfo, move, moveColor);
     UnmakeMove(startInfo, move, moveColor);
@@ -675,5 +675,5 @@ void UnmakeMoveTDDRunner() {
     ShouldUnmakeNormalQuietMoves();
     ShouldUnmakeNormalCaptures();
 
-    ResetGameStateStack();
+    ResetGameStateStackOld();
 }
