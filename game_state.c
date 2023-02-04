@@ -71,6 +71,10 @@ Bitboard_t ReadEnPassantSquares() {
     return CurrentState(stack).enPassantSquares;
 }
 
+GameState_t ReadCurrentGameState() {
+    return CurrentState(stack);
+}
+
 GameState_t ReadDefaultNextGameState() {
     GameState_t* nextState = GetDefaultNextGameState();
     stack.top--;
