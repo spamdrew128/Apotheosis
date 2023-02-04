@@ -6,7 +6,7 @@
 #include "bitboards.h"
 #include "board_info.h"
 
-#define COMPLEX_FEN "r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R w KQkq - 34 56"
+#define COMPLEX_FEN "r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R w KQkq e3 34 56"
 
 // HELPERS
 static void InitStartFENExpectedInfo(BoardInfo_t* expectedInfo) {
@@ -71,4 +71,6 @@ static void ComplexFENInterpretedCorrectly() {
 void FENTDDRunner() {
     StartFENInterpretedCorrectly();
     ComplexFENInterpretedCorrectly();
+
+    ResetGameStateStack();
 }   

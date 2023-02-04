@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
+#include <math.h>
 
 #include "FEN.h"
 #include "lookup.h"
@@ -50,7 +51,7 @@ static char ColCharToNumber(char col) {
     return (int)col - 97;
 }
 
-static Bitboard_t SquareCharsToBitboard(char row, char col) {
+static Bitboard_t SquareCharsToBitboard(char col, char row) {
     int rowNum = RowCharToNumber(row);
     int ColNum = ColCharToNumber(col);
 
@@ -65,6 +66,24 @@ static void UpdateEnPassant(FEN_t fen, int* i, GameState_t* state) {
         state->enPassantSquares = SquareCharsToBitboard(fen[*i], fen[*i + 1]);
         (*i) += 2;
     }
+}
+
+static void UpdateHalfmoveClock(FEN_t fen, int i, GameState_t* state) {
+    HalfmoveCount_t halfmoves = 0;
+
+    int numDigits = 0;
+    while(fen[i + numDigits] != ' ' && fen[i + numDigits] != '\0') {
+        numDigits++;
+    }
+
+    int j = i;
+    while(numDigits) {
+        halfmoves += (int)pow(10, numDigits-1) * CharToInt(fen[j]);
+        numDigits--;
+        j++;
+    }
+
+    state->halfmoveClock = halfmoves;
 }
 
 Color_t InterpretFEN(FEN_t fen, BoardInfo_t* info) {
@@ -165,4 +184,9 @@ Color_t InterpretFEN(FEN_t fen, BoardInfo_t* info) {
 
     i++;
     UpdateEnPassant(fen, &i, gameState);
+
+    i++;
+    UpdateHalfmoveClock(fen, i, gameState);
+
+    return colorToMove;
 }
