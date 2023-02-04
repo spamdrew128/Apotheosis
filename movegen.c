@@ -545,8 +545,8 @@ static void AddAllCaptures(
     BoardInfo_t* boardInfo,
     PinmaskContainer_t pinmasks,
     Bitboard_t enemyPieces,
-    Bitboard_t checkmask,
     Bitboard_t enPassantBB,
+    Bitboard_t checkmask,
     Color_t color
 )
 {
@@ -766,8 +766,8 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
         boardInfo,
         pinmasks,
         enemyPieces,
-        checkmask,
         ReadEnPassantSquares(stack),
+        checkmask,
         color
     );
 
