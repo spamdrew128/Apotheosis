@@ -9,6 +9,11 @@ enum {
 };
 
 // HELPERS
+static GameStack_t stack;
+
+static void TestSetup() {
+    InitGameStack(&stack);
+}
 
 // r3k2r/8/8/8/8/8/8/R3K2R
 static void InitAllCastlingLegalInfo(BoardInfo_t* info) {
@@ -284,6 +289,7 @@ static void InitPromotionCastleBreakPositionExpected(BoardInfo_t* expectedInfo, 
 
 // TESTS
 static void ShouldCastleKingside() {
+    TestSetup();
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
     GameStateOld_t expectedState;
@@ -305,6 +311,7 @@ static void ShouldCastleKingside() {
 }
 
 static void ShouldCastleQueenside() {
+    TestSetup();
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
     GameStateOld_t expectedState;
@@ -326,6 +333,7 @@ static void ShouldCastleQueenside() {
 }
 
 static void ShouldQuietPromote() {
+    TestSetup();
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
     GameStateOld_t expectedState;
@@ -348,6 +356,7 @@ static void ShouldQuietPromote() {
 }
 
 static void ShouldCapturePromote() {
+    TestSetup();
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
     GameStateOld_t expectedState;
@@ -370,6 +379,7 @@ static void ShouldCapturePromote() {
 }
 
 static void ShouldWhiteEnPassant() {
+    TestSetup();
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
     GameStateOld_t expectedState;
@@ -391,6 +401,7 @@ static void ShouldWhiteEnPassant() {
 }
 
 static void ShouldBlackEnPassant() {
+    TestSetup();
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
     GameStateOld_t expectedState;
@@ -412,6 +423,7 @@ static void ShouldBlackEnPassant() {
 }
 
 static void ShouldMakeNormalQuietMoves() {
+    TestSetup();
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
     GameStateOld_t expectedState;
@@ -432,6 +444,7 @@ static void ShouldMakeNormalQuietMoves() {
 }
 
 static void ShouldDoublePushPawns(Color_t moveColor) {
+    TestSetup();
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
     GameStateOld_t expectedState;
@@ -457,6 +470,7 @@ static void ShouldDoublePushPawns(Color_t moveColor) {
 }
 
 static void ShouldMakeNormalCaptures() {
+    TestSetup();
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
     GameStateOld_t expectedState;
@@ -477,6 +491,7 @@ static void ShouldMakeNormalCaptures() {
 }
 
 static void CapturingRookShouldRemoveCastleSquares() {
+    TestSetup();
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
     GameStateOld_t expectedState;
@@ -497,6 +512,7 @@ static void CapturingRookShouldRemoveCastleSquares() {
 }
 
 static void PromotionCaptureShouldRemoveCastleSquares() {
+    TestSetup();
     BoardInfo_t info;
     BoardInfo_t expectedInfo;
     GameStateOld_t expectedState;
@@ -559,6 +575,7 @@ static bool GenericTestUnmake(BoardInfo_t* startInfo, Move_t move, Color_t moveC
 }
 
 static void ShouldCastleKingsideUnmake(){
+    TestSetup();
     BoardInfo_t info;
     InitAllCastlingLegalInfo(&info);
 
@@ -572,6 +589,7 @@ static void ShouldCastleKingsideUnmake(){
 }
 
 static void ShouldCastleQueensideUnmake() {
+    TestSetup();
     BoardInfo_t info;
     InitAllCastlingLegalInfo(&info);
 
@@ -585,6 +603,7 @@ static void ShouldCastleQueensideUnmake() {
 }
 
 static void ShouldQuietPromoteUnmake() {
+    TestSetup();
     BoardInfo_t info;
     InitPromotionPostionInfo(&info);
 
@@ -599,6 +618,7 @@ static void ShouldQuietPromoteUnmake() {
 }
 
 static void ShouldCapturePromoteUnmake() {
+    TestSetup();
     BoardInfo_t info;
     InitPromotionPostionInfo(&info);
 
@@ -613,6 +633,7 @@ static void ShouldCapturePromoteUnmake() {
 }
 
 static void ShouldWhiteEnPassantUnmake() {
+    TestSetup();
     BoardInfo_t info;
     InitBothSidesEnPassantInfo(&info);
 
@@ -626,6 +647,7 @@ static void ShouldWhiteEnPassantUnmake() {
 }
 
 static void ShouldBlackEnPassantUnmake() {
+    TestSetup();
     BoardInfo_t info;
     InitBothSidesEnPassantInfo(&info);
 
@@ -639,6 +661,7 @@ static void ShouldBlackEnPassantUnmake() {
 }
 
 static void ShouldUnmakeNormalQuietMoves() {
+    TestSetup();
     BoardInfo_t info;
     InitNormalPosition(&info);
 
@@ -651,6 +674,7 @@ static void ShouldUnmakeNormalQuietMoves() {
 }
 
 static void ShouldUnmakeNormalCaptures() {
+    TestSetup();
     BoardInfo_t info;
     InitNormalPosition(&info);
 
