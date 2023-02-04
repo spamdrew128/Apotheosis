@@ -257,12 +257,11 @@ void MakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
 static void RevertPieceCapture(
     BoardInfo_t* boardInfo,
     Square_t capturedSquare,
+    Bitboard_t capturedBB,
     Piece_t type,
     Color_t capturedPieceColor
 ) 
 {
-    Bitboard_t capturedBB = GetSingleBitset(capturedSquare);
-
     SetBits(GetPieceInfoField(boardInfo, type, capturedPieceColor), capturedBB);
 
     SetBits(&(boardInfo->allPieces[capturedPieceColor]), capturedBB);
@@ -329,11 +328,7 @@ static void UnmakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t 
         color
     );
 
-    AddPieceToMailbox(
-        boardInfo,
-        currentSquare,
-        pawn
-    );
+    AddPieceToMailbox(boardInfo, currentSquare, pawn);
 
     UpdateBoardInfoField(
         boardInfo,
@@ -349,6 +344,7 @@ static void UnmakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t 
         RevertPieceCapture(
             boardInfo,
             currentSquare,
+            currentBB,
             capturedPiece,
             !color
         );
@@ -356,7 +352,29 @@ static void UnmakePromotionHandler(BoardInfo_t* boardInfo, Move_t move, Color_t 
 }
 
 static void UnmakeEnPassantHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
+    Square_t originalSquare = ReadFromSquare(move);
+    Square_t currentSquare = ReadToSquare(move);
+    Bitboard_t originalBB = GetSingleBitset(originalSquare);
+    Bitboard_t currentBB = GetSingleBitset(currentSquare);
+    Bitboard_t enPassantBB = GetEnPassantBB(currentBB, color);
 
+    RevertPieceCapture(
+        boardInfo,
+        LSB(enPassantBB),
+        enPassantBB,
+        pawn,
+        !color
+    );
+
+    UpdateBoardInfoField(
+        boardInfo,
+        &(boardInfo->pawns[color]),
+        currentBB,
+        originalBB,
+        currentSquare,
+        originalSquare,
+        color
+    );
 }
 
 void UnmakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
@@ -370,7 +388,7 @@ void UnmakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
             UnmakePromotionHandler(boardInfo, move, color);
         break;
         case en_passant_flag:
-            // UnmakeEnPassantHandler(boardInfo, move, color);
+            UnmakeEnPassantHandler(boardInfo, move, color);
         break;
         default:
             // UnmakeMoveDefaultHandler(boardInfo, move, color);
