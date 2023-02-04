@@ -71,7 +71,6 @@ static void StartFENInterpretedCorrectly() {
     BoardInfo_t expectedInfo;
     GameState_t expectedState;
 
-    InitBoardInfo(&info);
     InitStartFENExpectedInfo(&expectedInfo, &expectedState);
     InterpretFEN(START_FEN, &info);
 
@@ -83,7 +82,6 @@ static void ComplexFENInterpretedCorrectly() {
     BoardInfo_t expectedInfo;
     GameState_t expectedState;
     
-    InitBoardInfo(&info);
     InitComplexFENExpectedInfo(&expectedInfo, &expectedState);
     InterpretFEN(COMPLEX_FEN, &info);
 

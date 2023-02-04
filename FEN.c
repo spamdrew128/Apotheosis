@@ -87,6 +87,8 @@ static void UpdateHalfmoveClock(FEN_t fen, int i, GameState_t* state) {
 }
 
 Color_t InterpretFEN(FEN_t fen, BoardInfo_t* info) {
+    InitBoardInfo(info);
+
     int rank = 7; // a8 - h8
     int file = 0;
 
