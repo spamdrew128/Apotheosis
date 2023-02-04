@@ -95,6 +95,6 @@ void PERFTRunner(FEN_t fen, int depth, bool runTests) {
 
         PerftCount_t count = 0;
         SplitPERFT(&info, depth, &count, color);
-        printf("\nDepth %d found %lld\n", depth, count);
+        printf("\nDepth %d found %lld positions\n", depth, count);
     }
 }
