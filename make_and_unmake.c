@@ -377,6 +377,36 @@ static void UnmakeEnPassantHandler(BoardInfo_t* boardInfo, Move_t move, Color_t 
     );
 }
 
+static void UnmakeMoveDefaultHandler(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
+    Square_t originalSquare = ReadFromSquare(move);
+    Square_t currentSquare = ReadToSquare(move);
+    Bitboard_t originalBB = GetSingleBitset(originalSquare);
+    Bitboard_t currentBB = GetSingleBitset(currentSquare);
+
+    Piece_t piece = PieceOnSquare(boardInfo, currentSquare);
+
+    UpdateBoardInfoField(
+        boardInfo,
+        GetPieceInfoField(boardInfo, PieceOnSquare(boardInfo, currentSquare), color),
+        currentBB,
+        originalBB,
+        currentSquare,
+        originalSquare,
+        color
+    );
+  
+    Piece_t capturedPiece = ReadCapturedPiece();
+    if(capturedPiece != none_type) {
+        RevertPieceCapture(
+            boardInfo,
+            currentSquare,
+            currentBB,
+            capturedPiece,
+            !color
+        );
+    }
+}
+
 void UnmakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
     SpecialFlag_t specialFlag = ReadSpecialFlag(move);
     
@@ -391,7 +421,7 @@ void UnmakeMove(BoardInfo_t* boardInfo, Move_t move, Color_t color) {
             UnmakeEnPassantHandler(boardInfo, move, color);
         break;
         default:
-            // UnmakeMoveDefaultHandler(boardInfo, move, color);
+            UnmakeMoveDefaultHandler(boardInfo, move, color);
         break;
     }
 
