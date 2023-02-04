@@ -6,6 +6,12 @@
 #include "movegen.h"
 #include "make_and_unmake.h"
 
+static GameStack_t stack;
+
+static void TestSetup() {
+    InitGameStack(&stack);
+}
+
 static bool UnmakeSuccess(BoardInfo_t* info, BoardInfo_t* originalInfo, GameStateOld_t* initalState) {
     bool infoMatches = CompareInfo(info, originalInfo);
     bool stateMatches = CompareStateOld(initalState);
@@ -53,9 +59,10 @@ static void UnmakeTest(BoardInfo_t* boardInfo, int depth, Color_t color) {
 
 void UnmakeRecursiveTestRunner(FEN_t fen, int depth, bool runTests) {
     tests = 0;
+    TestSetup();
     if(runTests) {
         BoardInfo_t info;
-        Color_t color = InterpretFEN(fen, &info);
+        Color_t color = InterpretFEN(fen, &info, &stack);
         UnmakeTest(&info, depth, color);
     }
 }
@@ -81,9 +88,10 @@ static void SplitPERFT(BoardInfo_t* boardInfo, int depth, Color_t color) {
 
 void PERFTRunner(FEN_t fen, int depth, bool runTests) {
     tests = 0;
+    TestSetup();
     if(runTests) {
         BoardInfo_t info;
-        Color_t color = InterpretFEN(fen, &info);
+        Color_t color = InterpretFEN(fen, &info, &stack);
         SplitPERFT(&info, depth, color);
         printf("%d test run\n", tests);
     }
