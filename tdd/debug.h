@@ -7,7 +7,6 @@
 #include "bitboards.h"
 #include "board_info.h"
 #include "movegen.h"
-#include "game_state_old.h"
 #include "game_state.h"
 
 #define PrintResults(success) \
@@ -40,8 +39,6 @@ Bitboard_t CreateBitboard(int numOccupied, ...);
 void AddGameStateToStack(GameState_t stateToAdd, GameStack_t* stack);
 
 bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo);
-
-bool CompareStateOld(GameStateOld_t* expectedState);
 
 bool CompareState(GameState_t* expectedState, GameStack_t* stack);
 

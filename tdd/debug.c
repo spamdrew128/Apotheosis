@@ -186,15 +186,6 @@ bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo) {
     return success;
 }
 
-bool CompareStateOld(GameStateOld_t* expectedState) {
-    return
-        (ReadHalfmoveClockOld() == expectedState->halfmoveClock) &&
-        (ReadEnPassantSquaresOld() == expectedState->enPassantSquares) &&
-        (ReadCastleSquaresOld(white) == expectedState->castleSquares[white]) &&
-        (ReadCastleSquaresOld(black) == expectedState->castleSquares[black]) &&
-        (ReadCapturedPieceOld() == expectedState->capturedPiece);
-}
-
 bool CompareState(GameState_t* expectedState, GameStack_t* stack) {
     return
         (ReadHalfmoveClock(stack) == expectedState->halfmoveClock) &&

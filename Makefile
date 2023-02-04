@@ -12,7 +12,6 @@ magic.c \
 RNG.c \
 legals.c \
 movegen.c \
-game_state_old.c \
 game_state.c \
 move.c \
 make_and_unmake.c
@@ -27,7 +26,6 @@ magic.o \
 RNG.o \
 legals.o \
 movegen.o \
-game_state_old.o \
 game_state.o \
 move.o \
 make_and_unmake.o
