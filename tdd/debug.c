@@ -150,6 +150,14 @@ void PrintMoveList(MoveList_t* moveList, BoardInfo_t* info) {
     PrintSingleTypeMoves(moveList, info, pawn, "Pawn");
 }
 
+void PrintMove(Move_t move) {
+    char fromText[3];
+    char toText[3];
+    SquareToString(ReadFromSquare(move), fromText);
+    SquareToString(ReadToSquare(move), toText);
+    printf("\nMove from %s To %s\n", fromText, toText);
+}
+
 void AddGameStateToStack(GameState_t stateToAdd) {
     GameState_t* gameState = GetEmptyNextGameState();
     *gameState = stateToAdd;

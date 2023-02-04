@@ -45,7 +45,7 @@ static void ShouldGetDefaultState() {
     GameState_t* state = GetSomeGamestate();
 
     GameState_t expected = {
-        .capturedPiece = some_captured_piece,
+        .capturedPiece = none_type,
         .halfmoveClock = state->halfmoveClock + 1,
         .castleSquares = {state->castleSquares[white], state->castleSquares[black]},
         .enPassantSquares = empty_set

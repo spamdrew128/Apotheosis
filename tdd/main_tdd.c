@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     MakeMoveTDDRunner();
     UnmakeMoveTDDRunner();
 
-    UnmakeRecursiveTestRunner(START_FEN, 1, true);
+    UnmakeRecursiveTestRunner(START_FEN, 4, false);
 
     TeardownLookup();
 }

@@ -37,7 +37,7 @@ GameState_t* GetEmptyNextGameState() {
 GameState_t* GetDefaultNextGameState() {
     GameState_t* defaultState = &(NextState(stack));
 
-    defaultState->capturedPiece = ReadCapturedPiece();
+    defaultState->capturedPiece = none_type;
     defaultState->halfmoveClock = ReadHalfmoveClock() + 1;
     defaultState->castleSquares[white] = ReadCastleSquares(white);
     defaultState->castleSquares[black] = ReadCastleSquares(black);

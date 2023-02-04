@@ -32,6 +32,8 @@ void PrintChessboard(BoardInfo_t* info);
 
 void PrintMoveList(MoveList_t* moveList, BoardInfo_t* info);
 
+void PrintMove(Move_t move);
+
 Bitboard_t CreateBitboard(int numOccupied, ...);
 
 void AddGameStateToStack(GameState_t stateToAdd);
