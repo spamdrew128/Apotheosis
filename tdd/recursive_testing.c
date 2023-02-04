@@ -69,21 +69,21 @@ void UnmakeRecursiveTestRunner(FEN_t fen, int depth, bool runTests) {
 }
 
 static void SplitPERFT(BoardInfo_t* boardInfo, int depth, PerftCount_t* count, Color_t color) {
-    if(depth == 0) {
-        (*count)++;
-        return;
-    }
-
     MoveList_t moveList;
     CompleteMovegen(&moveList, boardInfo, &stack, color);
 
-    for(int i = 0; i <= moveList.maxIndex; i++) {
-        Move_t move = moveList.moves[i];
-        MakeMove(boardInfo, &stack, move, color);
+    if(depth > 1) {
+        for(int i = 0; i <= moveList.maxIndex; i++) {
+            Move_t move = moveList.moves[i];
+            MakeMove(boardInfo, &stack, move, color);
 
-        SplitPERFT(boardInfo, depth-1, count, !color);
+            SplitPERFT(boardInfo, depth-1, count, !color);
 
-        UnmakeMove(boardInfo, &stack, move, color);
+            UnmakeMove(boardInfo, &stack, move, color);
+        }
+    } else {
+        *count += moveList.maxIndex + 1;
+        return;
     }
 }
 
