@@ -163,6 +163,10 @@ void SpeedTest(FEN_t fen, int depth, bool runTests) {
 
         t = clock() - t;
         double time_taken = ((double)t)/CLOCKS_PER_SEC;
-        printf("%f\n", time_taken);
+        double nodes = (double)totalCount;
+        double MNPS = (nodes / 1000000) / time_taken;
+
+        printf("%lld Nodes in %f seconds\n", totalCount, time_taken);
+        printf("%f MNPS\n", MNPS);
     }
 }
