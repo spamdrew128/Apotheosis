@@ -2,6 +2,7 @@
 #include <stdarg.h>
 
 #include "debug.h"
+#include "lookup.h"
 
 static void FillBoardArray(char boardArray[], Bitboard_t b, char fillChar) {
     while(b) {
@@ -220,4 +221,91 @@ bool CompareState(GameState_t* expectedState, GameStack_t* stack) {
         (ReadCastleSquares(stack, white) == expectedState->castleSquares[white]) &&
         (ReadCastleSquares(stack, black) == expectedState->castleSquares[black]) &&
         (ReadCapturedPiece(stack) == expectedState->capturedPiece);
+}
+
+static bool InvalidMailbox(
+    BoardInfo_t* info,
+    int numPawns,
+    int numKnights,
+    int numBishops,
+    int numRooks,
+    int numQueens,
+    int numKings,
+    int numEmpty
+)
+{
+    for(int i = 0; i < NUM_SQUARES; i++) {
+        Piece_t piece = PieceOnSquare(info, i);
+        switch (piece)
+        {
+            case pawn:
+                numPawns--;
+                break;
+            case knight:
+                numKnights--;
+                break;
+            case bishop:
+                numBishops--;
+                break;
+            case rook:
+                numRooks--;
+                break;
+            case queen:
+                numQueens--;
+                break;
+            case king:
+                numKings--;
+                break;
+            default:
+                numEmpty--;
+                break;
+        }
+    }
+
+    return (numPawns || numKnights || numBishops || numRooks || numQueens || numKings || numEmpty);
+}
+
+static bool EnemyKingCanBeCaptured(BoardInfo_t *info, Color_t colorToMove) {
+    Bitboard_t pawnAttacks;
+    if(colorToMove == white) {
+        pawnAttacks = NoEaOne(info->pawns[colorToMove]) | NoWeOne(info->pawns[colorToMove]);
+    } else {
+        pawnAttacks = SoEaOne(info->pawns[colorToMove]) | SoWeOne(info->pawns[colorToMove]);
+    }
+
+    Bitboard_t
+}
+
+bool BoardIsValid(BoardInfo_t *info, Color_t color) {
+    assert(info != NULL);
+    Population_t numPawns = PopulationCount(info->pawns[white] | info->pawns[black]);
+    Population_t numKnights = PopulationCount(info->knights[white] | info->knights[black]);
+    Population_t numBishops = PopulationCount(info->bishops[white] | info->bishops[black]);
+    Population_t numRooks = PopulationCount(info->rooks[white] | info->rooks[black]);
+    Population_t numQueens = PopulationCount(info->queens[white] | info->queens[black]);
+    Population_t numKings = PopulationCount(info->kings[white] | info->kings[black]);
+    Population_t numEmpty = PopulationCount(info->empty);
+
+
+    if(PopulationCount(info->kings[white]) != 1 || PopulationCount(info->kings[black]) != 1) {
+        return false;
+    }
+
+    if((PopulationCount(info->pawns[white]) > 8 || PopulationCount(info->pawns[black]) > 8)) {
+        return false;
+    }
+
+    if(info->allPieces[white] & info->allPieces[black]) {
+        return false;
+    }
+
+    if(info->empty & (info->allPieces[white] | info->allPieces[black])) {
+        return false;
+    }
+
+    if(InvalidMailbox(info, numPawns, numKnights, numBishops, numRooks, numQueens, numKings, numEmpty)) {
+        return false;
+    }
+
+    return true;
 }
