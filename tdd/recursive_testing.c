@@ -75,8 +75,13 @@ static void _SplitPERFTHelper(BoardInfo_t* boardInfo, int depth, PerftCount_t* c
     if(depth > 1) {
         for(int i = 0; i <= moveList.maxIndex; i++) {
             Move_t move = moveList.moves[i];
+            if(ReadToSquare(move) == LSB(boardInfo->kings[!color])) {
+                printf("what");
+            }
             MakeMove(boardInfo, &stack, move, color);
 
+            // PrintMove(move, true);
+            PrintChessboard(boardInfo);
             _SplitPERFTHelper(boardInfo, depth-1, count, !color);
 
             UnmakeMove(boardInfo, &stack, move, color);
