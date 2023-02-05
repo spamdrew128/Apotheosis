@@ -46,7 +46,7 @@ static void UnmakeTest(BoardInfo_t* boardInfo, int depth, Color_t color) {
 
         UnmakeTest(boardInfo, depth-1, !color);
 
-        UnmakeMove(boardInfo, &stack, move, color);
+        UnmakeMove(boardInfo, &stack);
 
         if(!UnmakeSuccess(boardInfo, &initialInfo, &initalState)) {
             PrintChessboard(&initialInfo);
@@ -79,7 +79,7 @@ static void _SplitPERFTHelper(BoardInfo_t* boardInfo, int depth, PerftCount_t* c
 
             _SplitPERFTHelper(boardInfo, depth-1, count, !color);
 
-            UnmakeMove(boardInfo, &stack, move, color);
+            UnmakeMove(boardInfo, &stack);
         }
     } else {
         *count += moveList.maxIndex + 1;
@@ -111,7 +111,7 @@ static PerftCount_t SplitPERFT(BoardInfo_t* boardInfo, int depth, Color_t color)
             total += 1;
         }
 
-        UnmakeMove(boardInfo, &stack, move, color);
+        UnmakeMove(boardInfo, &stack);
     }
 
     return total;

@@ -570,7 +570,7 @@ static bool GenericTestUnmake(BoardInfo_t* startInfo, Move_t move, Color_t moveC
     originalState.capturedPiece = ReadCapturedPiece(&stack);
 
     MakeMove(startInfo, &stack, move, moveColor);
-    UnmakeMove(startInfo, &stack, move, moveColor);
+    UnmakeMove(startInfo, &stack);
 
     bool infoMatches = CompareInfo(startInfo, &expectedInfo);
     bool stateMatches = CompareState(&originalState, &stack);
