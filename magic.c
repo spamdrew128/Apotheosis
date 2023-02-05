@@ -138,6 +138,7 @@ static void FillHashTable(
     BlockersToAttacksCallback_t callback
 )
 {
+    assert(hashTable != NULL);
     uint8_t indexBits = 64-shift;
     int tableEntries = DistinctBlockers(indexBits);
 
@@ -197,6 +198,7 @@ void InitBishopEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
 
 void FreeMagicEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
     for(Square_t square = 0; square < NUM_SQUARES; square++) {
+        assert(magicEntries[square].hashTable != NULL);
         free(magicEntries[square].hashTable);
     }
 }
