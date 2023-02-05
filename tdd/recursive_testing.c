@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <time.h>
 
 #include "recursive_testing.h"
 #include "debug.h"
@@ -126,5 +127,42 @@ void PERFTRunner(FEN_t fen, int depth, bool runTests) {
         printf("\n");
         PerftCount_t totalCount = SplitPERFT(&info, depth, color);
         printf("\nDepth %d found %lld positions\n", depth, totalCount);
+    }
+}
+
+static void FullySearchTree(BoardInfo_t* boardInfo, int depth, PerftCount_t* count, Color_t color) {
+    if(depth == 0) {
+        (*count)++;
+        return;
+    }
+
+    MoveList_t moveList;
+    CompleteMovegen(&moveList, boardInfo, &stack, color);
+    for(int i = 0; i <= moveList.maxIndex; i++) {
+        Move_t move = moveList.moves[i];
+        MakeMove(boardInfo, &stack, move, color);
+
+        FullySearchTree(boardInfo, depth-1, count, !color);
+
+        UnmakeMove(boardInfo, &stack);
+    }
+}
+
+void SpeedTest(FEN_t fen, int depth, bool runTests) {
+    TestSetup();
+    if(runTests) {
+        BoardInfo_t info;
+        Color_t color = InterpretFEN(fen, &info, &stack);
+
+        clock_t t;
+        t = clock();
+
+        printf("\n");
+        PerftCount_t totalCount = 0;
+        FullySearchTree(&info, depth, &totalCount, color);
+
+        t = clock() - t;
+        double time_taken = ((double)t)/CLOCKS_PER_SEC;
+        printf("%f\n", time_taken);
     }
 }

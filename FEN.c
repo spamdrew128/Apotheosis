@@ -194,5 +194,7 @@ Color_t InterpretFEN(FEN_t fen, BoardInfo_t* info, GameStack_t* stack) {
     i++;
     UpdateHalfmoveClock(fen, i, gameState);
 
+    gameState->boardInfo = *info;
+
     return colorToMove;
 }
