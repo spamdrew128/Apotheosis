@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 
     UnmakeRecursiveTestRunner("r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R w Kq - 0 1", 5, false);
 
-    FEN_t fen = "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1";
+    FEN_t fen = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10";
     // fen = START_FEN;
     PERFTRunner(fen, 5, true);
 
