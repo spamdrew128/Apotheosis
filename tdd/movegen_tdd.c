@@ -127,6 +127,7 @@ static void ShouldCorrectlyEvaluateDoubleEnPassant() {
         (wMoveList.maxIndex == 1) && (bMoveList.maxIndex == 1);
 
     PrintResults(success);
+    PrintMoveList(&wMoveList, &info); PrintMoveList(&bMoveList, &info);
 }
 
 static void ShouldCorrectlyEvaluatePinnedEnPassant() {
