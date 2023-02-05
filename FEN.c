@@ -1,10 +1,18 @@
 #include <stdio.h>
 #include <assert.h>
-#include <math.h>
 
 #include "FEN.h"
 #include "lookup.h"
 #include "board_constants.h"
+
+static double usr_pow(int x, int y) {
+    double result = 1;
+    for(int i = 0; i < y; i++) {
+        result *= x;
+    }
+
+    return result;
+}
 
 static int CharToInt(char c) {
     return ((int) c) - 48;
@@ -77,7 +85,7 @@ static void UpdateHalfmoveClock(FEN_t fen, int i, GameState_t* state) {
 
     int j = i;
     while(numDigits) {
-        halfmoves += (int)pow(10, numDigits-1) * CharToInt(fen[j]);
+        halfmoves += usr_pow(10, numDigits-1) * CharToInt(fen[j]);
         numDigits--;
         j++;
     }

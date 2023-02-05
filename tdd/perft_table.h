@@ -7,7 +7,7 @@
 #include "FEN.h"
 #include "perft_table_entries.h"
 
-typedef uint64_t PerftCount_t;
+typedef unsigned long long PerftCount_t;
 
 typedef struct {
     FEN_t fen;
