@@ -66,7 +66,7 @@ static void UpdateBoardInfoField(
     MovePieceInMailbox(boardInfo, toSquare, fromSquare);
 }
 
-static void MakeCastlingHandler(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, Color_t color) {
+static void MakeCastlingHandler(BoardInfo_t* boardInfo, GameState_t* nextState, Move_t move, Color_t color) {
     Square_t kingFromSquare = ReadFromSquare(move);
     Square_t kingToSquare = ReadToSquare(move);
 
@@ -110,16 +110,13 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, GameStack_t* gameStack, 
         );
     }
 
-    GameState_t* nextState = GetDefaultNextGameState(gameStack);
     nextState->castleSquares[color] = empty_set;
-    nextState->boardInfo = *boardInfo;
 }
 
-static void MakePromotionHandler(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, Color_t color) {
+static void MakePromotionHandler(BoardInfo_t* boardInfo, GameState_t* nextState, Move_t move, Color_t color) {
     Square_t fromSquare = ReadFromSquare(move);
     Square_t toSquare = ReadToSquare(move);
     Piece_t promotionPiece = ReadPromotionPiece(move);
-    GameState_t* nextState = GetDefaultNextGameState(gameStack);
 
     Piece_t capturedPiece = PieceOnSquare(boardInfo, toSquare);
     if(capturedPiece != none_type) {
@@ -147,7 +144,6 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, GameStack_t* gameStack,
     SetBits(GetPieceInfoField(boardInfo, promotionPiece, color), toBB);
 
     nextState->halfmoveClock = empty_set;
-    nextState->boardInfo = *boardInfo;
 }
 
 static Bitboard_t GetEnPassantBB(Bitboard_t toBB, Color_t color) {
@@ -158,7 +154,7 @@ static Bitboard_t GetEnPassantBB(Bitboard_t toBB, Color_t color) {
     }
 }
 
-static void MakeEnPassantHandler(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, Color_t color) {
+static void MakeEnPassantHandler(BoardInfo_t* boardInfo, GameState_t* nextState, Move_t move, Color_t color) {
     Square_t fromSquare = ReadFromSquare(move);
     Square_t toSquare = ReadToSquare(move);
     Bitboard_t fromBB = GetSingleBitset(fromSquare);
@@ -181,19 +177,16 @@ static void MakeEnPassantHandler(BoardInfo_t* boardInfo, GameStack_t* gameStack,
         color
     );
 
-    GameState_t* nextState = GetDefaultNextGameState(gameStack);
     nextState->halfmoveClock = empty_set;
     nextState->enPassantSquares = empty_set;
     nextState->capturedPiece = pawn;
-    nextState->boardInfo = *boardInfo;
 }
 
-static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, Color_t color) {
+static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextState, Move_t move, Color_t color) {
     Square_t fromSquare = ReadFromSquare(move);
     Square_t toSquare = ReadToSquare(move);
     Bitboard_t fromBB = GetSingleBitset(fromSquare);
     Bitboard_t toBB = GetSingleBitset(toSquare);
-    GameState_t* nextState = GetDefaultNextGameState(gameStack);
 
     Piece_t capturedPiece = PieceOnSquare(boardInfo, toSquare);
     if(capturedPiece != none_type) {
@@ -234,28 +227,29 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameStack_t* gameStac
     );
 
     UpdateCastleSquares(nextState, boardInfo, color);
-    nextState->boardInfo = *boardInfo;
 }
 
 void MakeMove(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, Color_t moveColor) {
     SpecialFlag_t specialFlag = ReadSpecialFlag(move);
+    GameState_t* nextState = GetDefaultNextGameState(gameStack);
     
     switch (specialFlag) {
         case castle_flag:
-            MakeCastlingHandler(boardInfo, gameStack, move, moveColor);
+            MakeCastlingHandler(boardInfo, nextState, move, moveColor);
         break;
         case promotion_flag:
-            MakePromotionHandler(boardInfo, gameStack, move, moveColor);
+            MakePromotionHandler(boardInfo, nextState, move, moveColor);
         break;
         case en_passant_flag:
-            MakeEnPassantHandler(boardInfo, gameStack, move, moveColor);
+            MakeEnPassantHandler(boardInfo, nextState, move, moveColor);
         break;
         default:
-            MakeMoveDefaultHandler(boardInfo, gameStack, move, moveColor);
+            MakeMoveDefaultHandler(boardInfo, nextState, move, moveColor);
         break;
     }
 
     UpdateEmpty(boardInfo);
+    nextState->boardInfo = *boardInfo;
 }
 
 void UnmakeMove(BoardInfo_t* boardInfo, GameStack_t* gameStack) {

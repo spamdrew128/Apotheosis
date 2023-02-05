@@ -303,7 +303,7 @@ static bool EnemyKingCanBeCaptured(BoardInfo_t *info, Color_t colorToMove) {
     return info->kings[!colorToMove] & attacks;
 }
 
-bool BoardIsValid(BoardInfo_t *info, Color_t color) {
+bool BoardIsValid(BoardInfo_t *info, GameStack_t* gameStack, Color_t color) {
     assert(info != NULL);
     Population_t numPawns = PopulationCount(info->pawns[white] | info->pawns[black]);
     Population_t numKnights = PopulationCount(info->knights[white] | info->knights[black]);
@@ -355,6 +355,11 @@ bool BoardIsValid(BoardInfo_t *info, Color_t color) {
     }
 
     if(EnemyKingCanBeCaptured(info, color)) {
+        return false;
+    }
+
+    BoardInfo_t savedInfo = ReadCurrentBoardInfo(gameStack);
+    if(!CompareInfo(info, &savedInfo)) {
         return false;
     }
 

@@ -42,6 +42,6 @@ bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo);
 
 bool CompareState(GameState_t* expectedState, GameStack_t* stack);
 
-bool BoardIsValid(BoardInfo_t *info, Color_t color);
+bool BoardIsValid(BoardInfo_t *info, GameStack_t* gameStack, Color_t color);
 
 #endif

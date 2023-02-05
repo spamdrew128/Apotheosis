@@ -21,12 +21,12 @@ static void PERFT(BoardInfo_t* boardInfo, int depth, PerftCount_t* count, Color_
         for(int i = 0; i <= moveList.maxIndex; i++) {
             Move_t move = moveList.moves[i];
             MakeMove(boardInfo, &stack, move, color);
-            assert(BoardIsValid(boardInfo, color));
+            assert(BoardIsValid(boardInfo, &stack, !color));
 
             PERFT(boardInfo, depth-1, count, !color);
 
             UnmakeMove(boardInfo, &stack);
-            assert(BoardIsValid(boardInfo, color));
+            assert(BoardIsValid(boardInfo, &stack, !color));
         }
     } else {
         *count += moveList.maxIndex + 1;
