@@ -31,10 +31,15 @@ static void PERFT(BoardInfo_t* boardInfo, int depth, PerftCount_t* count, Color_
 }
 
 void RunAllPerftTests(bool shouldRun) {
+    if(!shouldRun) {
+        return;
+    }
+
     PerftTestContainer_t table[NUM_ENTRYS] = {
         PERFT_TEST_TABLE(EXPAND_AS_TEST_CONTAINER)
     };
 
+    int testsRun = 0;
     for(int i = 0; i < NUM_ENTRYS; i++) {
         FEN_t fen = table[i].fen;
         for(int j = 0; j < MAX_DEPTH; j++) {
@@ -54,9 +59,9 @@ void RunAllPerftTests(bool shouldRun) {
                     printf("\nFailure at FEN %s and depth %d\n", fen, depth);
                 }
             }
-
         }
+        testsRun++;
+    } 
 
-    }
-    
+    printf("\nRan %d tests!", testsRun);
 }
