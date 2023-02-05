@@ -24,6 +24,7 @@ GameState_t* GetEmptyNextGameState(GameStack_t* stack) {
     nextState->castleSquares[white] = empty_set;
     nextState->castleSquares[black] = empty_set;
     nextState->enPassantSquares = empty_set;
+    InitBoardInfo(&nextState->boardInfo);
 
     stack->top++;
     return nextState;
@@ -68,6 +69,10 @@ Bitboard_t ReadCastleSquares(GameStack_t* stack, Color_t color) {
 
 Bitboard_t ReadEnPassantSquares(GameStack_t* stack) {
     return CurrentState(stack).enPassantSquares;
+}
+
+BoardInfo_t ReadCurrentBoardInfo(GameStack_t* stack) {
+    return CurrentState(stack).boardInfo;
 }
 
 GameState_t ReadCurrentGameState(GameStack_t* stack) {
