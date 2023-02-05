@@ -1,6 +1,6 @@
 CC=gcc
 INCDIRS=-I.
-CFLAGS=-Wall -O3 -std=c17 -march=native $(INCDIRS)
+CFLAGS=-Wall -g -std=c17 -march=native $(INCDIRS)
 
 COMMON_CFILES= \
 bitboards.c \
@@ -51,7 +51,8 @@ $(TDD)\legals_tdd.c \
 $(TDD)\movegen_tdd.c \
 $(TDD)\game_state_tdd.c \
 $(TDD)\make_and_unmake_tdd.c \
-$(TDD)\recursive_testing.c
+$(TDD)\recursive_testing.c \
+$(TDD)\perft_table.c
 
 D_OBJECTS= \
 $(TDD_MAIN).o \
@@ -67,7 +68,8 @@ $(TDD)\legals_tdd.o \
 $(TDD)\movegen_tdd.o \
 $(TDD)\game_state_tdd.o \
 $(TDD)\make_and_unmake_tdd.o \
-$(TDD)\recursive_testing.o
+$(TDD)\recursive_testing.o \
+$(TDD)\perft_table.o
 
 BINARY=bin
 DEBUG_BINARY=debug
