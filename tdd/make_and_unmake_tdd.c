@@ -26,6 +26,7 @@ static void InitAllCastlingLegalInfo(BoardInfo_t* info) {
     });
 
     AddStartingGameState(&stack);
+    stack.gameStates[stack.top].boardInfo = *info;
 }
 
 // r3k2r/8/8/8/8/8/8/R4RK1
@@ -70,6 +71,7 @@ static void InitPromotionPostionInfo(BoardInfo_t* info) {
     });
 
     AddStartingGameState(&stack);
+    stack.gameStates[stack.top].boardInfo = *info;
 }
 
 // 8/4P3/7K/8/8/7k/2p5/1Q6
@@ -120,6 +122,7 @@ static void InitBothSidesEnPassantInfo(BoardInfo_t* info) {
     state->castleSquares[black] = empty_set;
     state->enPassantSquares = CreateBitboard(2, c3,h6);
     state->capturedPiece = none_type;
+    state->boardInfo = *info;
 }
 
 static void InitSideEnPassantExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState, Color_t moveColor) {
@@ -165,6 +168,7 @@ static void InitNormalPosition(BoardInfo_t* info) {
     state->castleSquares[white] = empty_set;
     state->castleSquares[black] = empty_set;
     state->capturedPiece = none_type;
+    state->boardInfo = *info;
 }
 
 static void InitNormalQuietExpected(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
@@ -232,6 +236,7 @@ static void InitBreakCastlingPosition(BoardInfo_t* info) {
     InitAllCastlingLegalInfo(info);
     info->bishops[black] = CreateBitboard(1, f6);
     AddPieceToMailbox(info, f6, bishop);
+    stack.gameStates[stack.top].boardInfo = *info;
 }
 
 static void InitBreakCastlingPositionExpected(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
@@ -267,6 +272,7 @@ static void InitPromotionCastleBreakPosition(BoardInfo_t* info) {
     state->enPassantSquares = empty_set;
     state->castleSquares[white] = empty_set;
     state->castleSquares[black] = CreateBitboard(1, c8);
+    state->boardInfo = *info;
     state->capturedPiece = none_type;
 }
 
@@ -564,7 +570,7 @@ static bool GenericTestUnmake(BoardInfo_t* startInfo, Move_t move, Color_t moveC
     originalState.capturedPiece = ReadCapturedPiece(&stack);
 
     MakeMove(startInfo, &stack, move, moveColor);
-    UnmakeMove(startInfo, &stack, move, moveColor);
+    UnmakeMove(startInfo, &stack);
 
     bool infoMatches = CompareInfo(startInfo, &expectedInfo);
     bool stateMatches = CompareState(&originalState, &stack);

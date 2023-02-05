@@ -22,7 +22,7 @@ static void PERFT(BoardInfo_t* boardInfo, int depth, PerftCount_t* count, Color_
 
             PERFT(boardInfo, depth-1, count, !color);
 
-            UnmakeMove(boardInfo, &stack, move, color);
+            UnmakeMove(boardInfo, &stack);
         }
     } else {
         *count += moveList.maxIndex + 1;

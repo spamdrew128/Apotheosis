@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "board_constants.h"
+#include "board_info.h"
 
 typedef uint16_t HalfmoveCount_t;
 typedef struct {
@@ -10,6 +11,7 @@ typedef struct {
     HalfmoveCount_t halfmoveClock;
     Bitboard_t enPassantSquares;
     Bitboard_t castleSquares[2];
+    BoardInfo_t boardInfo;
 } GameState_t;
 
 typedef struct {
@@ -34,6 +36,8 @@ HalfmoveCount_t ReadHalfmoveClock(GameStack_t* stack);
 Bitboard_t ReadCastleSquares(GameStack_t* stack, Color_t color);
 
 Bitboard_t ReadEnPassantSquares(GameStack_t* stack);
+
+BoardInfo_t ReadCurrentBoardInfo(GameStack_t* stack);
 
 GameState_t ReadCurrentGameState(GameStack_t* stack);
 

@@ -8,4 +8,6 @@ void UnmakeRecursiveTestRunner(FEN_t fen, int depth, bool runTests);
 
 void PERFTRunner(FEN_t fen, int depth, bool runTests);
 
+void SpeedTest(FEN_t fen, int depth, bool runTests);
+
 #endif
