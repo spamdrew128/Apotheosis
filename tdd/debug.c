@@ -266,14 +266,40 @@ static bool InvalidMailbox(
 }
 
 static bool EnemyKingCanBeCaptured(BoardInfo_t *info, Color_t colorToMove) {
-    Bitboard_t pawnAttacks;
+    Bitboard_t attacks = 0;
     if(colorToMove == white) {
-        pawnAttacks = NoEaOne(info->pawns[colorToMove]) | NoWeOne(info->pawns[colorToMove]);
+        attacks |= NoEaOne(info->pawns[colorToMove]) | NoWeOne(info->pawns[colorToMove]);
     } else {
-        pawnAttacks = SoEaOne(info->pawns[colorToMove]) | SoWeOne(info->pawns[colorToMove]);
+        attacks |= SoEaOne(info->pawns[colorToMove]) | SoWeOne(info->pawns[colorToMove]);
     }
 
-    Bitboard_t
+    Bitboard_t d12Sliders = info->bishops[colorToMove] | info->queens[colorToMove];
+    Bitboard_t hvSliders = info->rooks[colorToMove] | info->queens[colorToMove];
+    Bitboard_t knights = info->knights[colorToMove];
+
+    while(d12Sliders) {
+        Square_t square = LSB(d12Sliders);
+        MagicEntry_t magicEntry = GetBishopMagicEntry(square);
+        Bitboard_t blockers = magicEntry.mask & ~(info->empty);
+        attacks |= GetSlidingAttackSet(magicEntry, blockers);
+        ResetLSB(&d12Sliders);
+    }
+
+    while(hvSliders) {
+        Square_t square = LSB(hvSliders);
+        MagicEntry_t magicEntry = GetRookMagicEntry(square);
+        Bitboard_t blockers = magicEntry.mask & ~(info->empty);
+        attacks |= GetSlidingAttackSet(magicEntry, blockers);
+        ResetLSB(&d12Sliders);
+    }
+
+    while(knights) {
+        Square_t square = LSB(knights);
+        attacks |= GetKnightAttacks(square);
+        ResetLSB(&d12Sliders);
+    }
+
+    return info->kings[!colorToMove] & attacks;
 }
 
 bool BoardIsValid(BoardInfo_t *info, Color_t color) {
@@ -304,6 +330,10 @@ bool BoardIsValid(BoardInfo_t *info, Color_t color) {
     }
 
     if(InvalidMailbox(info, numPawns, numKnights, numBishops, numRooks, numQueens, numKings, numEmpty)) {
+        return false;
+    }
+
+    if(EnemyKingCanBeCaptured(info, color)) {
         return false;
     }
 
