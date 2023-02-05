@@ -745,7 +745,8 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
     );
 
     Bitboard_t checkmask = full_set;
-    if(InCheck(boardInfo->kings[color], unsafeSquares)) {
+    bool inCheck = InCheck(boardInfo->kings[color], unsafeSquares);
+    if(inCheck) {
         checkmask = DefineCheckmask(boardInfo, color);
         if(IsDoubleCheck(boardInfo, checkmask, color)) {
             AddKingMoves(
@@ -788,12 +789,14 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
         boardInfo->empty
     );
 
-    AddCastlingMoves(
-        moveList,
-        boardInfo,
-        stack,
-        unsafeSquares,
-        kingSquare,
-        color
-    );
+    if(!inCheck) {
+        AddCastlingMoves(
+            moveList,
+            boardInfo,
+            stack,
+            unsafeSquares,
+            kingSquare,
+            color
+        );
+    }
 }

@@ -150,12 +150,36 @@ void PrintMoveList(MoveList_t* moveList, BoardInfo_t* info) {
     PrintSingleTypeMoves(moveList, info, pawn, "Pawn");
 }
 
+static char PieceToChar(Piece_t piece) {
+    switch (piece)
+    {
+        case knight:
+            return 'n';
+        case bishop:
+            return 'b';
+        case king:
+            return 'k';
+        case rook:
+            return 'r';
+        case pawn:
+            return 'p';
+        case queen:
+            return 'q';
+    }
+
+    return ' ';
+}
+
 void PrintMove(Move_t move, bool hasNewline) {
     char fromText[3];
     char toText[3];
     SquareToString(ReadFromSquare(move), fromText);
     SquareToString(ReadToSquare(move), toText);
     printf("%s%s", fromText, toText);
+
+    if(ReadSpecialFlag(move) == promotion_flag) {
+        printf("%c", PieceToChar(ReadPromotionPiece(move)));
+    }
     if(hasNewline) {
         printf("\n");
     }
