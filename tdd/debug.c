@@ -150,7 +150,74 @@ void PrintMoveList(MoveList_t* moveList, BoardInfo_t* info) {
     PrintSingleTypeMoves(moveList, info, pawn, "Pawn");
 }
 
-void AddGameStateToStack(GameState_t stateToAdd) {
-    GameState_t* gameState = GetUninitializedNextGameState();
+static char PieceToChar(Piece_t piece) {
+    switch (piece)
+    {
+        case knight:
+            return 'n';
+        case bishop:
+            return 'b';
+        case king:
+            return 'k';
+        case rook:
+            return 'r';
+        case pawn:
+            return 'p';
+        case queen:
+            return 'q';
+    }
+
+    return ' ';
+}
+
+void PrintMove(Move_t move, bool hasNewline) {
+    char fromText[3];
+    char toText[3];
+    SquareToString(ReadFromSquare(move), fromText);
+    SquareToString(ReadToSquare(move), toText);
+    printf("%s%s", fromText, toText);
+
+    if(ReadSpecialFlag(move) == promotion_flag) {
+        printf("%c", PieceToChar(ReadPromotionPiece(move)));
+    }
+    if(hasNewline) {
+        printf("\n");
+    }
+}
+
+void AddGameStateToStack(GameState_t stateToAdd, GameStack_t* stack) {
+    GameState_t* gameState = GetEmptyNextGameState(stack);
     *gameState = stateToAdd;
+}
+
+bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo) {
+    bool success = true;
+    for(int i = 0; i < 2; i++) {
+        success = success &&
+            (info->allPieces[i] == expectedInfo->allPieces[i]) &&
+            (info->pawns[i] == expectedInfo->pawns[i]) &&
+            (info->knights[i] == expectedInfo->knights[i]) &&
+            (info->bishops[i] == expectedInfo->bishops[i]) &&
+            (info->rooks[i] == expectedInfo->rooks[i]) &&
+            (info->queens[i] == expectedInfo->queens[i]) &&
+            (info->kings[i] == expectedInfo->kings[i]);
+    }
+
+    success = success && (info->empty == expectedInfo->empty);
+
+    for(int i = 0; i < NUM_SQUARES; i++) {
+        success = success && 
+            PieceOnSquare(info, i) == PieceOnSquare(expectedInfo, i);
+    }
+
+    return success;
+}
+
+bool CompareState(GameState_t* expectedState, GameStack_t* stack) {
+    return
+        (ReadHalfmoveClock(stack) == expectedState->halfmoveClock) &&
+        (ReadEnPassantSquares(stack) == expectedState->enPassantSquares) &&
+        (ReadCastleSquares(stack, white) == expectedState->castleSquares[white]) &&
+        (ReadCastleSquares(stack, black) == expectedState->castleSquares[black]) &&
+        (ReadCapturedPiece(stack) == expectedState->capturedPiece);
 }

@@ -1,6 +1,8 @@
 #ifndef __BITBOARDS_H__
 #define __BITBOARDS_H__
 
+#include <stdint.h>
+
 #include "board_constants.h"
 
 typedef Bitboard_t (*DirectionCallback_t)(Bitboard_t b); // putting this here cuz I use it everywhere
@@ -20,7 +22,7 @@ Bitboard_t SoutTwo(Bitboard_t b);
 Bitboard_t GenShiftEast(Bitboard_t b, uint8_t shift);
 Bitboard_t GenShiftWest(Bitboard_t b, uint8_t shift);
 
-typedef int Population_t;
+typedef uint8_t Population_t;
 Population_t PopulationCount(Bitboard_t b);
 
 Square_t LSB(Bitboard_t b);

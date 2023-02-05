@@ -12,17 +12,17 @@ enum {
 };
 
 // HELPERS
-static bool GameStateIsCorrect(GameState_t* expected) {
+static bool GameStateIsCorrect(GameStack_t* stack, GameState_t* expected) {
     return 
-        (ReadCapturedPiece() == expected->capturedPiece) &&
-        (ReadHalfmoveClock() == expected->halfmoveClock) &&
-        (ReadCastleSquares(white) == expected->castleSquares[white]) &&
-        (ReadCastleSquares(black) == expected->castleSquares[black]) &&
-        (ReadEnPassantSquares() == expected->enPassantSquares);
+        (ReadCapturedPiece(stack) == expected->capturedPiece) &&
+        (ReadHalfmoveClock(stack) == expected->halfmoveClock) &&
+        (ReadCastleSquares(stack, white) == expected->castleSquares[white]) &&
+        (ReadCastleSquares(stack, black) == expected->castleSquares[black]) &&
+        (ReadEnPassantSquares(stack) == expected->enPassantSquares);
 }
 
-static GameState_t* GetSomeGamestate() {
-    GameState_t* state = GetUninitializedNextGameState();
+static GameState_t* GetSomeGamestate(GameStack_t* stack) {
+    GameState_t* state = GetEmptyNextGameState(stack);
 
     state->capturedPiece = some_captured_piece;
     state->halfmoveClock = some_halfmove_clock;
@@ -35,36 +35,39 @@ static GameState_t* GetSomeGamestate() {
 
 // TESTS
 static void ShouldAddState() {
-    GameState_t* state = GetSomeGamestate();
+    GameStack_t stack;
+    InitGameStack(&stack);
+    GameState_t* state = GetSomeGamestate(&stack);
 
-    PrintResults(GameStateIsCorrect(state));
-    ResetGameStateStack();
+    PrintResults(GameStateIsCorrect(&stack, state));
 }
 
 static void ShouldGetDefaultState() {
-    GameState_t* state = GetSomeGamestate();
+    GameStack_t stack;
+    InitGameStack(&stack);
+    GameState_t* state = GetSomeGamestate(&stack);
 
     GameState_t expected = {
-        .capturedPiece = some_captured_piece,
+        .capturedPiece = none_type,
         .halfmoveClock = state->halfmoveClock + 1,
         .castleSquares = {state->castleSquares[white], state->castleSquares[black]},
         .enPassantSquares = empty_set
     };
 
-    GetDefaultNextGameState();
+    GetDefaultNextGameState(&stack);
 
-    PrintResults(GameStateIsCorrect(&expected));
-    ResetGameStateStack();
+    PrintResults(GameStateIsCorrect(&stack, &expected));
 }
 
 static void ShouldRevertState() {
-    GameState_t* state1 = GetSomeGamestate();
-    GetDefaultNextGameState(state1);
+    GameStack_t stack;
+    InitGameStack(&stack);
+    GameState_t* state1 = GetSomeGamestate(&stack);
+    GetDefaultNextGameState(&stack);
 
-    RevertState();
+    RevertState(&stack);
 
-    PrintResults(GameStateIsCorrect(state1));
-    ResetGameStateStack();
+    PrintResults(GameStateIsCorrect(&stack, state1));
 }
 
 void GameStateTDDRunner() {

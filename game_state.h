@@ -12,24 +12,31 @@ typedef struct {
     Bitboard_t castleSquares[2];
 } GameState_t;
 
-GameState_t* GetUninitializedNextGameState();
+typedef struct {
+    GameState_t gameStates[GAMESTATES_MAX];
+    int top;
+} GameStack_t;
 
-GameState_t* GetDefaultNextGameState();
+void InitGameStack(GameStack_t* stack);
 
-void AddStartingGameState();
+GameState_t* GetEmptyNextGameState(GameStack_t* stack);
 
-void RevertState();
+GameState_t* GetDefaultNextGameState(GameStack_t* stack);
 
-Piece_t ReadCapturedPiece();
+void AddStartingGameState(GameStack_t* stack);
 
-HalfmoveCount_t ReadHalfmoveClock();
+void RevertState(GameStack_t* stack);
 
-Bitboard_t ReadCastleSquares(Color_t color);
+Piece_t ReadCapturedPiece(GameStack_t* stack);
 
-Bitboard_t ReadEnPassantSquares();
+HalfmoveCount_t ReadHalfmoveClock(GameStack_t* stack);
 
-GameState_t ReadDefaultNextGameState();
+Bitboard_t ReadCastleSquares(GameStack_t* stack, Color_t color);
 
-void ResetGameStateStack();
+Bitboard_t ReadEnPassantSquares(GameStack_t* stack);
+
+GameState_t ReadCurrentGameState(GameStack_t* stack);
+
+GameState_t ReadDefaultNextGameState(GameStack_t* stack);
 
 #endif
