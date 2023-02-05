@@ -350,6 +350,9 @@ static void TryWhiteEnPassant(
     SetBits(&boardInfo->pawns[color], toBB);
     ResetBits(&boardInfo->pawns[!color], captureBB);
 
+    SetBits(&boardInfo->empty, fromBB|captureBB);
+    ResetBits(&boardInfo->empty, toBB);
+
     Bitboard_t unsafeSquares = WhiteUnsafeSquares(boardInfo);
     if(!InCheck(boardInfo->kings[color], unsafeSquares)) {
         InitializeNewMove(moveList);
@@ -363,6 +366,9 @@ static void TryWhiteEnPassant(
     SetBits(&boardInfo->pawns[color], fromBB);
     ResetBits(&boardInfo->pawns[color], toBB);
     SetBits(&boardInfo->pawns[!color], captureBB);
+
+    ResetBits(&boardInfo->empty, fromBB|captureBB);
+    SetBits(&boardInfo->empty, toBB);
 }
 
 static void TryBlackEnPassant(

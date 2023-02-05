@@ -34,7 +34,8 @@ int main(int argc, char** argv)
 
     FEN_t fen = "8/8/3p4/1Pp4r/1K3R2/6k1/4P1P1/8 w - c6 0 3";
     // fen = START_FEN;
-    PERFTRunner(fen, 1, true);
+    PERFTRunner(fen, 1, false);
+    PERFTRunner(START_FEN, 8, true);
 
     TeardownLookup();
 }
