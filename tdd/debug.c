@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdarg.h>
+#include <assert.h>
 
 #include "debug.h"
 #include "lookup.h"
@@ -290,13 +291,13 @@ static bool EnemyKingCanBeCaptured(BoardInfo_t *info, Color_t colorToMove) {
         MagicEntry_t magicEntry = GetRookMagicEntry(square);
         Bitboard_t blockers = magicEntry.mask & ~(info->empty);
         attacks |= GetSlidingAttackSet(magicEntry, blockers);
-        ResetLSB(&d12Sliders);
+        ResetLSB(&hvSliders);
     }
 
     while(knights) {
         Square_t square = LSB(knights);
         attacks |= GetKnightAttacks(square);
-        ResetLSB(&d12Sliders);
+        ResetLSB(&knights);
     }
 
     return info->kings[!colorToMove] & attacks;
@@ -318,6 +319,26 @@ bool BoardIsValid(BoardInfo_t *info, Color_t color) {
     }
 
     if((PopulationCount(info->pawns[white]) > 8 || PopulationCount(info->pawns[black]) > 8)) {
+        return false;
+    }
+
+    if((PopulationCount(info->knights[white]) > 10 || PopulationCount(info->knights[black]) > 10)) {
+        return false;
+    }
+
+    if((PopulationCount(info->rooks[white]) > 10 || PopulationCount(info->rooks[black]) > 10)) {
+        return false;
+    }
+
+    if((PopulationCount(info->bishops[white]) > 10 || PopulationCount(info->bishops[black]) > 10)) {
+        return false;
+    }
+
+    if((PopulationCount(info->queens[white]) > 9 || PopulationCount(info->queens[black]) > 9)) {
+        return false;
+    }
+
+    if((info->pawns[white] | info->pawns[black]) & (rank_1 | rank_8)) {
         return false;
     }
 
