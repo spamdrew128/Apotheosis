@@ -336,35 +336,112 @@ static void AddQueenCaptures(
     });
 }
 
+static void TryWhiteEnPassant(
+    MoveList_t* moveList,
+    BoardInfo_t* boardInfo,
+    Bitboard_t toBB,
+    Bitboard_t fromBB,
+    Color_t color
+)
+{
+    Bitboard_t captureBB = SoutOne(toBB);
+
+    ResetBits(&boardInfo->pawns[color], fromBB);
+    SetBits(&boardInfo->pawns[color], toBB);
+    ResetBits(&boardInfo->pawns[!color], captureBB);
+
+    SetBits(&boardInfo->empty, fromBB|captureBB);
+    ResetBits(&boardInfo->empty, toBB);
+
+    Bitboard_t unsafeSquares = WhiteUnsafeSquares(boardInfo);
+    if(!InCheck(boardInfo->kings[color], unsafeSquares)) {
+        InitializeNewMove(moveList);
+        Move_t* current = CurrentMove(moveList);
+
+        WriteToSquare(current, LSB(toBB));
+        WriteFromSquare(current, LSB(fromBB));
+        WriteSpecialFlag(current, en_passant_flag);
+    }
+
+    SetBits(&boardInfo->pawns[color], fromBB);
+    ResetBits(&boardInfo->pawns[color], toBB);
+    SetBits(&boardInfo->pawns[!color], captureBB);
+
+    ResetBits(&boardInfo->empty, fromBB|captureBB);
+    SetBits(&boardInfo->empty, toBB);
+}
+
+static void TryBlackEnPassant(
+    MoveList_t* moveList,
+    BoardInfo_t* boardInfo,
+    Bitboard_t toBB,
+    Bitboard_t fromBB,
+    Color_t color
+)
+{
+    Bitboard_t captureBB = NortOne(toBB);
+
+    ResetBits(&boardInfo->pawns[color], fromBB);
+    SetBits(&boardInfo->pawns[color], toBB);
+    ResetBits(&boardInfo->pawns[!color], captureBB);
+
+    SetBits(&boardInfo->empty, fromBB|captureBB);
+    ResetBits(&boardInfo->empty, toBB);
+
+    Bitboard_t unsafeSquares = BlackUnsafeSquares(boardInfo);
+    if(!InCheck(boardInfo->kings[color], unsafeSquares)) {
+        InitializeNewMove(moveList);
+        Move_t* current = CurrentMove(moveList);
+
+        WriteToSquare(current, LSB(toBB));
+        WriteFromSquare(current, LSB(fromBB));
+        WriteSpecialFlag(current, en_passant_flag);
+    }
+
+    SetBits(&boardInfo->pawns[color], fromBB);
+    ResetBits(&boardInfo->pawns[color], toBB);
+    SetBits(&boardInfo->pawns[!color], captureBB);
+
+    ResetBits(&boardInfo->empty, fromBB|captureBB);
+    SetBits(&boardInfo->empty, toBB);
+}
+
 static void AddWhiteLegalEnPassant(
     MoveList_t* moveList,
     BoardInfo_t* boardInfo,
     Bitboard_t freePawns,
     Bitboard_t d12PinnedPawns,
     Bitboard_t enPassantBB,
-    PinmaskContainer_t pinmasks,
-    Bitboard_t checkmask
+    PinmaskContainer_t pinmasks
 )
 {
     Bitboard_t eastLegalEnPassantTargets = 
-        WhiteEastEnPassantTargets(d12PinnedPawns, enPassantBB) & pinmasks.d12 & checkmask;
+        WhiteEastEnPassantTargets(freePawns, enPassantBB) |
+        (WhiteEastEnPassantTargets(d12PinnedPawns, enPassantBB) & pinmasks.d12);
 
     Bitboard_t westLegalEnPassantTargets = 
-        WhiteWestEnPassantTargets(d12PinnedPawns, enPassantBB) & pinmasks.d12 & checkmask;
+        WhiteWestEnPassantTargets(freePawns, enPassantBB) |
+        (WhiteWestEnPassantTargets(d12PinnedPawns, enPassantBB) & pinmasks.d12);
 
-
-    Bitboard_t eastFreeEnPassant = WhiteEastEnPassantTargets(freePawns, enPassantBB) & checkmask;
-    if(eastFreeEnPassant && EastEnPassantIsLegal(boardInfo, SoWeOne(eastFreeEnPassant), white)) {
-        SetBits(&eastLegalEnPassantTargets, eastFreeEnPassant);
+    if(eastLegalEnPassantTargets) {
+        TryWhiteEnPassant(
+            moveList,
+            boardInfo,
+            eastLegalEnPassantTargets,
+            SoWeOne(eastLegalEnPassantTargets),
+            white
+        );
     }
 
-    Bitboard_t westFreeEnPassant = WhiteWestEnPassantTargets(freePawns, enPassantBB) & checkmask;
-    if(westFreeEnPassant && WestEnPassantIsLegal(boardInfo, SoEaOne(westFreeEnPassant), white)) {
-        SetBits(&westLegalEnPassantTargets, westFreeEnPassant);
+    if(westLegalEnPassantTargets) {
+        TryWhiteEnPassant(
+            moveList,
+            boardInfo,
+            westLegalEnPassantTargets,
+            SoEaOne(westLegalEnPassantTargets),
+            white
+        );
     }
-
-    SerializePawnMoves(moveList, eastLegalEnPassantTargets, en_passant_flag, SoWeOne);
-    SerializePawnMoves(moveList, westLegalEnPassantTargets, en_passant_flag, SoEaOne);
 }
 
 static void AddBlackLegalEnPassant(
@@ -373,29 +450,36 @@ static void AddBlackLegalEnPassant(
     Bitboard_t freePawns,
     Bitboard_t d12PinnedPawns,
     Bitboard_t enPassantBB,
-    PinmaskContainer_t pinmasks,
-    Bitboard_t checkmask
+    PinmaskContainer_t pinmasks
 )
 {
     Bitboard_t eastLegalEnPassantTargets = 
-        BlackEastEnPassantTargets(d12PinnedPawns, enPassantBB) & pinmasks.d12 & checkmask;
+        BlackEastEnPassantTargets(freePawns, enPassantBB) |
+        (BlackEastEnPassantTargets(d12PinnedPawns, enPassantBB) & pinmasks.d12);
 
     Bitboard_t westLegalEnPassantTargets = 
-        BlackWestEnPassantTargets(d12PinnedPawns, enPassantBB) & pinmasks.d12 & checkmask;
+        BlackWestEnPassantTargets(freePawns, enPassantBB) |
+        (BlackWestEnPassantTargets(d12PinnedPawns, enPassantBB) & pinmasks.d12);
 
-
-    Bitboard_t eastFreeEnPassant = BlackEastEnPassantTargets(freePawns, enPassantBB) & checkmask;
-    if(eastFreeEnPassant && EastEnPassantIsLegal(boardInfo, NoWeOne(eastFreeEnPassant), black)) {
-        SetBits(&eastLegalEnPassantTargets, eastFreeEnPassant);
+    if(eastLegalEnPassantTargets) {
+        TryBlackEnPassant(
+            moveList,
+            boardInfo,
+            eastLegalEnPassantTargets,
+            NoWeOne(eastLegalEnPassantTargets),
+            black
+        );
     }
 
-    Bitboard_t westFreeEnPassant = BlackWestEnPassantTargets(freePawns, enPassantBB) & checkmask;
-    if(westFreeEnPassant && WestEnPassantIsLegal(boardInfo, NoEaOne(westFreeEnPassant), black)) {
-        SetBits(&westLegalEnPassantTargets, westFreeEnPassant);
+    if(westLegalEnPassantTargets) {
+        TryBlackEnPassant(
+            moveList,
+            boardInfo,
+            westLegalEnPassantTargets,
+            NoEaOne(westLegalEnPassantTargets),
+            black
+        );
     }
-
-    SerializePawnMoves(moveList, eastLegalEnPassantTargets, en_passant_flag, NoWeOne);
-    SerializePawnMoves(moveList, westLegalEnPassantTargets, en_passant_flag, NoEaOne);
 }
 
 static void AddWhitePawnCaptures(
@@ -434,8 +518,7 @@ static void AddWhitePawnCaptures(
         freePawns,
         d12PinnedPawns,
         enPassantBB,
-        pinmasks,
-        checkmask
+        pinmasks
     );
 };
 
@@ -475,8 +558,7 @@ static void AddBlackPawnCaptures(
         freePawns,
         d12PinnedPawns,
         enPassantBB,
-        pinmasks,
-        checkmask
+        pinmasks
     );
 };
 
