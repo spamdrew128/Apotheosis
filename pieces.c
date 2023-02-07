@@ -76,6 +76,10 @@ Bitboard_t KingCaptureTargets(Square_t square, Bitboard_t enemyPieces) {
    return GetKingAttacks(square) & enemyPieces;
 }
 
+Bitboard_t KingMoveTargetsNew(Square_t square, Bitboard_t filter) {
+   return GetKingAttacks(square) & filter;
+}
+
 // ROOKS
 Bitboard_t RookMoveTargets(Square_t square, Bitboard_t empty) {
    MagicEntry_t magicEntry = GetRookMagicEntry(square);
