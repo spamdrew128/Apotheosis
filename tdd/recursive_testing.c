@@ -7,7 +7,7 @@
 #include "movegen.h"
 #include "make_and_unmake.h"
 
-typedef uint64_t PerftCount_t;
+typedef unsigned long long PerftCount_t;
 
 static GameStack_t stack;
 

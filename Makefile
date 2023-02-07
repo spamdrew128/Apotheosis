@@ -1,6 +1,9 @@
 CC=gcc
 INCDIRS=-I.
-CFLAGS=-Wall -O3 -std=c17 -march=native $(INCDIRS)
+
+DEBUGFLAGS=-g
+OPTFLAGS=-O3 -flto
+CFLAGS=-Wall -std=c17 -march=native $(OPTFLAGS) $(INCDIRS) 
 
 COMMON_CFILES= \
 bitboards.c \
