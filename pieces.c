@@ -89,6 +89,12 @@ Bitboard_t RookCaptureTargets(Square_t square, Bitboard_t empty, Bitboard_t enem
    return GetSlidingAttackSet(magicEntry, blockers) & enemyPieces;
 }
 
+Bitboard_t RookMoveTargetsNew(Square_t square, Bitboard_t empty, Bitboard_t filter) {
+   MagicEntry_t magicEntry = GetRookMagicEntry(square);
+   Bitboard_t blockers = magicEntry.mask & ~empty;
+   return GetSlidingAttackSet(magicEntry, blockers) & filter;
+}
+
 // BISHOPS
 Bitboard_t BishopMoveTargets(Square_t square, Bitboard_t empty) {
    MagicEntry_t magicEntry = GetBishopMagicEntry(square);
@@ -100,6 +106,12 @@ Bitboard_t BishopCaptureTargets(Square_t square, Bitboard_t empty, Bitboard_t en
    MagicEntry_t magicEntry = GetBishopMagicEntry(square);
    Bitboard_t blockers = magicEntry.mask & ~empty;
    return GetSlidingAttackSet(magicEntry, blockers) & enemyPieces;
+}
+
+Bitboard_t BishopMoveTargetsNew(Square_t square, Bitboard_t empty, Bitboard_t filter) {
+   MagicEntry_t magicEntry = GetBishopMagicEntry(square);
+   Bitboard_t blockers = magicEntry.mask & ~empty;
+   return GetSlidingAttackSet(magicEntry, blockers) & filter;
 }
 
 // QUEENS

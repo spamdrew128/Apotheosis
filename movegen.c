@@ -140,12 +140,36 @@ static void NewAddKnightMoves(
     PinmaskContainer_t pinmasks
 )
 {
-    Bitboard_t freeKnights = knights & ~(pinmasks.all);
+    Bitboard_t freeKnights = knights & ~pinmasks.all;
 
     SerializePositionsIntoMoves(freeKnights, {
         Bitboard_t knightSquare = LSB(freeKnights);
         Bitboard_t moves = GetKnightAttacks(knightSquare) & filter;
         SerializeNormalMoves(moveList, knightSquare, moves);
+    });
+}
+
+static void AddD12SliderMoves(
+    MoveList_t* moveList,
+    Bitboard_t d12Sliders,
+    Bitboard_t filter,
+    Bitboard_t empty,
+    PinmaskContainer_t pinmasks
+) 
+{
+    Bitboard_t freeD12Sliders = d12Sliders & ~pinmasks.all;
+    Bitboard_t pinnedD12Sliders = d12Sliders & pinmasks.d12;
+
+    SerializePositionsIntoMoves(freeD12Sliders, {
+        Bitboard_t bishopSquare = LSB(freeD12Sliders);
+        Bitboard_t moves = BishopMoveTargetsNew(bishopSquare, empty, filter);
+        SerializeNormalMoves(moveList, bishopSquare, moves);
+    });
+
+    SerializePositionsIntoMoves(pinnedD12Sliders, {
+        Bitboard_t bishopSquare = LSB(pinnedD12Sliders);
+        Bitboard_t moves = BishopMoveTargetsNew(bishopSquare, empty, (filter & pinmasks.d12)) ;
+        SerializeNormalMoves(moveList, bishopSquare, moves);
     });
 }
 
@@ -626,13 +650,11 @@ static void AddAllCaptures(
         pinmasks
     );
 
-    AddBishopCaptures(
+    AddD12SliderMoves(
         moveList,
-        boardInfo->bishops[color] & ~pinmasks.all,
-        boardInfo->bishops[color] & pinmasks.d12,
-        checkmask,
+        boardInfo->bishops[color] | boardInfo->queens[color], // TODO: make this a function so it's more clear
+        filter,
         boardInfo->empty,
-        enemyPieces,
         pinmasks
     );
 
@@ -696,11 +718,10 @@ static void AddAllQuietMoves(
         pinmasks
     );
 
-    AddBishopMoves(
+    AddD12SliderMoves(
         moveList,
-        boardInfo->bishops[color] & ~pinmasks.all,
-        boardInfo->bishops[color] & pinmasks.d12,
-        checkmask,
+        boardInfo->bishops[color] | boardInfo->queens[color], // TODO: make this a function so it's more clear
+        filter,
         boardInfo->empty,
         pinmasks
     );
