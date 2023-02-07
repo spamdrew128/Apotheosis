@@ -19,9 +19,17 @@ enum pinmaskTypes{
     d12_pinmask
 };
 
-#define GetSlidingCheckers(boardInfoPtr, kingSquare, empty, enemyColor) \
-    RookMoveTargets(kingSquare, empty, (boardInfoPtr->rooks[enemyColor] | boardInfoPtr->queens[enemyColor])) | \
-    BishopMoveTargets(kingSquare, empty, (boardInfoPtr->bishops[enemyColor] | boardInfoPtr->queens[enemyColor]))
+Bitboard_t GetSlidingCheckers(
+    BoardInfo_t* boardInfo,
+    Square_t kingSquare,
+    Bitboard_t empty,
+    Color_t enemyColor
+) 
+{
+    return
+        RookMoveTargets(kingSquare, empty, (boardInfo->rooks[enemyColor] | boardInfo->queens[enemyColor])) |
+        BishopMoveTargets(kingSquare, empty, (boardInfo->bishops[enemyColor] | boardInfo->queens[enemyColor]));
+}
 
 static bool KingsideCastlingIsSafe(Color_t color, Bitboard_t unsafeSquares, Bitboard_t empty) {
     return 
