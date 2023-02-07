@@ -52,9 +52,4 @@ Bitboard_t BishopMoveTargets(Square_t square, Bitboard_t empty);
 
 Bitboard_t BishopMoveTargetsNew(Square_t square, Bitboard_t empty, Bitboard_t filter);
 
-// QUEENS
-Bitboard_t QueenMoveTargets(Square_t square, Bitboard_t empty);
-
-Bitboard_t QueenCaptureTargets(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces);
-
 #endif

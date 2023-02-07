@@ -93,12 +93,3 @@ Bitboard_t BishopMoveTargetsNew(Square_t square, Bitboard_t empty, Bitboard_t fi
    Bitboard_t blockers = magicEntry.mask & ~empty;
    return GetSlidingAttackSet(magicEntry, blockers) & filter;
 }
-
-// QUEENS
-Bitboard_t QueenMoveTargets(Square_t square, Bitboard_t empty) {
-   return RookMoveTargets(square, empty) | BishopMoveTargets(square, empty);
-}
-
-Bitboard_t QueenCaptureTargets(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces) {
-   return RookMoveTargetsNew(square, empty, enemyPieces) | BishopMoveTargetsNew(square, empty, enemyPieces);
-}

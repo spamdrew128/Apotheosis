@@ -331,30 +331,6 @@ static void OtherMidgameBishopCaptureTargets() {
     PrintResults(success);
 }
 
-static void OtherMidgameQueenMoveTargets() {
-    BoardInfo_t info;
-    InitOtherMidgameInfo(&info);
-
-    Square_t queenSquare = b3;
-    Bitboard_t expectedB3QueenMoves = CreateBitboard(6, b1,b2,c2,a3,a4,c4);
-
-    bool success = QueenMoveTargets(queenSquare, info.empty) == expectedB3QueenMoves;
-
-    PrintResults(success);
-}
-
-static void OtherMidgameQueenCaptureTargets() {
-    BoardInfo_t info;
-    InitOtherMidgameInfo(&info);
-
-    Square_t queenSquare = b3;
-    Bitboard_t expectedB3QueenCaptures = CreateBitboard(1, c3);
-
-    bool success = QueenCaptureTargets(queenSquare, info.empty, info.allPieces[black]) == expectedB3QueenCaptures;
-
-    PrintResults(success);
-}
-
 // k2n1n2/4P3/K7/8/8/8/2p5/3R4
 static void FilterPawnPromotions() {
     Bitboard_t wPieces = CreateBitboard(3, d1,a6,e7);
@@ -414,8 +390,6 @@ void PiecesTDDRunner() {
     OtherMidgameRookCaptureTargets();
     OtherMidgameBishopMoveTargets();
     OtherMidgameBishopCaptureTargets();
-    OtherMidgameQueenMoveTargets();
-    OtherMidgameQueenCaptureTargets();
 
     FilterPawnPromotions();
 }
