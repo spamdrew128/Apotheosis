@@ -174,13 +174,13 @@ static void AddD12SliderMoves(
 
     SerializePositionsIntoMoves(freeD12Sliders, {
         Bitboard_t square = LSB(freeD12Sliders);
-        Bitboard_t moves = BishopMoveTargetsNew(square, empty, filter);
+        Bitboard_t moves = BishopMoveTargets(square, empty, filter);
         SerializeNormalMoves(moveList, square, moves);
     });
 
     SerializePositionsIntoMoves(pinnedD12Sliders, {
         Bitboard_t square = LSB(pinnedD12Sliders);
-        Bitboard_t moves = BishopMoveTargetsNew(square, empty, (filter & pinmasks.d12)) ;
+        Bitboard_t moves = BishopMoveTargets(square, empty, (filter & pinmasks.d12)) ;
         SerializeNormalMoves(moveList, square, moves);
     });
 }
@@ -198,13 +198,13 @@ static void AddHvSliderMoves(
 
     SerializePositionsIntoMoves(freeHvSliders, {
         Bitboard_t square = LSB(freeHvSliders);
-        Bitboard_t moves = RookMoveTargetsNew(square, empty, filter);
+        Bitboard_t moves = RookMoveTargets(square, empty, filter);
         SerializeNormalMoves(moveList, square, moves);
     });
 
     SerializePositionsIntoMoves(pinnedHvSliders, {
         Bitboard_t square = LSB(pinnedHvSliders);
-        Bitboard_t moves = RookMoveTargetsNew(square, empty, (filter & pinmasks.hv)) ;
+        Bitboard_t moves = RookMoveTargets(square, empty, (filter & pinmasks.hv)) ;
         SerializeNormalMoves(moveList, square, moves);
     });
 }

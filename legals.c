@@ -20,8 +20,8 @@ enum pinmaskTypes{
 };
 
 #define GetSlidingCheckers(boardInfoPtr, kingSquare, empty, enemyColor) \
-    RookMoveTargetsNew(kingSquare, empty, (boardInfoPtr->rooks[enemyColor] | boardInfoPtr->queens[enemyColor])) | \
-    BishopMoveTargetsNew(kingSquare, empty, (boardInfoPtr->bishops[enemyColor] | boardInfoPtr->queens[enemyColor]))
+    RookMoveTargets(kingSquare, empty, (boardInfoPtr->rooks[enemyColor] | boardInfoPtr->queens[enemyColor])) | \
+    BishopMoveTargets(kingSquare, empty, (boardInfoPtr->bishops[enemyColor] | boardInfoPtr->queens[enemyColor]))
 
 static bool KingsideCastlingIsSafe(Color_t color, Bitboard_t unsafeSquares, Bitboard_t empty) {
     return 
@@ -223,7 +223,7 @@ bool EastEnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t friendlyPawnLocatio
 
     Bitboard_t enemyHvSliders = boardInfo->queens[!color] | boardInfo->rooks[!color];
 
-    return !RookMoveTargetsNew(
+    return !RookMoveTargets(
         kingSquare,
         boardInfo->empty | enemyPawnLocation | friendlyPawnLocation,
         enemyHvSliders
@@ -236,7 +236,7 @@ bool WestEnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t friendlyPawnLocatio
 
     Bitboard_t enemyHvSliders = boardInfo->queens[!color] | boardInfo->rooks[!color];
 
-    return !RookMoveTargetsNew(
+    return !RookMoveTargets(
         kingSquare,
         boardInfo->empty | enemyPawnLocation | friendlyPawnLocation,
         enemyHvSliders

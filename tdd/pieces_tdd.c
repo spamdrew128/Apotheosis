@@ -290,7 +290,7 @@ static void OtherMidgameRookMoveTargets() {
     Square_t rookSquare = d1;
     Bitboard_t expectedD1RookMoves = CreateBitboard(6, a1,b1,c1,e1,d2,d3);
 
-    bool success = RookMoveTargets(rookSquare, info.empty) == expectedD1RookMoves;
+    bool success = RookMoveTargets(rookSquare, info.empty, info.empty) == expectedD1RookMoves;
 
     PrintResults(success);
 }
@@ -302,7 +302,7 @@ static void OtherMidgameRookCaptureTargets() {
     Square_t rookSquare = d1;
     Bitboard_t expectedD1RookCaptures = CreateBitboard(1, d4);
 
-    bool success = RookMoveTargetsNew(rookSquare, info.empty, info.allPieces[black]) == expectedD1RookCaptures;
+    bool success = RookMoveTargets(rookSquare, info.empty, info.allPieces[black]) == expectedD1RookCaptures;
 
     PrintResults(success);
 }
@@ -314,7 +314,7 @@ static void OtherMidgameBishopMoveTargets() {
     Square_t bishopSquare = d5;
     Bitboard_t expectedD5BishopMoves = CreateBitboard(7, f3,c4,e4,c6,e6,f7,g8);
 
-    bool success = BishopMoveTargets(bishopSquare, info.empty) == expectedD5BishopMoves;
+    bool success = BishopMoveTargets(bishopSquare, info.empty, info.empty) == expectedD5BishopMoves;
 
     PrintResults(success);
 }
@@ -326,7 +326,7 @@ static void OtherMidgameBishopCaptureTargets() {
     Square_t bishopSquare = d5;
     Bitboard_t expectedD5BishopCaptures = CreateBitboard(1, b7);
 
-    bool success = BishopMoveTargetsNew(bishopSquare, info.empty, info.allPieces[black]) == expectedD5BishopCaptures;
+    bool success = BishopMoveTargets(bishopSquare, info.empty, info.allPieces[black]) == expectedD5BishopCaptures;
 
     PrintResults(success);
 }
