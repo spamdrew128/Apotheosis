@@ -93,6 +93,18 @@ static void SerializePawnPromotions(
     }
 }
 
+static Bitboard_t GetUnsafeSquares(
+    BoardInfo_t* boardInfo,
+    Color_t color
+)
+{
+    if(color == white) {
+        return WhiteUnsafeSquares(boardInfo);
+    } else {
+        return BlackUnsafeSquares(boardInfo);
+    }
+}
+
 static void AddKingMoves(
     MoveList_t* moveList,
     Bitboard_t kingSquare,
@@ -629,13 +641,7 @@ static void AddEverything(
 void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
     moveList->maxIndex = movelist_empty;
 
-    Bitboard_t unsafeSquares;
-    if(color == white) {
-        unsafeSquares = WhiteUnsafeSquares(boardInfo);
-    } else {
-        unsafeSquares = BlackUnsafeSquares(boardInfo);
-    }
-
+    Bitboard_t unsafeSquares = GetUnsafeSquares(boardInfo, color);
     Square_t kingSquare = LSB(boardInfo->kings[color]);
     Bitboard_t enemyPieces = boardInfo->allPieces[!color];
 
@@ -670,13 +676,7 @@ void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
 void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
     moveList->maxIndex = movelist_empty;
 
-    Bitboard_t unsafeSquares;
-    if(color == white) {
-        unsafeSquares = WhiteUnsafeSquares(boardInfo);
-    } else {
-        unsafeSquares = BlackUnsafeSquares(boardInfo);
-    }
-
+    Bitboard_t unsafeSquares = GetUnsafeSquares(boardInfo, color);
     Square_t kingSquare = LSB(boardInfo->kings[color]);
     Bitboard_t enemyPieces = boardInfo->allPieces[!color];
 
