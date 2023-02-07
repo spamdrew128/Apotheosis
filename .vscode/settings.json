@@ -20,7 +20,8 @@
         "debug.h": "c",
         "pieces.h": "c",
         "make_and_unmake.h": "c",
-        "make_and_unmake_tdd.h": "c"
+        "make_and_unmake_tdd.h": "c",
+        "recursive_testing.h": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",

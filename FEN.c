@@ -5,17 +5,105 @@
 #include "lookup.h"
 #include "board_constants.h"
 
+static double usr_pow(int x, int y) {
+    double result = 1;
+    for(int i = 0; i < y; i++) {
+        result *= x;
+    }
+
+    return result;
+}
+
 static int CharToInt(char c) {
     return ((int) c) - 48;
 }
 
-void InterpretFEN(FEN_t fen, BoardInfo_t* info) {
+static Color_t CharToColor(char c) {
+    if(c == 'w' || c == 'W') {
+        return white;
+    } else if(c == 'b' || c == 'B') {
+        return black;
+    } else {
+        assert(!"ERROR: Unrecognized Color");
+    }
+    return 0;
+}
+
+static void UpdateCastlingRights(GameState_t* state, char c) {
+    switch (c)
+    {
+        case 'K':
+           SetBits(&(state->castleSquares[white]), white_kingside_castle_bb);
+        break;
+        case 'Q':
+            SetBits(&(state->castleSquares[white]), white_queenside_castle_bb);
+        break;
+        case 'k':
+            SetBits(&(state->castleSquares[black]), black_kingside_castle_bb);
+        break;
+        case 'q':
+            SetBits(&(state->castleSquares[black]), black_queenside_castle_bb);
+        break;
+        default:
+            assert(!"ERROR: Unrecognized Castling");
+        break;
+    }
+}
+
+static char RowCharToNumber(char row) {
+    return (int)row - 49;
+}
+
+static char ColCharToNumber(char col) {
+    return (int)col - 97;
+}
+
+static Bitboard_t SquareCharsToBitboard(char col, char row) {
+    int rowNum = RowCharToNumber(row);
+    int ColNum = ColCharToNumber(col);
+
+    Square_t square = rowNum*8 + ColNum;
+    return GetSingleBitset(square);
+}
+
+static void UpdateEnPassant(FEN_t fen, int* i, GameState_t* state) {
+    if(fen[*i] == '-') {
+        (*i)++;
+    } else {
+        state->enPassantSquares = SquareCharsToBitboard(fen[*i], fen[*i + 1]);
+        (*i) += 2;
+    }
+}
+
+static void UpdateHalfmoveClock(FEN_t fen, int i, GameState_t* state) {
+    HalfmoveCount_t halfmoves = 0;
+
+    int numDigits = 0;
+    while(fen[i + numDigits] != ' ' && fen[i + numDigits] != '\0') {
+        numDigits++;
+    }
+
+    int j = i;
+    while(numDigits) {
+        halfmoves += usr_pow(10, numDigits-1) * CharToInt(fen[j]);
+        numDigits--;
+        j++;
+    }
+
+    state->halfmoveClock = halfmoves;
+}
+
+Color_t InterpretFEN(FEN_t fen, BoardInfo_t* info, GameStack_t* stack) {
+    InitBoardInfo(info);
+    InitGameStack(stack);
+
     int rank = 7; // a8 - h8
     int file = 0;
 
     int i = 0;
-    while(fen[i] != '\0') {
+    while(fen[i] != ' ') {
         assert(file < 8 && rank >= 0);
+        assert(fen[i] != '\0');
         Bitboard_t singleBitset = GetSingleBitset(rank*8 + file);
 
         switch(fen[i])
@@ -91,4 +179,30 @@ void InterpretFEN(FEN_t fen, BoardInfo_t* info) {
 
     UpdateAllPieces(info);
     UpdateEmpty(info);
+    TranslateBitboardsToMailbox(info);
+
+    i++;
+    Color_t colorToMove = CharToColor(fen[i]);
+
+    i += 2;
+    GameState_t* gameState = GetEmptyNextGameState(stack);
+    if(fen[i] != '-') {
+        while (fen[i] != ' ')
+        {
+            UpdateCastlingRights(gameState, fen[i]);
+            i++;
+        }   
+    } else {
+        i++;
+    }
+
+    i++;
+    UpdateEnPassant(fen, &i, gameState);
+
+    i++;
+    UpdateHalfmoveClock(fen, i, gameState);
+
+    gameState->boardInfo = *info;
+
+    return colorToMove;
 }

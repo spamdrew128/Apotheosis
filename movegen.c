@@ -2,7 +2,6 @@
 #include "movegen.h"
 #include "pieces.h"
 #include "lookup.h"
-#include "game_state.h"
 
 enum {
     movelist_empty = -1
@@ -143,16 +142,17 @@ static void _AddCastlingMovesHelper(MoveList_t* moveList, Square_t kingSquare, S
 static void AddCastlingMoves(
     MoveList_t* moveList,
     BoardInfo_t* boardInfo,
+    GameStack_t* stack,
     Bitboard_t unsafeSquares,
     Square_t kingSquare,
     Color_t color
 )
 {
-    if(CanCastleKingside(boardInfo, unsafeSquares, color)) {
+    if(CanCastleKingside(boardInfo, unsafeSquares, ReadCastleSquares(stack, color), color)) {
         _AddCastlingMovesHelper(moveList, kingSquare, GetKingsideCastleSquare(color));
     }
     
-    if(CanCastleQueenside(boardInfo, unsafeSquares, color)) {
+    if(CanCastleQueenside(boardInfo, unsafeSquares, ReadCastleSquares(stack, color), color)) {
         _AddCastlingMovesHelper(moveList, kingSquare, GetQueensideCastleSquare(color));
     }
 }
@@ -336,36 +336,112 @@ static void AddQueenCaptures(
     });
 }
 
+static void TryWhiteEnPassant(
+    MoveList_t* moveList,
+    BoardInfo_t* boardInfo,
+    Bitboard_t toBB,
+    Bitboard_t fromBB,
+    Color_t color
+)
+{
+    Bitboard_t captureBB = SoutOne(toBB);
+
+    ResetBits(&boardInfo->pawns[color], fromBB);
+    SetBits(&boardInfo->pawns[color], toBB);
+    ResetBits(&boardInfo->pawns[!color], captureBB);
+
+    SetBits(&boardInfo->empty, fromBB|captureBB);
+    ResetBits(&boardInfo->empty, toBB);
+
+    Bitboard_t unsafeSquares = WhiteUnsafeSquares(boardInfo);
+    if(!InCheck(boardInfo->kings[color], unsafeSquares)) {
+        InitializeNewMove(moveList);
+        Move_t* current = CurrentMove(moveList);
+
+        WriteToSquare(current, LSB(toBB));
+        WriteFromSquare(current, LSB(fromBB));
+        WriteSpecialFlag(current, en_passant_flag);
+    }
+
+    SetBits(&boardInfo->pawns[color], fromBB);
+    ResetBits(&boardInfo->pawns[color], toBB);
+    SetBits(&boardInfo->pawns[!color], captureBB);
+
+    ResetBits(&boardInfo->empty, fromBB|captureBB);
+    SetBits(&boardInfo->empty, toBB);
+}
+
+static void TryBlackEnPassant(
+    MoveList_t* moveList,
+    BoardInfo_t* boardInfo,
+    Bitboard_t toBB,
+    Bitboard_t fromBB,
+    Color_t color
+)
+{
+    Bitboard_t captureBB = NortOne(toBB);
+
+    ResetBits(&boardInfo->pawns[color], fromBB);
+    SetBits(&boardInfo->pawns[color], toBB);
+    ResetBits(&boardInfo->pawns[!color], captureBB);
+
+    SetBits(&boardInfo->empty, fromBB|captureBB);
+    ResetBits(&boardInfo->empty, toBB);
+
+    Bitboard_t unsafeSquares = BlackUnsafeSquares(boardInfo);
+    if(!InCheck(boardInfo->kings[color], unsafeSquares)) {
+        InitializeNewMove(moveList);
+        Move_t* current = CurrentMove(moveList);
+
+        WriteToSquare(current, LSB(toBB));
+        WriteFromSquare(current, LSB(fromBB));
+        WriteSpecialFlag(current, en_passant_flag);
+    }
+
+    SetBits(&boardInfo->pawns[color], fromBB);
+    ResetBits(&boardInfo->pawns[color], toBB);
+    SetBits(&boardInfo->pawns[!color], captureBB);
+
+    ResetBits(&boardInfo->empty, fromBB|captureBB);
+    SetBits(&boardInfo->empty, toBB);
+}
+
 static void AddWhiteLegalEnPassant(
     MoveList_t* moveList,
     BoardInfo_t* boardInfo,
     Bitboard_t freePawns,
     Bitboard_t d12PinnedPawns,
-    PinmaskContainer_t pinmasks,
-    Bitboard_t checkmask
+    Bitboard_t enPassantBB,
+    PinmaskContainer_t pinmasks
 )
 {
-    Bitboard_t epSquares = ReadEnPassantSquares();
-
     Bitboard_t eastLegalEnPassantTargets = 
-        WhiteEastEnPassantTargets(d12PinnedPawns, epSquares) & pinmasks.d12 & checkmask;
+        WhiteEastEnPassantTargets(freePawns, enPassantBB) |
+        (WhiteEastEnPassantTargets(d12PinnedPawns, enPassantBB) & pinmasks.d12);
 
     Bitboard_t westLegalEnPassantTargets = 
-        WhiteWestEnPassantTargets(d12PinnedPawns, epSquares) & pinmasks.d12 & checkmask;
+        WhiteWestEnPassantTargets(freePawns, enPassantBB) |
+        (WhiteWestEnPassantTargets(d12PinnedPawns, enPassantBB) & pinmasks.d12);
 
-
-    Bitboard_t eastFreeEnPassant = WhiteEastEnPassantTargets(freePawns, epSquares) & checkmask;
-    if(eastFreeEnPassant && EastEnPassantIsLegal(boardInfo, SoWeOne(eastFreeEnPassant), white)) {
-        SetBits(&eastLegalEnPassantTargets, eastFreeEnPassant);
+    if(eastLegalEnPassantTargets) {
+        TryWhiteEnPassant(
+            moveList,
+            boardInfo,
+            eastLegalEnPassantTargets,
+            SoWeOne(eastLegalEnPassantTargets),
+            white
+        );
     }
 
-    Bitboard_t westFreeEnPassant = WhiteWestEnPassantTargets(freePawns, epSquares) & checkmask;
-    if(westFreeEnPassant && WestEnPassantIsLegal(boardInfo, SoEaOne(westFreeEnPassant), white)) {
-        SetBits(&westLegalEnPassantTargets, westFreeEnPassant);
+    if(westLegalEnPassantTargets) {
+        TryWhiteEnPassant(
+            moveList,
+            boardInfo,
+            westLegalEnPassantTargets,
+            SoEaOne(westLegalEnPassantTargets),
+            white
+        );
     }
-
-    SerializePawnMoves(moveList, eastLegalEnPassantTargets, en_passant_flag, SoWeOne);
-    SerializePawnMoves(moveList, westLegalEnPassantTargets, en_passant_flag, SoEaOne);
 }
 
 static void AddBlackLegalEnPassant(
@@ -373,31 +449,37 @@ static void AddBlackLegalEnPassant(
     BoardInfo_t* boardInfo,
     Bitboard_t freePawns,
     Bitboard_t d12PinnedPawns,
-    PinmaskContainer_t pinmasks,
-    Bitboard_t checkmask
+    Bitboard_t enPassantBB,
+    PinmaskContainer_t pinmasks
 )
 {
-    Bitboard_t epSquares = ReadEnPassantSquares();
-
     Bitboard_t eastLegalEnPassantTargets = 
-        BlackEastEnPassantTargets(d12PinnedPawns, epSquares) & pinmasks.d12 & checkmask;
+        BlackEastEnPassantTargets(freePawns, enPassantBB) |
+        (BlackEastEnPassantTargets(d12PinnedPawns, enPassantBB) & pinmasks.d12);
 
     Bitboard_t westLegalEnPassantTargets = 
-        BlackWestEnPassantTargets(d12PinnedPawns, epSquares) & pinmasks.d12 & checkmask;
+        BlackWestEnPassantTargets(freePawns, enPassantBB) |
+        (BlackWestEnPassantTargets(d12PinnedPawns, enPassantBB) & pinmasks.d12);
 
-
-    Bitboard_t eastFreeEnPassant = BlackEastEnPassantTargets(freePawns, epSquares) & checkmask;
-    if(eastFreeEnPassant && EastEnPassantIsLegal(boardInfo, NoWeOne(eastFreeEnPassant), black)) {
-        SetBits(&eastLegalEnPassantTargets, eastFreeEnPassant);
+    if(eastLegalEnPassantTargets) {
+        TryBlackEnPassant(
+            moveList,
+            boardInfo,
+            eastLegalEnPassantTargets,
+            NoWeOne(eastLegalEnPassantTargets),
+            black
+        );
     }
 
-    Bitboard_t westFreeEnPassant = BlackWestEnPassantTargets(freePawns, epSquares) & checkmask;
-    if(westFreeEnPassant && WestEnPassantIsLegal(boardInfo, NoEaOne(westFreeEnPassant), black)) {
-        SetBits(&westLegalEnPassantTargets, westFreeEnPassant);
+    if(westLegalEnPassantTargets) {
+        TryBlackEnPassant(
+            moveList,
+            boardInfo,
+            westLegalEnPassantTargets,
+            NoEaOne(westLegalEnPassantTargets),
+            black
+        );
     }
-
-    SerializePawnMoves(moveList, eastLegalEnPassantTargets, en_passant_flag, NoWeOne);
-    SerializePawnMoves(moveList, westLegalEnPassantTargets, en_passant_flag, NoEaOne);
 }
 
 static void AddWhitePawnCaptures(
@@ -405,6 +487,7 @@ static void AddWhitePawnCaptures(
     BoardInfo_t* boardInfo,
     Bitboard_t freePawns,
     Bitboard_t d12PinnedPawns,
+    Bitboard_t enPassantBB,
     Bitboard_t enemyPieces,
     Bitboard_t checkmask,
     PinmaskContainer_t pinmasks
@@ -434,8 +517,8 @@ static void AddWhitePawnCaptures(
         boardInfo,
         freePawns,
         d12PinnedPawns,
-        pinmasks,
-        checkmask
+        enPassantBB,
+        pinmasks
     );
 };
 
@@ -444,6 +527,7 @@ static void AddBlackPawnCaptures(
     BoardInfo_t* boardInfo,
     Bitboard_t freePawns,
     Bitboard_t d12PinnedPawns,
+    Bitboard_t enPassantBB,
     Bitboard_t enemyPieces,
     Bitboard_t checkmask,
     PinmaskContainer_t pinmasks
@@ -473,8 +557,8 @@ static void AddBlackPawnCaptures(
         boardInfo,
         freePawns,
         d12PinnedPawns,
-        pinmasks,
-        checkmask
+        enPassantBB,
+        pinmasks
     );
 };
 
@@ -538,14 +622,12 @@ static void AddBlackPawnMoves(
     SerializePawnPromotions(moveList, doubleMovePromotions, NortTwo);
 };
 
-// static AddPawnMoves_t AddPawnMovesCallbacks[2] = { AddWhitePawnMoves, AddBlackPawnMoves };
-// static AddPawnCaptures_t AddPawnCapturesCallbacks[2] = { AddWhitePawnCaptures, AddBlackPawnCaptures };
-
 static void AddAllCaptures(
     MoveList_t* moveList,
     BoardInfo_t* boardInfo,
     PinmaskContainer_t pinmasks,
     Bitboard_t enemyPieces,
+    Bitboard_t enPassantBB,
     Bitboard_t checkmask,
     Color_t color
 )
@@ -556,6 +638,7 @@ static void AddAllCaptures(
             boardInfo,
             boardInfo->pawns[color] & ~pinmasks.all,
             boardInfo->pawns[color] & pinmasks.d12,
+            enPassantBB,
             enemyPieces,
             checkmask,
             pinmasks        
@@ -566,6 +649,7 @@ static void AddAllCaptures(
             boardInfo,
             boardInfo->pawns[color] & ~pinmasks.all,
             boardInfo->pawns[color] & pinmasks.d12,
+            enPassantBB,
             enemyPieces,
             checkmask,
             pinmasks        
@@ -679,7 +763,7 @@ static void AddAllQuietMoves(
     );
 }
 
-void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color) {
+void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
     moveList->maxIndex = movelist_empty;
 
     Bitboard_t unsafeSquares;
@@ -715,12 +799,13 @@ void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color
         boardInfo,
         pinmasks,
         enemyPieces,
+        ReadEnPassantSquares(stack),
         checkmask,
         color
     );
 }
 
-void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color) {
+void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
     moveList->maxIndex = movelist_empty;
 
     Bitboard_t unsafeSquares;
@@ -742,7 +827,8 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color
     );
 
     Bitboard_t checkmask = full_set;
-    if(InCheck(boardInfo->kings[color], unsafeSquares)) {
+    bool inCheck = InCheck(boardInfo->kings[color], unsafeSquares);
+    if(inCheck) {
         checkmask = DefineCheckmask(boardInfo, color);
         if(IsDoubleCheck(boardInfo, checkmask, color)) {
             AddKingMoves(
@@ -763,6 +849,7 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color
         boardInfo,
         pinmasks,
         enemyPieces,
+        ReadEnPassantSquares(stack),
         checkmask,
         color
     );
@@ -784,11 +871,14 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, Color_t color
         boardInfo->empty
     );
 
-    AddCastlingMoves(
-        moveList,
-        boardInfo,
-        unsafeSquares,
-        kingSquare,
-        color
-    );
+    if(!inCheck) {
+        AddCastlingMoves(
+            moveList,
+            boardInfo,
+            stack,
+            unsafeSquares,
+            kingSquare,
+            color
+        );
+    }
 }

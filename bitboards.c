@@ -24,13 +24,17 @@ Bitboard_t GenShiftWest(Bitboard_t b, uint8_t shift) {
     return b >> shift;
 }
 
-Population_t PopulationCount(Bitboard_t b) {
-    Population_t count = 0;
-    while(b) {
-        ResetLSB(&b);
-        count++;
-    }
-    return count;
+Population_t PopulationCount(Bitboard_t mask)
+{
+#if defined(_MSC_VER) || defined(__INTEL_COMPILER)
+
+    return (uint8_t)_mm_popcnt_u64(mask);
+
+#else // Assumed gcc or compatible compiler
+
+    return __builtin_popcountll(mask);
+
+#endif
 }
 
 Square_t LSB(Bitboard_t b) { // I hate macros and you can't force me to use them

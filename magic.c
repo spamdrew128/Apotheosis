@@ -27,10 +27,6 @@ Bitboard_t SquareToBitset(Square_t square) {
     return C64(1) << square;
 }
 
-bool NotEdge(Bitboard_t singleBitset, Bitboard_t edge) {
-   return singleBitset & ~edge;
-}
-
 int DistinctBlockers(int n) {
     return (int)(C64(1) << n);
 }
@@ -41,11 +37,11 @@ static void ResetHashTable(Bitboard_t* hashTable, int tableEntries) {
     }
 }
 
-static Bitboard_t FillMask(Bitboard_t singleBitset, DirectionCallback_t DirectionFunc, Bitboard_t edge) {
+static Bitboard_t FillMask(Bitboard_t singleBitset, DirectionCallback_t DirectionFunc) {
     Bitboard_t result = empty_set;
 
     singleBitset = DirectionFunc(singleBitset);
-    while(NotEdge(singleBitset, edge)) {
+    while(DirectionFunc(singleBitset)) {
         SetBits(&result, singleBitset);
         singleBitset = DirectionFunc(singleBitset);
     }
@@ -76,20 +72,20 @@ static Bitboard_t* CreateHashTable(uint8_t indexBits) {
 static Bitboard_t FindRookMask(Square_t square) {
     Bitboard_t singleBitset = SquareToBitset(square);
     return (
-        FillMask(singleBitset, NortOne, rank_8) |
-        FillMask(singleBitset, EastOne, h_file) |
-        FillMask(singleBitset, SoutOne, rank_1) |
-        FillMask(singleBitset, WestOne, a_file)
+        FillMask(singleBitset, NortOne) |
+        FillMask(singleBitset, EastOne) |
+        FillMask(singleBitset, SoutOne) |
+        FillMask(singleBitset, WestOne)
     );
 }
 
 static Bitboard_t FindBishopMask(Square_t square) {
     Bitboard_t singleBitset = SquareToBitset(square);
     return (
-        FillMask(singleBitset, NoEaOne, rank_8 | h_file) |
-        FillMask(singleBitset, SoEaOne, rank_1 | h_file) |
-        FillMask(singleBitset, SoWeOne, rank_1 | a_file) |
-        FillMask(singleBitset, NoWeOne, rank_8 | a_file)
+        FillMask(singleBitset, NoEaOne) |
+        FillMask(singleBitset, SoEaOne) |
+        FillMask(singleBitset, SoWeOne) |
+        FillMask(singleBitset, NoWeOne)
     );
 }
 
@@ -142,6 +138,7 @@ static void FillHashTable(
     BlockersToAttacksCallback_t callback
 )
 {
+    assert(hashTable != NULL);
     uint8_t indexBits = 64-shift;
     int tableEntries = DistinctBlockers(indexBits);
 
@@ -201,6 +198,7 @@ void InitBishopEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
 
 void FreeMagicEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
     for(Square_t square = 0; square < NUM_SQUARES; square++) {
+        assert(magicEntries[square].hashTable != NULL);
         free(magicEntries[square].hashTable);
     }
 }

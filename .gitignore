@@ -12,6 +12,7 @@
 *.exe
 *.o
 archive
+CppProperties.json
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

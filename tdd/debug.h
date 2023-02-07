@@ -32,8 +32,16 @@ void PrintChessboard(BoardInfo_t* info);
 
 void PrintMoveList(MoveList_t* moveList, BoardInfo_t* info);
 
+void PrintMove(Move_t move, bool hasNewline);
+
 Bitboard_t CreateBitboard(int numOccupied, ...);
 
-void AddGameStateToStack(GameState_t stateToAdd);
+void AddGameStateToStack(GameState_t stateToAdd, GameStack_t* stack);
+
+bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo);
+
+bool CompareState(GameState_t* expectedState, GameStack_t* stack);
+
+bool BoardIsValid(BoardInfo_t *info, GameStack_t* gameStack, Color_t color);
 
 #endif

@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "board_constants.h"
+#include "board_info.h"
 
 typedef uint16_t HalfmoveCount_t;
 typedef struct {
@@ -10,26 +11,36 @@ typedef struct {
     HalfmoveCount_t halfmoveClock;
     Bitboard_t enPassantSquares;
     Bitboard_t castleSquares[2];
+    BoardInfo_t boardInfo;
 } GameState_t;
 
-GameState_t* GetUninitializedNextGameState();
+typedef struct {
+    GameState_t gameStates[GAMESTATES_MAX];
+    int top;
+} GameStack_t;
 
-GameState_t* GetDefaultNextGameState();
+void InitGameStack(GameStack_t* stack);
 
-void AddStartingGameState();
+GameState_t* GetEmptyNextGameState(GameStack_t* stack);
 
-void RevertState();
+GameState_t* GetDefaultNextGameState(GameStack_t* stack);
 
-Piece_t ReadCapturedPiece();
+void AddStartingGameState(GameStack_t* stack);
 
-HalfmoveCount_t ReadHalfmoveClock();
+void RevertState(GameStack_t* stack);
 
-Bitboard_t ReadCastleSquares(Color_t color);
+Piece_t ReadCapturedPiece(GameStack_t* stack);
 
-Bitboard_t ReadEnPassantSquares();
+HalfmoveCount_t ReadHalfmoveClock(GameStack_t* stack);
 
-GameState_t ReadDefaultNextGameState();
+Bitboard_t ReadCastleSquares(GameStack_t* stack, Color_t color);
 
-void ResetGameStateStack();
+Bitboard_t ReadEnPassantSquares(GameStack_t* stack);
+
+BoardInfo_t ReadCurrentBoardInfo(GameStack_t* stack);
+
+GameState_t ReadCurrentGameState(GameStack_t* stack);
+
+GameState_t ReadDefaultNextGameState(GameStack_t* stack);
 
 #endif
