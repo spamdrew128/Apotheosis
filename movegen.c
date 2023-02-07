@@ -133,32 +133,18 @@ static void AddCastlingMoves(
     }
 }
 
-static void AddKnightMoves(
+static void NewAddKnightMoves(
     MoveList_t* moveList,
-    Bitboard_t freeKnights,
-    Bitboard_t empty,
-    Bitboard_t checkmask,
-    Color_t color 
-) 
+    Bitboard_t knights,
+    Bitboard_t filter,
+    PinmaskContainer_t pinmasks
+)
 {
-    SerializePositionsIntoMoves(freeKnights, {
-        Bitboard_t knightSquare = LSB(freeKnights);
-        Bitboard_t moves = KnightMoveTargets(knightSquare, empty) & checkmask;
-        SerializeNormalMoves(moveList, knightSquare, moves);
-    });
-}
+    Bitboard_t freeKnights = knights & ~(pinmasks.all);
 
-static void AddKnightCaptures(
-    MoveList_t* moveList,
-    Bitboard_t freeKnights,
-    Bitboard_t enemyPieces,
-    Bitboard_t checkmask,
-    Color_t color 
-) 
-{
     SerializePositionsIntoMoves(freeKnights, {
         Bitboard_t knightSquare = LSB(freeKnights);
-        Bitboard_t moves = KnightCaptureTargets(knightSquare, enemyPieces) & checkmask;
+        Bitboard_t moves = GetKnightAttacks(knightSquare) & filter;
         SerializeNormalMoves(moveList, knightSquare, moves);
     });
 }
@@ -632,12 +618,12 @@ static void AddAllCaptures(
         );        
     }
 
-    AddKnightCaptures(
+    Bitboard_t filter = checkmask & boardInfo->allPieces[!color];
+    NewAddKnightMoves(
         moveList,
-        boardInfo->knights[color] & ~pinmasks.all,
-        enemyPieces,
-        checkmask,
-        color
+        boardInfo->knights[color],
+        filter,
+        pinmasks
     );
 
     AddBishopCaptures(
@@ -702,12 +688,12 @@ static void AddAllQuietMoves(
         );
     }
 
-    AddKnightMoves(
+    Bitboard_t filter = checkmask & boardInfo->empty;
+    NewAddKnightMoves(
         moveList,
-        boardInfo->knights[color] & ~pinmasks.all,
-        boardInfo->empty,
-        checkmask,
-        color
+        boardInfo->knights[color],
+        filter,
+        pinmasks
     );
 
     AddBishopMoves(
