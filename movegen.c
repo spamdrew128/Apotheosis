@@ -648,7 +648,7 @@ void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
     AddKingMoves(
         moveList,
         kingSquare,
-        KingMoveTargetsNew(kingSquare, enemyPieces),
+        KingMoveTargets(kingSquare, enemyPieces),
         unsafeSquares,
         boardInfo->empty
     ); 
@@ -683,7 +683,7 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
     AddKingMoves(
         moveList,
         kingSquare,
-        KingMoveTargetsNew(kingSquare, (boardInfo->empty | enemyPieces)),
+        KingMoveTargets(kingSquare, (boardInfo->empty | enemyPieces)),
         unsafeSquares,
         boardInfo->empty
     );
