@@ -59,12 +59,8 @@ Bitboard_t FilterBlackPromotions(Bitboard_t* blackMoveset) {
 }
 
 // KNIGHTS
-Bitboard_t KnightMoveTargets(Square_t square, Bitboard_t empty) {
-   return GetKnightAttacks(square) & empty;
-}
-
-Bitboard_t KnightCaptureTargets(Square_t square, Bitboard_t enemyPieces) {
-   return GetKnightAttacks(square) & enemyPieces;
+Bitboard_t KnightMoveTargetsNew(Square_t square, Bitboard_t filter) {
+   return GetKnightAttacks(square) & filter;
 }
 
 // KINGS

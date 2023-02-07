@@ -192,10 +192,10 @@ static void StartKnightMoveTargets() {
     Bitboard_t expectedG8Knight = CreateBitboard(2, f6,h6);
 
     bool success = 
-        (KnightMoveTargets(b1, info.empty) == expectedB1Knight) &&
-        (KnightMoveTargets(b8, info.empty) == expectedB8Knight) &&
-        (KnightMoveTargets(g1, info.empty) == expectedG1Knight) &&
-        (KnightMoveTargets(g8, info.empty) == expectedG8Knight);
+        (KnightMoveTargetsNew(b1, info.empty) == expectedB1Knight) &&
+        (KnightMoveTargetsNew(b8, info.empty) == expectedB8Knight) &&
+        (KnightMoveTargetsNew(g1, info.empty) == expectedG1Knight) &&
+        (KnightMoveTargetsNew(g8, info.empty) == expectedG8Knight);
 
     PrintResults(success);
 }
@@ -210,10 +210,10 @@ static void StartKnightCaptureTargets() {
     Bitboard_t expectedG8Knight = empty_set;
 
     bool success = 
-        (KnightCaptureTargets(b1, info.allPieces[black]) == expectedB1Knight) &&
-        (KnightCaptureTargets(b8, info.allPieces[white]) == expectedB8Knight) &&
-        (KnightCaptureTargets(g1, info.allPieces[black]) == expectedG1Knight) &&
-        (KnightCaptureTargets(g8, info.allPieces[white]) == expectedG8Knight);
+        (KnightMoveTargetsNew(b1, info.allPieces[black]) == expectedB1Knight) &&
+        (KnightMoveTargetsNew(b8, info.allPieces[white]) == expectedB8Knight) &&
+        (KnightMoveTargetsNew(g1, info.allPieces[black]) == expectedG1Knight) &&
+        (KnightMoveTargetsNew(g8, info.allPieces[white]) == expectedG8Knight);
 
     PrintResults(success);
 }
@@ -228,10 +228,10 @@ static void MidgameKnightMoveTargets() {
     Bitboard_t expectedF6Knight = CreateBitboard(3, d7,g4,h5);
 
     bool success = 
-        (KnightMoveTargets(c3, info.empty) == expectedC3Knight) &&
-        (KnightMoveTargets(f3, info.empty) == expectedF3Knight) &&
-        (KnightMoveTargets(e7, info.empty) == expectedE7Knight) &&
-        (KnightMoveTargets(f6, info.empty) == expectedF6Knight);
+        (KnightMoveTargetsNew(c3, info.empty) == expectedC3Knight) &&
+        (KnightMoveTargetsNew(f3, info.empty) == expectedF3Knight) &&
+        (KnightMoveTargetsNew(e7, info.empty) == expectedE7Knight) &&
+        (KnightMoveTargetsNew(f6, info.empty) == expectedF6Knight);
 
     PrintResults(success);
 }
@@ -246,10 +246,10 @@ static void MidgameKnightCaptureTargets() {
     Bitboard_t expectedF6Knight = CreateBitboard(2, d5,e4);
 
     bool success = 
-        (KnightCaptureTargets(c3, info.allPieces[black]) == expectedC3Knight) &&
-        (KnightCaptureTargets(f3, info.allPieces[black]) == expectedF3Knight) &&
-        (KnightCaptureTargets(e7, info.allPieces[white]) == expectedE7Knight) &&
-        (KnightCaptureTargets(f6, info.allPieces[white]) == expectedF6Knight);
+        (KnightMoveTargetsNew(c3, info.allPieces[black]) == expectedC3Knight) &&
+        (KnightMoveTargetsNew(f3, info.allPieces[black]) == expectedF3Knight) &&
+        (KnightMoveTargetsNew(e7, info.allPieces[white]) == expectedE7Knight) &&
+        (KnightMoveTargetsNew(f6, info.allPieces[white]) == expectedF6Knight);
 
     PrintResults(success);
 }
