@@ -105,7 +105,6 @@ static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
         moveList.maxIndex == 7;
 
     PrintResults(success);
-    PrintMoveList(&moveList, &info);
 }
 
 static void ShouldCorrectlyEvaluateDoubleEnPassant() {
