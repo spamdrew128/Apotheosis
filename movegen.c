@@ -513,7 +513,7 @@ static void AddKnightAndSliderMoves(
 
     AddD12SliderMoves(
         moveList,
-        boardInfo->bishops[color] | boardInfo->queens[color],
+        AllD12Sliders(boardInfo, color),
         filter,
         boardInfo->empty,
         pinmasks
@@ -521,7 +521,7 @@ static void AddKnightAndSliderMoves(
 
     AddHvSliderMoves(
         moveList,
-        boardInfo->rooks[color] | boardInfo->queens[color],
+        AllHvSliders(boardInfo, color),
         filter,
         boardInfo->empty,
         pinmasks 
@@ -642,7 +642,7 @@ void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
     moveList->maxIndex = movelist_empty;
 
     Bitboard_t unsafeSquares = GetUnsafeSquares(boardInfo, color);
-    Square_t kingSquare = LSB(boardInfo->kings[color]);
+    Square_t kingSquare = KingSquare(boardInfo, color);
     Bitboard_t enemyPieces = boardInfo->allPieces[!color];
 
     AddKingMoves(
@@ -677,7 +677,7 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
     moveList->maxIndex = movelist_empty;
 
     Bitboard_t unsafeSquares = GetUnsafeSquares(boardInfo, color);
-    Square_t kingSquare = LSB(boardInfo->kings[color]);
+    Square_t kingSquare = KingSquare(boardInfo, color);
     Bitboard_t enemyPieces = boardInfo->allPieces[!color];
 
     AddKingMoves(

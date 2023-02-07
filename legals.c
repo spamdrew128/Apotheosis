@@ -139,7 +139,7 @@ static Bitboard_t CalculateSliderCheckmask(
 Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, Color_t color) {
     // assumes you are in check
     Bitboard_t kingBitboard = boardInfo->kings[color];
-    Bitboard_t kingSquare = LSB(boardInfo->kings[color]);
+    Bitboard_t kingSquare = KingSquare(boardInfo, color);
 
     Bitboard_t checkmask = CalculateSliderCheckmask(
         boardInfo,
@@ -163,7 +163,7 @@ bool InCheck(Bitboard_t kingBitboard, Bitboard_t unsafeSquares) {
 }
 
 bool IsDoubleCheck(BoardInfo_t* boardInfo, Bitboard_t checkmask, Color_t color) {
-    Bitboard_t kingSquare = LSB(boardInfo->kings[color]);
+    Bitboard_t kingSquare = KingSquare(boardInfo, color);
     Bitboard_t mask = GetKingAttacks(kingSquare) | GetKnightAttacks(kingSquare);
 
     return PopulationCount(mask & checkmask) > 1;
@@ -192,7 +192,7 @@ static Bitboard_t CalculateDirectionalPinmask(
 
 PinmaskContainer_t DefinePinmasks(BoardInfo_t* boardInfo, Color_t color) {
     Bitboard_t kingBitboard = boardInfo->kings[color];
-    Bitboard_t kingSquare = LSB(boardInfo->kings[color]);
+    Bitboard_t kingSquare = KingSquare(boardInfo, color);
 
     Bitboard_t emptyIfNoFriendlyPiecesOtherThanKing = 
         (boardInfo->empty | boardInfo->allPieces[color]) & ~kingBitboard;
@@ -227,7 +227,7 @@ PinmaskContainer_t DefinePinmasks(BoardInfo_t* boardInfo, Color_t color) {
 
 bool EastEnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t friendlyPawnLocation, Color_t color) {
     Bitboard_t enemyPawnLocation = EastOne(friendlyPawnLocation);
-    Square_t kingSquare = LSB(boardInfo->kings[color]);
+    Square_t kingSquare = KingSquare(boardInfo, color);
 
     Bitboard_t enemyHvSliders = boardInfo->queens[!color] | boardInfo->rooks[!color];
 
@@ -240,7 +240,7 @@ bool EastEnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t friendlyPawnLocatio
 
 bool WestEnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t friendlyPawnLocation, Color_t color) {
     Bitboard_t enemyPawnLocation = WestOne(friendlyPawnLocation);
-    Square_t kingSquare = LSB(boardInfo->kings[color]);
+    Square_t kingSquare = KingSquare(boardInfo, color);
 
     Bitboard_t enemyHvSliders = boardInfo->queens[!color] | boardInfo->rooks[!color];
 
