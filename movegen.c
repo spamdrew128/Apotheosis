@@ -145,7 +145,7 @@ static void AddCastlingMoves(
     }
 }
 
-static void NewAddKnightMoves(
+static void AddKnightMoves(
     MoveList_t* moveList,
     Bitboard_t knights,
     Bitboard_t filter,
@@ -504,7 +504,7 @@ static void AddKnightAndSliderMoves(
     Color_t color
 )
 {
-    NewAddKnightMoves(
+    AddKnightMoves(
         moveList,
         boardInfo->knights[color],
         filter,
