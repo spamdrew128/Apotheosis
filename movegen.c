@@ -7,30 +7,6 @@ enum {
     movelist_empty = -1
 };
 
-typedef Bitboard_t (*UnsafeSquaresCallback_t)(BoardInfo_t* boardInfo);
-
-typedef void (*AddPawnCaptures_t)(
-    MoveList_t* moveList,
-    BoardInfo_t* boardInfo,
-    Bitboard_t freePawns,
-    Bitboard_t d12PinnedPawns,
-    Bitboard_t enemyPieces,
-    Bitboard_t checkmask,
-    PinmaskContainer_t pinmasks
-);
-
-typedef void (*AddPawnMoves_t)(
-    MoveList_t* moveList,
-    BoardInfo_t* boardInfo,
-    Bitboard_t freePawns,
-    Bitboard_t hvPinnedPawns,
-    Bitboard_t empty,
-    Bitboard_t checkmask,
-    PinmaskContainer_t pinmasks
-);
-
-typedef Bitboard_t (*SliderCaptureTargetsCallback_t)(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces);
-
 #define SerializePositionsIntoMoves(_positions, ...) \
     do { \
         while(_positions) { \
