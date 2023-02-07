@@ -693,13 +693,6 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
     if(inCheck) {
         checkmask = DefineCheckmask(boardInfo, color);
         if(IsDoubleCheck(boardInfo, checkmask, color)) {
-            AddKingMoves(
-                moveList,
-                kingSquare,
-                KingMoveTargets(kingSquare, boardInfo->empty),
-                unsafeSquares,
-                boardInfo->empty
-            );
             return;
         }
     } else {
