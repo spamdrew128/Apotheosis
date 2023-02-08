@@ -31,9 +31,9 @@ Bitboard_t GetKnightAttacks(Square_t square);
 
 Bitboard_t GetKingAttacks(Square_t square);
 
-MagicEntry_t GetRookMagicEntry(Square_t square);
+Bitboard_t GetRookAttackSet(Square_t square, Bitboard_t empty);
 
-MagicEntry_t GetBishopMagicEntry(Square_t square);
+Bitboard_t GetBishopAttackSet(Square_t square, Bitboard_t empty);
 
 Bitboard_t GetSlidingCheckmask(Square_t kingSquare, Square_t slidingPieceSquare);
 

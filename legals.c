@@ -48,20 +48,8 @@ static Bitboard_t KnightAttacks(Square_t square, Bitboard_t empty) {
     return GetKnightAttacks(square);
 }
 
-static Bitboard_t RookAttacks(Square_t square, Bitboard_t empty) {
-    MagicEntry_t magicEntry = GetRookMagicEntry(square);
-    Bitboard_t blockers = magicEntry.mask & ~empty;
-    return GetSlidingAttackSet(magicEntry, blockers);
-}
-
-static Bitboard_t BishopAttacks(Square_t square, Bitboard_t empty) {
-    MagicEntry_t magicEntry = GetBishopMagicEntry(square);
-    Bitboard_t blockers = magicEntry.mask & ~empty;
-    return GetSlidingAttackSet(magicEntry, blockers);
-}
-
 static Bitboard_t QueenAttacks(Square_t square, Bitboard_t empty) {
-    return RookAttacks(square, empty) | BishopAttacks(square, empty);
+    return GetRookAttackSet(square, empty) | GetBishopAttackSet(square, empty);
 }
 
 static Bitboard_t GetAllAttacks(Bitboard_t pieceLocations, Bitboard_t empty, GetAttacksCallback_t GetAttacksCallback) {
@@ -80,8 +68,8 @@ static Bitboard_t NonPawnUnsafeSquares(BoardInfo_t* boardInfo, Color_t enemyColo
     return (
         GetKingAttacks(LSB(boardInfo->kings[enemyColor])) |
         GetAllAttacks(boardInfo->knights[enemyColor], empty, KnightAttacks) |
-        GetAllAttacks(boardInfo->rooks[enemyColor], empty, RookAttacks) |
-        GetAllAttacks(boardInfo->bishops[enemyColor], empty, BishopAttacks) |
+        GetAllAttacks(boardInfo->rooks[enemyColor], empty, GetRookAttackSet) |
+        GetAllAttacks(boardInfo->bishops[enemyColor], empty, GetBishopAttackSet) |
         GetAllAttacks(boardInfo->queens[enemyColor], empty, QueenAttacks)
     );
 }

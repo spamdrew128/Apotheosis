@@ -161,12 +161,22 @@ Bitboard_t GetKingAttacks(Square_t square) {
     return lookup.kingAttacks[square];
 }
 
-MagicEntry_t GetRookMagicEntry(Square_t square) {
-    return lookup.rookMagicEntries[square];
+Bitboard_t GetRookAttackSet(Square_t square, Bitboard_t empty) {
+    Bitboard_t blockers = lookup.rookMagicEntries[square].mask & ~empty;
+    return FindSlidingAttackSetInHashTable(
+        lookup.rookMagicEntries[square],
+        blockers,
+        lookup.magicHashTable
+    );
 }
 
-MagicEntry_t GetBishopMagicEntry(Square_t square) {
-    return lookup.bishopMagicEntries[square];
+Bitboard_t GetBishopAttackSet(Square_t square, Bitboard_t empty) {
+    Bitboard_t blockers = lookup.bishopMagicEntries[square].mask & ~empty;
+    return FindSlidingAttackSetInHashTable(
+        lookup.bishopMagicEntries[square],
+        blockers,
+        lookup.magicHashTable
+    );
 }
 
 Bitboard_t GetSlidingCheckmask(Square_t kingSquare, Square_t slidingPieceSquare) {

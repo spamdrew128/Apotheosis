@@ -146,7 +146,9 @@ static void FillHashTable(
     assert(hashTable != NULL);
     uint8_t indexBits = 64-shift;
     int tableEntries = DistinctBlockers(indexBits);
+
     totalEntries += tableEntries;
+    assert(totalEntries <= NUM_HASH_ENTRIES);
 
     TempStorage_t* tempStorageTable = malloc(tableEntries * sizeof(*tempStorageTable));
     InitTempStorage(tempStorageTable, mask, indexBits, square, callback);
