@@ -153,11 +153,11 @@ Bitboard_t GetSingleBitset(Square_t square) {
     return lookup.singleBitsets[square];
 }
 
-Bitboard_t GetKnightAttacks(Square_t square) {
+Bitboard_t GetKnightAttackSet(Square_t square) {
     return lookup.knightAttacks[square];
 }
 
-Bitboard_t GetKingAttacks(Square_t square) {
+Bitboard_t GetKingAttackSet(Square_t square) {
     return lookup.kingAttacks[square];
 }
 

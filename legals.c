@@ -45,7 +45,7 @@ static bool QueensideCastlingIsSafe(Color_t color, Bitboard_t unsafeSquares, Bit
 
 static Bitboard_t KnightAttacks(Square_t square, Bitboard_t empty) {
     (void)empty;
-    return GetKnightAttacks(square);
+    return GetKnightAttackSet(square);
 }
 
 static Bitboard_t QueenAttacks(Square_t square, Bitboard_t empty) {
@@ -66,7 +66,7 @@ static Bitboard_t NonPawnUnsafeSquares(BoardInfo_t* boardInfo, Color_t enemyColo
     Bitboard_t empty = boardInfo->empty | (boardInfo->kings[!enemyColor]); // king does not count as blocker!
 
     return (
-        GetKingAttacks(LSB(boardInfo->kings[enemyColor])) |
+        GetKingAttackSet(LSB(boardInfo->kings[enemyColor])) |
         GetAllAttacks(boardInfo->knights[enemyColor], empty, KnightAttacks) |
         GetAllAttacks(boardInfo->rooks[enemyColor], empty, GetRookAttackSet) |
         GetAllAttacks(boardInfo->bishops[enemyColor], empty, GetBishopAttackSet) |
@@ -140,7 +140,7 @@ Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, Color_t color) {
     Bitboard_t pawnsCheckingKing = GetPawnCheckmask(kingSquare, color) & boardInfo->pawns[!color];
     SetBits(&checkmask, pawnsCheckingKing);
 
-    Bitboard_t knighsCheckingKing = GetKnightAttacks(kingSquare) & boardInfo->knights[!color];
+    Bitboard_t knighsCheckingKing = GetKnightAttackSet(kingSquare) & boardInfo->knights[!color];
     SetBits(&checkmask, knighsCheckingKing);
 
     return checkmask;
@@ -152,7 +152,7 @@ bool InCheck(Bitboard_t kingBitboard, Bitboard_t unsafeSquares) {
 
 bool IsDoubleCheck(BoardInfo_t* boardInfo, Bitboard_t checkmask, Color_t color) {
     Bitboard_t kingSquare = KingSquare(boardInfo, color);
-    Bitboard_t mask = GetKingAttacks(kingSquare) | GetKnightAttacks(kingSquare);
+    Bitboard_t mask = GetKingAttackSet(kingSquare) | GetKnightAttackSet(kingSquare);
 
     return PopulationCount(mask & checkmask) > 1;
 }

@@ -60,12 +60,12 @@ Bitboard_t FilterBlackPromotions(Bitboard_t* blackMoveset) {
 
 // KNIGHTS
 Bitboard_t KnightMoveTargets(Square_t square, Bitboard_t filter) {
-   return GetKnightAttacks(square) & filter;
+   return GetKnightAttackSet(square) & filter;
 }
 
 // KINGS
 Bitboard_t KingMoveTargets(Square_t square, Bitboard_t filter) {
-   return GetKingAttacks(square) & filter;
+   return GetKingAttackSet(square) & filter;
 }
 
 // ROOKS

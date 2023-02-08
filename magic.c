@@ -33,7 +33,7 @@ static int DistinctBlockers(int n) {
     return (int)(C64(1) << n);
 }
 
-Hash_t MagicHash(blockers, magic, shift) { (blockers * magic) >> shift; }
+Hash_t MagicHash(Bitboard_t blockers, MagicBB_t magic, uint8_t shift) { return (blockers * magic) >> shift; }
 
 static void InitHashTable(Bitboard_t* hashTable, int tableEntries) {
     for(int i = 0; i < tableEntries; i++) {
@@ -62,15 +62,6 @@ static Bitboard_t FillAttacks(Bitboard_t singleBitset, Bitboard_t blockers, Dire
     } while(singleBitset && !(singleBitset & blockers));
 
     return result;
-}
-
-static Bitboard_t* CreateHashTable(uint8_t indexBits) {
-    int tableEntries = DistinctBlockers(indexBits);
-    Bitboard_t* hashTable = malloc(tableEntries * sizeof(*hashTable));
-
-    InitHashTable(hashTable, tableEntries);
-
-    return hashTable;
 }
 
 static Bitboard_t FindRookMask(Square_t square) {
