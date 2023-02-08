@@ -124,7 +124,4 @@ void MagicTDDRunner() {
     TestRookHashLookup(rMagicEntries);
     TestBishopHashLookup(bMagicEntries);
     TestQueenHashLookup(rMagicEntries, bMagicEntries);
-
-    FreeMagicEntries(rMagicEntries);
-    FreeMagicEntries(bMagicEntries);
 }

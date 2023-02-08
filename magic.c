@@ -22,6 +22,8 @@ typedef struct {
     Bitboard_t attacks;
 } TempStorage_t;
 
+static uint32_t spaceUsed = 0;
+
 // To avoid lookup dependancies
 Bitboard_t SquareToBitset(Square_t square) {
     return C64(1) << square;
@@ -191,14 +193,7 @@ void InitRookEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
     InitMagicEntries(magicEntries, magicTable, FindRookMask, FindRookAttacksFromBlockers);
 }
 
-void InitBishopEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
+void InitBishopEntries(MagicEntry_t magicEntries[NUM_SQUARES], Bitboard_t hashTable[NUM_HASH_ENTRIES]) {
     MagicBB_t magicTable[NUM_SQUARES] = BISHOP_MAGICS;
     InitMagicEntries(magicEntries, magicTable, FindBishopMask, FindBishopAttacksFromBlockers);
-}
-
-void FreeMagicEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
-    for(Square_t square = 0; square < NUM_SQUARES; square++) {
-        assert(magicEntries[square].hashTable != NULL);
-        free(magicEntries[square].hashTable);
-    }
 }

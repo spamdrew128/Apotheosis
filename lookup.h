@@ -45,6 +45,4 @@ Square_t GetKingsideCastleSquare(Color_t color);
 
 Square_t GetQueensideCastleSquare(Color_t color);
 
-void TeardownLookup();
-
 #endif

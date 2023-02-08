@@ -191,8 +191,3 @@ Square_t GetKingsideCastleSquare(Color_t color) {
 Square_t GetQueensideCastleSquare(Color_t color) {
     return lookup.qsCastleSquares[color];
 }
-
-void TeardownLookup() {
-    FreeMagicEntries(lookup.rookMagicEntries);
-    FreeMagicEntries(lookup.bishopMagicEntries);
-}
