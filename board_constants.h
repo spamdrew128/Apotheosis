@@ -6,7 +6,7 @@
 typedef uint64_t Bitboard_t; // supported by MSC 13.00+ and C99 
 #define C64(constantU64) constantU64##ULL
 
-#define MOVELIST_MAX 128
+#define MOVELIST_MAX 256
 #define GAMESTATES_MAX 1024
 #define NUM_PIECES 6
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
