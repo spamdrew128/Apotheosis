@@ -12,6 +12,7 @@ typedef struct {
 
     MagicEntry_t rookMagicEntries[NUM_SQUARES];
     MagicEntry_t bishopMagicEntries[NUM_SQUARES];
+    Bitboard_t magicHashTable[NUM_HASH_ENTRIES];
 
     Bitboard_t slidingCheckmasks[NUM_SQUARES][NUM_SQUARES];
     Bitboard_t pawnCheckmasks[2][NUM_SQUARES]; // different for each color
