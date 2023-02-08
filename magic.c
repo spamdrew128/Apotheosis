@@ -22,16 +22,20 @@ typedef struct {
     Bitboard_t attacks;
 } TempStorage_t;
 
+static uint32_t totalEntries;
+
 // To avoid lookup dependancies
-Bitboard_t SquareToBitset(Square_t square) {
+static Bitboard_t SquareToBitset(Square_t square) {
     return C64(1) << square;
 }
 
-int DistinctBlockers(int n) {
+static int DistinctBlockers(int n) {
     return (int)(C64(1) << n);
 }
 
-static void ResetHashTable(Bitboard_t* hashTable, int tableEntries) {
+Hash_t MagicHash(Bitboard_t blockers, MagicBB_t magic, uint8_t shift) { return (blockers * magic) >> shift; }
+
+static void InitHashTable(Bitboard_t* hashTable, int tableEntries) {
     for(int i = 0; i < tableEntries; i++) {
         hashTable[i] = uninitialized;
     }
@@ -58,15 +62,6 @@ static Bitboard_t FillAttacks(Bitboard_t singleBitset, Bitboard_t blockers, Dire
     } while(singleBitset && !(singleBitset & blockers));
 
     return result;
-}
-
-static Bitboard_t* CreateHashTable(uint8_t indexBits) {
-    int tableEntries = DistinctBlockers(indexBits);
-    Bitboard_t* hashTable = malloc(tableEntries * sizeof(*hashTable));
-
-    ResetHashTable(hashTable, tableEntries);
-
-    return hashTable;
 }
 
 static Bitboard_t FindRookMask(Square_t square) {
@@ -132,6 +127,7 @@ static void InitTempStorage(
 static void FillHashTable(
     MagicBB_t magic,
     Bitboard_t* hashTable,
+    uint32_t offset,
     uint8_t shift,
     Bitboard_t mask,
     Square_t square,
@@ -142,6 +138,12 @@ static void FillHashTable(
     uint8_t indexBits = 64-shift;
     int tableEntries = DistinctBlockers(indexBits);
 
+    totalEntries += tableEntries;
+    if(totalEntries > NUM_HASH_ENTRIES) {
+        printf("hi");
+    }
+    assert(totalEntries <= NUM_HASH_ENTRIES);
+
     TempStorage_t* tempStorageTable = malloc(tableEntries * sizeof(*tempStorageTable));
     InitTempStorage(tempStorageTable, mask, indexBits, square, callback);
 
@@ -150,9 +152,9 @@ static void FillHashTable(
         Bitboard_t attacks = tempStorageTable[i].attacks;
         Hash_t hash = MagicHash(blockers, magic, shift);
 
-        if(hashTable[hash] == uninitialized) {
-           hashTable[hash] = attacks;
-        } else if(hashTable[hash] != attacks) {
+        if(hashTable[hash + offset] == uninitialized) {
+           hashTable[hash + offset] = attacks;
+        } else if(hashTable[hash + offset] != attacks) {
             assert(2 + 2 == 5); // literally 1984
         }
     }
@@ -163,6 +165,7 @@ static void FillHashTable(
 static void InitMagicEntries(
     MagicEntry_t magicEntries[NUM_SQUARES],
     MagicBB_t magicTable[NUM_SQUARES],
+    Bitboard_t hashTable[NUM_HASH_ENTRIES],
     FindMaskCallback_t FindMaskCallback, 
     BlockersToAttacksCallback_t BlockersToAttacksCallback
 ) 
@@ -171,13 +174,13 @@ static void InitMagicEntries(
         magicEntries[square].mask = FindMaskCallback(square);
         uint8_t indexBits = PopulationCount(magicEntries[square].mask);
         magicEntries[square].shift = NUM_SQUARES - indexBits;
-
-        magicEntries[square].hashTable = CreateHashTable(indexBits);
         magicEntries[square].magic = magicTable[square];
+        magicEntries[square].offset = totalEntries;
 
         FillHashTable(
             magicEntries[square].magic,
-            magicEntries[square].hashTable,
+            hashTable,
+            magicEntries[square].offset,
             magicEntries[square].shift,
             magicEntries[square].mask,
             square,
@@ -186,19 +189,36 @@ static void InitMagicEntries(
     }
 }
 
-void InitRookEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
+static void InitRookEntries(MagicEntry_t magicEntries[NUM_SQUARES], Bitboard_t hashTable[NUM_HASH_ENTRIES]) {
     MagicBB_t magicTable[NUM_SQUARES] = ROOK_MAGICS;
-    InitMagicEntries(magicEntries, magicTable, FindRookMask, FindRookAttacksFromBlockers);
+    InitMagicEntries(magicEntries, magicTable, hashTable, FindRookMask, FindRookAttacksFromBlockers);
 }
 
-void InitBishopEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
+static void InitBishopEntries(MagicEntry_t magicEntries[NUM_SQUARES], Bitboard_t hashTable[NUM_HASH_ENTRIES]) {
     MagicBB_t magicTable[NUM_SQUARES] = BISHOP_MAGICS;
-    InitMagicEntries(magicEntries, magicTable, FindBishopMask, FindBishopAttacksFromBlockers);
+    InitMagicEntries(magicEntries, magicTable, hashTable, FindBishopMask, FindBishopAttacksFromBlockers);
 }
 
-void FreeMagicEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
-    for(Square_t square = 0; square < NUM_SQUARES; square++) {
-        assert(magicEntries[square].hashTable != NULL);
-        free(magicEntries[square].hashTable);
-    }
+void InitAllMagicEntries(
+    MagicEntry_t rookMagicEntries[NUM_SQUARES],
+    MagicEntry_t bishopMagicEntries[NUM_SQUARES],
+    Bitboard_t hashTable[NUM_HASH_ENTRIES]
+)
+{
+    totalEntries = 0;
+    InitHashTable(hashTable, NUM_HASH_ENTRIES);
+    InitRookEntries(rookMagicEntries, hashTable);
+    InitBishopEntries(bishopMagicEntries, hashTable);
+
+    assert(totalEntries == NUM_HASH_ENTRIES);
+}
+
+Bitboard_t FindSlidingAttackSetInHashTable(
+    MagicEntry_t magicEntry,
+    Bitboard_t blockers,
+    Bitboard_t hashTable[NUM_HASH_ENTRIES]
+)
+{
+    Hash_t hash = MagicHash(blockers, magicEntry.magic, magicEntry.shift);
+    return hashTable[hash + magicEntry.offset];
 }

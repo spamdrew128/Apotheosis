@@ -142,8 +142,7 @@ void InitLookup() {
     InitSingleBitset(lookup.singleBitsets);
     InitKnightAttacks(lookup.knightAttacks);
     InitKingAttacks(lookup.kingAttacks);
-    InitRookEntries(lookup.rookMagicEntries);
-    InitBishopEntries(lookup.bishopMagicEntries);
+    InitAllMagicEntries(lookup.rookMagicEntries, lookup.bishopMagicEntries, lookup.magicHashTable);
     InitSlidingCheckmasks(lookup.slidingCheckmasks);
     InitPawnCheckmasks(lookup.pawnCheckmasks);
     InitDirectionalRays(lookup.directionalRays);
@@ -154,20 +153,30 @@ Bitboard_t GetSingleBitset(Square_t square) {
     return lookup.singleBitsets[square];
 }
 
-Bitboard_t GetKnightAttacks(Square_t square) {
+Bitboard_t GetKnightAttackSet(Square_t square) {
     return lookup.knightAttacks[square];
 }
 
-Bitboard_t GetKingAttacks(Square_t square) {
+Bitboard_t GetKingAttackSet(Square_t square) {
     return lookup.kingAttacks[square];
 }
 
-MagicEntry_t GetRookMagicEntry(Square_t square) {
-    return lookup.rookMagicEntries[square];
+Bitboard_t GetRookAttackSet(Square_t square, Bitboard_t empty) {
+    Bitboard_t blockers = lookup.rookMagicEntries[square].mask & ~empty;
+    return FindSlidingAttackSetInHashTable(
+        lookup.rookMagicEntries[square],
+        blockers,
+        lookup.magicHashTable
+    );
 }
 
-MagicEntry_t GetBishopMagicEntry(Square_t square) {
-    return lookup.bishopMagicEntries[square];
+Bitboard_t GetBishopAttackSet(Square_t square, Bitboard_t empty) {
+    Bitboard_t blockers = lookup.bishopMagicEntries[square].mask & ~empty;
+    return FindSlidingAttackSetInHashTable(
+        lookup.bishopMagicEntries[square],
+        blockers,
+        lookup.magicHashTable
+    );
 }
 
 Bitboard_t GetSlidingCheckmask(Square_t kingSquare, Square_t slidingPieceSquare) {
@@ -190,9 +199,4 @@ Square_t GetKingsideCastleSquare(Color_t color) {
 
 Square_t GetQueensideCastleSquare(Color_t color) {
     return lookup.qsCastleSquares[color];
-}
-
-void TeardownLookup() {
-    FreeMagicEntries(lookup.rookMagicEntries);
-    FreeMagicEntries(lookup.bishopMagicEntries);
 }

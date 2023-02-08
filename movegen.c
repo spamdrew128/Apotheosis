@@ -156,7 +156,7 @@ static void AddKnightMoves(
 
     SerializePositionsIntoMoves(freeKnights, {
         Bitboard_t knightSquare = LSB(freeKnights);
-        Bitboard_t moves = GetKnightAttacks(knightSquare) & filter; // TODO make this a function
+        Bitboard_t moves = GetKnightAttackSet(knightSquare) & filter; // TODO make this a function
         SerializeNormalMoves(moveList, knightSquare, moves);
     });
 }

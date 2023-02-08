@@ -39,12 +39,12 @@ void RunAllPerftTests(bool shouldRun) {
         return;
     }
 
-    PerftTestContainer_t table[NUM_ENTRYS] = {
+    PerftTestContainer_t table[NUM_PERFT_ENTRIES] = {
         PERFT_TEST_TABLE(EXPAND_AS_TEST_CONTAINER)
     };
 
     int testsRun = 0;
-    for(int i = 0; i < NUM_ENTRYS; i++) {
+    for(int i = 0; i < NUM_PERFT_ENTRIES; i++) {
         FEN_t fen = table[i].fen;
         for(int j = 0; j < MAX_DEPTH; j++) {
             TestSetup();
@@ -61,6 +61,7 @@ void RunAllPerftTests(bool shouldRun) {
                     printf(".");
                 } else {
                     printf("\nFailure at FEN %s and depth %d\n", fen, depth);
+                    printf("Expected %lld and got %lld\n", expectedCounts, count);
                 }
             }
         }

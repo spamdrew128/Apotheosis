@@ -12,6 +12,7 @@ typedef struct {
 
     MagicEntry_t rookMagicEntries[NUM_SQUARES];
     MagicEntry_t bishopMagicEntries[NUM_SQUARES];
+    Bitboard_t magicHashTable[NUM_HASH_ENTRIES];
 
     Bitboard_t slidingCheckmasks[NUM_SQUARES][NUM_SQUARES];
     Bitboard_t pawnCheckmasks[2][NUM_SQUARES]; // different for each color
@@ -26,13 +27,13 @@ void InitLookup();
 
 Bitboard_t GetSingleBitset(Square_t square);
 
-Bitboard_t GetKnightAttacks(Square_t square);
+Bitboard_t GetKnightAttackSet(Square_t square);
 
-Bitboard_t GetKingAttacks(Square_t square);
+Bitboard_t GetKingAttackSet(Square_t square);
 
-MagicEntry_t GetRookMagicEntry(Square_t square);
+Bitboard_t GetRookAttackSet(Square_t square, Bitboard_t empty);
 
-MagicEntry_t GetBishopMagicEntry(Square_t square);
+Bitboard_t GetBishopAttackSet(Square_t square, Bitboard_t empty);
 
 Bitboard_t GetSlidingCheckmask(Square_t kingSquare, Square_t slidingPieceSquare);
 
@@ -43,7 +44,5 @@ Bitboard_t GetDirectionalRay(Square_t square, Direction_t direction);
 Square_t GetKingsideCastleSquare(Color_t color);
 
 Square_t GetQueensideCastleSquare(Color_t color);
-
-void TeardownLookup();
 
 #endif
