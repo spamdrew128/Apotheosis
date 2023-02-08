@@ -86,17 +86,25 @@ static void BishopsMasksMatch(MagicEntry_t bMagicEntries[NUM_SQUARES]) {
 static void TestRookHashLookup(MagicEntry_t rMagicEntries[NUM_SQUARES]) {
     MagicEntry_t entry = rMagicEntries[rook_square];
     Bitboard_t blockers = rook_blockers & entry.mask;
-    Hash_t hash = MagicHash(blockers, entry.magic, entry.shift);
+    Bitboard_t attacks = FindSlidingAttackSetInHashTable(
+        entry,
+        blockers,
+        hashTable
+    );
 
-    PrintResults(entry.hashTable[hash] == rook_expected_attacks);
+    PrintResults(attacks == rook_expected_attacks);
 }
 
 static void TestBishopHashLookup(MagicEntry_t bMagicEntries[NUM_SQUARES]) {
     MagicEntry_t entry = bMagicEntries[bishop_square];
     Bitboard_t blockers = bishop_blockers & entry.mask;
-    Hash_t hash = MagicHash(blockers, entry.magic, entry.shift);
+    Bitboard_t attacks = FindSlidingAttackSetInHashTable(
+        entry,
+        blockers,
+        hashTable
+    );
 
-    PrintResults(entry.hashTable[hash] == bishop_expected_attacks);
+    PrintResults(attacks == bishop_expected_attacks);
 }
 
 static void TestQueenHashLookup(MagicEntry_t rMagicEntries[NUM_SQUARES], MagicEntry_t bMagicEntries[NUM_SQUARES]) {
@@ -106,10 +114,18 @@ static void TestQueenHashLookup(MagicEntry_t rMagicEntries[NUM_SQUARES], MagicEn
     Bitboard_t rBlockers = queen_blockers & rEntry.mask;
     Bitboard_t bBlockers = queen_blockers & bEntry.mask;
 
-    Hash_t rHash = MagicHash(rBlockers, rEntry.magic, rEntry.shift);
-    Hash_t bHash = MagicHash(bBlockers, bEntry.magic, bEntry.shift);
-
-    Bitboard_t queen_attacks = rEntry.hashTable[rHash] | bEntry.hashTable[bHash];
+    Bitboard_t rAttacks = FindSlidingAttackSetInHashTable(
+        rEntry,
+        rBlockers,
+        hashTable
+    );
+    Bitboard_t bAttacks = FindSlidingAttackSetInHashTable(
+        bEntry,
+        bBlockers,
+        hashTable
+    );
+    
+    Bitboard_t queen_attacks = rAttacks | bAttacks;
 
     PrintResults(queen_attacks == queen_expected_attacks);
 }

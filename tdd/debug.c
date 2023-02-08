@@ -282,7 +282,7 @@ static bool EnemyKingCanBeCaptured(BoardInfo_t *info, Color_t colorToMove) {
         Square_t square = LSB(d12Sliders);
         MagicEntry_t magicEntry = GetBishopMagicEntry(square);
         Bitboard_t blockers = magicEntry.mask & ~(info->empty);
-        attacks |= GetSlidingAttackSet(magicEntry, blockers);
+        attacks |= FindSlidingAttackSetInHashTable(magicEntry, blockers);
         ResetLSB(&d12Sliders);
     }
 
@@ -290,7 +290,7 @@ static bool EnemyKingCanBeCaptured(BoardInfo_t *info, Color_t colorToMove) {
         Square_t square = LSB(hvSliders);
         MagicEntry_t magicEntry = GetRookMagicEntry(square);
         Bitboard_t blockers = magicEntry.mask & ~(info->empty);
-        attacks |= GetSlidingAttackSet(magicEntry, blockers);
+        attacks |= FindSlidingAttackSetInHashTable(magicEntry, blockers);
         ResetLSB(&hvSliders);
     }
 

@@ -23,9 +23,6 @@ void InitAllMagicEntries(
     Bitboard_t hashTable[NUM_HASH_ENTRIES]
 );
 
-#define GetSlidingAttackSet(magicEntry, blockers) \
-    magicEntry.hashTable[ MagicHash(blockers, magicEntry.magic, magicEntry.shift) ]
-
 Bitboard_t FindSlidingAttackSetInHashTable(
     MagicEntry_t magicEntry,
     Bitboard_t blockers,

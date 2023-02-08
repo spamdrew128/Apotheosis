@@ -72,12 +72,12 @@ Bitboard_t KingMoveTargets(Square_t square, Bitboard_t filter) {
 Bitboard_t RookMoveTargets(Square_t square, Bitboard_t empty, Bitboard_t filter) {
    MagicEntry_t magicEntry = GetRookMagicEntry(square);
    Bitboard_t blockers = magicEntry.mask & ~empty;
-   return GetSlidingAttackSet(magicEntry, blockers) & filter;
+   return FindSlidingAttackSetInHashTable(magicEntry, blockers) & filter;
 }
 
 // BISHOPS
 Bitboard_t BishopMoveTargets(Square_t square, Bitboard_t empty, Bitboard_t filter) {
    MagicEntry_t magicEntry = GetBishopMagicEntry(square);
    Bitboard_t blockers = magicEntry.mask & ~empty;
-   return GetSlidingAttackSet(magicEntry, blockers) & filter;
+   return FindSlidingAttackSetInHashTable(magicEntry, blockers) & filter;
 }
