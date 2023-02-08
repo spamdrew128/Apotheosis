@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 
     SpeedTest(START_FEN, 6, false);
 
-    FEN_t fen = "B6b/8/8/8/2K5/5k2/8/b6B b - - 0 1";
-    PERFTRunner(fen, 1, false);
-    RunAllPerftTests(true);
+    FEN_t fen = "8/8/8/3p4/4pn1N/6p1/8/5K1k w - - 10 73";
+    PERFTRunner(fen, 8, false);
+    RunAllPerftTests(false);
 }
