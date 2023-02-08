@@ -84,3 +84,15 @@ Bitboard_t* GetPieceInfoField(BoardInfo_t* boardInfo, Piece_t piece, Color_t col
             return &(boardInfo->kings[color]);
     }
 }
+
+Square_t KingSquare(BoardInfo_t* boardInfo, Color_t color) {
+    return LSB(boardInfo->kings[color]);
+}
+
+Bitboard_t AllHvSliders(BoardInfo_t* boardInfo, Color_t color) {
+    return boardInfo->rooks[color] | boardInfo->queens[color];
+}
+
+Bitboard_t AllD12Sliders(BoardInfo_t* boardInfo, Color_t color) {
+    return boardInfo->bishops[color] | boardInfo->queens[color];
+}

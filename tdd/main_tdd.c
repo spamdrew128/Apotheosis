@@ -31,10 +31,10 @@ int main(int argc, char** argv)
     MakeMoveTDDRunner();
     UnmakeMoveTDDRunner();
 
-    SpeedTest(START_FEN, 6, false);
+    SpeedTest(START_FEN, 6, true);
 
-    FEN_t fen = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10";
-    PERFTRunner(fen, 5, false);
+    FEN_t fen = "B6b/8/8/8/2K5/5k2/8/b6B b - - 0 1";
+    PERFTRunner(fen, 1, false);
     RunAllPerftTests(false);
 
     TeardownLookup();

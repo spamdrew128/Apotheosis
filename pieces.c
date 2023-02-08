@@ -59,54 +59,25 @@ Bitboard_t FilterBlackPromotions(Bitboard_t* blackMoveset) {
 }
 
 // KNIGHTS
-Bitboard_t KnightMoveTargets(Square_t square, Bitboard_t empty) {
-   return GetKnightAttacks(square) & empty;
-}
-
-Bitboard_t KnightCaptureTargets(Square_t square, Bitboard_t enemyPieces) {
-   return GetKnightAttacks(square) & enemyPieces;
+Bitboard_t KnightMoveTargets(Square_t square, Bitboard_t filter) {
+   return GetKnightAttacks(square) & filter;
 }
 
 // KINGS
-Bitboard_t KingMoveTargets(Square_t square, Bitboard_t empty) {
-   return GetKingAttacks(square) & empty;
-}
-
-Bitboard_t KingCaptureTargets(Square_t square, Bitboard_t enemyPieces) {
-   return GetKingAttacks(square) & enemyPieces;
+Bitboard_t KingMoveTargets(Square_t square, Bitboard_t filter) {
+   return GetKingAttacks(square) & filter;
 }
 
 // ROOKS
-Bitboard_t RookMoveTargets(Square_t square, Bitboard_t empty) {
+Bitboard_t RookMoveTargets(Square_t square, Bitboard_t empty, Bitboard_t filter) {
    MagicEntry_t magicEntry = GetRookMagicEntry(square);
    Bitboard_t blockers = magicEntry.mask & ~empty;
-   return GetSlidingAttackSet(magicEntry, blockers) & empty;
-}
-
-Bitboard_t RookCaptureTargets(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces) {
-   MagicEntry_t magicEntry = GetRookMagicEntry(square);
-   Bitboard_t blockers = magicEntry.mask & ~empty;
-   return GetSlidingAttackSet(magicEntry, blockers) & enemyPieces;
+   return GetSlidingAttackSet(magicEntry, blockers) & filter;
 }
 
 // BISHOPS
-Bitboard_t BishopMoveTargets(Square_t square, Bitboard_t empty) {
+Bitboard_t BishopMoveTargets(Square_t square, Bitboard_t empty, Bitboard_t filter) {
    MagicEntry_t magicEntry = GetBishopMagicEntry(square);
    Bitboard_t blockers = magicEntry.mask & ~empty;
-   return GetSlidingAttackSet(magicEntry, blockers) & empty;
-}
-
-Bitboard_t BishopCaptureTargets(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces) {
-   MagicEntry_t magicEntry = GetBishopMagicEntry(square);
-   Bitboard_t blockers = magicEntry.mask & ~empty;
-   return GetSlidingAttackSet(magicEntry, blockers) & enemyPieces;
-}
-
-// QUEENS
-Bitboard_t QueenMoveTargets(Square_t square, Bitboard_t empty) {
-   return RookMoveTargets(square, empty) | BishopMoveTargets(square, empty);
-}
-
-Bitboard_t QueenCaptureTargets(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces) {
-   return RookCaptureTargets(square, empty, enemyPieces) | BishopCaptureTargets(square, empty, enemyPieces);
+   return GetSlidingAttackSet(magicEntry, blockers) & filter;
 }

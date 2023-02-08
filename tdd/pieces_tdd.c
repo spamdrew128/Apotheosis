@@ -210,10 +210,10 @@ static void StartKnightCaptureTargets() {
     Bitboard_t expectedG8Knight = empty_set;
 
     bool success = 
-        (KnightCaptureTargets(b1, info.allPieces[black]) == expectedB1Knight) &&
-        (KnightCaptureTargets(b8, info.allPieces[white]) == expectedB8Knight) &&
-        (KnightCaptureTargets(g1, info.allPieces[black]) == expectedG1Knight) &&
-        (KnightCaptureTargets(g8, info.allPieces[white]) == expectedG8Knight);
+        (KnightMoveTargets(b1, info.allPieces[black]) == expectedB1Knight) &&
+        (KnightMoveTargets(b8, info.allPieces[white]) == expectedB8Knight) &&
+        (KnightMoveTargets(g1, info.allPieces[black]) == expectedG1Knight) &&
+        (KnightMoveTargets(g8, info.allPieces[white]) == expectedG8Knight);
 
     PrintResults(success);
 }
@@ -246,10 +246,10 @@ static void MidgameKnightCaptureTargets() {
     Bitboard_t expectedF6Knight = CreateBitboard(2, d5,e4);
 
     bool success = 
-        (KnightCaptureTargets(c3, info.allPieces[black]) == expectedC3Knight) &&
-        (KnightCaptureTargets(f3, info.allPieces[black]) == expectedF3Knight) &&
-        (KnightCaptureTargets(e7, info.allPieces[white]) == expectedE7Knight) &&
-        (KnightCaptureTargets(f6, info.allPieces[white]) == expectedF6Knight);
+        (KnightMoveTargets(c3, info.allPieces[black]) == expectedC3Knight) &&
+        (KnightMoveTargets(f3, info.allPieces[black]) == expectedF3Knight) &&
+        (KnightMoveTargets(e7, info.allPieces[white]) == expectedE7Knight) &&
+        (KnightMoveTargets(f6, info.allPieces[white]) == expectedF6Knight);
 
     PrintResults(success);
 }
@@ -290,7 +290,7 @@ static void OtherMidgameRookMoveTargets() {
     Square_t rookSquare = d1;
     Bitboard_t expectedD1RookMoves = CreateBitboard(6, a1,b1,c1,e1,d2,d3);
 
-    bool success = RookMoveTargets(rookSquare, info.empty) == expectedD1RookMoves;
+    bool success = RookMoveTargets(rookSquare, info.empty, info.empty) == expectedD1RookMoves;
 
     PrintResults(success);
 }
@@ -302,7 +302,7 @@ static void OtherMidgameRookCaptureTargets() {
     Square_t rookSquare = d1;
     Bitboard_t expectedD1RookCaptures = CreateBitboard(1, d4);
 
-    bool success = RookCaptureTargets(rookSquare, info.empty, info.allPieces[black]) == expectedD1RookCaptures;
+    bool success = RookMoveTargets(rookSquare, info.empty, info.allPieces[black]) == expectedD1RookCaptures;
 
     PrintResults(success);
 }
@@ -314,7 +314,7 @@ static void OtherMidgameBishopMoveTargets() {
     Square_t bishopSquare = d5;
     Bitboard_t expectedD5BishopMoves = CreateBitboard(7, f3,c4,e4,c6,e6,f7,g8);
 
-    bool success = BishopMoveTargets(bishopSquare, info.empty) == expectedD5BishopMoves;
+    bool success = BishopMoveTargets(bishopSquare, info.empty, info.empty) == expectedD5BishopMoves;
 
     PrintResults(success);
 }
@@ -326,31 +326,7 @@ static void OtherMidgameBishopCaptureTargets() {
     Square_t bishopSquare = d5;
     Bitboard_t expectedD5BishopCaptures = CreateBitboard(1, b7);
 
-    bool success = BishopCaptureTargets(bishopSquare, info.empty, info.allPieces[black]) == expectedD5BishopCaptures;
-
-    PrintResults(success);
-}
-
-static void OtherMidgameQueenMoveTargets() {
-    BoardInfo_t info;
-    InitOtherMidgameInfo(&info);
-
-    Square_t queenSquare = b3;
-    Bitboard_t expectedB3QueenMoves = CreateBitboard(6, b1,b2,c2,a3,a4,c4);
-
-    bool success = QueenMoveTargets(queenSquare, info.empty) == expectedB3QueenMoves;
-
-    PrintResults(success);
-}
-
-static void OtherMidgameQueenCaptureTargets() {
-    BoardInfo_t info;
-    InitOtherMidgameInfo(&info);
-
-    Square_t queenSquare = b3;
-    Bitboard_t expectedB3QueenCaptures = CreateBitboard(1, c3);
-
-    bool success = QueenCaptureTargets(queenSquare, info.empty, info.allPieces[black]) == expectedB3QueenCaptures;
+    bool success = BishopMoveTargets(bishopSquare, info.empty, info.allPieces[black]) == expectedD5BishopCaptures;
 
     PrintResults(success);
 }
@@ -414,8 +390,6 @@ void PiecesTDDRunner() {
     OtherMidgameRookCaptureTargets();
     OtherMidgameBishopMoveTargets();
     OtherMidgameBishopCaptureTargets();
-    OtherMidgameQueenMoveTargets();
-    OtherMidgameQueenCaptureTargets();
 
     FilterPawnPromotions();
 }
