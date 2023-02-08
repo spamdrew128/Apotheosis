@@ -22,7 +22,7 @@ typedef struct {
     Bitboard_t attacks;
 } TempStorage_t;
 
-static uint32_t spaceUsed = 0;
+static uint32_t totalEntries = 0;
 
 // To avoid lookup dependancies
 static Bitboard_t SquareToBitset(Square_t square) {
@@ -134,6 +134,7 @@ static void InitTempStorage(
 static void FillHashTable(
     MagicBB_t magic,
     Bitboard_t* hashTable,
+    uint32_t offset,
     uint8_t shift,
     Bitboard_t mask,
     Square_t square,
@@ -143,6 +144,7 @@ static void FillHashTable(
     assert(hashTable != NULL);
     uint8_t indexBits = 64-shift;
     int tableEntries = DistinctBlockers(indexBits);
+    totalEntries += tableEntries;
 
     TempStorage_t* tempStorageTable = malloc(tableEntries * sizeof(*tempStorageTable));
     InitTempStorage(tempStorageTable, mask, indexBits, square, callback);
@@ -152,9 +154,9 @@ static void FillHashTable(
         Bitboard_t attacks = tempStorageTable[i].attacks;
         Hash_t hash = MagicHash(blockers, magic, shift);
 
-        if(hashTable[hash] == uninitialized) {
-           hashTable[hash] = attacks;
-        } else if(hashTable[hash] != attacks) {
+        if(hashTable[hash + offset] == uninitialized) {
+           hashTable[hash + offset] = attacks;
+        } else if(hashTable[hash + offset] != attacks) {
             assert(2 + 2 == 5); // literally 1984
         }
     }
@@ -174,13 +176,13 @@ static void InitMagicEntries(
         magicEntries[square].mask = FindMaskCallback(square);
         uint8_t indexBits = PopulationCount(magicEntries[square].mask);
         magicEntries[square].shift = NUM_SQUARES - indexBits;
-
-        magicEntries[square].hashTable = CreateHashTable(indexBits);
         magicEntries[square].magic = magicTable[square];
+        magicEntries[square].offset = totalEntries;
 
         FillHashTable(
             magicEntries[square].magic,
-            magicEntries[square].hashTable,
+            hashTable,
+            magicEntries[square].offset,
             magicEntries[square].shift,
             magicEntries[square].mask,
             square,
