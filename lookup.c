@@ -142,8 +142,7 @@ void InitLookup() {
     InitSingleBitset(lookup.singleBitsets);
     InitKnightAttacks(lookup.knightAttacks);
     InitKingAttacks(lookup.kingAttacks);
-    InitRookEntries(lookup.rookMagicEntries);
-    InitBishopEntries(lookup.bishopMagicEntries);
+    InitAllMagicEntries(lookup.rookMagicEntries, lookup.bishopMagicEntries, lookup.magicHashTable);
     InitSlidingCheckmasks(lookup.slidingCheckmasks);
     InitPawnCheckmasks(lookup.pawnCheckmasks);
     InitDirectionalRays(lookup.directionalRays);

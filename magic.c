@@ -25,15 +25,15 @@ typedef struct {
 static uint32_t spaceUsed = 0;
 
 // To avoid lookup dependancies
-Bitboard_t SquareToBitset(Square_t square) {
+static Bitboard_t SquareToBitset(Square_t square) {
     return C64(1) << square;
 }
 
-int DistinctBlockers(int n) {
+static int DistinctBlockers(int n) {
     return (int)(C64(1) << n);
 }
 
-static void ResetHashTable(Bitboard_t* hashTable, int tableEntries) {
+static void InitHashTable(Bitboard_t* hashTable, int tableEntries) {
     for(int i = 0; i < tableEntries; i++) {
         hashTable[i] = uninitialized;
     }
@@ -66,7 +66,7 @@ static Bitboard_t* CreateHashTable(uint8_t indexBits) {
     int tableEntries = DistinctBlockers(indexBits);
     Bitboard_t* hashTable = malloc(tableEntries * sizeof(*hashTable));
 
-    ResetHashTable(hashTable, tableEntries);
+    InitHashTable(hashTable, tableEntries);
 
     return hashTable;
 }
@@ -165,6 +165,7 @@ static void FillHashTable(
 static void InitMagicEntries(
     MagicEntry_t magicEntries[NUM_SQUARES],
     MagicBB_t magicTable[NUM_SQUARES],
+    Bitboard_t hashTable[NUM_HASH_ENTRIES],
     FindMaskCallback_t FindMaskCallback, 
     BlockersToAttacksCallback_t BlockersToAttacksCallback
 ) 
@@ -188,12 +189,23 @@ static void InitMagicEntries(
     }
 }
 
-void InitRookEntries(MagicEntry_t magicEntries[NUM_SQUARES]) {
+static void InitRookEntries(MagicEntry_t magicEntries[NUM_SQUARES], Bitboard_t hashTable[NUM_HASH_ENTRIES]) {
     MagicBB_t magicTable[NUM_SQUARES] = ROOK_MAGICS;
-    InitMagicEntries(magicEntries, magicTable, FindRookMask, FindRookAttacksFromBlockers);
+    InitMagicEntries(magicEntries, magicTable, hashTable, FindRookMask, FindRookAttacksFromBlockers);
 }
 
-void InitBishopEntries(MagicEntry_t magicEntries[NUM_SQUARES], Bitboard_t hashTable[NUM_HASH_ENTRIES]) {
+static void InitBishopEntries(MagicEntry_t magicEntries[NUM_SQUARES], Bitboard_t hashTable[NUM_HASH_ENTRIES]) {
     MagicBB_t magicTable[NUM_SQUARES] = BISHOP_MAGICS;
-    InitMagicEntries(magicEntries, magicTable, FindBishopMask, FindBishopAttacksFromBlockers);
+    InitMagicEntries(magicEntries, magicTable, hashTable, FindBishopMask, FindBishopAttacksFromBlockers);
+}
+
+void InitAllMagicEntries(
+    MagicEntry_t rookMagicEntries[NUM_SQUARES],
+    MagicEntry_t bishopMagicEntries[NUM_SQUARES],
+    Bitboard_t hashTable[NUM_HASH_ENTRIES]
+)
+{
+    InitHashTable(hashTable, NUM_HASH_ENTRIES);
+    InitRookEntries(rookMagicEntries, hashTable);
+    InitBishopEntries(bishopMagicEntries, hashTable);
 }

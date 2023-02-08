@@ -13,13 +13,15 @@ typedef uint32_t Hash_t;
 typedef struct {
     Bitboard_t mask;
     MagicBB_t magic;
-    Bitboard_t* hashTable;
     uint8_t shift;
+    uint32_t offset;
 } MagicEntry_t;
 
-void InitRookEntries(MagicEntry_t magicEntries[NUM_SQUARES]);
-
-void InitBishopEntries(MagicEntry_t magicEntries[NUM_SQUARES]);
+void InitAllMagicEntries(
+    MagicEntry_t rookMagicEntries[NUM_SQUARES],
+    MagicEntry_t bishopMagicEntries[NUM_SQUARES],
+    Bitboard_t hashTable[NUM_HASH_ENTRIES]
+);
 
 #define MagicHash(blockers, magic, shift) (blockers * magic) >> shift
 
