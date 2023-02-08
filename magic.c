@@ -22,7 +22,7 @@ typedef struct {
     Bitboard_t attacks;
 } TempStorage_t;
 
-static uint32_t totalEntries = 0;
+static uint32_t totalEntries;
 
 // To avoid lookup dependancies
 static Bitboard_t SquareToBitset(Square_t square) {
@@ -139,6 +139,9 @@ static void FillHashTable(
     int tableEntries = DistinctBlockers(indexBits);
 
     totalEntries += tableEntries;
+    if(totalEntries > NUM_HASH_ENTRIES) {
+        printf("hi");
+    }
     assert(totalEntries <= NUM_HASH_ENTRIES);
 
     TempStorage_t* tempStorageTable = malloc(tableEntries * sizeof(*tempStorageTable));
@@ -202,6 +205,7 @@ void InitAllMagicEntries(
     Bitboard_t hashTable[NUM_HASH_ENTRIES]
 )
 {
+    totalEntries = 0;
     InitHashTable(hashTable, NUM_HASH_ENTRIES);
     InitRookEntries(rookMagicEntries, hashTable);
     InitBishopEntries(bishopMagicEntries, hashTable);

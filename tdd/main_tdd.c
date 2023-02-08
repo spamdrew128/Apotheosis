@@ -35,5 +35,5 @@ int main(int argc, char** argv)
 
     FEN_t fen = "B6b/8/8/8/2K5/5k2/8/b6B b - - 0 1";
     PERFTRunner(fen, 1, false);
-    RunAllPerftTests(false);
+    RunAllPerftTests(true);
 }
