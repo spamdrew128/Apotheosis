@@ -27,6 +27,10 @@ enum {
     queen_expected_attacks = 0x0010101438ef3844
 };
 
+static MagicEntry_t rMagicEntries[NUM_SQUARES];
+static MagicEntry_t bMagicEntries[NUM_SQUARES];
+static Bitboard_t hashTable[NUM_HASH_ENTRIES];
+
 // HELPERS
 static bool SquareIsCorner(Square_t square) {
     return CreateBitboard(1, square) & (CreateBitboard(4, a1,a8,h1,h8));
@@ -111,10 +115,11 @@ static void TestQueenHashLookup(MagicEntry_t rMagicEntries[NUM_SQUARES], MagicEn
 }
 
 void MagicTDDRunner() {
-    MagicEntry_t rMagicEntries[NUM_SQUARES];
-    InitRookEntries(rMagicEntries);
-    MagicEntry_t bMagicEntries[NUM_SQUARES];
-    InitBishopEntries(bMagicEntries);
+    InitAllMagicEntries(
+        rMagicEntries,
+        bMagicEntries,
+        hashTable
+    );
 
     // These tests suck to write so I'm not gonna do it for magics.
     // Sue me.

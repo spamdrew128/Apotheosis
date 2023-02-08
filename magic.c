@@ -33,6 +33,8 @@ static int DistinctBlockers(int n) {
     return (int)(C64(1) << n);
 }
 
+Hash_t MagicHash(blockers, magic, shift) { (blockers * magic) >> shift; }
+
 static void InitHashTable(Bitboard_t* hashTable, int tableEntries) {
     for(int i = 0; i < tableEntries; i++) {
         hashTable[i] = uninitialized;
@@ -210,4 +212,14 @@ void InitAllMagicEntries(
     InitHashTable(hashTable, NUM_HASH_ENTRIES);
     InitRookEntries(rookMagicEntries, hashTable);
     InitBishopEntries(bishopMagicEntries, hashTable);
+}
+
+Bitboard_t FindSlidingAttackSetInHashTable(
+    MagicEntry_t magicEntry,
+    Bitboard_t blockers,
+    Bitboard_t hashTable[NUM_HASH_ENTRIES]
+)
+{
+    Hash_t hash = MagicHash(blockers, magicEntry.magic, magicEntry.shift);
+    return hashTable[hash + magicEntry.offset];
 }
