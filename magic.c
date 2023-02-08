@@ -205,6 +205,8 @@ void InitAllMagicEntries(
     InitHashTable(hashTable, NUM_HASH_ENTRIES);
     InitRookEntries(rookMagicEntries, hashTable);
     InitBishopEntries(bishopMagicEntries, hashTable);
+
+    assert(totalEntries == NUM_HASH_ENTRIES);
 }
 
 Bitboard_t FindSlidingAttackSetInHashTable(
