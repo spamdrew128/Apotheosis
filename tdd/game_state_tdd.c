@@ -15,9 +15,7 @@ static bool GameStateIsCorrect(GameStack_t* stack, GameState_t* expected) {
     return 
         (ReadCapturedPiece(stack) == expected->capturedPiece) &&
         (ReadHalfmoveClock(stack) == expected->halfmoveClock) &&
-        // Accessing private data from the struct like this feels sort of wrong,
-        // but it's just a testing file so it should be fine.
-        (ReadCastleRights(stack).data == expected->castleRights.data) && 
+        CompareCastlingRights(ReadCastleRights(stack), expected->castleRights) && 
         (ReadEnPassantSquares(stack) == expected->enPassantSquares);
 }
 

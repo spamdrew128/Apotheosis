@@ -8,6 +8,7 @@
 #include "board_info.h"
 #include "movegen.h"
 #include "game_state.h"
+#include "castling.h"
 
 #define PrintResults(success) \
     if(success) {printf(".");} else {printf("\n%s Failure\n", __func__);}
@@ -39,6 +40,8 @@ Bitboard_t CreateBitboard(int numOccupied, ...);
 void AddGameStateToStack(GameState_t stateToAdd, GameStack_t* stack);
 
 bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo);
+
+bool CompareCastlingRights(CastleRights_t cr1, CastleRights_t cr2);
 
 bool CompareState(GameState_t* expectedState, GameStack_t* stack);
 
