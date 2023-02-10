@@ -7,19 +7,26 @@
 
 enum {
     pawn_start_ranks = rank_2 | rank_7,
-    pawn_double_ranks = rank_4 | rank_5,
-    rook_start_squares = board_corners
+    pawn_double_ranks = rank_4 | rank_5
 };
+
+static Bitboard_t kingsideRooks[] = { C64(1) << h1, C64(1) << h8 };
+static Bitboard_t queensideRooks[] = { C64(1) << a1, C64(1) << a8 };
+
+static void UpdatecastleRights(CastleRights_t* castleRights, BoardInfo_t* info, Color_t color) {
+    bool validKingsideRook = kingsideRooks[color] & info->rooks[color];
+    bool validQueensideRook = queensideRooks[color] & info->rooks[color];
+
+    if(!validKingsideRook) {
+        ResetKingsideCastleRights(castleRights, color);
+    }
+    if(!validQueensideRook) {
+        ResetQueensideCastleRights(castleRights, color);
+    }
+}
 
 static bool PawnIsDoublePushed(Bitboard_t fromBB, Bitboard_t toBB) {
     return (fromBB & pawn_start_ranks) && (toBB & pawn_double_ranks);
-}
-
-static void UpdateCastleSquares(GameState_t* nextState, BoardInfo_t* info, Color_t color) {
-    Bitboard_t rooksInPlace = board_corners & info->rooks[color];
-    Bitboard_t validCastlingMask = GenShiftWest(rooksInPlace, 1) | GenShiftEast(rooksInPlace, 2);
-    
-    nextState->castleSquares[color] &= validCastlingMask;
 }
 
 static void RemoveCapturedPiece(
@@ -110,7 +117,7 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, GameState_t* nextState, 
         );
     }
 
-    nextState->castleSquares[color] = empty_set;
+    ResetAllRights(&nextState->castleRights, color);
 }
 
 static void MakePromotionHandler(BoardInfo_t* boardInfo, GameState_t* nextState, Move_t move, Color_t color) {
@@ -128,7 +135,7 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, GameState_t* nextState,
         );
 
         nextState->capturedPiece = capturedPiece;
-        UpdateCastleSquares(nextState, boardInfo, !color);
+        UpdatecastleRights(&nextState->castleRights, boardInfo, !color);
     }
 
     AddPieceToMailbox(boardInfo, fromSquare, promotionPiece);
@@ -199,7 +206,7 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextStat
 
         nextState->halfmoveClock = 0;
         nextState->capturedPiece = capturedPiece;
-        UpdateCastleSquares(nextState, boardInfo, !color); // if we captured, we might have messed up our opponent's castling rights
+        UpdatecastleRights(&nextState->castleRights, boardInfo, !color); // if we captured, we might have messed up our opponent's castling rights
     }
 
     Piece_t type = PieceOnSquare(boardInfo, fromSquare);
@@ -212,7 +219,7 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextStat
             }
         break;
         case king:
-            nextState->castleSquares[color] = empty_set;
+            ResetAllRights(&nextState->castleRights, color);
         break;
     }
 
@@ -226,7 +233,7 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextStat
         color
     );
 
-    UpdateCastleSquares(nextState, boardInfo, color);
+    UpdatecastleRights(&nextState->castleRights, boardInfo, color);
 }
 
 void MakeMove(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, Color_t moveColor) {

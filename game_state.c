@@ -21,7 +21,7 @@ GameState_t* GetEmptyNextGameState(GameStack_t* stack) {
 
     nextState->capturedPiece = none_type;
     nextState->halfmoveClock = 0;
-    InitCastleRights(&nextState->castleRights);
+    InitCastleRightsToZero(&nextState->castleRights);
     nextState->enPassantSquares = empty_set;
     InitBoardInfo(&nextState->boardInfo);
 
@@ -34,7 +34,7 @@ GameState_t* GetDefaultNextGameState(GameStack_t* stack) {
 
     defaultState->capturedPiece = none_type;
     defaultState->halfmoveClock = ReadHalfmoveClock(stack) + 1;
-    defaultState->castleRights = ReadcastleRights(stack);
+    defaultState->castleRights = ReadCastleRights(stack);
     defaultState->enPassantSquares = empty_set;
 
     stack->top++;

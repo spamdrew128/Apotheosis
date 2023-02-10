@@ -10,7 +10,7 @@ typedef struct {
     uint8_t data;
 } CastleRights_t;
 
-void InitCastleRights(CastleRights_t* castleRights);
+void InitCastleRightsToZero(CastleRights_t* castleRights);
 
 void SetKingsideCastleRights(CastleRights_t* castleRights, Color_t color);
 
@@ -19,6 +19,8 @@ void SetQueensideCastleRights(CastleRights_t* castleRights, Color_t color);
 void ResetKingsideCastleRights(CastleRights_t* castleRights, Color_t color);
 
 void ResetQueensideCastleRights(CastleRights_t* castleRights, Color_t color);
+
+void ResetAllRights(CastleRights_t* castleRights, Color_t color);
 
 bool ReadKingsideCastleRights(CastleRights_t castleRights, Color_t color);
 

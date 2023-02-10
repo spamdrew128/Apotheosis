@@ -21,7 +21,7 @@ enum {
 
 CastleRights_t CreateAllLegalCastlingRights() {
     CastleRights_t rights;
-    InitCastleRights(&rights);
+    InitCastleRightsToZero(&rights);
     SetKingsideCastleRights(&rights, white);
     SetQueensideCastleRights(&rights, white);
     SetKingsideCastleRights(&rights, black);
