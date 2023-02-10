@@ -18,7 +18,7 @@ void SetQueensideCastleRights(CastleRights_t* castleRights, Color_t color);
 
 void ResetKingsideCastleRights(CastleRights_t* castleRights, Color_t color);
 
-void ResetQueensideCastleRights(CastleRights_t* castleRights, Color_t color);}
+void ResetQueensideCastleRights(CastleRights_t* castleRights, Color_t color);
 
 bool ReadKingsideCastleRights(CastleRights_t castleRights, Color_t color);
 

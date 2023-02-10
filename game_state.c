@@ -21,8 +21,7 @@ GameState_t* GetEmptyNextGameState(GameStack_t* stack) {
 
     nextState->capturedPiece = none_type;
     nextState->halfmoveClock = 0;
-    nextState->castleSquares[white] = empty_set;
-    nextState->castleSquares[black] = empty_set;
+    InitCastleRights(nextState->castleRights);
     nextState->enPassantSquares = empty_set;
     InitBoardInfo(&nextState->boardInfo);
 
@@ -35,8 +34,7 @@ GameState_t* GetDefaultNextGameState(GameStack_t* stack) {
 
     defaultState->capturedPiece = none_type;
     defaultState->halfmoveClock = ReadHalfmoveClock(stack) + 1;
-    defaultState->castleSquares[white] = ReadCastleSquares(stack, white);
-    defaultState->castleSquares[black] = ReadCastleSquares(stack, black);
+    defaultState->castleRights = ReadcastleRights(stack);
     defaultState->enPassantSquares = empty_set;
 
     stack->top++;
@@ -46,8 +44,10 @@ GameState_t* GetDefaultNextGameState(GameStack_t* stack) {
 void AddStartingGameState(GameStack_t* stack) {
     GameState_t* gameStartState = GetEmptyNextGameState(stack);
 
-    gameStartState->castleSquares[white] = white_kingside_castle_bb | white_queenside_castle_bb;
-    gameStartState->castleSquares[black] = black_kingside_castle_bb | black_queenside_castle_bb;
+    SetKingsideCastleRights(&gameStartState->castleRights, white);
+    SetQueensideCastleRights(&gameStartState->castleRights, white);
+    SetKingsideCastleRights(&gameStartState->castleRights, black);
+    SetQueensideCastleRights(&gameStartState->castleRights, black);
 }
 
 void RevertState(GameStack_t* stack) {
@@ -63,8 +63,8 @@ HalfmoveCount_t ReadHalfmoveClock(GameStack_t* stack) {
     return CurrentState(stack).halfmoveClock;
 }
 
-Bitboard_t ReadCastleSquares(GameStack_t* stack, Color_t color) {
-    return CurrentState(stack).castleSquares[color];
+Bitboard_t ReadcastleRights(GameStack_t* stack) {
+    return CurrentState(stack).castleRights;
 }
 
 Bitboard_t ReadEnPassantSquares(GameStack_t* stack) {

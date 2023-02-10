@@ -23,9 +23,9 @@ Bitboard_t BlackUnsafeSquares(BoardInfo_t* boardInfo);
 
 Bitboard_t KingLegalMoves(Bitboard_t kingMoves, Bitboard_t unsafeSquares);
 
-bool CanCastleQueenside(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, CastleRights_t castlingRights, Color_t color);
+bool CanCastleQueenside(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, CastleRights_t castleRights, Color_t color);
 
-bool CanCastleKingside(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, CastleRights_t castlingRights, Color_t color);
+bool CanCastleKingside(BoardInfo_t* boardInfo, Bitboard_t unsafeSquares, CastleRights_t castleRights, Color_t color);
 
 Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, Color_t color);
 

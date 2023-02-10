@@ -136,11 +136,11 @@ static void AddCastlingMoves(
     Color_t color
 )
 {
-    if(CanCastleKingside(boardInfo, unsafeSquares, ReadCastleSquares(stack, color), color)) {
+    if(CanCastleKingside(boardInfo, unsafeSquares, ReadCastleRights(stack, color), color)) {
         _AddCastlingMovesHelper(moveList, kingSquare, GetKingsideCastleSquare(color));
     }
     
-    if(CanCastleQueenside(boardInfo, unsafeSquares, ReadCastleSquares(stack, color), color)) {
+    if(CanCastleQueenside(boardInfo, unsafeSquares, ReadCastleRights(stack, color), color)) {
         _AddCastlingMovesHelper(moveList, kingSquare, GetQueensideCastleSquare(color));
     }
 }

@@ -16,8 +16,8 @@ static bool GameStateIsCorrect(GameStack_t* stack, GameState_t* expected) {
     return 
         (ReadCapturedPiece(stack) == expected->capturedPiece) &&
         (ReadHalfmoveClock(stack) == expected->halfmoveClock) &&
-        (ReadCastleSquares(stack, white) == expected->castleSquares[white]) &&
-        (ReadCastleSquares(stack, black) == expected->castleSquares[black]) &&
+        (ReadCastleRights(stack, white) == expected->castleSquares[white]) &&
+        (ReadCastleRights(stack, black) == expected->castleSquares[black]) &&
         (ReadEnPassantSquares(stack) == expected->enPassantSquares);
 }
 

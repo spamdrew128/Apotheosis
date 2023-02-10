@@ -4,13 +4,14 @@
 #include <stdint.h>
 #include "board_constants.h"
 #include "board_info.h"
+#include "castling.h"
 
 typedef uint16_t HalfmoveCount_t;
 typedef struct {
     Piece_t capturedPiece;
     HalfmoveCount_t halfmoveClock;
     Bitboard_t enPassantSquares;
-    Bitboard_t castleSquares[2];
+    Bitboard_t castleRights;
     BoardInfo_t boardInfo;
 } GameState_t;
 
@@ -33,7 +34,7 @@ Piece_t ReadCapturedPiece(GameStack_t* stack);
 
 HalfmoveCount_t ReadHalfmoveClock(GameStack_t* stack);
 
-Bitboard_t ReadCastleSquares(GameStack_t* stack, Color_t color);
+Bitboard_t ReadCastleRights(GameStack_t* stack);
 
 Bitboard_t ReadEnPassantSquares(GameStack_t* stack);
 
