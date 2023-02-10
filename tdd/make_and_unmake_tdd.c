@@ -40,7 +40,7 @@ static void InitKingsideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState_
     });
 
     GameState_t nextState = ReadDefaultNextGameState(&stack);
-    nextState.castleSquares[white] = empty_set;
+    ResetAllRights(&nextState.castleRights, white);
     *expectedState = nextState;
 }
 
@@ -55,7 +55,7 @@ static void InitQueensideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState
     });
 
     GameState_t nextState = ReadDefaultNextGameState(&stack);
-    nextState.castleSquares[white] = empty_set;
+    ResetAllRights(&nextState.castleRights, white);
     *expectedState = nextState;
 }
 
@@ -102,7 +102,7 @@ static void InitExpectedCapturePromotionPostionInfo(BoardInfo_t* expectedInfo, G
     GameState_t nextState = ReadDefaultNextGameState(&stack);
     nextState.halfmoveClock = 0;
     nextState.capturedPiece = queen;
-    nextState.castleSquares[white] = empty_set;
+    ResetAllRights(&nextState.castleRights, white);
     *expectedState = nextState;
 }
 
@@ -118,8 +118,6 @@ static void InitBothSidesEnPassantInfo(BoardInfo_t* info) {
 
     GameState_t* state = GetEmptyNextGameState(&stack);
     state->halfmoveClock = some_halfmove_clock;
-    state->castleSquares[white] = empty_set;
-    state->castleSquares[black] = empty_set;
     state->enPassantSquares = CreateBitboard(2, c3,h6);
     state->capturedPiece = none_type;
     state->boardInfo = *info;
@@ -165,8 +163,6 @@ static void InitNormalPosition(BoardInfo_t* info) {
     GameState_t* state = GetEmptyNextGameState(&stack);
     state->halfmoveClock = some_halfmove_clock;
     state->enPassantSquares = empty_set;
-    state->castleSquares[white] = empty_set;
-    state->castleSquares[black] = empty_set;
     state->capturedPiece = none_type;
     state->boardInfo = *info;
 }
@@ -251,7 +247,8 @@ static void InitBreakCastlingPositionExpected(BoardInfo_t* expectedInfo, GameSta
 
     GameState_t nextState = ReadDefaultNextGameState(&stack);
     nextState.halfmoveClock = 0;
-    nextState.castleSquares[white] = CreateBitboard(1, g1);
+    ResetQueensideCastleRights(&nextState.castleRights, white);
+    
     nextState.capturedPiece = rook;
     *expectedState = nextState;
 }
@@ -270,8 +267,7 @@ static void InitPromotionCastleBreakPosition(BoardInfo_t* info) {
     GameState_t* state = GetEmptyNextGameState(&stack);
     state->halfmoveClock = some_halfmove_clock;
     state->enPassantSquares = empty_set;
-    state->castleSquares[white] = empty_set;
-    state->castleSquares[black] = CreateBitboard(1, c8);
+    SetQueensideCastleRights(&state->castleRights, black);
     state->boardInfo = *info;
     state->capturedPiece = none_type;
 }
@@ -288,7 +284,7 @@ static void InitPromotionCastleBreakPositionExpected(BoardInfo_t* expectedInfo, 
 
     GameState_t nextState = ReadDefaultNextGameState(&stack);
     nextState.halfmoveClock = 0;
-    nextState.castleSquares[black] = empty_set;
+    InitCastleRightsToZero(&nextState.castleRights);
     nextState.capturedPiece = rook;
     *expectedState = nextState;
 }
@@ -564,8 +560,7 @@ static bool GenericTestUnmake(BoardInfo_t* startInfo, Move_t move, Color_t moveC
     BoardInfo_t expectedInfo = *startInfo;
     GameState_t originalState;
     originalState.halfmoveClock = ReadHalfmoveClock(&stack);
-    originalState.castleSquares[white] = ReadCastleRights(&stack, white);
-    originalState.castleSquares[black] = ReadCastleRights(&stack, black);
+    originalState.castleRights = ReadCastleRights(&stack);
     originalState.enPassantSquares = ReadEnPassantSquares(&stack);
     originalState.capturedPiece = ReadCapturedPiece(&stack);
 
