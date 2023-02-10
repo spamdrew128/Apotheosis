@@ -17,7 +17,8 @@ legals.c \
 movegen.c \
 game_state.c \
 move.c \
-make_and_unmake.c
+make_and_unmake.c \
+castling.c
 
 COMMON_OBJECTS= \
 bitboards.o \
@@ -31,7 +32,8 @@ legals.o \
 movegen.o \
 game_state.o \
 move.o \
-make_and_unmake.o
+make_and_unmake.o \
+castling.o
 
 MAIN=main
 CFILES=$(MAIN).c $(COMMON_CFILES)
