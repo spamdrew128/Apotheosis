@@ -21,7 +21,7 @@ GameState_t* GetEmptyNextGameState(GameStack_t* stack) {
 
     nextState->capturedPiece = none_type;
     nextState->halfmoveClock = 0;
-    InitCastleRights(nextState->castleRights);
+    InitCastleRights(&nextState->castleRights);
     nextState->enPassantSquares = empty_set;
     InitBoardInfo(&nextState->boardInfo);
 
@@ -63,7 +63,7 @@ HalfmoveCount_t ReadHalfmoveClock(GameStack_t* stack) {
     return CurrentState(stack).halfmoveClock;
 }
 
-Bitboard_t ReadcastleRights(GameStack_t* stack) {
+CastleRights_t ReadcastleRights(GameStack_t* stack) {
     return CurrentState(stack).castleRights;
 }
 

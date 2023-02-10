@@ -11,7 +11,7 @@ typedef struct {
     Piece_t capturedPiece;
     HalfmoveCount_t halfmoveClock;
     Bitboard_t enPassantSquares;
-    Bitboard_t castleRights;
+    CastleRights_t castleRights;
     BoardInfo_t boardInfo;
 } GameState_t;
 
@@ -34,7 +34,7 @@ Piece_t ReadCapturedPiece(GameStack_t* stack);
 
 HalfmoveCount_t ReadHalfmoveClock(GameStack_t* stack);
 
-Bitboard_t ReadCastleRights(GameStack_t* stack);
+CastleRights_t ReadCastleRights(GameStack_t* stack);
 
 Bitboard_t ReadEnPassantSquares(GameStack_t* stack);
 
