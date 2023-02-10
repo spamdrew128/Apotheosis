@@ -8,17 +8,27 @@
 #include "board_constants.h"
 #include "lookup.h"
 #include "game_state.h"
+#include "castling.h"
 
 enum {
     white_expected_unsafe = 0xfefb57be78800000,
-    black_expected_unsafe = 0x20c0f5fa9ddfdffe,
-    white_castle_squares =   white_queenside_castle_bb | white_kingside_castle_bb,
-    black_castle_squares =   black_queenside_castle_bb | black_kingside_castle_bb
+    black_expected_unsafe = 0x20c0f5fa9ddfdffe
 };
 
 // HELPERS
 
 #define KingPos(boardInfo, color) LSB(info.kings[color])
+
+CastleRights_t CreateAllLegalCastlingRights() {
+    CastleRights_t rights;
+    InitCastleRights(&rights);
+    WriteKingsideCastleRights(&rights, white);
+    WriteQueensideCastleRights(&rights, white);
+    WriteKingsideCastleRights(&rights, black);
+    WriteQueensideCastleRights(&rights, black);
+
+    return rights;
+}
 
 static bool IsInCheck(BoardInfo_t* boardInfo, Color_t color) {
     if(color == white) {
@@ -69,7 +79,7 @@ static void InitAllCastlingLegalInfo(BoardInfo_t* info) {
 }
 
 // 4k1r1/8/8/7b/8/8/8/R3K2R
-static void InitWhiteCastlingIllegalInfo(BoardInfo_t* info) {
+static void InitWhiteBothCastlingIllegalInfo(BoardInfo_t* info) {
     InitTestInfo(info, {
         info->kings[white] = CreateBitboard(1, e1);
         info->rooks[white] = CreateBitboard(2, a1,h1);
@@ -210,32 +220,30 @@ static void TestKingLegalMoves() {
 static void TestAllLegalCastling() {
     BoardInfo_t info;
     InitAllCastlingLegalInfo(&info);
-
-    Bitboard_t whiteCastleSquares = white_castle_squares;
-    Bitboard_t blackCastleSquares = black_castle_squares;
+    CastleRights_t castleRights = CreateAllLegalCastlingRights();
 
     Bitboard_t expectedAllCastling = true;
 
     bool success = 
-        (CanCastleKingside(&info, WhiteUnsafeSquares(&info), whiteCastleSquares, white) == expectedAllCastling) &&
-        (CanCastleQueenside(&info, WhiteUnsafeSquares(&info), whiteCastleSquares, white) == expectedAllCastling) &&
-        (CanCastleKingside(&info, BlackUnsafeSquares(&info), blackCastleSquares, black) == expectedAllCastling) &&
-        (CanCastleQueenside(&info, BlackUnsafeSquares(&info), blackCastleSquares, black) == expectedAllCastling);
+        (CanCastleKingside(&info, WhiteUnsafeSquares(&info), castleRights, white) == expectedAllCastling) &&
+        (CanCastleQueenside(&info, WhiteUnsafeSquares(&info), castleRights, white) == expectedAllCastling) &&
+        (CanCastleKingside(&info, BlackUnsafeSquares(&info), castleRights, black) == expectedAllCastling) &&
+        (CanCastleQueenside(&info, BlackUnsafeSquares(&info), castleRights, black) == expectedAllCastling);
 
     PrintResults(success);
 }
 
 static void ShouldntCastleThroughCheck() {
     BoardInfo_t info;
-    InitWhiteCastlingIllegalInfo(&info);
+    InitWhiteBothCastlingIllegalInfo(&info);
 
-    Bitboard_t whiteCastleSquares = white_castle_squares;
+    CastleRights_t castleRights = CreateAllLegalCastlingRights();
 
     Bitboard_t expectedAllWhiteCastling = false;
 
     bool success = 
-        CanCastleKingside(&info, WhiteUnsafeSquares(&info), whiteCastleSquares, white) == expectedAllWhiteCastling &&
-        CanCastleQueenside(&info, WhiteUnsafeSquares(&info), whiteCastleSquares, white) == expectedAllWhiteCastling;
+        CanCastleKingside(&info, WhiteUnsafeSquares(&info), castleRights, white) == expectedAllWhiteCastling &&
+        CanCastleQueenside(&info, WhiteUnsafeSquares(&info), castleRights, white) == expectedAllWhiteCastling;
 
     PrintResults(success);
 }
@@ -244,13 +252,13 @@ static void ShouldntCastleThroughBlockers() {
     BoardInfo_t info;
     InitWhiteCastlingBlockedInfo(&info);
 
-    Bitboard_t whiteCastleSquares = white_castle_squares;
+    CastleRights_t castleRights = CreateAllLegalCastlingRights();
 
     Bitboard_t expectedAllWhiteCastling = false;
 
     bool success = 
-        CanCastleKingside(&info, WhiteUnsafeSquares(&info), whiteCastleSquares, white) == expectedAllWhiteCastling &&
-        CanCastleQueenside(&info, WhiteUnsafeSquares(&info), whiteCastleSquares, white) == expectedAllWhiteCastling;
+        CanCastleKingside(&info, WhiteUnsafeSquares(&info), castleRights, white) == expectedAllWhiteCastling &&
+        CanCastleQueenside(&info, WhiteUnsafeSquares(&info), castleRights, white) == expectedAllWhiteCastling;
 
     PrintResults(success);
 }
