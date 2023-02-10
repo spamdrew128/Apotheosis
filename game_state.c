@@ -63,7 +63,7 @@ HalfmoveCount_t ReadHalfmoveClock(GameStack_t* stack) {
     return CurrentState(stack).halfmoveClock;
 }
 
-CastleRights_t ReadcastleRights(GameStack_t* stack) {
+CastleRights_t ReadCastleRights(GameStack_t* stack) {
     return CurrentState(stack).castleRights;
 }
 

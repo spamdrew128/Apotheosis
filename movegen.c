@@ -2,6 +2,7 @@
 #include "movegen.h"
 #include "pieces.h"
 #include "lookup.h"
+#include "castling.h"
 
 enum {
     movelist_empty = -1
