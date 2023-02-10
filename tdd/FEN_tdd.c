@@ -55,7 +55,7 @@ static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* e
 
     GameState_t* state = GetEmptyNextGameState(&stack);
     state->halfmoveClock = 34;
-    state->castleSquares[white] = white_kingside_castle_bb;
+    SetKingsideCastleRights(&state->castleRights, white);
     state->enPassantSquares = CreateBitboard(1, e3);
     *expectedState = *state;
 }
