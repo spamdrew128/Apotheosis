@@ -22,10 +22,10 @@ enum {
 CastleRights_t CreateAllLegalCastlingRights() {
     CastleRights_t rights;
     InitCastleRights(&rights);
-    WriteKingsideCastleRights(&rights, white);
-    WriteQueensideCastleRights(&rights, white);
-    WriteKingsideCastleRights(&rights, black);
-    WriteQueensideCastleRights(&rights, black);
+    SetKingsideCastleRights(&rights, white);
+    SetQueensideCastleRights(&rights, white);
+    SetKingsideCastleRights(&rights, black);
+    SetQueensideCastleRights(&rights, black);
 
     return rights;
 }

@@ -11,7 +11,7 @@ void InitCastleRights(CastleRights_t* castleRights) {
     castleRights->data = 0;
 }
 
-void WriteKingsideCastleRights(CastleRights_t* castleRights, Color_t color) {
+void SetKingsideCastleRights(CastleRights_t* castleRights, Color_t color) {
     switch (color) {
     case white:
         castleRights->data |= white_ks_bit;
@@ -22,13 +22,35 @@ void WriteKingsideCastleRights(CastleRights_t* castleRights, Color_t color) {
     }
 }
 
-void WriteQueensideCastleRights(CastleRights_t* castleRights, Color_t color) {
+void SetQueensideCastleRights(CastleRights_t* castleRights, Color_t color) {
     switch (color) {
     case white:
         castleRights->data |= white_qs_bit;
         break;
     case black:
         castleRights->data |= black_qs_bit;
+        break;
+    }
+}
+
+void ResetKingsideCastleRights(CastleRights_t* castleRights, Color_t color) {
+    switch (color) {
+    case white:
+        castleRights->data &= ~white_ks_bit;
+        break;
+    case black:
+        castleRights->data &= ~black_ks_bit;
+        break;
+    }
+}
+
+void ResetQueensideCastleRights(CastleRights_t* castleRights, Color_t color) {
+    switch (color) {
+    case white:
+        castleRights->data &= ~white_qs_bit;
+        break;
+    case black:
+        castleRights->data &= ~black_qs_bit;
         break;
     }
 }

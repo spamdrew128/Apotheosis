@@ -12,9 +12,13 @@ typedef struct {
 
 void InitCastleRights(CastleRights_t* castleRights);
 
-void WriteKingsideCastleRights(CastleRights_t* castleRights, Color_t color);
+void SetKingsideCastleRights(CastleRights_t* castleRights, Color_t color);
 
-void WriteQueensideCastleRights(CastleRights_t* castleRights, Color_t color);
+void SetQueensideCastleRights(CastleRights_t* castleRights, Color_t color);
+
+void ResetKingsideCastleRights(CastleRights_t* castleRights, Color_t color);
+
+void ResetQueensideCastleRights(CastleRights_t* castleRights, Color_t color);}
 
 bool ReadKingsideCastleRights(CastleRights_t castleRights, Color_t color);
 
