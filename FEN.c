@@ -4,6 +4,7 @@
 #include "FEN.h"
 #include "lookup.h"
 #include "board_constants.h"
+#include "castling.h"
 
 static double usr_pow(int x, int y) {
     double result = 1;
@@ -29,20 +30,20 @@ static Color_t CharToColor(char c) {
     return 0;
 }
 
-static void UpdateCastlingRights(GameState_t* state, char c) {
+static void UpdateCastlingRights(CastleRights_t* castleRights, char c) {
     switch (c)
     {
         case 'K':
-           SetBits(&(state->castleSquares[white]), white_kingside_castle_bb);
+            SetKingsideCastleRights(castleRights, white);
         break;
         case 'Q':
-            SetBits(&(state->castleSquares[white]), white_queenside_castle_bb);
+            SetQueensideCastleRights(castleRights, white);
         break;
         case 'k':
-            SetBits(&(state->castleSquares[black]), black_kingside_castle_bb);
+            SetKingsideCastleRights(castleRights, black);
         break;
         case 'q':
-            SetBits(&(state->castleSquares[black]), black_queenside_castle_bb);
+            SetQueensideCastleRights(castleRights, black);
         break;
         default:
             assert(!"ERROR: Unrecognized Castling");
@@ -189,7 +190,7 @@ Color_t InterpretFEN(FEN_t fen, BoardInfo_t* info, GameStack_t* stack) {
     if(fen[i] != '-') {
         while (fen[i] != ' ')
         {
-            UpdateCastlingRights(gameState, fen[i]);
+            UpdateCastlingRights(&gameState->castleRights, fen[i]);
             i++;
         }   
     } else {
