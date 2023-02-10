@@ -5,10 +5,9 @@
 enum {
     some_captured_piece = queen,
     some_halfmove_clock = 16,
-    some_white_castle_squares = 0x562a,
     some_white_enpassant_squares = 0x8,
-    some_black_castle_squares = 0x56da,
-    some_black_enpassant_squares = 0x81
+    some_black_enpassant_squares = 0x81,
+    some_castle_rights_data = 0b1011
 };
 
 // HELPERS
@@ -16,8 +15,9 @@ static bool GameStateIsCorrect(GameStack_t* stack, GameState_t* expected) {
     return 
         (ReadCapturedPiece(stack) == expected->capturedPiece) &&
         (ReadHalfmoveClock(stack) == expected->halfmoveClock) &&
-        (ReadCastleRights(stack, white) == expected->castleSquares[white]) &&
-        (ReadCastleRights(stack, black) == expected->castleSquares[black]) &&
+        // Accessing private data from the struct like this feels sort of wrong,
+        // but it's just a testing file so it should be fine.
+        (ReadCastleRights(stack).data == expected->castleRights.data) && 
         (ReadEnPassantSquares(stack) == expected->enPassantSquares);
 }
 
@@ -26,9 +26,8 @@ static GameState_t* GetSomeGamestate(GameStack_t* stack) {
 
     state->capturedPiece = some_captured_piece;
     state->halfmoveClock = some_halfmove_clock;
-    state->castleSquares[white] = some_white_castle_squares;
     state->enPassantSquares = some_white_enpassant_squares;
-    state->castleSquares[black] = some_black_castle_squares;
+    state->castleRights.data = some_castle_rights_data;
 
     return state;
 }
@@ -50,7 +49,7 @@ static void ShouldGetDefaultState() {
     GameState_t expected = {
         .capturedPiece = none_type,
         .halfmoveClock = state->halfmoveClock + 1,
-        .castleSquares = {state->castleSquares[white], state->castleSquares[black]},
+        .castleRights = state->castleRights,
         .enPassantSquares = empty_set
     };
 
