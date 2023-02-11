@@ -94,4 +94,4 @@ $(DEBUG_BINARY): $(D_OBJECTS)
 	$(CC) $(CFLAGS) -c -o $@ $^
 
 clean:
-	rm $(BINARY) $(DEBUG_BINARY)$(OBJECTS) $(D_OBJECTS)
+	rm $(BINARY) $(DEBUG_BINARY) $(OBJECTS) $(D_OBJECTS)
