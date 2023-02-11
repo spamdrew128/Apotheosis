@@ -14,11 +14,13 @@
 #include "make_and_unmake_tdd.h"
 #include "recursive_testing.h"
 #include "perft_table.h"
+#include "zobrist_tdd.h"
 
 int main(int argc, char** argv)
 {
     InitLookup();
-
+    InitZobristGenerator();
+    
     LookupTDDRunner();
     BitboardsTDDRunner();
     BoardInfoTDDRunner();

@@ -2,5 +2,5 @@
 #include "debug.h"
 
 void ZobristTDDRunner() {
-    
+
 }
