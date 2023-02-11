@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 #include "board_constants.h"
+#include "game_state.h"
+#include "board_info.h"
 
 #define ZOBRIST_STACK_MAX 1024
 
@@ -16,5 +18,9 @@ typedef struct {
 void InitZobristGenerator();
 
 void InitZobristStack(ZobristStack_t* zobristStack);
+
+ZobristHash_t HashPosition(BoardInfo_t* boardInfo, GameState_t* gameState);
+
+// void AddHashToZobristStack(ZobristStack_t* zobristStack, ZobristHash_t hash);
 
 #endif
