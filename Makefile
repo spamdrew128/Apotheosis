@@ -18,7 +18,8 @@ movegen.c \
 game_state.c \
 move.c \
 make_and_unmake.c \
-zobrist.c
+zobrist.c \
+UCI.c \
 
 COMMON_OBJECTS= \
 bitboards.o \
@@ -33,7 +34,8 @@ movegen.o \
 game_state.o \
 move.o \
 make_and_unmake.o \
-zobrist.o
+zobrist.o \
+UCI.o \
 
 MAIN=main
 CFILES=$(MAIN).c $(COMMON_CFILES)
