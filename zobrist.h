@@ -4,6 +4,17 @@
 #include <stdint.h>
 #include "board_constants.h"
 
-typedef uint64_t ZobristHash_t; 
+#define ZOBRIST_STACK_MAX 1024
+
+typedef uint64_t ZobristHash_t;
+
+typedef struct {
+    ZobristHash_t entries[ZOBRIST_STACK_MAX];
+    ZobristHash_t num_entries;
+} ZobristStack_t;
+
+void InitZobristGenerator();
+
+void InitZobristStack(ZobristStack_t* zobristStack);
 
 #endif
