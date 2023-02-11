@@ -19,7 +19,7 @@ void InitZobristGenerator();
 
 void InitZobristStack(ZobristStack_t* zobristStack);
 
-ZobristHash_t HashPosition(BoardInfo_t* boardInfo, GameState_t* gameState);
+ZobristHash_t HashPosition(BoardInfo_t* boardInfo, GameState_t* gameState, Color_t colorToMove);
 
 // void AddHashToZobristStack(ZobristStack_t* zobristStack, ZobristHash_t hash);
 
