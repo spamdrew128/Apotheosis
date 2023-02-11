@@ -13,7 +13,7 @@ enum {
 static Bitboard_t kingsideRooks[] = { C64(1) << h1, C64(1) << h8 };
 static Bitboard_t queensideRooks[] = { C64(1) << a1, C64(1) << a8 };
 
-static void UpdatecastleRights(CastleRights_t* castleRights, BoardInfo_t* info, Color_t color) {
+static void UpdateCastleRights(CastleRights_t* castleRights, BoardInfo_t* info, Color_t color) {
     bool validKingsideRook = kingsideRooks[color] & info->rooks[color];
     bool validQueensideRook = queensideRooks[color] & info->rooks[color];
 
@@ -135,7 +135,7 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, GameState_t* nextState,
         );
 
         nextState->capturedPiece = capturedPiece;
-        UpdatecastleRights(&nextState->castleRights, boardInfo, !color);
+        UpdateCastleRights(&nextState->castleRights, boardInfo, !color);
     }
 
     AddPieceToMailbox(boardInfo, fromSquare, promotionPiece);
@@ -206,7 +206,7 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextStat
 
         nextState->halfmoveClock = 0;
         nextState->capturedPiece = capturedPiece;
-        UpdatecastleRights(&nextState->castleRights, boardInfo, !color); // if we captured, we might have messed up our opponent's castling rights
+        UpdateCastleRights(&nextState->castleRights, boardInfo, !color); // if we captured, we might have messed up our opponent's castling rights
     }
 
     Piece_t type = PieceOnSquare(boardInfo, fromSquare);
@@ -233,7 +233,7 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextStat
         color
     );
 
-    UpdatecastleRights(&nextState->castleRights, boardInfo, color);
+    UpdateCastleRights(&nextState->castleRights, boardInfo, color);
 }
 
 void MakeMove(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, Color_t moveColor) {

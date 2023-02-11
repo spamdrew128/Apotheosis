@@ -3,7 +3,8 @@ INCDIRS=-I.
 
 DEBUGFLAGS=-g
 OPTFLAGS=-O3 -flto
-CFLAGS=-Wall -std=c17 -march=native $(DEBUGFLAGS) $(INCDIRS) 
+PERFFLAGS=-O0 -ggdb3 -fno-omit-frame-pointer
+CFLAGS=-Wall -std=c17 -march=native $(PERFFLAGS) $(INCDIRS) 
 
 COMMON_CFILES= \
 bitboards.c \
