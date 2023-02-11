@@ -30,6 +30,7 @@ int main(int argc, char** argv)
     MovegenTDDRunner();
     MakeMoveTDDRunner();
     UnmakeMoveTDDRunner();
+    ZobristTDDRunner();
 
     SpeedTest(START_FEN, 6, false);
 

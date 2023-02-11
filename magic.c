@@ -13,6 +13,8 @@ enum {
     uninitialized = 0xffffffffffffffff
 };
 
+typedef uint32_t Hash_t;
+
 typedef Bitboard_t (*BlockersToAttacksCallback_t)(Square_t, Bitboard_t);
 
 typedef Bitboard_t (*FindMaskCallback_t)(Square_t);

@@ -17,7 +17,8 @@ legals.c \
 movegen.c \
 game_state.c \
 move.c \
-make_and_unmake.c
+make_and_unmake.c \
+zobrist.c
 
 COMMON_OBJECTS= \
 bitboards.o \
@@ -31,7 +32,8 @@ legals.o \
 movegen.o \
 game_state.o \
 move.o \
-make_and_unmake.o
+make_and_unmake.o \
+zobrist.o
 
 MAIN=main
 CFILES=$(MAIN).c $(COMMON_CFILES)
@@ -55,7 +57,8 @@ $(TDD)\movegen_tdd.c \
 $(TDD)\game_state_tdd.c \
 $(TDD)\make_and_unmake_tdd.c \
 $(TDD)\recursive_testing.c \
-$(TDD)\perft_table.c
+$(TDD)\perft_table.c \
+$(TDD)\zobrist_tdd.c
 
 D_OBJECTS= \
 $(TDD_MAIN).o \
@@ -72,7 +75,8 @@ $(TDD)\movegen_tdd.o \
 $(TDD)\game_state_tdd.o \
 $(TDD)\make_and_unmake_tdd.o \
 $(TDD)\recursive_testing.o \
-$(TDD)\perft_table.o
+$(TDD)\perft_table.o \
+$(TDD)\zobrist_tdd.o
 
 BINARY=bin
 DEBUG_BINARY=debug
