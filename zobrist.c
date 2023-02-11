@@ -3,17 +3,17 @@
 
 #define NUM_ARRAY_ELEMENTS(array) sizeof(array) / sizeof(*array)
 
-typedef uint64_t ZobristPsuedorandom_t;
+typedef uint64_t ZobristKey_t;
 
-static ZobristPsuedorandom_t whitePiecePsuedos[NUM_SQUARES * NUM_PIECES];
-static ZobristPsuedorandom_t blackPiecePsuedos[NUM_SQUARES * NUM_PIECES];
-static ZobristPsuedorandom_t castlingPsuedos[16];
-static ZobristPsuedorandom_t enPassantFilePsuedos[8];
-static ZobristPsuedorandom_t sideToMoveIsBlackPsuedo;
+static ZobristKey_t whitePiecePsuedos[NUM_SQUARES * NUM_PIECES];
+static ZobristKey_t blackPiecePsuedos[NUM_SQUARES * NUM_PIECES];
+static ZobristKey_t castlingPsuedos[16];
+static ZobristKey_t enPassantFilePsuedos[8];
+static ZobristKey_t sideToMoveIsBlackPsuedo;
 
-static void FillPsuedorandomList(ZobristPsuedorandom_t* list, int num_entries) {
+static void FillPsuedorandomList(ZobristKey_t* list, int num_entries) {
     for(int i = 0; i < num_entries; i++) {
-        list[i] = RandBitboard();
+        list[i] = RandUnsigned64();
     }
 }
 
@@ -22,7 +22,7 @@ void InitZobristGenerator() {
     FillPsuedorandomList(blackPiecePsuedos, NUM_ARRAY_ELEMENTS(blackPiecePsuedos));
     FillPsuedorandomList(castlingPsuedos, NUM_ARRAY_ELEMENTS(castlingPsuedos));
     FillPsuedorandomList(enPassantFilePsuedos, NUM_ARRAY_ELEMENTS(enPassantFilePsuedos));
-    sideToMoveIsBlackPsuedo = RandBitboard();
+    sideToMoveIsBlackPsuedo = RandUnsigned64();
 }
 
 void InitZobristStack(ZobristStack_t* zobristStack) {
