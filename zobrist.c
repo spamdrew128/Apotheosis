@@ -57,12 +57,14 @@ static void UpdateHashWithCastlingRights(ZobristHash_t* zobristHash, Bitboard_t 
 }
 
 static void UpdateHashEnPassantFile(ZobristHash_t* zobristHash, Bitboard_t enPassant) {
-    *zobristHash ^= enPassantFileKeys[LSB(enPassant) % 8];
+    if(enPassant) {
+        *zobristHash ^= enPassantFileKeys[LSB(enPassant) % 8];
+    }
 }
 
 ZobristHash_t HashPosition(BoardInfo_t* boardInfo, GameState_t* gameState, Color_t colorToMove) {
     ZobristHash_t zobristHash = empty_set;
-    
+
     UpdateHashWithPieceBitboard(&zobristHash, boardInfo->knights[white], knight, whitePieceKeys);
     UpdateHashWithPieceBitboard(&zobristHash, boardInfo->bishops[white], bishop, whitePieceKeys);
     UpdateHashWithPieceBitboard(&zobristHash, boardInfo->rooks[white], rook, whitePieceKeys);

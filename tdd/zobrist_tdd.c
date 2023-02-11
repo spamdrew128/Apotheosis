@@ -10,7 +10,8 @@ static GameStack_t stack;
 
 static void ShouldGenerateNonZeroHash() {
     Color_t colorToMove = InterpretFEN(someFen, &info, &stack);
-    ZobristHash_t hash = HashPosition(&info, &stack, colorToMove);
+    GameState_t state = ReadCurrentGameState(&stack);
+    ZobristHash_t hash = HashPosition(&info, &state, colorToMove);
     PrintResults(hash);
 }
 
