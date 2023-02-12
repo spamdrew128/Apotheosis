@@ -62,8 +62,9 @@ static void UpdateHashEnPassantFile(ZobristHash_t* zobristHash, Bitboard_t enPas
     }
 }
 
-ZobristHash_t HashPosition(BoardInfo_t* boardInfo, GameState_t* gameState, Color_t colorToMove) {
+ZobristHash_t HashPosition(BoardInfo_t* boardInfo, GameStack_t* gameStack, Color_t colorToMove) {
     ZobristHash_t zobristHash = empty_set;
+    GameState_t gameState = ReadCurrentGameState(gameStack);
 
     UpdateHashWithPieceBitboard(&zobristHash, boardInfo->knights[white], knight, whitePieceKeys);
     UpdateHashWithPieceBitboard(&zobristHash, boardInfo->bishops[white], bishop, whitePieceKeys);
@@ -79,8 +80,8 @@ ZobristHash_t HashPosition(BoardInfo_t* boardInfo, GameState_t* gameState, Color
     UpdateHashWithPieceBitboard(&zobristHash, boardInfo->pawns[black], pawn, blackPieceKeys);
     UpdateHashWithPieceBitboard(&zobristHash, boardInfo->kings[black], king, blackPieceKeys);
 
-    UpdateHashWithCastlingRights(&zobristHash, gameState->castleSquares[white], gameState->castleSquares[black]);
-    UpdateHashEnPassantFile(&zobristHash, gameState->enPassantSquares);
+    UpdateHashWithCastlingRights(&zobristHash, gameState.castleSquares[white], gameState.castleSquares[black]);
+    UpdateHashEnPassantFile(&zobristHash, gameState.enPassantSquares);
 
     if(colorToMove == black) {
         zobristHash ^= sideToMoveIsBlackKey;

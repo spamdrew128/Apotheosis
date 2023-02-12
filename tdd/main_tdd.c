@@ -19,7 +19,7 @@
 
 int main(int argc, char** argv)
 {
-    InitLookup();
+    InitLookupTables();
     GenerateZobristKeys();
     
     LookupTDDRunner();

@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include "zobrist_tdd.h"
 #include "debug.h"
 #include "FEN.h"
@@ -8,30 +10,32 @@
 
 static FEN_t someFen = "1k4r1/p2n1p2/Pp1p4/3P4/1RPr3p/6P1/5P1P/R4K2 b - - 1 26";
 static BoardInfo_t info;
-static GameStack_t stack;
+static GameStack_t gameStack;
+static ZobristStack_t zobristStack;
 
 // HELPERS
 static void PlayMoveFromUCIString(const char* uciMove, BoardInfo_t* boardInfo, GameStack_t* gameStack, Color_t color) {
-    Move_t move = UCITranslateMove(uciMove, boardInfo, gameStack);
+    Move_t move;
+    assert(UCITranslateMove(&move, uciMove, boardInfo, gameStack));
+
     MakeMove(boardInfo, gameStack, move, color);
 }
 
 static ZobristHash_t GetHashFromSeriesOfMoves(FEN_t fen, const char* moveSet[4]) {
-    Color_t colorToMove = InterpretFEN(fen, &info, &stack);
+    Color_t colorToMove = InterpretFEN(fen, &info, &gameStack, &zobristStack);
     for(int j = 0; j < 4; j++) {
-        PlayMoveFromUCIString(moveSet[j], &info, &stack, colorToMove);
+        PlayMoveFromUCIString(moveSet[j], &info, &gameStack, colorToMove);
         colorToMove = !colorToMove;
     }
 
-    GameState_t state = ReadCurrentGameState(&stack);
-    return HashPosition(&info, &state, colorToMove);
+    return HashPosition(&info, &gameStack, colorToMove);
 }
 
 // TESTS
 static void ShouldGenerateNonZeroHash() {
-    Color_t colorToMove = InterpretFEN(someFen, &info, &stack);
-    GameState_t state = ReadCurrentGameState(&stack);
-    ZobristHash_t hash = HashPosition(&info, &state, colorToMove);
+    Color_t colorToMove = InterpretFEN(someFen, &info, &gameStack, &zobristStack);
+    ZobristHash_t hash = HashPosition(&info, &gameStack, colorToMove);
+    
     PrintResults(hash);
 }
 
@@ -72,13 +76,11 @@ static void ShouldGenerateSameHashesForSamePositions() {
 }
 
 static void ShouldGenerateDifferentHashesForDifferentPositions() {
-    Color_t color = InterpretFEN(START_FEN, &info, &stack);
-    GameState_t state = ReadCurrentGameState(&stack);
-    ZobristHash_t hash1 = HashPosition(&info, &state, color);
+    Color_t color = InterpretFEN(START_FEN, &info, &gameStack, &zobristStack);
+    ZobristHash_t hash1 = HashPosition(&info, &gameStack, color);
 
-    color = InterpretFEN(someFen, &info, &stack);
-    state = ReadCurrentGameState(&stack);
-    ZobristHash_t hash2 = HashPosition(&info, &state, color);
+    color = InterpretFEN(someFen, &info, &gameStack, &zobristStack);
+    ZobristHash_t hash2 = HashPosition(&info, &gameStack, color);
 
     PrintResults(hash1 != hash2);
 }

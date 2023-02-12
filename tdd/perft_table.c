@@ -6,27 +6,29 @@
 #include "game_state.h"
 #include "movegen.h"
 #include "make_and_unmake.h"
+#include "zobrist.h"
 
-static GameStack_t stack;
+static GameStack_t gameStack;
+static ZobristStack_t zobristStack;
 
 static void TestSetup() {
-    InitGameStack(&stack);
+    InitGameStack(&gameStack);
 }
 
 static void PERFT(BoardInfo_t* boardInfo, int depth, PerftCount_t* count, Color_t color) {
     MoveList_t moveList;
-    CompleteMovegen(&moveList, boardInfo, &stack, color);
+    CompleteMovegen(&moveList, boardInfo, &gameStack, color);
 
     if(depth > 1) {
         for(int i = 0; i <= moveList.maxIndex; i++) {
             Move_t move = moveList.moves[i];
-            MakeMove(boardInfo, &stack, move, color);
-            assert(BoardIsValid(boardInfo, &stack, !color));
+            MakeMove(boardInfo, &gameStack, move, color);
+            assert(BoardIsValid(boardInfo, &gameStack, !color));
 
             PERFT(boardInfo, depth-1, count, !color);
 
-            UnmakeMove(boardInfo, &stack);
-            assert(BoardIsValid(boardInfo, &stack, color));
+            UnmakeMove(boardInfo, &gameStack);
+            assert(BoardIsValid(boardInfo, &gameStack, color));
         }
     } else {
         *count += moveList.maxIndex + 1;
@@ -50,7 +52,7 @@ void RunAllPerftTests(bool shouldRun) {
             TestSetup();
             BoardInfo_t info;
             PerftCount_t count = 0;
-            Color_t color = InterpretFEN(fen, &info, &stack);
+            Color_t color = InterpretFEN(fen, &info, &gameStack, &zobristStack);
 
             PerftCount_t expectedCounts = table[i].expectedCounts[j];
             if(expectedCounts) {
