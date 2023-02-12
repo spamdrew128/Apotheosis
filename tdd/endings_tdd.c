@@ -24,13 +24,11 @@ static bool GameEndStatusShouldBe(
     Color_t colorToMove
 )
 {
-    GameState_t gameState = ReadCurrentGameState(&gameStack);
     GameEndStatus_t actual = 
         CurrentGameEndStatus(
             &boardInfo,
             &gameStack,
             &zobristStack,
-            HashPosition(&boardInfo, &gameState, colorToMove),
             moveListMaxIndex,
             colorToMove
         );
@@ -38,11 +36,11 @@ static bool GameEndStatusShouldBe(
     return actual == expected;
 }
 
-static void AddHashAndMakeMove(Move_t move, Color_t moveColor) {
+static void MakeMoveAndAddHash(Move_t move, Color_t moveColor) {
+    MakeMove(&boardInfo, &gameStack, move, moveColor);
+
     GameState_t gameState = ReadCurrentGameState(&gameStack);
     AddZobristHashToStack(&zobristStack, HashPosition(&boardInfo, &gameState, moveColor));
-
-    MakeMove(&boardInfo, &gameStack, move, moveColor);
 }
 
 // TESTS
@@ -85,16 +83,16 @@ static void ShouldRecognizeThreefoldRepetition() {
     WriteFromSquare(&bKnightBack, f6);
     WriteToSquare(&bKnightBack, g8);
 
-    AddHashAndMakeMove(wKnightOut, white);
-    AddHashAndMakeMove(bKnightOut, black);
-    AddHashAndMakeMove(wKnightBack, white);
-    AddHashAndMakeMove(bKnightBack, black);
-    AddHashAndMakeMove(wKnightOut, white);
-    AddHashAndMakeMove(bKnightOut, black);
-    AddHashAndMakeMove(wKnightBack, white);
+    MakeMoveAndAddHash(wKnightOut, white);
+    MakeMoveAndAddHash(bKnightOut, black);
+    MakeMoveAndAddHash(wKnightBack, white);
+    MakeMoveAndAddHash(bKnightBack, black);
+    MakeMoveAndAddHash(wKnightOut, white);
+    MakeMoveAndAddHash(bKnightOut, black);
+    MakeMoveAndAddHash(wKnightBack, white);
 
     bool success = GameEndStatusShouldBe(ongoing, some_movelist_max, black);
-    AddHashAndMakeMove(bKnightBack, black);
+    MakeMoveAndAddHash(bKnightBack, black);
 
     success = success && GameEndStatusShouldBe(draw, some_movelist_max, white);
 

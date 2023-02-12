@@ -6,15 +6,16 @@
 
 static bool IsThreefoldRepetition(
     ZobristStack_t* zobristStack,
-    ZobristHash_t positionHash,
     HalfmoveCount_t halfmoves
 )
 {
-    int start = zobristStack->maxIndex - halfmoves;
+    ZobristHash_t currentPositionHash = zobristStack->entries[zobristStack->maxIndex];
+    int start = zobristStack->maxIndex - 2;
+    int end = zobristStack->maxIndex - halfmoves;
 
-    int hashOccurances = 1; // starts at one because positionHash counts!
-    for(int i = start; i <= zobristStack->maxIndex; i++) {
-        if(zobristStack->entries[i] == positionHash) {
+    int hashOccurances = 1; // starts at one because currentPositionHash counts!
+    for(int i = start; i >= end; i--) {
+        if(zobristStack->entries[i] == currentPositionHash) {
             hashOccurances++;
         }
     }
@@ -48,7 +49,6 @@ GameEndStatus_t CurrentGameEndStatus(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
-    ZobristHash_t positionHash,
     int moveListMaxIndex,
     Color_t colorToMove
 ) 
@@ -62,7 +62,7 @@ GameEndStatus_t CurrentGameEndStatus(
     }
 
     HalfmoveCount_t halfmoves = ReadHalfmoveClock(gameStack);
-    if(IsThreefoldRepetition(zobristStack, positionHash, halfmoves)) {
+    if(IsThreefoldRepetition(zobristStack, halfmoves)) {
         return draw;
     }
 

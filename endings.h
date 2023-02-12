@@ -20,7 +20,6 @@ GameEndStatus_t CurrentGameEndStatus(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
-    ZobristHash_t positionHash,
     int moveListMaxIndex,
     Color_t colorToMove
 );
