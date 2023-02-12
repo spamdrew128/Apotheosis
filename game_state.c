@@ -67,7 +67,7 @@ Bitboard_t ReadCastleSquares(GameStack_t* stack, Color_t color) {
     return CurrentState(stack).castleSquares[color];
 }
 
-Bitboard_t ReadEnPassantSquares(GameStack_t* stack) {
+Bitboard_t ReadEnPassant(GameStack_t* stack) {
     return CurrentState(stack).enPassantSquares;
 }
 

@@ -4,10 +4,26 @@
 #include "board_info.h"
 #include "game_state.h"
 #include "UCI.h"
+#include "make_and_unmake.h"
 
 static FEN_t someFen = "1k4r1/p2n1p2/Pp1p4/3P4/1RPr3p/6P1/5P1P/R4K2 b - - 1 26";
 static BoardInfo_t info;
 static GameStack_t stack;
+
+static void PlayMoveFromUCIString(const char* uciMove, BoardInfo_t* boardInfo, GameStack_t* gameStack, Color_t color) {
+    Move_t move = UCITranslateMove(uciMove, boardInfo, gameStack);
+    MakeMove(boardInfo, gameStack, move, color);
+}
+
+static ZobristHash_t GetHashFromSeriesOfMoves(FEN_t fen, const char* moveSet[4]) {
+    Color_t colorToMove = InterpretFEN(someFen, &info, &stack);
+    GameState_t state = ReadCurrentGameState(&stack);
+    for(int j = 0; j < 4; j++) {
+        PlayMoveFromUCIString(moveSet[j], &info, &stack, colorToMove);
+        colorToMove = !colorToMove;
+    }
+    return HashPosition(&info, &stack, colorToMove);
+}
 
 static void ShouldGenerateNonZeroHash() {
     Color_t colorToMove = InterpretFEN(someFen, &info, &stack);
@@ -42,21 +58,17 @@ static void ShouldGenerateSameHashesForSamePositions() {
         {{"g2g3", "a8c8", "e5d3", "e7f8"}, {"e5d3", "a8c8", "g2g3", "e7f8"}}
     };
     
-
-
+    bool success = true;
     for(int i = 0; i < 20; i++) {
         const char* moveSet1[4] = transpositionTestTable[i][0];
         const char* moveSet2[4] = transpositionTestTable[i][1];
-        ZobristHash_t moveSet1Hash;
-        ZobristHash_t moveSet2Hash;
 
-        Color_t colorToMove = InterpretFEN(someFen, &info, &stack);
-        GameState_t state = ReadCurrentGameState(&stack);
-        for(int i = 0; i < 4; i++) {
-
-        }
+        ZobristHash_t hash1 = GetHashFromSeriesOfMoves(someFen, moveSet1);
+        ZobristHash_t hash2 = GetHashFromSeriesOfMoves(someFen, moveSet2);
+        success = success && (hash1 == hash2);
     }
-
+    
+    PrintResults(success);
 }
 
 void ZobristTDDRunner() {

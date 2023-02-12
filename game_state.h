@@ -35,7 +35,7 @@ HalfmoveCount_t ReadHalfmoveClock(GameStack_t* stack);
 
 Bitboard_t ReadCastleSquares(GameStack_t* stack, Color_t color);
 
-Bitboard_t ReadEnPassantSquares(GameStack_t* stack);
+Bitboard_t ReadEnPassant(GameStack_t* stack);
 
 BoardInfo_t ReadCurrentBoardInfo(GameStack_t* stack);
 

@@ -12,7 +12,7 @@ static char ColCharToNumber(char col) {
     return (int)col - 97;
 }
 
-Move_t UCITranslateMove(const char* moveText, BoardInfo_t* boardInfo, Bitboard_t enPassantBB) {
+Move_t UCITranslateMove(const char* moveText, BoardInfo_t* boardInfo, GameStack_t* gameStack) {
     int stringLen = strlen(moveText);
     assert(stringLen <= 5);
 
@@ -52,6 +52,7 @@ Move_t UCITranslateMove(const char* moveText, BoardInfo_t* boardInfo, Bitboard_t
         WriteSpecialFlag(&move, castle_flag);
     }
 
+    Bitboard_t enPassantBB = ReadEnPassant(gameStack);
     if(type == pawn && enPassantBB) { 
         if(LSB(enPassantBB) == toSquare) {
             WriteSpecialFlag(&move, en_passant_flag);

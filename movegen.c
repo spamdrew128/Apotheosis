@@ -667,7 +667,7 @@ void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
         moveList,
         boardInfo,
         checkmask,
-        ReadEnPassantSquares(stack),
+        ReadEnPassant(stack),
         pinmasks,
         color
     );
@@ -712,7 +712,7 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
         moveList,
         boardInfo,
         checkmask,
-        ReadEnPassantSquares(stack),
+        ReadEnPassant(stack),
         pinmasks,
         color
     );

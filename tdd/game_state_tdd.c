@@ -18,7 +18,7 @@ static bool GameStateIsCorrect(GameStack_t* stack, GameState_t* expected) {
         (ReadHalfmoveClock(stack) == expected->halfmoveClock) &&
         (ReadCastleSquares(stack, white) == expected->castleSquares[white]) &&
         (ReadCastleSquares(stack, black) == expected->castleSquares[black]) &&
-        (ReadEnPassantSquares(stack) == expected->enPassantSquares);
+        (ReadEnPassant(stack) == expected->enPassantSquares);
 }
 
 static GameState_t* GetSomeGamestate(GameStack_t* stack) {
