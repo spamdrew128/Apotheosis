@@ -30,12 +30,12 @@ static void ShouldDrawWhenHalfmoveCountHits100() {
 
 static void ShouldIdentifyCheckmate() {
     Color_t color = InterpretFEN(checkmateFen, &boardInfo, &gameStack);
-    PrintResults(GameEndStatusShouldBe(checkmate, some_movelist_max, color));
+    PrintResults(GameEndStatusShouldBe(checkmate, movelist_empty, color));
 }
 
 static void ShouldIdentifyStalemate() {
     Color_t color = InterpretFEN(stalemateFen, &boardInfo, &gameStack);
-    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max, color));
+    PrintResults(GameEndStatusShouldBe(draw, movelist_empty, color));
 }
 
 void EndingsTDDRunner() {
