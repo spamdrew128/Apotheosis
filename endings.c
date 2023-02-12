@@ -22,6 +22,28 @@ static bool IsThreefoldRepetition(
     return hashOccurances >= 3;
 }
 
+static bool OnlyMinorPiecesOnBoard(BoardInfo_t* boardInfo) {
+    return 
+        (boardInfo->pawns[white] == empty_set) &&
+        (boardInfo->pawns[black] == empty_set) &&
+        (boardInfo->rooks[white] == empty_set) &&
+        (boardInfo->rooks[black] == empty_set) &&
+        (boardInfo->queens[white] == empty_set) &&
+        (boardInfo->queens[black] == empty_set);
+}
+
+static bool AtMostOneMinorPiece(BoardInfo_t* boardInfo, Color_t color) {
+    return 
+        PopulationCount(boardInfo->bishops[color] | boardInfo->knights[color]) <= 1;
+}
+
+static bool IsInsufficientMaterialDraw(BoardInfo_t* boardInfo) {
+    return
+        OnlyMinorPiecesOnBoard(boardInfo) &&
+        AtMostOneMinorPiece(boardInfo, white) &&
+        AtMostOneMinorPiece(boardInfo, black);
+}
+
 GameEndStatus_t CurrentGameEndStatus(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
@@ -40,11 +62,15 @@ GameEndStatus_t CurrentGameEndStatus(
     }
 
     HalfmoveCount_t halfmoves = ReadHalfmoveClock(gameStack);
-    if(halfmoves >= 100) {
+    if(IsThreefoldRepetition(zobristStack, positionHash, halfmoves)) {
         return draw;
     }
 
-    if(IsThreefoldRepetition(zobristStack, positionHash, halfmoves)) {
+    if(IsInsufficientMaterialDraw(boardInfo)) {
+        return draw;
+    }
+
+    if(halfmoves >= 100) {
         return draw;
     }
 

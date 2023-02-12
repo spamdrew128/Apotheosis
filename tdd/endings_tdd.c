@@ -105,9 +105,72 @@ static void ShouldRecognizeThreefoldRepetition() {
     PrintResults(success);
 }
 
+static void ShouldDrawWhenJustKings() {
+    InitZobristStack(&zobristStack);
+    FEN_t kingsOnly = "8/8/8/6K1/3k4/8/8/8 w - - 0 1";
+    Color_t color = InterpretFEN(kingsOnly, &boardInfo, &gameStack);
+
+    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max, color));
+}
+
+static void ShouldDrawKnightVsBishop() {
+    InitZobristStack(&zobristStack);
+    FEN_t knightVsBishop = "8/4b3/8/6K1/3k4/4N3/8/8 w - - 0 1";
+    Color_t color = InterpretFEN(knightVsBishop, &boardInfo, &gameStack);
+
+    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max, color));
+}
+
+static void ShouldDrawKnightVsKnight() {
+    InitZobristStack(&zobristStack);
+    FEN_t knightVsKnight = "8/4n3/8/6K1/3k4/4N3/8/8 w - - 0 1";
+    Color_t color = InterpretFEN(knightVsKnight, &boardInfo, &gameStack);
+
+    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max, color));
+}
+
+static void ShouldDrawBishopVsBishop() {
+    InitZobristStack(&zobristStack);
+    FEN_t bishopVsBishop = "8/1b6/8/6K1/3k4/8/7B/8 w - - 0 1";
+    Color_t color = InterpretFEN(bishopVsBishop, &boardInfo, &gameStack);
+
+    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max, color));
+}
+
+static void ShouldDrawOneSideKnight() {
+    InitZobristStack(&zobristStack);
+    FEN_t oneSideKnight = "8/4k3/8/8/1K6/8/6N1/8 w - - 0 1";
+    Color_t color = InterpretFEN(oneSideKnight, &boardInfo, &gameStack);
+
+    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max, color));
+}
+
+static void ShouldDrawOneSideBishop() {
+    InitZobristStack(&zobristStack);
+    FEN_t oneSideBishop = "8/4k3/8/8/1K6/8/6b1/8 w - - 0 1";
+    Color_t color = InterpretFEN(oneSideBishop, &boardInfo, &gameStack);
+
+    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max, color));
+}
+
+static void ShouldNotDrawTwoSideBishop() {
+    InitZobristStack(&zobristStack);
+    FEN_t twoSideBishop = "8/4k3/8/8/1K2bb2/8/8/8 w - - 0 1";
+    Color_t color = InterpretFEN(twoSideBishop, &boardInfo, &gameStack);
+
+    PrintResults(GameEndStatusShouldBe(ongoing, some_movelist_max, color));
+}
+
 void EndingsTDDRunner() {
     ShouldDrawWhenHalfmoveCountHits100();
     ShouldIdentifyCheckmate();
     ShouldIdentifyStalemate();
     ShouldRecognizeThreefoldRepetition();
+    ShouldDrawWhenJustKings();
+    ShouldDrawKnightVsBishop();
+    ShouldDrawKnightVsKnight();
+    ShouldDrawBishopVsBishop();
+    ShouldDrawOneSideKnight();
+    ShouldDrawOneSideBishop();
+    ShouldNotDrawTwoSideBishop();
 }
