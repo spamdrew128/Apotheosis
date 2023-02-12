@@ -71,7 +71,20 @@ static void ShouldGenerateSameHashesForSamePositions() {
     PrintResults(success);
 }
 
+static void ShouldGenerateDifferentHashesForDifferentPositions() {
+    Color_t color = InterpretFEN(START_FEN, &info, &stack);
+    GameState_t state = ReadCurrentGameState(&stack);
+    ZobristHash_t hash1 = HashPosition(&info, &state, color);
+
+    color = InterpretFEN(someFen, &info, &stack);
+    state = ReadCurrentGameState(&stack);
+    ZobristHash_t hash2 = HashPosition(&info, &state, color);
+
+    PrintResults(hash1 != hash2);
+}
+
 void ZobristTDDRunner() {
     ShouldGenerateNonZeroHash();
     ShouldGenerateSameHashesForSamePositions();
+    ShouldGenerateDifferentHashesForDifferentPositions();
 }
