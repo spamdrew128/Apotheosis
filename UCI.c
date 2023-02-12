@@ -69,3 +69,10 @@ bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo
     return true;
 }
 
+#define BUFFER_SIZE 256
+void RecieveInput() {
+    char input[BUFFER_SIZE];
+    fgets(input, BUFFER_SIZE, stdin);
+
+    printf("%s\n", input);
+}

@@ -8,6 +8,7 @@
 #include "magic.h"
 #include "game_state.h"
 #include "zobrist.h"
+#include "UCI.h"
 
 int main(int argc, char** argv)
 {
@@ -19,7 +20,5 @@ int main(int argc, char** argv)
     ZobristStack_t zobristStack;
     InterpretFEN(START_FEN, &boardInfo, &gameStack, &zobristStack);
 
-    
-    // Todo: GAME LOOP
-    
+    RecieveInput();
 }
