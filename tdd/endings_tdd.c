@@ -153,7 +153,7 @@ static void ShouldDrawOneSideBishop() {
     PrintResults(GameEndStatusShouldBe(draw, some_movelist_max, color));
 }
 
-static void ShouldNotDrawTwoSideBishop() {
+static void ShouldNotDrawTwoMinorPieces() {
     InitZobristStack(&zobristStack);
     FEN_t twoSideBishop = "8/4k3/8/8/1K2bb2/8/8/8 w - - 0 1";
     Color_t color = InterpretFEN(twoSideBishop, &boardInfo, &gameStack);
@@ -172,5 +172,5 @@ void EndingsTDDRunner() {
     ShouldDrawBishopVsBishop();
     ShouldDrawOneSideKnight();
     ShouldDrawOneSideBishop();
-    ShouldNotDrawTwoSideBishop();
+    ShouldNotDrawTwoMinorPieces();
 }
