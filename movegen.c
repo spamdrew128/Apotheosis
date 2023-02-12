@@ -3,10 +3,6 @@
 #include "pieces.h"
 #include "lookup.h"
 
-enum {
-    movelist_empty = -1
-};
-
 #define SerializePositionsIntoMoves(_positions, ...) \
     do { \
         while(_positions) { \
@@ -90,18 +86,6 @@ static void SerializePawnPromotions(
 
         ResetLSB(&moves);
         ResetLSB(&pawnPositions);
-    }
-}
-
-static Bitboard_t GetUnsafeSquares(
-    BoardInfo_t* boardInfo,
-    Color_t color
-)
-{
-    if(color == white) {
-        return WhiteUnsafeSquares(boardInfo);
-    } else {
-        return BlackUnsafeSquares(boardInfo);
     }
 }
 
@@ -226,7 +210,7 @@ static void TryWhiteEnPassant(
     SetBits(&boardInfo->empty, fromBB|captureBB);
     ResetBits(&boardInfo->empty, toBB);
 
-    Bitboard_t unsafeSquares = WhiteUnsafeSquares(boardInfo);
+    Bitboard_t unsafeSquares = UnsafeSquares(boardInfo, white);
     if(!InCheck(boardInfo->kings[color], unsafeSquares)) {
         InitializeNewMove(moveList);
         Move_t* current = CurrentMove(moveList);
@@ -261,7 +245,7 @@ static void TryBlackEnPassant(
     SetBits(&boardInfo->empty, fromBB|captureBB);
     ResetBits(&boardInfo->empty, toBB);
 
-    Bitboard_t unsafeSquares = BlackUnsafeSquares(boardInfo);
+    Bitboard_t unsafeSquares = UnsafeSquares(boardInfo, black);
     if(!InCheck(boardInfo->kings[color], unsafeSquares)) {
         InitializeNewMove(moveList);
         Move_t* current = CurrentMove(moveList);
@@ -641,7 +625,7 @@ static void AddEverything(
 void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
     moveList->maxIndex = movelist_empty;
 
-    Bitboard_t unsafeSquares = GetUnsafeSquares(boardInfo, color);
+    Bitboard_t unsafeSquares = UnsafeSquares(boardInfo, color);
     Square_t kingSquare = KingSquare(boardInfo, color);
     Bitboard_t enemyPieces = boardInfo->allPieces[!color];
 
@@ -676,7 +660,7 @@ void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
 void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
     moveList->maxIndex = movelist_empty;
 
-    Bitboard_t unsafeSquares = GetUnsafeSquares(boardInfo, color);
+    Bitboard_t unsafeSquares = UnsafeSquares(boardInfo, color);
     Square_t kingSquare = KingSquare(boardInfo, color);
     Bitboard_t enemyPieces = boardInfo->allPieces[!color];
 

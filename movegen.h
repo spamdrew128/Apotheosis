@@ -6,6 +6,10 @@
 #include "move.h"
 #include "game_state.h"
 
+enum {
+    movelist_empty = -1
+};
+
 typedef struct {
     Move_t moves[MOVELIST_MAX];
     int maxIndex;
