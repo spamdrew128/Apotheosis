@@ -74,7 +74,7 @@ static Bitboard_t NonPawnUnsafeSquares(BoardInfo_t* boardInfo, Color_t enemyColo
     );
 }
 
-Bitboard_t WhiteUnsafeSquares(BoardInfo_t* boardInfo) {
+static Bitboard_t WhiteUnsafeSquares(BoardInfo_t* boardInfo) {
     return (
         SoEaOne(boardInfo->pawns[black]) |
         SoWeOne(boardInfo->pawns[black]) |
@@ -82,12 +82,20 @@ Bitboard_t WhiteUnsafeSquares(BoardInfo_t* boardInfo) {
     );
 }
 
-Bitboard_t BlackUnsafeSquares(BoardInfo_t* boardInfo) {
+static Bitboard_t BlackUnsafeSquares(BoardInfo_t* boardInfo) {
     return (
         NoEaOne(boardInfo->pawns[white]) |
         NoWeOne(boardInfo->pawns[white]) |
         NonPawnUnsafeSquares(boardInfo, white)
     );
+}
+
+Bitboard_t UnsafeSquares(BoardInfo_t* boardInfo, Color_t color) {
+    if(color == white) {
+        return WhiteUnsafeSquares(boardInfo);
+    } else {
+        return BlackUnsafeSquares(boardInfo);
+    }
 }
 
 Bitboard_t KingLegalMoves(Bitboard_t kingMoves, Bitboard_t unsafeSquares) {

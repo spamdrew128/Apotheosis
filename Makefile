@@ -20,6 +20,7 @@ move.c \
 make_and_unmake.c \
 zobrist.c \
 UCI.c \
+endings.c
 
 COMMON_OBJECTS= \
 bitboards.o \
@@ -36,6 +37,7 @@ move.o \
 make_and_unmake.o \
 zobrist.o \
 UCI.o \
+endings.o
 
 MAIN=main
 CFILES=$(MAIN).c $(COMMON_CFILES)
@@ -60,7 +62,8 @@ $(TDD)\game_state_tdd.c \
 $(TDD)\make_and_unmake_tdd.c \
 $(TDD)\recursive_testing.c \
 $(TDD)\perft_table.c \
-$(TDD)\zobrist_tdd.c
+$(TDD)\zobrist_tdd.c \
+$(TDD)\endings_tdd.c
 
 D_OBJECTS= \
 $(TDD_MAIN).o \
@@ -78,7 +81,8 @@ $(TDD)\game_state_tdd.o \
 $(TDD)\make_and_unmake_tdd.o \
 $(TDD)\recursive_testing.o \
 $(TDD)\perft_table.o \
-$(TDD)\zobrist_tdd.o
+$(TDD)\zobrist_tdd.o \
+$(TDD)\endings_tdd.o
 
 BINARY=bin
 DEBUG_BINARY=debug
