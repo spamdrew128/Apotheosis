@@ -17,7 +17,7 @@ static char ColCharToNumber(char col) {
 bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo, GameStack_t* gameStack) {
     int stringLen = strlen(moveText);
     if(stringLen > 5 || stringLen < 4) {
-        printf("Invalid move format");
+        printf("Invalid move format\n");
         return false;
     }
 
@@ -47,6 +47,9 @@ bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo
         } else if(promotionType == 'q' || promotionType == 'Q') {
             WritePromotionPiece(move, queen);
             WriteSpecialFlag(move, promotion_flag);
+        } else {
+            printf("Invalid promotion specifier\n");
+            return false;
         }
     }
 
