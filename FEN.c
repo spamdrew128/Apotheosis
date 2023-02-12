@@ -28,6 +28,10 @@ static Color_t CharToColor(char c) {
     return 0;
 }
 
+static Bitboard_t CalculateSingleBitset(Square_t square) {
+    return C64(1) << square;
+}
+
 static void UpdateCastlingRights(GameState_t* state, char c) {
     switch (c)
     {
@@ -62,7 +66,7 @@ static Bitboard_t SquareCharsToBitboard(char col, char row) {
     int ColNum = ColCharToNumber(col);
 
     Square_t square = rowNum*8 + ColNum;
-    return GetSingleBitset(square);
+    return CalculateSingleBitset(square);
 }
 
 static void UpdateEnPassant(FEN_t fen, int* i, GameState_t* state) {
@@ -110,7 +114,7 @@ Color_t InterpretFEN(
     while(fen[i] != ' ') {
         assert(file < 8 && rank >= 0);
         assert(fen[i] != '\0');
-        Bitboard_t singleBitset = C64(1) << (rank*8 + file);
+        Bitboard_t singleBitset = CalculateSingleBitset(rank*8 + file);
 
         switch(fen[i])
         {
