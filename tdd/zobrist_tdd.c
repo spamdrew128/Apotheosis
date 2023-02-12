@@ -17,7 +17,7 @@ static void PlayMoveFromUCIString(const char* uciMove, BoardInfo_t* boardInfo, G
 }
 
 static ZobristHash_t GetHashFromSeriesOfMoves(FEN_t fen, const char* moveSet[4]) {
-    Color_t colorToMove = InterpretFEN(someFen, &info, &stack);
+    Color_t colorToMove = InterpretFEN(fen, &info, &stack);
     for(int j = 0; j < 4; j++) {
         PlayMoveFromUCIString(moveSet[j], &info, &stack, colorToMove);
         colorToMove = !colorToMove;
