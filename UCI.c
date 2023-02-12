@@ -68,3 +68,4 @@ bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo
 
     return true;
 }
+

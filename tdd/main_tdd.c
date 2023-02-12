@@ -16,6 +16,7 @@
 #include "perft_table.h"
 #include "zobrist_tdd.h"
 #include "endings_tdd.h"
+#include "UCI_tdd.h"
 
 int main(int argc, char** argv)
 {
@@ -35,6 +36,7 @@ int main(int argc, char** argv)
     UnmakeMoveTDDRunner();
     ZobristTDDRunner();
     EndingsTDDRunner();
+    UCITDDRunner();
 
     SpeedTest(START_FEN, 6, false);
 
