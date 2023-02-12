@@ -23,7 +23,7 @@ typedef struct {
     Square_t qsCastleSquares[2];
 } Lookup_t;
 
-void InitLookup();
+void InitLookupTables();
 
 Bitboard_t GetSingleBitset(Square_t square);
 

@@ -138,7 +138,7 @@ static void InitCastleSquares(Square_t ksCastleSquares[], Square_t qsCastleSquar
     qsCastleSquares[black] = LSB(black_queenside_castle_bb);
 }
 
-void InitLookup() {
+void InitLookupTables() {
     InitSingleBitset(lookup.singleBitsets);
     InitKnightAttacks(lookup.knightAttacks);
     InitKingAttacks(lookup.kingAttacks);

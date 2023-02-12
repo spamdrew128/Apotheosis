@@ -2,7 +2,6 @@
 #include <assert.h>
 
 #include "FEN.h"
-#include "lookup.h"
 #include "board_constants.h"
 
 static double usr_pow(int x, int y) {
@@ -93,9 +92,16 @@ static void UpdateHalfmoveClock(FEN_t fen, int i, GameState_t* state) {
     state->halfmoveClock = halfmoves;
 }
 
-Color_t InterpretFEN(FEN_t fen, BoardInfo_t* info, GameStack_t* stack) {
+Color_t InterpretFEN(
+    FEN_t fen,
+    BoardInfo_t* info,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack
+)
+{
     InitBoardInfo(info);
-    InitGameStack(stack);
+    InitGameStack(gameStack);
+    InitZobristStack(zobristStack);
 
     int rank = 7; // a8 - h8
     int file = 0;
@@ -104,7 +110,7 @@ Color_t InterpretFEN(FEN_t fen, BoardInfo_t* info, GameStack_t* stack) {
     while(fen[i] != ' ') {
         assert(file < 8 && rank >= 0);
         assert(fen[i] != '\0');
-        Bitboard_t singleBitset = GetSingleBitset(rank*8 + file);
+        Bitboard_t singleBitset = C64(1) << (rank*8 + file);
 
         switch(fen[i])
         {
@@ -185,7 +191,7 @@ Color_t InterpretFEN(FEN_t fen, BoardInfo_t* info, GameStack_t* stack) {
     Color_t colorToMove = CharToColor(fen[i]);
 
     i += 2;
-    GameState_t* gameState = GetEmptyNextGameState(stack);
+    GameState_t* gameState = GetEmptyNextGameState(gameStack);
     if(fen[i] != '-') {
         while (fen[i] != ' ')
         {
@@ -203,6 +209,8 @@ Color_t InterpretFEN(FEN_t fen, BoardInfo_t* info, GameStack_t* stack) {
     UpdateHalfmoveClock(fen, i, gameState);
 
     gameState->boardInfo = *info;
+
+    AddZobristHashToStack(zobristStack, HashPosition(info, gameState, colorToMove));
 
     return colorToMove;
 }
