@@ -77,8 +77,8 @@ static void ShouldRecognizeThreefoldRepetition() {
 
     Move_t wKnightBack;
     InitMove(&wKnightBack);
-    WriteFromSquare(&wKnightOut, f3);
-    WriteToSquare(&wKnightOut, g1);
+    WriteFromSquare(&wKnightBack, f3);
+    WriteToSquare(&wKnightBack, g1);
 
     Move_t bKnightBack;
     InitMove(&bKnightBack);
