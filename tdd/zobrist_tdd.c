@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include "zobrist_tdd.h"
 #include "debug.h"
 #include "FEN.h"
@@ -12,7 +14,9 @@ static GameStack_t stack;
 
 // HELPERS
 static void PlayMoveFromUCIString(const char* uciMove, BoardInfo_t* boardInfo, GameStack_t* gameStack, Color_t color) {
-    Move_t move = UCITranslateMove(uciMove, boardInfo, gameStack);
+    Move_t move;
+    assert(UCITranslateMove(&move, uciMove, boardInfo, gameStack));
+
     MakeMove(boardInfo, gameStack, move, color);
 }
 
