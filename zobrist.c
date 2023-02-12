@@ -26,7 +26,7 @@ static void FillKeysrandomList(ZobristKey_t* list, int num_entries) {
     }
 }
 
-void InitZobristGenerator() {
+void GenerateZobristKeys() {
     FillKeysrandomList(whitePieceKeys, NUM_ARRAY_ELEMENTS(whitePieceKeys));
     FillKeysrandomList(blackPieceKeys, NUM_ARRAY_ELEMENTS(blackPieceKeys));
     FillKeysrandomList(castlingKeys, NUM_ARRAY_ELEMENTS(castlingKeys));

@@ -38,31 +38,35 @@ static bool GameEndStatusShouldBe(
     return actual == expected;
 }
 
-static void MakeMoveAndAddHash(Move_t move, Color_t moveColor) {
-    MakeMove(&boardInfo, &gameStack, move, moveColor);
-
+static void AddHashAndMakeMove(Move_t move, Color_t moveColor) {
     GameState_t gameState = ReadCurrentGameState(&gameStack);
     AddZobristHashToStack(&zobristStack, HashPosition(&boardInfo, &gameState, moveColor));
+
+    MakeMove(&boardInfo, &gameStack, move, moveColor);
 }
 
 // TESTS
 static void ShouldDrawWhenHalfmoveCountHits100() {
+    InitZobristStack(&zobristStack);
     Color_t color = InterpretFEN(someFen, &boardInfo, &gameStack);
     gameStack.gameStates->halfmoveClock = 100;
     PrintResults(GameEndStatusShouldBe(draw, some_movelist_max, color));
 }
 
 static void ShouldIdentifyCheckmate() {
+    InitZobristStack(&zobristStack);
     Color_t color = InterpretFEN(checkmateFen, &boardInfo, &gameStack);
     PrintResults(GameEndStatusShouldBe(checkmate, movelist_empty, color));
 }
 
 static void ShouldIdentifyStalemate() {
+    InitZobristStack(&zobristStack);
     Color_t color = InterpretFEN(stalemateFen, &boardInfo, &gameStack);
     PrintResults(GameEndStatusShouldBe(draw, movelist_empty, color));
 }
 
 static void ShouldRecognizeThreefoldRepetition() {
+    InitZobristStack(&zobristStack);
     InterpretFEN(START_FEN, &boardInfo, &gameStack);
 
     Move_t wKnightOut;
@@ -85,16 +89,16 @@ static void ShouldRecognizeThreefoldRepetition() {
     WriteFromSquare(&bKnightBack, f6);
     WriteToSquare(&bKnightBack, g8);
 
-    MakeMoveAndAddHash(wKnightOut, white);
-    MakeMoveAndAddHash(bKnightOut, black);
-    MakeMoveAndAddHash(wKnightBack, white);
-    MakeMoveAndAddHash(bKnightBack, black);
-    MakeMoveAndAddHash(wKnightOut, white);
-    MakeMoveAndAddHash(bKnightOut, black);
-    MakeMoveAndAddHash(wKnightBack, white);
+    AddHashAndMakeMove(wKnightOut, white);
+    AddHashAndMakeMove(bKnightOut, black);
+    AddHashAndMakeMove(wKnightBack, white);
+    AddHashAndMakeMove(bKnightBack, black);
+    AddHashAndMakeMove(wKnightOut, white);
+    AddHashAndMakeMove(bKnightOut, black);
+    AddHashAndMakeMove(wKnightBack, white);
 
     bool success = GameEndStatusShouldBe(ongoing, some_movelist_max, black);
-    MakeMoveAndAddHash(bKnightBack, black);
+    AddHashAndMakeMove(bKnightBack, black);
 
     success = success && GameEndStatusShouldBe(draw, some_movelist_max, white);
 

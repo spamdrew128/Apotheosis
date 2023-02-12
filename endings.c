@@ -11,16 +11,15 @@ static bool IsThreefoldRepetition(
 )
 {
     int start = zobristStack->maxIndex - halfmoves;
-    int end = zobristStack->maxIndex;
 
-    int repetitions = 0;
-    for(int i = start; i > end; i++) {
+    int hashOccurances = 1; // starts at one because positionHash hasn't been added
+    for(int i = start; i <= zobristStack->maxIndex; i++) {
         if(zobristStack->entries[i] == positionHash) {
-            repetitions++;
+            hashOccurances++;
         }
     }
 
-    return repetitions >= 3;
+    return hashOccurances >= 3;
 }
 
 GameEndStatus_t CurrentGameEndStatus(

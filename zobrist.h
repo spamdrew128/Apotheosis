@@ -9,7 +9,7 @@
 #define ZOBRIST_STACK_MAX 1024
 
 enum {
-    zobrist_stack_empty
+    zobrist_stack_empty = -1
 };
 
 typedef uint64_t ZobristHash_t;
@@ -19,7 +19,7 @@ typedef struct {
     int maxIndex;
 } ZobristStack_t;
 
-void InitZobristGenerator();
+void GenerateZobristKeys();
 
 void InitZobristStack(ZobristStack_t* zobristStack);
 

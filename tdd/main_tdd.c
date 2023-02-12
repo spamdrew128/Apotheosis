@@ -20,7 +20,7 @@
 int main(int argc, char** argv)
 {
     InitLookup();
-    InitZobristGenerator();
+    GenerateZobristKeys();
     
     LookupTDDRunner();
     BitboardsTDDRunner();
