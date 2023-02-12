@@ -1,5 +1,5 @@
-#ifndef _UCI_H_
-#define _UCI_H_
+#ifndef __UCI_H__
+#define __UCI_H__
 
 #include "move.h"
 #include "board_info.h"

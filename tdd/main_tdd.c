@@ -15,6 +15,7 @@
 #include "recursive_testing.h"
 #include "perft_table.h"
 #include "zobrist_tdd.h"
+#include "endings_tdd.h"
 
 int main(int argc, char** argv)
 {
@@ -33,6 +34,7 @@ int main(int argc, char** argv)
     MakeMoveTDDRunner();
     UnmakeMoveTDDRunner();
     ZobristTDDRunner();
+    EndingsTDDRunner();
 
     SpeedTest(START_FEN, 6, false);
 
