@@ -1,6 +1,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "UCI.h"
 #include "bitboards.h"
@@ -52,13 +53,13 @@ bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo
     Piece_t type = PieceOnSquare(boardInfo, fromSquare);
 
     if(type == king && (abs(fromSquare - toSquare) >= 2)) {
-        WriteSpecialFlag(&move, castle_flag);
+        WriteSpecialFlag(move, castle_flag);
     }
 
     Bitboard_t enPassantBB = ReadEnPassant(gameStack);
     if(type == pawn && enPassantBB) { 
         if(LSB(enPassantBB) == toSquare) {
-            WriteSpecialFlag(&move, en_passant_flag);
+            WriteSpecialFlag(move, en_passant_flag);
         }
     }
 
