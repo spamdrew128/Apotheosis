@@ -7,11 +7,11 @@ GameEndStatus_t CurrentGameEndStatus(
     GameState_t* gameState,
     ZobristStack_t* zobristStack,
     ZobristHash_t positionHash,
-    int movelistMax,
+    int moveListMaxIndex,
     Color_t colorToMove
 ) 
 {
-    if(movelistMax == movelist_empty) {
+    if(moveListMaxIndex == movelist_empty) {
         if(boardInfo->kings[colorToMove] & UnsafeSquares(boardInfo, colorToMove)) {
             return checkmate;
         } else {

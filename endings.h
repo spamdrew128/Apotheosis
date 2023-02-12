@@ -21,7 +21,7 @@ GameEndStatus_t CurrentGameEndStatus(
     GameState_t* gameState,
     ZobristStack_t* zobristStack,
     ZobristHash_t positionHash,
-    int movelistMax,
+    int moveListMaxIndex,
     Color_t colorToMove
 );
 
