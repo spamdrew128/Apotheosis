@@ -19,6 +19,4 @@ int main(int argc, char** argv)
     GameStack_t gameStack;
     ZobristStack_t zobristStack;
     InterpretFEN(START_FEN, &boardInfo, &gameStack, &zobristStack);
-
-    RecieveInput();
 }

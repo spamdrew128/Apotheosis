@@ -2,9 +2,18 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #include "UCI.h"
 #include "bitboards.h"
+
+#define BUFFER_SIZE 256
+
+typedef uint8_t UciSignal_t;
+enum {
+    signal_invalid,
+    signal_uci
+};
 
 static char RowCharToNumber(char row) {
     return (int)row - 49;
@@ -69,10 +78,37 @@ bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo
     return true;
 }
 
-#define BUFFER_SIZE 256
-void RecieveInput() {
+static bool IdenticalStrings(const char* s1, const char* s2) {
+    return !strcmp(s1, s2);
+}
+
+static UciSignal_t InterpretWord(const char* word) {
+    if(IdenticalStrings(word, "uci")) {
+        return signal_uci;
+    }
+
+    return signal_invalid;
+}
+
+void InterpretUCIInput() {
     char input[BUFFER_SIZE];
     fgets(input, BUFFER_SIZE, stdin);
 
-    printf("%s\n", input);
+    int cWordIndex = 0;
+    char currentWord[BUFFER_SIZE];
+
+    int i = 0;
+    while(i < BUFFER_SIZE && input[i] != '\0') {
+        currentWord[cWordIndex] = input[i];
+        cWordIndex++;
+
+        if(input[i+1] == ' ' || input[i+1] == '\0' || input[i+1] == '\n') {
+            currentWord[cWordIndex] = '\0';
+            cWordIndex = 0;
+            UciSignal_t signal = InterpretWord(currentWord);
+            printf("%d\n", signal);
+        }
+
+        i++;
+    }
 }
