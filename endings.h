@@ -18,7 +18,7 @@ enum {
 
 GameEndStatus_t CurrentGameEndStatus(
     BoardInfo_t* boardInfo,
-    GameState_t* gameState,
+    GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
     ZobristHash_t positionHash,
     int moveListMaxIndex,

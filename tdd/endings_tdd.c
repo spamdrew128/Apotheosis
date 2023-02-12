@@ -28,7 +28,7 @@ static bool GameEndStatusShouldBe(
     GameEndStatus_t actual = 
         CurrentGameEndStatus(
             &boardInfo,
-            &gameState,
+            &gameStack,
             &zobristStack,
             HashPosition(&boardInfo, &gameState, colorToMove),
             moveListMaxIndex,
