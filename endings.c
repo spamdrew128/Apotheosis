@@ -1,9 +1,12 @@
 #include "endings.h"
 #include "legals.h"
+#include "zobrist.h"
 
 GameEndStatus_t CurrentGameEndStatus(
     BoardInfo_t* boardInfo,
     GameState_t* gameState,
+    ZobristStack_t* zobristStack,
+    ZobristHash_t positionHash,
     int movelistMax,
     Color_t colorToMove
 ) 

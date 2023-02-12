@@ -7,6 +7,7 @@
 #include "board_info.h"
 #include "game_state.h"
 #include "movegen.h"
+#include "zobrist.h"
 
 typedef uint8_t GameEndStatus_t;
 enum {
@@ -14,9 +15,12 @@ enum {
     checkmate,
     draw
 };
+
 GameEndStatus_t CurrentGameEndStatus(
     BoardInfo_t* boardInfo,
     GameState_t* gameState,
+    ZobristStack_t* zobristStack,
+    ZobristHash_t positionHash,
     int movelistMax,
     Color_t colorToMove
 );

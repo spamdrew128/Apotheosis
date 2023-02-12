@@ -35,7 +35,7 @@ void InitZobristGenerator() {
 }
 
 void InitZobristStack(ZobristStack_t* zobristStack) {
-    zobristStack->num_entries = 0;
+    zobristStack->maxIndex = zobrist_stack_empty;
 }
 
 static void UpdateHashWithPieceBitboard(ZobristHash_t* zobristHash, Bitboard_t pieceBB, Piece_t type, ZobristKey_t* pieceKeys) {
@@ -87,4 +87,13 @@ ZobristHash_t HashPosition(BoardInfo_t* boardInfo, GameState_t* gameState, Color
     }
 
     return zobristHash;
+}
+
+void AddZobristHashToStack(ZobristStack_t* zobristStack, ZobristHash_t hash) {
+    zobristStack->maxIndex++;
+    zobristStack->entries[zobristStack->maxIndex] = hash;
+}
+
+void RemoveZobristHashFromStack(ZobristStack_t* zobristStack) {
+    zobristStack->maxIndex--;
 }
