@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "UCI.h"
+#include "bitboards.h"
 
 static char RowCharToNumber(char row) {
     return (int)row - 49;
