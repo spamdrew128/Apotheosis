@@ -37,28 +37,15 @@ Bitboard_t FilterBlackPromotions(Bitboard_t* blackMoveset);
     BlackWestCaptureTargets(bPawns, bEnPassantSquares)
 
 // KNIGHTS
-Bitboard_t KnightMoveTargets(Square_t square, Bitboard_t empty);
-
-Bitboard_t KnightCaptureTargets(Square_t square, Bitboard_t enemyPieces);
+Bitboard_t KnightMoveTargets(Square_t square, Bitboard_t filter);
 
 // KINGS
-Bitboard_t KingMoveTargets(Square_t square, Bitboard_t empty);
-
-Bitboard_t KingCaptureTargets(Square_t square, Bitboard_t enemyPieces);
+Bitboard_t KingMoveTargets(Square_t square, Bitboard_t filter);
 
 // ROOKS
-Bitboard_t RookMoveTargets(Square_t square, Bitboard_t empty);
-
-Bitboard_t RookCaptureTargets(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces);
+Bitboard_t RookMoveTargets(Square_t square, Bitboard_t empty, Bitboard_t filter);
 
 // BISHOPS
-Bitboard_t BishopMoveTargets(Square_t square, Bitboard_t empty);
-
-Bitboard_t BishopCaptureTargets(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces);
-
-// QUEENS
-Bitboard_t QueenMoveTargets(Square_t square, Bitboard_t empty);
-
-Bitboard_t QueenCaptureTargets(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces);
+Bitboard_t BishopMoveTargets(Square_t square, Bitboard_t empty, Bitboard_t filter);
 
 #endif

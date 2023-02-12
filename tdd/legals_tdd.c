@@ -22,9 +22,9 @@ enum {
 
 static bool IsInCheck(BoardInfo_t* boardInfo, Color_t color) {
     if(color == white) {
-        return InCheck(boardInfo->kings[color], WhiteUnsafeSquares(boardInfo));
+        return InCheck(boardInfo->kings[color], UnsafeSquares(boardInfo, white));
     } else {
-        return InCheck(boardInfo->kings[color], BlackUnsafeSquares(boardInfo));
+        return InCheck(boardInfo->kings[color], UnsafeSquares(boardInfo, black));
     }
 }
 
@@ -187,14 +187,14 @@ static void TestWhiteUnsafeSquares() {
     BoardInfo_t info;
     InitMidgameInfo(&info);
 
-    PrintResults(WhiteUnsafeSquares(&info) == white_expected_unsafe);
+    PrintResults(UnsafeSquares(&info, white) == white_expected_unsafe);
 }
 
 static void TestBlackUnsafeSquares() {
     BoardInfo_t info;
     InitMidgameInfo(&info);
 
-    PrintResults(BlackUnsafeSquares(&info) == black_expected_unsafe);
+    PrintResults(UnsafeSquares(&info, black) == black_expected_unsafe);
 }
 
 static void TestKingLegalMoves() {
@@ -203,7 +203,7 @@ static void TestKingLegalMoves() {
     Bitboard_t expectedKingLegals = CreateBitboard(6, d3,d4,d5,f3,f4,f5);
 
     Bitboard_t kingMoves = KingMoveTargets(KingPos(info, white), info.empty);
-    Bitboard_t unsafeSquares = WhiteUnsafeSquares(&info);
+    Bitboard_t unsafeSquares = UnsafeSquares(&info, white);
     PrintResults(KingLegalMoves(kingMoves, unsafeSquares) == expectedKingLegals);
 }
 
@@ -217,10 +217,10 @@ static void TestAllLegalCastling() {
     Bitboard_t expectedAllCastling = true;
 
     bool success = 
-        (CanCastleKingside(&info, WhiteUnsafeSquares(&info), whiteCastleSquares, white) == expectedAllCastling) &&
-        (CanCastleQueenside(&info, WhiteUnsafeSquares(&info), whiteCastleSquares, white) == expectedAllCastling) &&
-        (CanCastleKingside(&info, BlackUnsafeSquares(&info), blackCastleSquares, black) == expectedAllCastling) &&
-        (CanCastleQueenside(&info, BlackUnsafeSquares(&info), blackCastleSquares, black) == expectedAllCastling);
+        (CanCastleKingside(&info, UnsafeSquares(&info, white), whiteCastleSquares, white) == expectedAllCastling) &&
+        (CanCastleQueenside(&info, UnsafeSquares(&info, white), whiteCastleSquares, white) == expectedAllCastling) &&
+        (CanCastleKingside(&info, UnsafeSquares(&info, black), blackCastleSquares, black) == expectedAllCastling) &&
+        (CanCastleQueenside(&info, UnsafeSquares(&info, black), blackCastleSquares, black) == expectedAllCastling);
 
     PrintResults(success);
 }
@@ -234,8 +234,8 @@ static void ShouldntCastleThroughCheck() {
     Bitboard_t expectedAllWhiteCastling = false;
 
     bool success = 
-        CanCastleKingside(&info, WhiteUnsafeSquares(&info), whiteCastleSquares, white) == expectedAllWhiteCastling &&
-        CanCastleQueenside(&info, WhiteUnsafeSquares(&info), whiteCastleSquares, white) == expectedAllWhiteCastling;
+        CanCastleKingside(&info, UnsafeSquares(&info, white), whiteCastleSquares, white) == expectedAllWhiteCastling &&
+        CanCastleQueenside(&info, UnsafeSquares(&info, white), whiteCastleSquares, white) == expectedAllWhiteCastling;
 
     PrintResults(success);
 }
@@ -249,8 +249,8 @@ static void ShouldntCastleThroughBlockers() {
     Bitboard_t expectedAllWhiteCastling = false;
 
     bool success = 
-        CanCastleKingside(&info, WhiteUnsafeSquares(&info), whiteCastleSquares, white) == expectedAllWhiteCastling &&
-        CanCastleQueenside(&info, WhiteUnsafeSquares(&info), whiteCastleSquares, white) == expectedAllWhiteCastling;
+        CanCastleKingside(&info, UnsafeSquares(&info, white), whiteCastleSquares, white) == expectedAllWhiteCastling &&
+        CanCastleQueenside(&info, UnsafeSquares(&info, white), whiteCastleSquares, white) == expectedAllWhiteCastling;
 
     PrintResults(success);
 }

@@ -16,9 +16,7 @@ typedef struct
     Bitboard_t all;
 } PinmaskContainer_t;
 
-Bitboard_t WhiteUnsafeSquares(BoardInfo_t* boardInfo);
-
-Bitboard_t BlackUnsafeSquares(BoardInfo_t* boardInfo);
+Bitboard_t UnsafeSquares(BoardInfo_t* boardInfo, Color_t color);
 
 Bitboard_t KingLegalMoves(Bitboard_t kingMoves, Bitboard_t unsafeSquares);
 

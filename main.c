@@ -17,6 +17,5 @@ int main(int argc, char** argv)
     InterpretFEN(START_FEN, &boardInfo, &stack);
     
     // Todo: GAME LOOP
-
-    TeardownLookup();
+    
 }

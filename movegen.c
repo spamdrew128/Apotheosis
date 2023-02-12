@@ -3,34 +3,6 @@
 #include "pieces.h"
 #include "lookup.h"
 
-enum {
-    movelist_empty = -1
-};
-
-typedef Bitboard_t (*UnsafeSquaresCallback_t)(BoardInfo_t* boardInfo);
-
-typedef void (*AddPawnCaptures_t)(
-    MoveList_t* moveList,
-    BoardInfo_t* boardInfo,
-    Bitboard_t freePawns,
-    Bitboard_t d12PinnedPawns,
-    Bitboard_t enemyPieces,
-    Bitboard_t checkmask,
-    PinmaskContainer_t pinmasks
-);
-
-typedef void (*AddPawnMoves_t)(
-    MoveList_t* moveList,
-    BoardInfo_t* boardInfo,
-    Bitboard_t freePawns,
-    Bitboard_t hvPinnedPawns,
-    Bitboard_t empty,
-    Bitboard_t checkmask,
-    PinmaskContainer_t pinmasks
-);
-
-typedef Bitboard_t (*SliderCaptureTargetsCallback_t)(Square_t square, Bitboard_t empty, Bitboard_t enemyPieces);
-
 #define SerializePositionsIntoMoves(_positions, ...) \
     do { \
         while(_positions) { \
@@ -159,180 +131,65 @@ static void AddCastlingMoves(
 
 static void AddKnightMoves(
     MoveList_t* moveList,
-    Bitboard_t freeKnights,
-    Bitboard_t empty,
-    Bitboard_t checkmask,
-    Color_t color 
-) 
+    Bitboard_t knights,
+    Bitboard_t filter,
+    PinmaskContainer_t pinmasks
+)
 {
+    Bitboard_t freeKnights = knights & ~pinmasks.all;
+
     SerializePositionsIntoMoves(freeKnights, {
         Bitboard_t knightSquare = LSB(freeKnights);
-        Bitboard_t moves = KnightMoveTargets(knightSquare, empty) & checkmask;
+        Bitboard_t moves = GetKnightAttackSet(knightSquare) & filter; // TODO make this a function
         SerializeNormalMoves(moveList, knightSquare, moves);
     });
 }
 
-static void AddKnightCaptures(
+static void AddD12SliderMoves(
     MoveList_t* moveList,
-    Bitboard_t freeKnights,
-    Bitboard_t enemyPieces,
-    Bitboard_t checkmask,
-    Color_t color 
-) 
-{
-    SerializePositionsIntoMoves(freeKnights, {
-        Bitboard_t knightSquare = LSB(freeKnights);
-        Bitboard_t moves = KnightCaptureTargets(knightSquare, enemyPieces) & checkmask;
-        SerializeNormalMoves(moveList, knightSquare, moves);
-    });
-}
-
-static void AddBishopMoves(
-    MoveList_t* moveList,
-    Bitboard_t freeBishops,
-    Bitboard_t d12PinnedBishops,
-    Bitboard_t checkmask,
+    Bitboard_t d12Sliders,
+    Bitboard_t filter,
     Bitboard_t empty,
     PinmaskContainer_t pinmasks
 ) 
 {
-    SerializePositionsIntoMoves(freeBishops, {
-        Bitboard_t bishopSquare = LSB(freeBishops);
-        Bitboard_t moves = BishopMoveTargets(bishopSquare, empty) & checkmask;
-        SerializeNormalMoves(moveList, bishopSquare, moves);
+    Bitboard_t freeD12Sliders = d12Sliders & ~pinmasks.all;
+    Bitboard_t pinnedD12Sliders = d12Sliders & pinmasks.d12;
+
+    SerializePositionsIntoMoves(freeD12Sliders, {
+        Bitboard_t square = LSB(freeD12Sliders);
+        Bitboard_t moves = BishopMoveTargets(square, empty, filter);
+        SerializeNormalMoves(moveList, square, moves);
     });
 
-    SerializePositionsIntoMoves(d12PinnedBishops, {
-        Bitboard_t bishopSquare = LSB(d12PinnedBishops);
-        Bitboard_t moves = BishopMoveTargets(bishopSquare, empty) & checkmask & pinmasks.d12;
-        SerializeNormalMoves(moveList, bishopSquare, moves);
-    });
-}
-
-static void AddBishopCaptures(
-    MoveList_t* moveList,
-    Bitboard_t freeBishops,
-    Bitboard_t d12PinnedBishops,
-    Bitboard_t checkmask,
-    Bitboard_t empty,
-    Bitboard_t enemyPieces,
-    PinmaskContainer_t pinmasks
-) 
-{
-    SerializePositionsIntoMoves(freeBishops, {
-        Bitboard_t bishopSquare = LSB(freeBishops);
-        Bitboard_t moves = BishopCaptureTargets(bishopSquare, empty, enemyPieces) & checkmask;
-        SerializeNormalMoves(moveList, bishopSquare, moves);
-    });
-
-    SerializePositionsIntoMoves(d12PinnedBishops, {
-        Bitboard_t bishopSquare = LSB(d12PinnedBishops);
-        Bitboard_t moves = BishopCaptureTargets(bishopSquare, empty, enemyPieces) & checkmask & pinmasks.d12;
-        SerializeNormalMoves(moveList, bishopSquare, moves);
+    SerializePositionsIntoMoves(pinnedD12Sliders, {
+        Bitboard_t square = LSB(pinnedD12Sliders);
+        Bitboard_t moves = BishopMoveTargets(square, empty, (filter & pinmasks.d12)) ;
+        SerializeNormalMoves(moveList, square, moves);
     });
 }
 
-static void AddRookMoves(
+static void AddHvSliderMoves(
     MoveList_t* moveList,
-    Bitboard_t freeRooks,
-    Bitboard_t hvPinnedRooks,
-    Bitboard_t checkmask,
+    Bitboard_t hvSliders,
+    Bitboard_t filter,
     Bitboard_t empty,
     PinmaskContainer_t pinmasks
 ) 
 {
-    SerializePositionsIntoMoves(freeRooks, {
-        Bitboard_t rookSquare = LSB(freeRooks);
-        Bitboard_t moves = RookMoveTargets(rookSquare, empty) & checkmask;
-        SerializeNormalMoves(moveList, rookSquare, moves);
+    Bitboard_t freeHvSliders = hvSliders & ~pinmasks.all;
+    Bitboard_t pinnedHvSliders = hvSliders & pinmasks.hv;
+
+    SerializePositionsIntoMoves(freeHvSliders, {
+        Bitboard_t square = LSB(freeHvSliders);
+        Bitboard_t moves = RookMoveTargets(square, empty, filter);
+        SerializeNormalMoves(moveList, square, moves);
     });
 
-    SerializePositionsIntoMoves(hvPinnedRooks, {
-        Bitboard_t rookSquare = LSB(hvPinnedRooks);
-        Bitboard_t moves = RookMoveTargets(rookSquare, empty) & checkmask & pinmasks.hv;
-        SerializeNormalMoves(moveList, rookSquare, moves);
-    });
-}
-
-static void AddRookCaptures(
-    MoveList_t* moveList,
-    Bitboard_t freeRooks,
-    Bitboard_t hvPinnedRooks,
-    Bitboard_t checkmask,
-    Bitboard_t empty,
-    Bitboard_t enemyPieces,
-    PinmaskContainer_t pinmasks
-) 
-{
-    SerializePositionsIntoMoves(freeRooks, {
-        Bitboard_t rookSquare = LSB(freeRooks);
-        Bitboard_t moves = RookCaptureTargets(rookSquare, empty, enemyPieces) & checkmask;
-        SerializeNormalMoves(moveList, rookSquare, moves);
-    });
-
-    SerializePositionsIntoMoves(hvPinnedRooks, {
-        Bitboard_t rookSquare = LSB(hvPinnedRooks);
-        Bitboard_t moves = RookCaptureTargets(rookSquare, empty, enemyPieces) & checkmask & pinmasks.hv;
-        SerializeNormalMoves(moveList, rookSquare, moves);
-    });
-}
-
-static void AddQueenMoves(
-    MoveList_t* moveList,
-    Bitboard_t freeQueens,
-    Bitboard_t hvPinnedQueens,
-    Bitboard_t d12PinnedQueens,
-    Bitboard_t checkmask,
-    Bitboard_t empty,
-    PinmaskContainer_t pinmasks
-) 
-{
-    SerializePositionsIntoMoves(freeQueens, {
-        Bitboard_t queenSquare = LSB(freeQueens);
-        Bitboard_t moves = QueenMoveTargets(queenSquare, empty) & checkmask;
-        SerializeNormalMoves(moveList, queenSquare, moves);
-    });
-
-    SerializePositionsIntoMoves(hvPinnedQueens, {
-        Bitboard_t queenSquare = LSB(hvPinnedQueens);
-        Bitboard_t moves = RookMoveTargets(queenSquare, empty) & checkmask & pinmasks.hv;
-        SerializeNormalMoves(moveList, queenSquare, moves);
-    });
-
-    SerializePositionsIntoMoves(d12PinnedQueens, {
-        Bitboard_t queenSquare = LSB(d12PinnedQueens);
-        Bitboard_t moves = BishopMoveTargets(queenSquare, empty) & checkmask & pinmasks.d12;
-        SerializeNormalMoves(moveList, queenSquare, moves);
-    });
-}
-
-static void AddQueenCaptures(
-    MoveList_t* moveList,
-    Bitboard_t freeQueens,
-    Bitboard_t hvPinnedQueens,
-    Bitboard_t d12PinnedQueens,
-    Bitboard_t checkmask,
-    Bitboard_t empty,
-    Bitboard_t enemyPieces,
-    PinmaskContainer_t pinmasks
-) 
-{
-    SerializePositionsIntoMoves(freeQueens, {
-        Bitboard_t queenSquare = LSB(freeQueens);
-        Bitboard_t moves = QueenCaptureTargets(queenSquare, empty, enemyPieces) & checkmask;
-        SerializeNormalMoves(moveList, queenSquare, moves);
-    });
-
-    SerializePositionsIntoMoves(hvPinnedQueens, {
-        Bitboard_t queenSquare = LSB(hvPinnedQueens);
-        Bitboard_t moves = RookCaptureTargets(queenSquare, empty, enemyPieces) & checkmask & pinmasks.hv;
-        SerializeNormalMoves(moveList, queenSquare, moves);
-    });
-
-    SerializePositionsIntoMoves(d12PinnedQueens, {
-        Bitboard_t queenSquare = LSB(d12PinnedQueens);
-        Bitboard_t moves = BishopCaptureTargets(queenSquare, empty, enemyPieces) & checkmask & pinmasks.d12;
-        SerializeNormalMoves(moveList, queenSquare, moves);
+    SerializePositionsIntoMoves(pinnedHvSliders, {
+        Bitboard_t square = LSB(pinnedHvSliders);
+        Bitboard_t moves = RookMoveTargets(square, empty, (filter & pinmasks.hv)) ;
+        SerializeNormalMoves(moveList, square, moves);
     });
 }
 
@@ -353,7 +210,7 @@ static void TryWhiteEnPassant(
     SetBits(&boardInfo->empty, fromBB|captureBB);
     ResetBits(&boardInfo->empty, toBB);
 
-    Bitboard_t unsafeSquares = WhiteUnsafeSquares(boardInfo);
+    Bitboard_t unsafeSquares = UnsafeSquares(boardInfo, white);
     if(!InCheck(boardInfo->kings[color], unsafeSquares)) {
         InitializeNewMove(moveList);
         Move_t* current = CurrentMove(moveList);
@@ -388,7 +245,7 @@ static void TryBlackEnPassant(
     SetBits(&boardInfo->empty, fromBB|captureBB);
     ResetBits(&boardInfo->empty, toBB);
 
-    Bitboard_t unsafeSquares = BlackUnsafeSquares(boardInfo);
+    Bitboard_t unsafeSquares = UnsafeSquares(boardInfo, black);
     if(!InCheck(boardInfo->kings[color], unsafeSquares)) {
         InitializeNewMove(moveList);
         Move_t* current = CurrentMove(moveList);
@@ -622,16 +479,49 @@ static void AddBlackPawnMoves(
     SerializePawnPromotions(moveList, doubleMovePromotions, NortTwo);
 };
 
-static void AddAllCaptures(
+static void AddKnightAndSliderMoves(
     MoveList_t* moveList,
     BoardInfo_t* boardInfo,
-    PinmaskContainer_t pinmasks,
-    Bitboard_t enemyPieces,
-    Bitboard_t enPassantBB,
     Bitboard_t checkmask,
+    Bitboard_t filter,
+    PinmaskContainer_t pinmasks,
     Color_t color
 )
 {
+    AddKnightMoves(
+        moveList,
+        boardInfo->knights[color],
+        filter,
+        pinmasks
+    );
+
+    AddD12SliderMoves(
+        moveList,
+        AllD12Sliders(boardInfo, color),
+        filter,
+        boardInfo->empty,
+        pinmasks
+    );
+
+    AddHvSliderMoves(
+        moveList,
+        AllHvSliders(boardInfo, color),
+        filter,
+        boardInfo->empty,
+        pinmasks 
+    );
+}
+
+static void AddAllCaptures(
+    MoveList_t* moveList,
+    BoardInfo_t* boardInfo,
+    Bitboard_t checkmask,
+    Bitboard_t enPassantBB,
+    PinmaskContainer_t pinmasks,
+    Color_t color
+)
+{
+    Bitboard_t enemyPieces = boardInfo->allPieces[!color];
     if(color == white) {
         AddWhitePawnCaptures(
             moveList,
@@ -656,54 +546,27 @@ static void AddAllCaptures(
         );        
     }
 
-    AddKnightCaptures(
+    Bitboard_t filter = checkmask & boardInfo->allPieces[!color];
+    AddKnightAndSliderMoves(
         moveList,
-        boardInfo->knights[color] & ~pinmasks.all,
-        enemyPieces,
+        boardInfo,
         checkmask,
+        filter,
+        pinmasks,
         color
-    );
-
-    AddBishopCaptures(
-        moveList,
-        boardInfo->bishops[color] & ~pinmasks.all,
-        boardInfo->bishops[color] & pinmasks.d12,
-        checkmask,
-        boardInfo->empty,
-        enemyPieces,
-        pinmasks
-    );
-
-    AddRookCaptures(
-        moveList,
-        boardInfo->rooks[color] & ~pinmasks.all,
-        boardInfo->rooks[color] & pinmasks.hv,
-        checkmask,
-        boardInfo->empty,
-        enemyPieces,
-        pinmasks
-    );
-
-    AddQueenCaptures(
-        moveList,
-        boardInfo->queens[color] & ~pinmasks.all,
-        boardInfo->queens[color] & pinmasks.hv,
-        boardInfo->queens[color] & pinmasks.d12,
-        checkmask,
-        boardInfo->empty,
-        enemyPieces,
-        pinmasks
     );
 }
 
-static void AddAllQuietMoves(
+static void AddEverything(
     MoveList_t* moveList,
     BoardInfo_t* boardInfo,
-    PinmaskContainer_t pinmasks,
     Bitboard_t checkmask,
+    Bitboard_t enPassantBB,
+    PinmaskContainer_t pinmasks,
     Color_t color
 )
 {
+    Bitboard_t enemyPieces = boardInfo->allPieces[!color];
     if(color == white) {
         AddWhitePawnMoves(
             moveList,
@@ -713,6 +576,17 @@ static void AddAllQuietMoves(
             boardInfo->empty,
             checkmask,
             pinmasks
+        );
+
+        AddWhitePawnCaptures(
+            moveList,
+            boardInfo,
+            boardInfo->pawns[color] & ~pinmasks.all,
+            boardInfo->pawns[color] & pinmasks.d12,
+            enPassantBB,
+            enemyPieces,
+            checkmask,
+            pinmasks        
         );
     } else {
         AddBlackPawnMoves(
@@ -724,62 +598,41 @@ static void AddAllQuietMoves(
             checkmask,
             pinmasks
         );
+
+        AddBlackPawnCaptures(
+            moveList,
+            boardInfo,
+            boardInfo->pawns[color] & ~pinmasks.all,
+            boardInfo->pawns[color] & pinmasks.d12,
+            enPassantBB,
+            enemyPieces,
+            checkmask,
+            pinmasks        
+        );  
     }
 
-    AddKnightMoves(
+    Bitboard_t filter = checkmask & (boardInfo->empty | enemyPieces);
+    AddKnightAndSliderMoves(
         moveList,
-        boardInfo->knights[color] & ~pinmasks.all,
-        boardInfo->empty,
+        boardInfo,
         checkmask,
+        filter,
+        pinmasks,
         color
-    );
-
-    AddBishopMoves(
-        moveList,
-        boardInfo->bishops[color] & ~pinmasks.all,
-        boardInfo->bishops[color] & pinmasks.d12,
-        checkmask,
-        boardInfo->empty,
-        pinmasks
-    );
-
-    AddRookMoves(
-        moveList,
-        boardInfo->rooks[color] & ~pinmasks.all,
-        boardInfo->rooks[color] & pinmasks.hv,
-        checkmask,
-        boardInfo->empty,
-        pinmasks
-    );
-
-    AddQueenMoves(
-        moveList,
-        boardInfo->queens[color] & ~pinmasks.all,
-        boardInfo->queens[color] & pinmasks.hv,
-        boardInfo->queens[color] & pinmasks.d12,
-        checkmask,
-        boardInfo->empty,
-        pinmasks
     );
 }
 
 void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
     moveList->maxIndex = movelist_empty;
 
-    Bitboard_t unsafeSquares;
-    if(color == white) {
-        unsafeSquares = WhiteUnsafeSquares(boardInfo);
-    } else {
-        unsafeSquares = BlackUnsafeSquares(boardInfo);
-    }
-
-    Square_t kingSquare = LSB(boardInfo->kings[color]);
+    Bitboard_t unsafeSquares = UnsafeSquares(boardInfo, color);
+    Square_t kingSquare = KingSquare(boardInfo, color);
     Bitboard_t enemyPieces = boardInfo->allPieces[!color];
 
     AddKingMoves(
         moveList,
         kingSquare,
-        KingCaptureTargets(kingSquare, enemyPieces),
+        KingMoveTargets(kingSquare, enemyPieces),
         unsafeSquares,
         boardInfo->empty
     ); 
@@ -797,10 +650,9 @@ void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
     AddAllCaptures(
         moveList,
         boardInfo,
-        pinmasks,
-        enemyPieces,
-        ReadEnPassantSquares(stack),
         checkmask,
+        ReadEnPassant(stack),
+        pinmasks,
         color
     );
 }
@@ -808,20 +660,14 @@ void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
 void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
     moveList->maxIndex = movelist_empty;
 
-    Bitboard_t unsafeSquares;
-    if(color == white) {
-        unsafeSquares = WhiteUnsafeSquares(boardInfo);
-    } else {
-        unsafeSquares = BlackUnsafeSquares(boardInfo);
-    }
-
-    Square_t kingSquare = LSB(boardInfo->kings[color]);
+    Bitboard_t unsafeSquares = UnsafeSquares(boardInfo, color);
+    Square_t kingSquare = KingSquare(boardInfo, color);
     Bitboard_t enemyPieces = boardInfo->allPieces[!color];
 
     AddKingMoves(
         moveList,
         kingSquare,
-        KingCaptureTargets(kingSquare, enemyPieces),
+        KingMoveTargets(kingSquare, (boardInfo->empty | enemyPieces)),
         unsafeSquares,
         boardInfo->empty
     );
@@ -831,47 +677,9 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
     if(inCheck) {
         checkmask = DefineCheckmask(boardInfo, color);
         if(IsDoubleCheck(boardInfo, checkmask, color)) {
-            AddKingMoves(
-                moveList,
-                kingSquare,
-                KingMoveTargets(kingSquare, boardInfo->empty),
-                unsafeSquares,
-                boardInfo->empty
-            );
             return;
         }
-    }
-
-    PinmaskContainer_t pinmasks = DefinePinmasks(boardInfo, color);
-
-    AddAllCaptures(
-        moveList,
-        boardInfo,
-        pinmasks,
-        enemyPieces,
-        ReadEnPassantSquares(stack),
-        checkmask,
-        color
-    );
-
-    AddAllQuietMoves(
-        moveList,
-        boardInfo,
-        pinmasks,
-        checkmask,
-        color
-    );
-
-    // kingmoves here for ordering purposes
-    AddKingMoves(
-        moveList,
-        kingSquare,
-        KingMoveTargets(kingSquare, boardInfo->empty),
-        unsafeSquares,
-        boardInfo->empty
-    );
-
-    if(!inCheck) {
+    } else {
         AddCastlingMoves(
             moveList,
             boardInfo,
@@ -881,4 +689,15 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
             color
         );
     }
+
+    PinmaskContainer_t pinmasks = DefinePinmasks(boardInfo, color);
+
+    AddEverything(
+        moveList,
+        boardInfo,
+        checkmask,
+        ReadEnPassant(stack),
+        pinmasks,
+        color
+    );
 }

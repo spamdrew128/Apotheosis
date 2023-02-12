@@ -218,7 +218,7 @@ bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo) {
 bool CompareState(GameState_t* expectedState, GameStack_t* stack) {
     return
         (ReadHalfmoveClock(stack) == expectedState->halfmoveClock) &&
-        (ReadEnPassantSquares(stack) == expectedState->enPassantSquares) &&
+        (ReadEnPassant(stack) == expectedState->enPassantSquares) &&
         (ReadCastleSquares(stack, white) == expectedState->castleSquares[white]) &&
         (ReadCastleSquares(stack, black) == expectedState->castleSquares[black]) &&
         (ReadCapturedPiece(stack) == expectedState->capturedPiece);
@@ -280,23 +280,19 @@ static bool EnemyKingCanBeCaptured(BoardInfo_t *info, Color_t colorToMove) {
 
     while(d12Sliders) {
         Square_t square = LSB(d12Sliders);
-        MagicEntry_t magicEntry = GetBishopMagicEntry(square);
-        Bitboard_t blockers = magicEntry.mask & ~(info->empty);
-        attacks |= GetSlidingAttackSet(magicEntry, blockers);
+        attacks |= GetBishopAttackSet(square, info->empty);
         ResetLSB(&d12Sliders);
     }
 
     while(hvSliders) {
         Square_t square = LSB(hvSliders);
-        MagicEntry_t magicEntry = GetRookMagicEntry(square);
-        Bitboard_t blockers = magicEntry.mask & ~(info->empty);
-        attacks |= GetSlidingAttackSet(magicEntry, blockers);
+        attacks |= GetRookAttackSet(square, info->empty);
         ResetLSB(&hvSliders);
     }
 
     while(knights) {
         Square_t square = LSB(knights);
-        attacks |= GetKnightAttacks(square);
+        attacks |= GetKnightAttackSet(square);
         ResetLSB(&knights);
     }
 

@@ -19,9 +19,17 @@ enum pinmaskTypes{
     d12_pinmask
 };
 
-#define GetSlidingCheckers(boardInfoPtr, kingSquare, empty, enemyColor) \
-    RookCaptureTargets(kingSquare, empty, (boardInfoPtr->rooks[enemyColor] | boardInfoPtr->queens[enemyColor])) | \
-    BishopCaptureTargets(kingSquare, empty, (boardInfoPtr->bishops[enemyColor] | boardInfoPtr->queens[enemyColor]))
+Bitboard_t GetSlidingCheckers(
+    BoardInfo_t* boardInfo,
+    Square_t kingSquare,
+    Bitboard_t empty,
+    Color_t enemyColor
+) 
+{
+    return
+        RookMoveTargets(kingSquare, empty, (boardInfo->rooks[enemyColor] | boardInfo->queens[enemyColor])) |
+        BishopMoveTargets(kingSquare, empty, (boardInfo->bishops[enemyColor] | boardInfo->queens[enemyColor]));
+}
 
 static bool KingsideCastlingIsSafe(Color_t color, Bitboard_t unsafeSquares, Bitboard_t empty) {
     return 
@@ -37,23 +45,11 @@ static bool QueensideCastlingIsSafe(Color_t color, Bitboard_t unsafeSquares, Bit
 
 static Bitboard_t KnightAttacks(Square_t square, Bitboard_t empty) {
     (void)empty;
-    return GetKnightAttacks(square);
-}
-
-static Bitboard_t RookAttacks(Square_t square, Bitboard_t empty) {
-    MagicEntry_t magicEntry = GetRookMagicEntry(square);
-    Bitboard_t blockers = magicEntry.mask & ~empty;
-    return GetSlidingAttackSet(magicEntry, blockers);
-}
-
-static Bitboard_t BishopAttacks(Square_t square, Bitboard_t empty) {
-    MagicEntry_t magicEntry = GetBishopMagicEntry(square);
-    Bitboard_t blockers = magicEntry.mask & ~empty;
-    return GetSlidingAttackSet(magicEntry, blockers);
+    return GetKnightAttackSet(square);
 }
 
 static Bitboard_t QueenAttacks(Square_t square, Bitboard_t empty) {
-    return RookAttacks(square, empty) | BishopAttacks(square, empty);
+    return GetRookAttackSet(square, empty) | GetBishopAttackSet(square, empty);
 }
 
 static Bitboard_t GetAllAttacks(Bitboard_t pieceLocations, Bitboard_t empty, GetAttacksCallback_t GetAttacksCallback) {
@@ -70,15 +66,15 @@ static Bitboard_t NonPawnUnsafeSquares(BoardInfo_t* boardInfo, Color_t enemyColo
     Bitboard_t empty = boardInfo->empty | (boardInfo->kings[!enemyColor]); // king does not count as blocker!
 
     return (
-        GetKingAttacks(LSB(boardInfo->kings[enemyColor])) |
+        GetKingAttackSet(LSB(boardInfo->kings[enemyColor])) |
         GetAllAttacks(boardInfo->knights[enemyColor], empty, KnightAttacks) |
-        GetAllAttacks(boardInfo->rooks[enemyColor], empty, RookAttacks) |
-        GetAllAttacks(boardInfo->bishops[enemyColor], empty, BishopAttacks) |
+        GetAllAttacks(boardInfo->rooks[enemyColor], empty, GetRookAttackSet) |
+        GetAllAttacks(boardInfo->bishops[enemyColor], empty, GetBishopAttackSet) |
         GetAllAttacks(boardInfo->queens[enemyColor], empty, QueenAttacks)
     );
 }
 
-Bitboard_t WhiteUnsafeSquares(BoardInfo_t* boardInfo) {
+static Bitboard_t WhiteUnsafeSquares(BoardInfo_t* boardInfo) {
     return (
         SoEaOne(boardInfo->pawns[black]) |
         SoWeOne(boardInfo->pawns[black]) |
@@ -86,12 +82,20 @@ Bitboard_t WhiteUnsafeSquares(BoardInfo_t* boardInfo) {
     );
 }
 
-Bitboard_t BlackUnsafeSquares(BoardInfo_t* boardInfo) {
+static Bitboard_t BlackUnsafeSquares(BoardInfo_t* boardInfo) {
     return (
         NoEaOne(boardInfo->pawns[white]) |
         NoWeOne(boardInfo->pawns[white]) |
         NonPawnUnsafeSquares(boardInfo, white)
     );
+}
+
+Bitboard_t UnsafeSquares(BoardInfo_t* boardInfo, Color_t color) {
+    if(color == white) {
+        return WhiteUnsafeSquares(boardInfo);
+    } else {
+        return BlackUnsafeSquares(boardInfo);
+    }
 }
 
 Bitboard_t KingLegalMoves(Bitboard_t kingMoves, Bitboard_t unsafeSquares) {
@@ -131,7 +135,7 @@ static Bitboard_t CalculateSliderCheckmask(
 Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, Color_t color) {
     // assumes you are in check
     Bitboard_t kingBitboard = boardInfo->kings[color];
-    Bitboard_t kingSquare = LSB(boardInfo->kings[color]);
+    Bitboard_t kingSquare = KingSquare(boardInfo, color);
 
     Bitboard_t checkmask = CalculateSliderCheckmask(
         boardInfo,
@@ -144,7 +148,7 @@ Bitboard_t DefineCheckmask(BoardInfo_t* boardInfo, Color_t color) {
     Bitboard_t pawnsCheckingKing = GetPawnCheckmask(kingSquare, color) & boardInfo->pawns[!color];
     SetBits(&checkmask, pawnsCheckingKing);
 
-    Bitboard_t knighsCheckingKing = GetKnightAttacks(kingSquare) & boardInfo->knights[!color];
+    Bitboard_t knighsCheckingKing = GetKnightAttackSet(kingSquare) & boardInfo->knights[!color];
     SetBits(&checkmask, knighsCheckingKing);
 
     return checkmask;
@@ -155,8 +159,8 @@ bool InCheck(Bitboard_t kingBitboard, Bitboard_t unsafeSquares) {
 }
 
 bool IsDoubleCheck(BoardInfo_t* boardInfo, Bitboard_t checkmask, Color_t color) {
-    Bitboard_t kingSquare = LSB(boardInfo->kings[color]);
-    Bitboard_t mask = GetKingAttacks(kingSquare) | GetKnightAttacks(kingSquare);
+    Bitboard_t kingSquare = KingSquare(boardInfo, color);
+    Bitboard_t mask = GetKingAttackSet(kingSquare) | GetKnightAttackSet(kingSquare);
 
     return PopulationCount(mask & checkmask) > 1;
 }
@@ -184,7 +188,7 @@ static Bitboard_t CalculateDirectionalPinmask(
 
 PinmaskContainer_t DefinePinmasks(BoardInfo_t* boardInfo, Color_t color) {
     Bitboard_t kingBitboard = boardInfo->kings[color];
-    Bitboard_t kingSquare = LSB(boardInfo->kings[color]);
+    Bitboard_t kingSquare = KingSquare(boardInfo, color);
 
     Bitboard_t emptyIfNoFriendlyPiecesOtherThanKing = 
         (boardInfo->empty | boardInfo->allPieces[color]) & ~kingBitboard;
@@ -219,11 +223,11 @@ PinmaskContainer_t DefinePinmasks(BoardInfo_t* boardInfo, Color_t color) {
 
 bool EastEnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t friendlyPawnLocation, Color_t color) {
     Bitboard_t enemyPawnLocation = EastOne(friendlyPawnLocation);
-    Square_t kingSquare = LSB(boardInfo->kings[color]);
+    Square_t kingSquare = KingSquare(boardInfo, color);
 
     Bitboard_t enemyHvSliders = boardInfo->queens[!color] | boardInfo->rooks[!color];
 
-    return !RookCaptureTargets(
+    return !RookMoveTargets(
         kingSquare,
         boardInfo->empty | enemyPawnLocation | friendlyPawnLocation,
         enemyHvSliders
@@ -232,11 +236,11 @@ bool EastEnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t friendlyPawnLocatio
 
 bool WestEnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t friendlyPawnLocation, Color_t color) {
     Bitboard_t enemyPawnLocation = WestOne(friendlyPawnLocation);
-    Square_t kingSquare = LSB(boardInfo->kings[color]);
+    Square_t kingSquare = KingSquare(boardInfo, color);
 
     Bitboard_t enemyHvSliders = boardInfo->queens[!color] | boardInfo->rooks[!color];
 
-    return !RookCaptureTargets(
+    return !RookMoveTargets(
         kingSquare,
         boardInfo->empty | enemyPawnLocation | friendlyPawnLocation,
         enemyHvSliders

@@ -1,7 +1,7 @@
 #ifndef __PERFT_TABLE_ENTRIES_H__
 #define __PERFT_TABLE_ENTRIES_H__
 
-#define NUM_ENTRYS 126
+#define NUM_PERFT_ENTRIES 128
 #define MAX_DEPTH 6
 
 #define PERFT_TEST_TABLE(ENTRY) \
@@ -130,7 +130,12 @@
     ENTRY("8/Pk6/8/8/8/8/6Kp/8 b - - 0 1", 11, 97, 887, 8048, 90606, 1030499) \
     ENTRY("n1n5/1Pk5/8/8/8/8/5Kp1/5N1N b - - 0 1", 24, 421, 7421, 124608, 2193768, 37665329) \
     ENTRY("8/PPPk4/8/8/8/8/4Kppp/8 b - - 0 1", 18, 270, 4699, 79355, 1533145, 28859283) \
-    ENTRY("n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1", 24, 496, 9483, 182838, 3605103, 71179139)
+    ENTRY("n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1", 24, 496, 9483, 182838, 3605103, 71179139) \
+    \
+    ENTRY("8/8/8/3p4/4pn1N/6p1/8/5K1k w - - 10 73", 5, 55, 390, 3895, 27806, 281422) \
+    ENTRY("8/8/8/3p4/5n2/4p3/6pk/4KN2 b - - 3 76", 7, 21, 275, 1354, 18520, 118617) 
+
+    // user tests start after the backslash
 
     #define EXPAND_AS_TEST_CONTAINER(_fen, d1, d2, d3, d4, d5, d6) { \
         .fen = _fen, \

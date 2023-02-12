@@ -35,4 +35,10 @@ void MovePieceInMailbox(BoardInfo_t* boardInfo, Square_t toSquare, Square_t from
 
 Bitboard_t* GetPieceInfoField(BoardInfo_t* boardInfo, Piece_t piece, Color_t color);
 
+Square_t KingSquare(BoardInfo_t* boardInfo, Color_t color);
+
+Bitboard_t AllHvSliders(BoardInfo_t* boardInfo, Color_t color);
+
+Bitboard_t AllD12Sliders(BoardInfo_t* boardInfo, Color_t color);
+
 #endif

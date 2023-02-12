@@ -14,11 +14,14 @@
 #include "make_and_unmake_tdd.h"
 #include "recursive_testing.h"
 #include "perft_table.h"
+#include "zobrist_tdd.h"
+#include "endings_tdd.h"
 
 int main(int argc, char** argv)
 {
     InitLookup();
-
+    GenerateZobristKeys();
+    
     LookupTDDRunner();
     BitboardsTDDRunner();
     BoardInfoTDDRunner();
@@ -30,12 +33,12 @@ int main(int argc, char** argv)
     MovegenTDDRunner();
     MakeMoveTDDRunner();
     UnmakeMoveTDDRunner();
+    ZobristTDDRunner();
+    EndingsTDDRunner();
 
     SpeedTest(START_FEN, 6, false);
 
-    FEN_t fen = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10";
-    PERFTRunner(fen, 5, false);
+    FEN_t fen = "8/8/8/3p4/4pn1N/6p1/8/5K1k w - - 10 73";
+    PERFTRunner(fen, 8, false);
     RunAllPerftTests(false);
-
-    TeardownLookup();
 }
