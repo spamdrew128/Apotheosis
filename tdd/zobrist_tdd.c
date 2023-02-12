@@ -28,15 +28,14 @@ static ZobristHash_t GetHashFromSeriesOfMoves(FEN_t fen, const char* moveSet[4])
         colorToMove = !colorToMove;
     }
 
-    GameState_t state = ReadCurrentGameState(&gameStack);
-    return HashPosition(&info, &state, colorToMove);
+    return HashPosition(&info, &gameStack, colorToMove);
 }
 
 // TESTS
 static void ShouldGenerateNonZeroHash() {
     Color_t colorToMove = InterpretFEN(someFen, &info, &gameStack, &zobristStack);
-    GameState_t state = ReadCurrentGameState(&gameStack);
-    ZobristHash_t hash = HashPosition(&info, &state, colorToMove);
+    ZobristHash_t hash = HashPosition(&info, &gameStack, colorToMove);
+    
     PrintResults(hash);
 }
 
@@ -78,12 +77,10 @@ static void ShouldGenerateSameHashesForSamePositions() {
 
 static void ShouldGenerateDifferentHashesForDifferentPositions() {
     Color_t color = InterpretFEN(START_FEN, &info, &gameStack, &zobristStack);
-    GameState_t state = ReadCurrentGameState(&gameStack);
-    ZobristHash_t hash1 = HashPosition(&info, &state, color);
+    ZobristHash_t hash1 = HashPosition(&info, &gameStack, color);
 
     color = InterpretFEN(someFen, &info, &gameStack, &zobristStack);
-    state = ReadCurrentGameState(&gameStack);
-    ZobristHash_t hash2 = HashPosition(&info, &state, color);
+    ZobristHash_t hash2 = HashPosition(&info, &gameStack, color);
 
     PrintResults(hash1 != hash2);
 }

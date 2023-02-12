@@ -39,8 +39,7 @@ static bool GameEndStatusShouldBe(
 static void MakeMoveAndAddHash(Move_t move, Color_t moveColor) {
     MakeMove(&boardInfo, &gameStack, move, moveColor);
 
-    GameState_t gameState = ReadCurrentGameState(&gameStack);
-    AddZobristHashToStack(&zobristStack, HashPosition(&boardInfo, &gameState, !moveColor));
+    AddZobristHashToStack(&zobristStack, HashPosition(&boardInfo, &gameStack, !moveColor));
 }
 
 // TESTS

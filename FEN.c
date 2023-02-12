@@ -214,7 +214,7 @@ Color_t InterpretFEN(
 
     gameState->boardInfo = *info;
 
-    AddZobristHashToStack(zobristStack, HashPosition(info, gameState, colorToMove));
+    AddZobristHashToStack(zobristStack, HashPosition(info, gameStack, colorToMove));
 
     return colorToMove;
 }
