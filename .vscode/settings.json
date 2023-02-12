@@ -23,7 +23,9 @@
         "make_and_unmake_tdd.h": "c",
         "recursive_testing.h": "c",
         "perft_table.h": "c",
-        "perft_table_entries.h": "c"
+        "perft_table_entries.h": "c",
+        "zobrist.h": "c",
+        "rng.h": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",

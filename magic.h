@@ -8,7 +8,6 @@
 #define NUM_HASH_ENTRIES 107648
 
 typedef Bitboard_t MagicBB_t;
-typedef uint32_t Hash_t;
 
 typedef struct {
     Bitboard_t mask;

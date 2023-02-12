@@ -17,9 +17,8 @@ uint32_t pcg32_random_r(pcg32_random_t* rng)
     return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
 }
 
-Bitboard_t RandBitboard() {
-    Bitboard_t r1 = pcg32_random_r(&rng);
-    Bitboard_t r2 = pcg32_random_r(&rng);
-    r1 = r1 << 32;
-    return r1 | r2;
+uint64_t RandUnsigned64() {
+    uint64_t r1 = pcg32_random_r(&rng);
+    uint64_t r2 = pcg32_random_r(&rng);
+    return (r1 << 32) | r2;
 }
