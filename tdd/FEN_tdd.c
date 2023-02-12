@@ -5,13 +5,15 @@
 #include "FEN_tdd.h"
 #include "bitboards.h"
 #include "board_info.h"
+#include "zobrist.h"
 
 #define COMPLEX_FEN "r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R w K e3 34 56"
 
-static GameStack_t stack;
+static GameStack_t gameStack;
+static ZobristStack_t zobristStack;
 
 static void TestSetup() {
-    InitGameStack(&stack);
+    InitGameStack(&gameStack);
 }
 
 // HELPERS
@@ -32,8 +34,8 @@ static void InitStartFENExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* exp
         expectedInfo->kings[black] = CreateBitboard(1, e8);
     });
 
-    AddStartingGameState(&stack);
-    *expectedState = ReadCurrentGameState(&stack);
+    AddStartingGameState(&gameStack);
+    *expectedState = ReadCurrentGameState(&gameStack);
 }
 
 static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
@@ -53,7 +55,7 @@ static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* e
         expectedInfo->kings[black] = CreateBitboard(1, g8);
     });
 
-    GameState_t* state = GetEmptyNextGameState(&stack);
+    GameState_t* state = GetEmptyNextGameState(&gameStack);
     state->halfmoveClock = 34;
     state->castleSquares[white] = white_kingside_castle_bb;
     state->enPassantSquares = CreateBitboard(1, e3);
@@ -68,9 +70,9 @@ static void StartFENInterpretedCorrectly() {
     GameState_t expectedState;
 
     InitStartFENExpectedInfo(&expectedInfo, &expectedState);
-    InterpretFEN(START_FEN, &info, &stack);
+    InterpretFEN(START_FEN, &info, &gameStack, &zobristStack);
 
-    PrintResults(CompareInfo(&info, &expectedInfo) && CompareState(&expectedState, &stack));
+    PrintResults(CompareInfo(&info, &expectedInfo) && CompareState(&expectedState, &gameStack));
 }
 
 static void ComplexFENInterpretedCorrectly() {
@@ -80,9 +82,9 @@ static void ComplexFENInterpretedCorrectly() {
     GameState_t expectedState;
     
     InitComplexFENExpectedInfo(&expectedInfo, &expectedState);
-    InterpretFEN(COMPLEX_FEN, &info, &stack);
+    InterpretFEN(COMPLEX_FEN, &info, &gameStack, &zobristStack);
 
-    PrintResults(CompareInfo(&info, &expectedInfo) && CompareState(&expectedState, &stack));
+    PrintResults(CompareInfo(&info, &expectedInfo) && CompareState(&expectedState, &gameStack));
 }
 
 void FENTDDRunner() {
