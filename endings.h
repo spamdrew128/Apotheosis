@@ -14,7 +14,11 @@ enum {
     checkmate,
     draw
 };
-
-GameEndStatus_t CurrentGameEndStatus();
+GameEndStatus_t CurrentGameEndStatus(
+    BoardInfo_t* boardInfo,
+    GameState_t* gameState,
+    int movelistMax,
+    Color_t colorToMove
+);
 
 #endif
