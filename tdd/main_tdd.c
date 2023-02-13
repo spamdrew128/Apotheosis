@@ -44,7 +44,7 @@ int main(int argc, char** argv)
     FEN_t fen = "8/8/8/3p4/4pn1N/6p1/8/5K1k w - - 10 73";
     PERFTRunner(fen, 8, false);
     RunAllPerftTests(false);
-
+    
     while(InterpretUCIInput())
     {
         int i = 0;

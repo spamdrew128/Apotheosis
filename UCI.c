@@ -6,6 +6,9 @@
 
 #include "UCI.h"
 #include "bitboards.h"
+#include "zobrist.h"
+#include "FEN.h"
+#include "movegen.h"
 
 #define BUFFER_SIZE 256
 
@@ -13,12 +16,16 @@
 #define UCI_OK "uciok\n"
 #define READY_OK "readyok\n"
 
+#define STARTPOS "startpos"
+
 typedef uint8_t UciSignal_t;
 enum {
     signal_invalid,
     signal_uci,
     signal_is_ready,
-    signal_quit
+    signal_quit,
+    signal_new_game,
+    signal_position
 };
 
 static char RowCharToNumber(char row) {
@@ -84,23 +91,81 @@ bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo
     return true;
 }
 
-static bool IdenticalStrings(const char* s1, const char* s2) {
+static bool StringsMatch(const char* s1, const char* s2) {
     return !strcmp(s1, s2);
 }
 
 static UciSignal_t InterpretWord(const char* word) {
-    if(IdenticalStrings(word, "uci")) {
+    if (StringsMatch(word, "uci")) {
         return signal_uci;
-    } else if(IdenticalStrings(word, "isready")) {
+    } else if(StringsMatch(word, "isready")) {
         return signal_is_ready;
-    } else if(IdenticalStrings(word, "quit")) {
+    } else if(StringsMatch(word, "quit")) {
         return signal_quit;
+    } else if(StringsMatch(word, "ucinewgame")) {
+        return signal_new_game;
+    } else if(StringsMatch(word, "position")) {
+        return signal_position;
     }
 
     return signal_invalid;
 }
 
-static bool RespondToSignal(char input[BUFFER_SIZE], int* i, UciSignal_t signal) {
+static bool ContainsStartPos(char input[BUFFER_SIZE], int i) {
+    char first8Letters[8];
+    for(int j = 0; j < strlen(STARTPOS); j++) {
+        first8Letters[j] = input[i];
+        i++;
+    }
+
+    return StringsMatch(first8Letters, STARTPOS);
+}
+
+static MoveList_t ParseMoves(char input[BUFFER_SIZE], int* i) {
+    // assumes this is the last thing in the string.
+    while(input[*i] != ' ' && input[*i] != '\0') {
+
+    }
+}
+
+static void InterpretPosition(
+    char input[BUFFER_SIZE],
+    int* i,
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack
+)
+{
+    char fenString[BUFFER_SIZE];
+    int fenStringIndex = 0;
+
+    Color_t colorToMove;
+    if(ContainsStartPos(input, *i)) {
+        colorToMove = InterpretFEN(START_FEN, boardInfo, gameStack, zobristStack);
+        *i += strlen(STARTPOS);
+    } else {
+        while(input[*i] != 'm' || input[*i] != '\0') {
+            fenString[fenStringIndex] = input[*i];
+            (*i)++;
+            fenStringIndex++;
+        }
+        fenString[fenStringIndex] = '\0';
+
+        colorToMove = InterpretFEN(fenString, boardInfo, gameStack, zobristStack);
+    }
+
+    // MoveList_t moveList = ParseMoves(input, i);
+}
+
+static bool RespondToSignal(
+    char input[BUFFER_SIZE],
+    int* i,
+    UciSignal_t signal,
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack
+)
+{
     switch(signal) {
     case signal_uci:
         printf(ENGINE_ID);
@@ -111,6 +176,12 @@ static bool RespondToSignal(char input[BUFFER_SIZE], int* i, UciSignal_t signal)
         break;
     case signal_quit:
         return false;
+    case signal_new_game:
+        // TODO
+        break;
+    case signal_position:
+        InterpretPosition(input, i, boardInfo, gameStack, zobristStack);
+        break;
     default:
         break;
     }
@@ -118,7 +189,7 @@ static bool RespondToSignal(char input[BUFFER_SIZE], int* i, UciSignal_t signal)
     return true;
 }
 
-static void SkipExtraSpaces(char input[BUFFER_SIZE], int* i) {
+static void SkipToNextCharacter(char input[BUFFER_SIZE], int* i) {
     while(input[*i] == ' ') {
         (*i)++;
     }
@@ -132,6 +203,9 @@ bool InterpretUCIInput() {
     char currentWord[BUFFER_SIZE];
 
     int i = 0;
+    BoardInfo_t boardinfo;
+    GameStack_t gameStack;
+    ZobristStack_t zobristStack;
     while(i < BUFFER_SIZE && input[i] != '\0') {
         currentWord[cWordIndex] = input[i];
         cWordIndex++;
@@ -144,8 +218,8 @@ bool InterpretUCIInput() {
         }
 
         i++;
-        SkipExtraSpaces(input, &i);
-        bool keepRunning = RespondToSignal(input, &i, signal);
+        SkipToNextCharacter(input, &i);
+        bool keepRunning = RespondToSignal(input, &i, signal, &boardinfo, &gameStack, &zobristStack);
         if(!keepRunning) {
             return false; // quit immediately
         }
