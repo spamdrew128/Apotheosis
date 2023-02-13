@@ -11,11 +11,13 @@
 
 #define ENGINE_ID "id name Apotheosis\nid author Spamdrew\n"
 #define UCI_OK "uciok\n"
+#define READY_OK "readyok\n"
 
 typedef uint8_t UciSignal_t;
 enum {
     signal_invalid,
-    signal_uci
+    signal_uci,
+    signal_is_ready
 };
 
 static char RowCharToNumber(char row) {
@@ -88,6 +90,8 @@ static bool IdenticalStrings(const char* s1, const char* s2) {
 static UciSignal_t InterpretWord(const char* word) {
     if(IdenticalStrings(word, "uci")) {
         return signal_uci;
+    } else if(IdenticalStrings(word, "isready")) {
+        return signal_is_ready;
     }
 
     return signal_invalid;
@@ -99,7 +103,8 @@ static void RespondToSignal(char input[BUFFER_SIZE], int* i, UciSignal_t signal)
         printf(ENGINE_ID);
         printf(UCI_OK);
         break;
-    
+    case signal_is_ready:
+        printf(READY_OK);
     default:
         break;
     }
