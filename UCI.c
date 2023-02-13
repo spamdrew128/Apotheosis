@@ -69,9 +69,6 @@ bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo
         } else if(promotionType == 'q' || promotionType == 'Q') {
             WritePromotionPiece(move, queen);
             WriteSpecialFlag(move, promotion_flag);
-        } else {
-            printf("Invalid promotion specifier\n");
-            return false;
         }
     }
 
@@ -132,9 +129,15 @@ static MoveList_t ParseMoves(char input[BUFFER_SIZE], int* i) {
     MoveList_t moveList;
     moveList.maxIndex = movelist_empty;
 
-    // assumes this is the last thing in the string.
-    while(input[*i] != ' ' && input[*i] != '\0') {
+    char moveBuffer[6];
+    size_t moveBufferSize = sizeof(moveBuffer);
 
+    // assumes this is the last thing in the string.
+    while(input[*i] != '\n' && input[*i] != '\0') {
+        memset(moveBuffer, '\0', moveBufferSize);
+        while(input[*i]) {
+
+        }
     }
 
     return moveList;
