@@ -184,7 +184,7 @@ static void InterpretPosition(
         colorToMove = InterpretFEN(START_FEN, boardInfo, gameStack, zobristStack);
         *i += strlen(STARTPOS);  
     } else {
-        while(input[*i] != 'm' || input[*i] != '\0') {
+        while(input[*i] != 'm' && input[*i] != '\0') {
             fenString[fenStringIndex] = input[*i];
             (*i)++;
             fenStringIndex++;
@@ -192,6 +192,10 @@ static void InterpretPosition(
         fenString[fenStringIndex] = '\0';
 
         colorToMove = InterpretFEN(fenString, boardInfo, gameStack, zobristStack);
+    }
+
+    while(input[*i] != ' ' && input[*i] != '\0') {
+        (*i)++; // skips past the "moves" command which I assume is there
     }
     SkipToNextCharacter(input, i);
     MoveList_t moveList = ParseMoves(input, i, boardInfo, gameStack);
