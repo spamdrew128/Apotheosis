@@ -95,6 +95,12 @@ static bool StringsMatch(const char* s1, const char* s2) {
     return !strcmp(s1, s2);
 }
 
+static void SkipToNextCharacter(char input[BUFFER_SIZE], int* i) {
+    while(input[*i] == ' ') {
+        (*i)++;
+    }
+}
+
 static UciSignal_t InterpretWord(const char* word) {
     if (StringsMatch(word, "uci")) {
         return signal_uci;
@@ -112,20 +118,26 @@ static UciSignal_t InterpretWord(const char* word) {
 }
 
 static bool ContainsStartPos(char input[BUFFER_SIZE], int i) {
-    char first8Letters[8];
+    char first8Letters[9];
     for(int j = 0; j < strlen(STARTPOS); j++) {
         first8Letters[j] = input[i];
         i++;
     }
+    first8Letters[8] = '\0';
 
     return StringsMatch(first8Letters, STARTPOS);
 }
 
 static MoveList_t ParseMoves(char input[BUFFER_SIZE], int* i) {
+    MoveList_t moveList;
+    moveList.maxIndex = movelist_empty;
+
     // assumes this is the last thing in the string.
     while(input[*i] != ' ' && input[*i] != '\0') {
 
     }
+
+    return moveList;
 }
 
 static void InterpretPosition(
@@ -142,7 +154,7 @@ static void InterpretPosition(
     Color_t colorToMove;
     if(ContainsStartPos(input, *i)) {
         colorToMove = InterpretFEN(START_FEN, boardInfo, gameStack, zobristStack);
-        *i += strlen(STARTPOS);
+        *i += strlen(STARTPOS);  
     } else {
         while(input[*i] != 'm' || input[*i] != '\0') {
             fenString[fenStringIndex] = input[*i];
@@ -153,7 +165,7 @@ static void InterpretPosition(
 
         colorToMove = InterpretFEN(fenString, boardInfo, gameStack, zobristStack);
     }
-
+    SkipToNextCharacter(input, i);
     // MoveList_t moveList = ParseMoves(input, i);
 }
 
@@ -187,12 +199,6 @@ static bool RespondToSignal(
     }
 
     return true;
-}
-
-static void SkipToNextCharacter(char input[BUFFER_SIZE], int* i) {
-    while(input[*i] == ' ') {
-        (*i)++;
-    }
 }
 
 bool InterpretUCIInput() {
