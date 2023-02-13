@@ -9,6 +9,7 @@
 #include "zobrist.h"
 #include "FEN.h"
 #include "movegen.h"
+#include "make_and_unmake.h"
 
 #define BUFFER_SIZE 256
 
@@ -125,18 +126,42 @@ static bool ContainsStartPos(char input[BUFFER_SIZE], int i) {
     return StringsMatch(first8Letters, STARTPOS);
 }
 
-static MoveList_t ParseMoves(char input[BUFFER_SIZE], int* i) {
+static bool IsLetter(char c) {
+    int asciiVal = (int)c;
+    return 
+        ((asciiVal >= 65) && (asciiVal <= 90)) ||
+        ((asciiVal >= 97) && (asciiVal <= 122));
+}
+
+static bool IsRowNumber(char c) {
+    int asciiVal = (int)c;
+    return  (asciiVal >= 49) && (asciiVal <= 56);
+}
+
+static MoveList_t ParseMoves(char input[BUFFER_SIZE], int* i, BoardInfo_t* boardInfo, GameStack_t* gameStack) {
     MoveList_t moveList;
     moveList.maxIndex = movelist_empty;
 
-    char moveBuffer[6];
-    size_t moveBufferSize = sizeof(moveBuffer);
+    char moveBuffer[BUFFER_SIZE];
+    size_t moveBufferSize = BUFFER_SIZE * sizeof(char);
 
     // assumes this is the last thing in the string.
     while(input[*i] != '\n' && input[*i] != '\0') {
         memset(moveBuffer, '\0', moveBufferSize);
-        while(input[*i]) {
+        int moveBufferIndex = 0;
+        SkipToNextCharacter(input, i);
 
+        while(IsRowNumber(input[*i]) || IsLetter(input[*i])) {
+            moveBuffer[moveBufferIndex] = input[*i];
+            moveBufferIndex++;
+            (*i)++;
+        }
+
+        Move_t move;
+        InitMove(&move);
+        if(UCITranslateMove(&move, moveBuffer, boardInfo, gameStack)) {
+            moveList.maxIndex++;
+            moveList.moves[moveList.maxIndex] = move;
         }
     }
 
@@ -169,7 +194,13 @@ static void InterpretPosition(
         colorToMove = InterpretFEN(fenString, boardInfo, gameStack, zobristStack);
     }
     SkipToNextCharacter(input, i);
-    // MoveList_t moveList = ParseMoves(input, i);
+    MoveList_t moveList = ParseMoves(input, i, boardInfo, gameStack);
+
+    for(int j = 0; j <= moveList.maxIndex; j++) {
+        MakeMove(boardInfo, gameStack, moveList.moves[j], colorToMove);
+        colorToMove = !colorToMove;
+        AddZobristHashToStack(zobristStack, HashPosition(boardInfo, gameStack, colorToMove));
+    }
 }
 
 static bool RespondToSignal(
