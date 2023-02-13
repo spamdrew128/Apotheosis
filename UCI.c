@@ -9,6 +9,9 @@
 
 #define BUFFER_SIZE 256
 
+#define ENGINE_ID "id name Apotheosis\nid author Spamdrew\n"
+#define UCI_OK "uciok\n"
+
 typedef uint8_t UciSignal_t;
 enum {
     signal_invalid,
@@ -90,6 +93,24 @@ static UciSignal_t InterpretWord(const char* word) {
     return signal_invalid;
 }
 
+static void RespondToSignal(char input[BUFFER_SIZE], int* i, UciSignal_t signal) {
+    switch(signal) {
+    case signal_uci:
+        printf(ENGINE_ID);
+        printf(UCI_OK);
+        break;
+    
+    default:
+        break;
+    }
+}
+
+static void SkipExtraSpaces(char input[BUFFER_SIZE], int* i) {
+    while(input[*i] == ' ') {
+        (*i)++;
+    }
+}
+
 void InterpretUCIInput() {
     char input[BUFFER_SIZE];
     fgets(input, BUFFER_SIZE, stdin);
@@ -102,13 +123,15 @@ void InterpretUCIInput() {
         currentWord[cWordIndex] = input[i];
         cWordIndex++;
 
+        UciSignal_t signal = signal_invalid;
         if(input[i+1] == ' ' || input[i+1] == '\0' || input[i+1] == '\n') {
             currentWord[cWordIndex] = '\0';
             cWordIndex = 0;
-            UciSignal_t signal = InterpretWord(currentWord);
-            printf("%d\n", signal);
+            signal = InterpretWord(currentWord);
         }
 
         i++;
+        SkipExtraSpaces(input, &i);
+        RespondToSignal(input, &i, signal);
     }
 }

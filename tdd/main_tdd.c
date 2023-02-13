@@ -37,6 +37,7 @@ int main(int argc, char** argv)
     ZobristTDDRunner();
     EndingsTDDRunner();
     UCITDDRunner();
+    printf("\n");
 
     SpeedTest(START_FEN, 6, false);
 
