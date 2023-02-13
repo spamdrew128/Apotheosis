@@ -45,5 +45,8 @@ int main(int argc, char** argv)
     PERFTRunner(fen, 8, false);
     RunAllPerftTests(false);
 
-    InterpretUCIInput();
+    while(InterpretUCIInput())
+    {
+        int i = 0;
+    }
 }

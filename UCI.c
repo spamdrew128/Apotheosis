@@ -17,7 +17,8 @@ typedef uint8_t UciSignal_t;
 enum {
     signal_invalid,
     signal_uci,
-    signal_is_ready
+    signal_is_ready,
+    signal_quit
 };
 
 static char RowCharToNumber(char row) {
@@ -92,12 +93,14 @@ static UciSignal_t InterpretWord(const char* word) {
         return signal_uci;
     } else if(IdenticalStrings(word, "isready")) {
         return signal_is_ready;
+    } else if(IdenticalStrings(word, "quit")) {
+        return signal_quit;
     }
 
     return signal_invalid;
 }
 
-static void RespondToSignal(char input[BUFFER_SIZE], int* i, UciSignal_t signal) {
+static bool RespondToSignal(char input[BUFFER_SIZE], int* i, UciSignal_t signal) {
     switch(signal) {
     case signal_uci:
         printf(ENGINE_ID);
@@ -105,9 +108,14 @@ static void RespondToSignal(char input[BUFFER_SIZE], int* i, UciSignal_t signal)
         break;
     case signal_is_ready:
         printf(READY_OK);
+        break;
+    case signal_quit:
+        return false;
     default:
         break;
     }
+
+    return true;
 }
 
 static void SkipExtraSpaces(char input[BUFFER_SIZE], int* i) {
@@ -116,7 +124,7 @@ static void SkipExtraSpaces(char input[BUFFER_SIZE], int* i) {
     }
 }
 
-void InterpretUCIInput() {
+bool InterpretUCIInput() {
     char input[BUFFER_SIZE];
     fgets(input, BUFFER_SIZE, stdin);
 
@@ -137,6 +145,11 @@ void InterpretUCIInput() {
 
         i++;
         SkipExtraSpaces(input, &i);
-        RespondToSignal(input, &i, signal);
+        bool keepRunning = RespondToSignal(input, &i, signal);
+        if(!keepRunning) {
+            return false; // quit immediately
+        }
     }
+
+    return true; // true means application keeps running
 }
