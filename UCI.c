@@ -241,6 +241,7 @@ static bool RespondToSignal(
 
 bool InterpretUCIInput() {
     char input[BUFFER_SIZE];
+    memset(input, '\0', BUFFER_SIZE* sizeof(char));
     fgets(input, BUFFER_SIZE, stdin);
 
     int cWordIndex = 0;
