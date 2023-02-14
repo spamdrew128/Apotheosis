@@ -300,7 +300,13 @@ Milliseconds_t TimeStringToNumber(const char* numString) {
     return result;
 }
 
-static void GetSearchResults() { // TODO
+static void GetSearchResults(
+    UciTimeInfo_t uciTimeInfo,
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack
+)
+{
     Move_t move;
     InitMove(&move);
     WriteFromSquare(&move, e2);
@@ -371,7 +377,7 @@ static bool RespondToSignal(
         break;
     case signal_go:
         UciTimeInfo_t uciTimeInfo = InterpretGoArguements(input, i);
-        GetSearchResults();
+        GetSearchResults(uciTimeInfo, boardInfo, gameStack, zobristStack);
         break;     
     default:
         break;
