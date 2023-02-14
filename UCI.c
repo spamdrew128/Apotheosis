@@ -16,6 +16,7 @@
 #define ENGINE_ID "id name Apotheosis\nid author Spamdrew\n"
 #define UCI_OK "uciok\n"
 #define READY_OK "readyok\n"
+#define BESTMOVE "bestmove\n"
 
 #define STARTPOS "startpos"
 
@@ -116,6 +117,43 @@ bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo
     }
 
     return true;
+}
+
+static void MoveStructToUciString(Move_t move, char moveString[BUFFER_SIZE]) {
+    memset(moveString, '\0', BUFFER_SIZE* sizeof(char));
+
+    Square_t fromSquare = ReadFromSquare(move);
+    int fromRow = fromSquare / 8;
+    int fromCol = fromSquare % 8;
+
+    Square_t toSquare = ReadToSquare(move);
+    int toRow = fromSquare / 8;
+    int toCol = fromSquare % 8;
+
+    moveString[0] = ColToLetterChar(fromCol);
+    moveString[1] = RowToNumberChar(fromRow);
+    moveString[2] = ColToLetterChar(toCol);
+    moveString[3] = RowToNumberChar(toRow);
+    
+    if(ReadSpecialFlag(move) == promotion_flag) {
+        switch(ReadPromotionPiece(move))
+        {
+            case knight:
+                moveString[4] = 'n';
+                break;
+            case bishop:
+                moveString[4] = 'b';
+                break;
+            case rook:
+                moveString[4] = 'r';
+                break;
+            case queen:
+                moveString[4] = 'q';
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 static void GetNextWord(char input[BUFFER_SIZE], char nextWord[BUFFER_SIZE], int* i) {
@@ -263,7 +301,15 @@ Milliseconds_t TimeStringToNumber(const char* numString) {
 }
 
 static void GetSearchResults() { // TODO
+    Move_t move;
+    InitMove(&move);
+    WriteFromSquare(&move, e2);
+    WriteToSquare(&move, e4);
 
+    char moveString[BUFFER_SIZE];
+    MoveStructToUciString(move, moveString);
+
+    return;
 }
 
 UciTimeInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
