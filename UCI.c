@@ -10,6 +10,7 @@
 #include "FEN.h"
 #include "movegen.h"
 #include "make_and_unmake.h"
+#include "search.h"
 
 #define BUFFER_SIZE 256
 
@@ -31,16 +32,7 @@ enum {
     signal_go
 };
 
-typedef uint16_t Milliseconds_t;
-typedef struct
-{
-    Milliseconds_t wTime;
-    Milliseconds_t bTime;
-    Milliseconds_t wInc;
-    Milliseconds_t bInc;
-} UciTimeInfo_t;
-
-static void UciTimeInfoInit(UciTimeInfo_t* uciTimeInfo) {
+static void UciTimeInfoInit(PlayerTimeInfo_t* uciTimeInfo) {
     uciTimeInfo->wTime = 0;
     uciTimeInfo->bTime = 0;
     uciTimeInfo->wInc = 0;
@@ -301,7 +293,7 @@ Milliseconds_t TimeStringToNumber(const char* numString) {
 }
 
 static void GetSearchResults(
-    UciTimeInfo_t uciTimeInfo,
+    PlayerTimeInfo_t uciTimeInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack
@@ -320,8 +312,8 @@ static void GetSearchResults(
     return;
 }
 
-UciTimeInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
-    UciTimeInfo_t timeInfo;
+PlayerTimeInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
+    PlayerTimeInfo_t timeInfo;
     UciTimeInfoInit(&timeInfo);
 
     char nextWord[BUFFER_SIZE];
@@ -376,7 +368,7 @@ static bool RespondToSignal(
         InterpretPosition(input, i, boardInfo, gameStack, zobristStack);
         break;
     case signal_go:
-        UciTimeInfo_t uciTimeInfo = InterpretGoArguements(input, i);
+        PlayerTimeInfo_t uciTimeInfo = InterpretGoArguements(input, i);
         GetSearchResults(uciTimeInfo, boardInfo, gameStack, zobristStack);
         break;     
     default:

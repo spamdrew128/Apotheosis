@@ -1,5 +1,12 @@
 CC=gcc
-INCDIRS=-I.
+
+TDD=tdd
+ENGINE=engine
+
+INCDIRS= \
+-I. \
+-I$(tdd) \
+-I$(ENGINE)
 
 DEBUGFLAGS=-g
 OPTFLAGS=-O3 -flto
@@ -20,7 +27,9 @@ move.c \
 make_and_unmake.c \
 zobrist.c \
 UCI.c \
-endings.c
+endings.c \
+\
+$(ENGINE)\search.c
 
 COMMON_OBJECTS= \
 bitboards.o \
@@ -37,13 +46,14 @@ move.o \
 make_and_unmake.o \
 zobrist.o \
 UCI.o \
-endings.o
+endings.o \
+\
+$(ENGINE)\search.o
 
 MAIN=main
 CFILES=$(MAIN).c $(COMMON_CFILES)
 OBJECTS=$(MAIN).o $(COMMON_OBJECTS)
 
-TDD=tdd
 TDD_MAIN=$(TDD)\main_tdd
 
 D_CFILES= \
@@ -101,7 +111,7 @@ $(DEBUG_BINARY): $(D_OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $^
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $^
 
 clean:
 	del $(BINARY).exe $(DEBUG_BINARY).exe $(OBJECTS) $(D_OBJECTS)
