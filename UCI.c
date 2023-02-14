@@ -26,17 +26,46 @@ enum {
     signal_is_ready,
     signal_quit,
     signal_new_game,
-    signal_position
+    signal_position,
+    signal_go
 };
 
-static char RowCharToNumber(char row) {
+typedef uint16_t Milliseconds_t;
+typedef struct
+{
+    Milliseconds_t wTime;
+    Milliseconds_t bTime;
+    Milliseconds_t wInc;
+    Milliseconds_t bInc;
+} UciTimeInfo_t;
+
+static void UciTimeInfoInit(UciTimeInfo_t* uciTimeInfo) {
+    uciTimeInfo->wTime = 0;
+    uciTimeInfo->bTime = 0;
+    uciTimeInfo->wInc = 0;
+    uciTimeInfo->bInc = 0;
+}
+
+static char RowToNumberChar(int row) {
+    return (char)(row + 49);
+}
+
+static char ColToLetterChar(int col) {
+    return (char)(col + 97);
+}
+
+static int RowCharToInt(char row) {
     return (int)row - 49;
 }
 
-static char ColCharToNumber(char col) {
+static int ColCharToInt(char col) {
     return (int)col - 97;
 }
 
+static int NumCharToInt(char numChar) {
+    return (int)numChar - 48;
+}
+ 
 bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo, GameStack_t* gameStack) {
     int stringLen = strlen(moveText);
     if(stringLen > 5 || stringLen < 4) {
@@ -49,8 +78,8 @@ bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo
     char toCol = moveText[2];
     char toRow = moveText[3];
 
-    Square_t fromSquare = RowCharToNumber(fromRow)*8 + ColCharToNumber(fromCol);
-    Square_t toSquare = RowCharToNumber(toRow)*8 + ColCharToNumber(toCol);
+    Square_t fromSquare = RowCharToInt(fromRow)*8 + ColCharToInt(fromCol);
+    Square_t toSquare = RowCharToInt(toRow)*8 + ColCharToInt(toCol);
 
     InitMove(move);
     WriteFromSquare(move, fromSquare);
@@ -89,12 +118,23 @@ bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo
     return true;
 }
 
+static void GetNextWord(char input[BUFFER_SIZE], char nextWord[BUFFER_SIZE], int* i) {
+    memset(nextWord, '\0', BUFFER_SIZE* sizeof(char));
+
+    int wordIndex = 0;
+    while(input[*i] != '\n' && input[*i] != ' ' && input[*i] != '\0') {
+        nextWord[wordIndex] = input[*i];
+        wordIndex++;
+        (*i)++;
+    }
+}
+
 static bool StringsMatch(const char* s1, const char* s2) {
     return !strcmp(s1, s2);
 }
 
 static void SkipToNextCharacter(char input[BUFFER_SIZE], int* i) {
-    while(input[*i] == ' ') {
+    while(input[*i] == ' ' || input[*i] == '\n') {
         (*i)++;
     }
 }
@@ -110,6 +150,8 @@ static UciSignal_t InterpretWord(const char* word) {
         return signal_new_game;
     } else if(StringsMatch(word, "position")) {
         return signal_position;
+    } else if(StringsMatch(word, "go")) {
+        return signal_go;
     }
 
     return signal_invalid;
@@ -207,6 +249,49 @@ static void InterpretPosition(
     }
 }
 
+Milliseconds_t TimeStringToNumber(const char* numString) {
+    int len = strlen(numString);
+
+    Milliseconds_t result = 0;
+    int multiplier = 1;
+    for(int i = (len-1); i >=0; i--) {
+        result += NumCharToInt(numString[i]) * multiplier;
+        multiplier *= 10;
+    }
+
+    return result;
+}
+
+UciTimeInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
+    UciTimeInfo_t timeInfo;
+    UciTimeInfoInit(&timeInfo);
+
+    char nextWord[BUFFER_SIZE];
+    while(input[*i] != '\0  ') {
+        GetNextWord(input, nextWord, i);
+        SkipToNextCharacter(input, i);
+
+        if(StringsMatch(nextWord, "wtime")) {
+            GetNextWord(input, nextWord, i);
+            timeInfo.wTime = TimeStringToNumber(nextWord);
+
+        } else if(StringsMatch(nextWord, "btime")) {
+            GetNextWord(input, nextWord, i);
+            timeInfo.bTime = TimeStringToNumber(nextWord);
+            
+        } else if(StringsMatch(nextWord, "winc")) {
+            GetNextWord(input, nextWord, i);
+            timeInfo.wInc = TimeStringToNumber(nextWord);
+            
+        } else if(StringsMatch(nextWord, "binc")) {
+            GetNextWord(input, nextWord, i);
+            timeInfo.bInc = TimeStringToNumber(nextWord);       
+        }
+    }
+
+    return timeInfo;
+}
+
 static bool RespondToSignal(
     char input[BUFFER_SIZE],
     int* i,
@@ -232,6 +317,10 @@ static bool RespondToSignal(
     case signal_position:
         InterpretPosition(input, i, boardInfo, gameStack, zobristStack);
         break;
+    case signal_go:
+        UciTimeInfo_t uciTimeInfo = InterpretGoArguements(input, i);
+
+        break;     
     default:
         break;
     }
@@ -244,26 +333,19 @@ bool InterpretUCIInput() {
     memset(input, '\0', BUFFER_SIZE* sizeof(char));
     fgets(input, BUFFER_SIZE, stdin);
 
-    int cWordIndex = 0;
     char currentWord[BUFFER_SIZE];
 
-    int i = 0;
     BoardInfo_t boardinfo;
     GameStack_t gameStack;
     ZobristStack_t zobristStack;
+
+    int i = 0;
     while(i < BUFFER_SIZE && input[i] != '\0') {
-        currentWord[cWordIndex] = input[i];
-        cWordIndex++;
+        GetNextWord(input, currentWord, &i);
+        UciSignal_t signal = InterpretWord(currentWord);
 
-        UciSignal_t signal = signal_invalid;
-        if(input[i+1] == ' ' || input[i+1] == '\0' || input[i+1] == '\n') {
-            currentWord[cWordIndex] = '\0';
-            cWordIndex = 0;
-            signal = InterpretWord(currentWord);
-        }
-
-        i++;
         SkipToNextCharacter(input, &i);
+
         bool keepRunning = RespondToSignal(input, &i, signal, &boardinfo, &gameStack, &zobristStack);
         if(!keepRunning) {
             return false; // quit immediately
