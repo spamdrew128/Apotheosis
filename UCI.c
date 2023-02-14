@@ -262,12 +262,16 @@ Milliseconds_t TimeStringToNumber(const char* numString) {
     return result;
 }
 
+static void GetSearchResults() { // TODO
+
+}
+
 UciTimeInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
     UciTimeInfo_t timeInfo;
     UciTimeInfoInit(&timeInfo);
 
     char nextWord[BUFFER_SIZE];
-    while(input[*i] != '\0  ') {
+    while(input[*i] != '\0') {
         GetNextWord(input, nextWord, i);
         SkipToNextCharacter(input, i);
 
@@ -319,7 +323,7 @@ static bool RespondToSignal(
         break;
     case signal_go:
         UciTimeInfo_t uciTimeInfo = InterpretGoArguements(input, i);
-
+        GetSearchResults();
         break;     
     default:
         break;
