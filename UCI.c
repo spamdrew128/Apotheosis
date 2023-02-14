@@ -127,8 +127,8 @@ static void MoveStructToUciString(Move_t move, char moveString[BUFFER_SIZE]) {
     int fromCol = fromSquare % 8;
 
     Square_t toSquare = ReadToSquare(move);
-    int toRow = fromSquare / 8;
-    int toCol = fromSquare % 8;
+    int toRow = toSquare / 8;
+    int toCol = toSquare % 8;
 
     moveString[0] = ColToLetterChar(fromCol);
     moveString[1] = RowToNumberChar(fromRow);
@@ -305,6 +305,8 @@ static void GetSearchResults() { // TODO
     InitMove(&move);
     WriteFromSquare(&move, e2);
     WriteToSquare(&move, e4);
+    WriteSpecialFlag(&move, promotion_flag);
+    WritePromotionPiece(&move, queen);
 
     char moveString[BUFFER_SIZE];
     MoveStructToUciString(move, moveString);
