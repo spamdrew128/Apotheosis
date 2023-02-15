@@ -114,4 +114,4 @@ $(DEBUG_BINARY): $(D_OBJECTS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $^
 
 clean:
-	rm $(BINARY) $(DEBUG_BINARY) *.o
+	rm -rf $(BINARY) $(DEBUG_BINARY) *.o && clear

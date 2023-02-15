@@ -29,7 +29,8 @@ SearchResults_t Search(
     PlayerTimeInfo_t uciTimeInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack
+    ZobristStack_t* zobristStack,
+    Color_t color
 );
 
 #endif

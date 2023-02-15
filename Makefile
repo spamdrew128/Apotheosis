@@ -114,4 +114,4 @@ $(DEBUG_BINARY): $(D_OBJECTS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $^
 
 clean:
-	del *.exe *.o
+	del /S *.exe *.o && cls

@@ -296,7 +296,8 @@ static void GetSearchResults(
     PlayerTimeInfo_t uciTimeInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack
+    ZobristStack_t* zobristStack,
+    Color_t color
 )
 {
     Move_t move;
@@ -348,7 +349,8 @@ static bool RespondToSignal(
     UciSignal_t signal,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack
+    ZobristStack_t* zobristStack,
+    Color_t* color
 )
 {
     switch(signal) {
@@ -369,7 +371,7 @@ static bool RespondToSignal(
         break;
     case signal_go:
         PlayerTimeInfo_t uciTimeInfo = InterpretGoArguements(input, i);
-        GetSearchResults(uciTimeInfo, boardInfo, gameStack, zobristStack);
+        GetSearchResults(uciTimeInfo, boardInfo, gameStack, zobristStack, *color);
         break;     
     default:
         break;
@@ -388,6 +390,7 @@ bool InterpretUCIInput() {
     BoardInfo_t boardinfo;
     GameStack_t gameStack;
     ZobristStack_t zobristStack;
+    Color_t color;
 
     int i = 0;
     while(i < BUFFER_SIZE && input[i] != '\0') {
@@ -396,7 +399,7 @@ bool InterpretUCIInput() {
 
         SkipToNextCharacter(input, &i);
 
-        bool keepRunning = RespondToSignal(input, &i, signal, &boardinfo, &gameStack, &zobristStack);
+        bool keepRunning = RespondToSignal(input, &i, signal, &boardinfo, &gameStack, &zobristStack, &color);
         if(!keepRunning) {
             return false; // quit immediately
         }
