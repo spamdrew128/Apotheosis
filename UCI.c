@@ -17,7 +17,7 @@
 #define ENGINE_ID "id name Apotheosis\nid author Spamdrew\n"
 #define UCI_OK "uciok\n"
 #define READY_OK "readyok\n"
-#define BESTMOVE "bestmove\n"
+#define BESTMOVE "bestmove"
 
 #define STARTPOS "startpos"
 
@@ -245,7 +245,8 @@ static void InterpretPosition(
     int* i,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack
+    ZobristStack_t* zobristStack,
+    Color_t* color
 )
 {
     char fenString[BUFFER_SIZE];
@@ -266,10 +267,12 @@ static void InterpretPosition(
         colorToMove = InterpretFEN(fenString, boardInfo, gameStack, zobristStack);
     }
 
+    SkipToNextCharacter(input, i);
     while(input[*i] != ' ' && input[*i] != '\0') {
         (*i)++; // skips past the "moves" command which I assume is there
     }
     SkipToNextCharacter(input, i);
+
     MoveList_t moveList = ParseMoves(input, i, boardInfo, gameStack);
 
     for(int j = 0; j <= moveList.maxIndex; j++) {
@@ -277,6 +280,8 @@ static void InterpretPosition(
         colorToMove = !colorToMove;
         AddZobristHashToStack(zobristStack, HashPosition(boardInfo, gameStack, colorToMove));
     }
+
+    *color = colorToMove;
 }
 
 Milliseconds_t TimeStringToNumber(const char* numString) {
@@ -300,17 +305,20 @@ static void GetSearchResults(
     Color_t color
 )
 {
-    Move_t move;
-    InitMove(&move);
-    WriteFromSquare(&move, e2);
-    WriteToSquare(&move, e4);
-    WriteSpecialFlag(&move, promotion_flag);
-    WritePromotionPiece(&move, queen);
+    SearchResults_t searchResults = 
+        Search(
+            uciTimeInfo,
+            boardInfo,
+            gameStack,
+            zobristStack,
+            color
+        );
 
     char moveString[BUFFER_SIZE];
-    MoveStructToUciString(move, moveString);
+    MoveStructToUciString(searchResults.bestMove, moveString);
 
-    return;
+    printf(BESTMOVE);
+    printf(" %s\n", moveString);
 }
 
 PlayerTimeInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
@@ -367,7 +375,7 @@ static bool RespondToSignal(
         // TODO
         break;
     case signal_position:
-        InterpretPosition(input, i, boardInfo, gameStack, zobristStack);
+        InterpretPosition(input, i, boardInfo, gameStack, zobristStack, color);
         break;
     case signal_go:
         PlayerTimeInfo_t uciTimeInfo = InterpretGoArguements(input, i);
