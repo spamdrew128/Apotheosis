@@ -5,7 +5,7 @@ ENGINE=engine
 
 INCDIRS= \
 -I\. \
--I\$(tdd) \
+-I\$(TDD) \
 -I\$(ENGINE)
 
 DEBUGFLAGS=-g

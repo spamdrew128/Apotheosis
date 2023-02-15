@@ -1,5 +1,12 @@
-CC=gcc
-INCDIRS=-I.
+CC=gcco
+
+TDD=tdd
+ENGINE=engine
+
+INCDIRS= \
+-I/. \
+-I/$(TDD) \
+-I/$(ENGINE)
 
 DEBUGFLAGS=-g
 OPTFLAGS=-O3 -flto
@@ -20,7 +27,9 @@ move.c \
 make_and_unmake.c \
 zobrist.c \
 UCI.c \
-endings.c
+endings.c \
+\
+$(ENGINE)/search.c
 
 COMMON_OBJECTS= \
 bitboards.o \
@@ -37,13 +46,14 @@ move.o \
 make_and_unmake.o \
 zobrist.o \
 UCI.o \
-endings.o
+endings.o \
+\
+$(ENGINE)/search.o
 
 MAIN=main
 CFILES=$(MAIN).c $(COMMON_CFILES)
 OBJECTS=$(MAIN).o $(COMMON_OBJECTS)
 
-TDD=tdd
 TDD_MAIN=$(TDD)/main_tdd
 
 D_CFILES= \
@@ -63,6 +73,7 @@ $(TDD)/make_and_unmake_tdd.c \
 $(TDD)/recursive_testing.c \
 $(TDD)/perft_table.c \
 $(TDD)/zobrist_tdd.c \
+$(TDD)/UCI_tdd.c \
 $(TDD)/endings_tdd.c
 
 D_OBJECTS= \
@@ -82,6 +93,7 @@ $(TDD)/make_and_unmake_tdd.o \
 $(TDD)/recursive_testing.o \
 $(TDD)/perft_table.o \
 $(TDD)/zobrist_tdd.o \
+$(TDD)/UCI_tdd.o \
 $(TDD)/endings_tdd.o
 
 BINARY=bin
@@ -90,7 +102,7 @@ DEBUG_BINARY=debug
 all: $(BINARY) $(DEBUG_BINARY)
 
 test: $(DEBUG_BINARY)
-	./$(DEBUG_BINARY)
+	$(DEBUG_BINARY).exe
 
 $(BINARY): $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^
@@ -99,7 +111,7 @@ $(DEBUG_BINARY): $(D_OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $^
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $^
 
 clean:
-	rm $(BINARY) $(DEBUG_BINARY) $(OBJECTS) $(D_OBJECTS)
+	rm $(BINARY) $(DEBUG_BINARY) *.o
