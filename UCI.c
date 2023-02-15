@@ -202,8 +202,7 @@ static bool ContainsStartPos(char input[BUFFER_SIZE], int i) {
 static bool IsLetter(char c) {
     int asciiVal = (int)c;
     return 
-        ((asciiVal >= 65) && (asciiVal <= 90)) ||
-        ((asciiVal >= 97) && (asciiVal <= 122));
+        ((asciiVal >= 'a') && (asciiVal <= 'h'));
 }
 
 static bool IsRowNumber(char c) {
