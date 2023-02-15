@@ -15,8 +15,9 @@ int main(int argc, char** argv)
     InitLookupTables();
     GenerateZobristKeys();
 
-    BoardInfo_t boardInfo;
-    GameStack_t gameStack;
-    ZobristStack_t zobristStack;
-    InterpretFEN(START_FEN, &boardInfo, &gameStack, &zobristStack);
+    bool running = true;
+    while(running)
+    {
+        running = InterpretUCIInput();
+    }
 }
