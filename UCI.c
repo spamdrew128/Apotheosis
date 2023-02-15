@@ -80,7 +80,7 @@ bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo
     WriteToSquare(move, toSquare);
 
     if(stringLen == 5) {
-        char promotionType = moveText[3];
+        char promotionType = moveText[4];
         if(promotionType == 'n' || promotionType == 'N') {
             WritePromotionPiece(move, knight);
             WriteSpecialFlag(move, promotion_flag);
