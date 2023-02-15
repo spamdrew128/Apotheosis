@@ -4,9 +4,9 @@ TDD=tdd
 ENGINE=engine
 
 INCDIRS= \
--I. \
--I$(tdd) \
--I$(ENGINE)
+-I\. \
+-I\$(tdd) \
+-I\$(ENGINE)
 
 DEBUGFLAGS=-g
 OPTFLAGS=-O3 -flto
