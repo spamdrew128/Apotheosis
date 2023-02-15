@@ -128,28 +128,28 @@ static void SquareToString(Square_t square, char string[3]) {
     string[2] = '\0';
 }
 
-static void PrintSingleTypeMoves(MoveList_t* moveList, BoardInfo_t* info, Piece_t type, const char* typeText) {
+static void PrintSingleTypeMoves(Move_t move, BoardInfo_t* info, Piece_t type, const char* typeText) {
     char fromText[3];
     char toText[3];
-    for(int i = 0; i <= moveList->maxIndex; i++) {
-        Move_t current = moveList->moves[i];
 
-        if(PieceOnSquare(info, ReadFromSquare(current)) == type) {
-            SquareToString(ReadFromSquare(current), fromText);
-            SquareToString(ReadToSquare(current), toText);
-            printf("%s, From %s To %s\n", typeText, fromText, toText);
-        }
+    if(PieceOnSquare(info, ReadFromSquare(move)) == type) {
+        SquareToString(ReadFromSquare(move), fromText);
+        SquareToString(ReadToSquare(move), toText);
+        printf("%s, From %s To %s\n", typeText, fromText, toText);
     }
 }
 
 void PrintMoveList(MoveList_t* moveList, BoardInfo_t* info) {
     printf("\n");
-    PrintSingleTypeMoves(moveList, info, king, "King");
-    PrintSingleTypeMoves(moveList, info, queen, "Queen");
-    PrintSingleTypeMoves(moveList, info, rook, "Rook");
-    PrintSingleTypeMoves(moveList, info, bishop, "Bishop");
-    PrintSingleTypeMoves(moveList, info, knight, "Knight");
-    PrintSingleTypeMoves(moveList, info, pawn, "Pawn");
+    for(int i = 0; i <= moveList->maxIndex; i++) {
+        Move_t move = moveList->moves[i];
+        PrintSingleTypeMoves(move, info, king, "King");
+        PrintSingleTypeMoves(move, info, queen, "Queen");
+        PrintSingleTypeMoves(move, info, rook, "Rook");
+        PrintSingleTypeMoves(move, info, bishop, "Bishop");
+        PrintSingleTypeMoves(move, info, knight, "Knight");
+        PrintSingleTypeMoves(move, info, pawn, "Pawn");
+    }
 }
 
 static char PieceToChar(Piece_t piece) {

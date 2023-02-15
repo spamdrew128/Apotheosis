@@ -11,6 +11,7 @@
 #include "movegen.h"
 #include "make_and_unmake.h"
 #include "search.h"
+#include "debug.h"
 
 #define BUFFER_SIZE 256
 
@@ -274,7 +275,7 @@ static void InterpretPosition(
     SkipToNextCharacter(input, i);
 
     MoveList_t moveList = ParseMoves(input, i, boardInfo, gameStack);
-
+    PrintMoveList(&moveList, boardInfo);
     for(int j = 0; j <= moveList.maxIndex; j++) {
         MakeMove(boardInfo, gameStack, moveList.moves[j], colorToMove);
         colorToMove = !colorToMove;
