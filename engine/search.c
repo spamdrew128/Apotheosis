@@ -13,10 +13,9 @@ SearchResults_t Search(
 {
     MoveList_t moveList;
     CompleteMovegen(&moveList, boardInfo, gameStack, color);
-    int randIndex = RandUnsigned64() % (moveList.maxIndex + 1);
     
     SearchResults_t results;
-    results.bestMove = moveList.moves[randIndex];
+    results.bestMove = moveList.moves[moveList.maxIndex];
     results.score = 0;
 
     return results;
