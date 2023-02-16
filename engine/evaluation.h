@@ -12,12 +12,12 @@
 #include "game_state.h"
 #include "zobrist.h"
 
-typedef int16_t EvalScore_t;
+typedef int32_t EvalScore_t;
 enum {
     EVAL_MAX = 10000
 };
 
-typedef int16_t Centipawns_t;
+typedef int32_t Centipawns_t;
 enum {
   knight_value = 300,
   bishop_value = 320,
