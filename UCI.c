@@ -11,7 +11,7 @@
 #include "make_and_unmake.h"
 #include "search.h"
 
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 131072
 
 #define ENGINE_ID "id name Apotheosis\nid author Spamdrew\n"
 #define UCI_OK "uciok\n"
@@ -253,9 +253,8 @@ static void InterpretPosition(
     char fenString[BUFFER_SIZE];
     int fenStringIndex = 0;
 
-    Color_t colorToMove;
     if(ContainsStartPos(input, *i)) {
-        colorToMove = InterpretFEN(START_FEN, boardInfo, gameStack, zobristStack);
+        *color = InterpretFEN(START_FEN, boardInfo, gameStack, zobristStack);
         *i += strlen(STARTPOS);  
     } else {
         while(input[*i] != 'm' && input[*i] != '\0') {
@@ -265,7 +264,7 @@ static void InterpretPosition(
         }
         fenString[fenStringIndex] = '\0';
 
-        colorToMove = InterpretFEN(fenString, boardInfo, gameStack, zobristStack);
+        *color = InterpretFEN(fenString, boardInfo, gameStack, zobristStack);
     }
 
     SkipToNextCharacter(input, i);
@@ -274,7 +273,7 @@ static void InterpretPosition(
     }
     SkipToNextCharacter(input, i);
 
-    ParseAndPlayMoves(input, i, boardInfo, gameStack, zobristStack, &colorToMove);
+    ParseAndPlayMoves(input, i, boardInfo, gameStack, zobristStack, color);
 }
 
 Milliseconds_t TimeStringToNumber(const char* numString) {
