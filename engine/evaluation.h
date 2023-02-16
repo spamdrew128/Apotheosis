@@ -23,8 +23,7 @@ enum {
   bishop_value = 320,
   rook_value = 500,
   queen_value = 900,
-  pawn_value = 100,
-  king_value = 400
+  pawn_value = 100
 };
 
 EvalScore_t ScoreOfPosition(BoardInfo_t* boardInfo);
