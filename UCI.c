@@ -289,6 +289,10 @@ Milliseconds_t TimeStringToNumber(const char* numString) {
     return result;
 }
 
+static void SendNumericalInfoCommand(const char* command, int data) {
+    printf("info %s %d\n", command, data);
+}
+
 static void GetSearchResults(
     PlayerTimeInfo_t uciTimeInfo,
     BoardInfo_t* boardInfo,
@@ -308,6 +312,8 @@ static void GetSearchResults(
 
     char moveString[BUFFER_SIZE];
     MoveStructToUciString(searchResults.bestMove, moveString);
+
+    SendNumericalInfoCommand("score", searchResults.score);
 
     printf(BESTMOVE);
     printf(" %s\n", moveString);
