@@ -11,7 +11,6 @@
 #include "movegen.h"
 #include "make_and_unmake.h"
 #include "search.h"
-#include "debug.h"
 
 #define BUFFER_SIZE 256
 
@@ -240,8 +239,6 @@ static void ParseAndPlayMoves(
             *colorToMove = !(*colorToMove);
             AddZobristHashToStack(zobristStack, HashPosition(boardInfo, gameStack, colorToMove));
         }
-
-        assert(BoardIsValid(boardInfo, gameStack, *colorToMove));
     }
 }
 
