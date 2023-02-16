@@ -3,7 +3,7 @@ CC=gcc
 TDD=tdd
 ENGINE=engine
 
-INCDIRS= \
+INCDIRS:= \
 -I . \
 -I $(TDD)/. \
 -I $(ENGINE)/.
