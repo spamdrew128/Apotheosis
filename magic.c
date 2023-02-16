@@ -174,7 +174,7 @@ static void InitMagicEntries(
 {
     for(Square_t square = 0; square < NUM_SQUARES; square++) {
         magicEntries[square].mask = FindMaskCallback(square);
-        uint8_t indexBits = PopulationCount(magicEntries[square].mask);
+        uint8_t indexBits = PopCount(magicEntries[square].mask);
         magicEntries[square].shift = NUM_SQUARES - indexBits;
         magicEntries[square].magic = magicTable[square];
         magicEntries[square].offset = totalEntries;

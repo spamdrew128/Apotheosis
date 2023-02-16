@@ -23,7 +23,7 @@ Bitboard_t GenShiftEast(Bitboard_t b, uint8_t shift);
 Bitboard_t GenShiftWest(Bitboard_t b, uint8_t shift);
 
 typedef uint8_t Population_t;
-Population_t PopulationCount(Bitboard_t b);
+Population_t PopCount(Bitboard_t b);
 
 Square_t LSB(Bitboard_t b);
 Bitboard_t IsolateLSB(Bitboard_t b);

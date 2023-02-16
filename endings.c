@@ -35,7 +35,7 @@ static bool OnlyMinorPiecesOnBoard(BoardInfo_t* boardInfo) {
 
 static bool AtMostOneMinorPiece(BoardInfo_t* boardInfo, Color_t color) {
     return 
-        PopulationCount(boardInfo->bishops[color] | boardInfo->knights[color]) <= 1;
+        PopCount(boardInfo->bishops[color] | boardInfo->knights[color]) <= 1;
 }
 
 static bool IsInsufficientMaterialDraw(BoardInfo_t* boardInfo) {

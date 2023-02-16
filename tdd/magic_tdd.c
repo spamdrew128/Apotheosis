@@ -51,11 +51,11 @@ static void RookMasksMatch(MagicEntry_t rMagicEntries[NUM_SQUARES]) {
     for(int square = 0; square < NUM_SQUARES; square++) {
         Bitboard_t mask = rMagicEntries[square].mask;
         if(SquareIsCorner(square)) {
-            success = success && (PopulationCount(mask) == corner_rook_index_bits);
+            success = success && (PopCount(mask) == corner_rook_index_bits);
         } else if(SquareIsEdge(square)) {
-            success = success && (PopulationCount(mask) == edge_rook_index_bits);
+            success = success && (PopCount(mask) == edge_rook_index_bits);
         } else {
-            success = success && (PopulationCount(mask) == middle_rook_index_bits);
+            success = success && (PopCount(mask) == middle_rook_index_bits);
         }
     }
 
@@ -68,13 +68,13 @@ static void BishopsMasksMatch(MagicEntry_t bMagicEntries[NUM_SQUARES]) {
     for(int square = 0; square < NUM_SQUARES; square++) {
         Bitboard_t mask = bMagicEntries[square].mask;
         if(SquareIsInBishopArea(square, bishop_9index_bits_area)) {
-            success = success && (PopulationCount(mask) == 9);
+            success = success && (PopCount(mask) == 9);
         } else if(SquareIsInBishopArea(square, bishop_7index_bits_area)) {
-            success = success && (PopulationCount(mask) == 7);
+            success = success && (PopCount(mask) == 7);
         } else if(SquareIsInBishopArea(square, bishop_6index_bits_area)) {
-            success = success && (PopulationCount(mask) == 6);
+            success = success && (PopCount(mask) == 6);
         } else if(SquareIsInBishopArea(square, bishop_5index_bits_area)) {
-            success = success && (PopulationCount(mask) == 5);
+            success = success && (PopCount(mask) == 5);
         } else {
             success = false;
         }
