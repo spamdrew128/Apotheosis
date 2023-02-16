@@ -6,7 +6,6 @@
 
 #include "UCI.h"
 #include "bitboards.h"
-#include "zobrist.h"
 #include "FEN.h"
 #include "movegen.h"
 #include "make_and_unmake.h"
@@ -382,17 +381,18 @@ static bool RespondToSignal(
     return true;
 }
 
-bool InterpretUCIInput() {
+bool InterpretUCIInput(
+    BoardInfo_t* boardinfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    Color_t* color
+)
+{
     char input[BUFFER_SIZE];
     memset(input, '\0', BUFFER_SIZE* sizeof(char));
     fgets(input, BUFFER_SIZE, stdin);
 
     char currentWord[BUFFER_SIZE];
-
-    BoardInfo_t boardinfo;
-    GameStack_t gameStack;
-    ZobristStack_t zobristStack;
-    Color_t color;
 
     int i = 0;
     while(i < BUFFER_SIZE && input[i] != '\0') {
@@ -401,7 +401,7 @@ bool InterpretUCIInput() {
 
         SkipToNextCharacter(input, &i);
 
-        bool keepRunning = RespondToSignal(input, &i, signal, &boardinfo, &gameStack, &zobristStack, &color);
+        bool keepRunning = RespondToSignal(input, &i, signal, boardinfo, gameStack, zobristStack, color);
         if(!keepRunning) {
             return false; // quit immediately
         }

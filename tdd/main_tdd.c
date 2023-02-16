@@ -20,6 +20,8 @@
 
 int main(int argc, char** argv)
 {
+    setvbuf(stdout, NULL, _IONBF, 0);
+
     InitLookupTables();
     GenerateZobristKeys();
     
@@ -45,9 +47,14 @@ int main(int argc, char** argv)
     PERFTRunner(fen, 8, false);
     RunAllPerftTests(false);
     
+    BoardInfo_t boardinfo;
+    GameStack_t gameStack;
+    ZobristStack_t zobristStack;
+    Color_t color;
+
     bool running = true;
     while(running)
     {
-        running = InterpretUCIInput();
+        running = InterpretUCIInput(&boardinfo, &gameStack, &zobristStack, &color);
     }
 }
