@@ -382,7 +382,7 @@ static bool RespondToSignal(
 }
 
 bool InterpretUCIInput(
-    BoardInfo_t* boardinfo,
+    BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
     Color_t* color
@@ -401,7 +401,7 @@ bool InterpretUCIInput(
 
         SkipToNextCharacter(input, &i);
 
-        bool keepRunning = RespondToSignal(input, &i, signal, boardinfo, gameStack, zobristStack, color);
+        bool keepRunning = RespondToSignal(input, &i, signal, boardInfo, gameStack, zobristStack, color);
         if(!keepRunning) {
             return false; // quit immediately
         }
