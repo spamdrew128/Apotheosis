@@ -26,6 +26,8 @@ static SearchResults_t DummySearch(
             results.score = score;
             results.bestMove = move;
         }
+
+        UnmakeMove(boardInfo, gameStack);
     }
 
     return results;
