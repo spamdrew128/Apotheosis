@@ -63,7 +63,6 @@ static int NumCharToInt(char numChar) {
 bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo, GameStack_t* gameStack) {
     int stringLen = strlen(moveText);
     if(stringLen > 5 || stringLen < 4) {
-        printf("Invalid move format\n");
         return false;
     }
 
@@ -98,7 +97,7 @@ bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo
 
     Piece_t type = PieceOnSquare(boardInfo, fromSquare);
 
-    if(type == king && (abs(fromSquare - toSquare) >= 2)) {
+    if(type == king && (abs(fromSquare%8 - toSquare%8) >= 2)) {
         WriteSpecialFlag(move, castle_flag);
     }
 
@@ -210,10 +209,15 @@ static bool IsRowNumber(char c) {
     return  (asciiVal >= 49) && (asciiVal <= 56);
 }
 
-static MoveList_t ParseMoves(char input[BUFFER_SIZE], int* i, BoardInfo_t* boardInfo, GameStack_t* gameStack) {
-    MoveList_t moveList;
-    moveList.maxIndex = movelist_empty;
-
+static void ParseAndPlayMoves(
+    char input[BUFFER_SIZE],
+    int* i,
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    Color_t* colorToMove
+)
+{
     char moveBuffer[BUFFER_SIZE];
     size_t moveBufferSize = BUFFER_SIZE * sizeof(char);
 
@@ -232,12 +236,13 @@ static MoveList_t ParseMoves(char input[BUFFER_SIZE], int* i, BoardInfo_t* board
         Move_t move;
         InitMove(&move);
         if(UCITranslateMove(&move, moveBuffer, boardInfo, gameStack)) {
-            moveList.maxIndex++;
-            moveList.moves[moveList.maxIndex] = move;
+            MakeMove(boardInfo, gameStack, move, *colorToMove);
+            *colorToMove = !(*colorToMove);
+            AddZobristHashToStack(zobristStack, HashPosition(boardInfo, gameStack, colorToMove));
         }
-    }
 
-    return moveList;
+        assert(BoardIsValid(boardInfo, gameStack, *colorToMove));
+    }
 }
 
 static void InterpretPosition(
@@ -273,15 +278,7 @@ static void InterpretPosition(
     }
     SkipToNextCharacter(input, i);
 
-    MoveList_t moveList = ParseMoves(input, i, boardInfo, gameStack);
-    PrintMoveList(&moveList, boardInfo);
-    for(int j = 0; j <= moveList.maxIndex; j++) {
-        MakeMove(boardInfo, gameStack, moveList.moves[j], colorToMove);
-        colorToMove = !colorToMove;
-        AddZobristHashToStack(zobristStack, HashPosition(boardInfo, gameStack, colorToMove));
-    }
-
-    *color = colorToMove;
+    ParseAndPlayMoves(input, i, boardInfo, gameStack, zobristStack, &colorToMove);
 }
 
 Milliseconds_t TimeStringToNumber(const char* numString) {
