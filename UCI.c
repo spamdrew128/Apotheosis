@@ -11,7 +11,7 @@
 #include "make_and_unmake.h"
 #include "search.h"
 
-#define BUFFER_SIZE 131072
+#define BUFFER_SIZE 50000
 
 #define ENGINE_ID "id name Apotheosis\nid author Spamdrew\n"
 #define UCI_OK "uciok\n"
