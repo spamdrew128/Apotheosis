@@ -8,18 +8,23 @@
 #include "magic.h"
 #include "game_state.h"
 #include "zobrist.h"
+#include "UCI.h"
 
 int main(int argc, char** argv)
 {
+    setvbuf(stdout, NULL, _IONBF, 0);
+
     InitLookupTables();
     GenerateZobristKeys();
 
     BoardInfo_t boardInfo;
     GameStack_t gameStack;
     ZobristStack_t zobristStack;
-    InterpretFEN(START_FEN, &boardInfo, &gameStack, &zobristStack);
+    Color_t color;
 
-    
-    // Todo: GAME LOOP
-    
+    bool running = true;
+    while(running)
+    {
+        running = InterpretUCIInput(&boardInfo, &gameStack, &zobristStack, &color);
+    }
 }
