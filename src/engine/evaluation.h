@@ -14,7 +14,7 @@
 
 typedef int32_t EvalScore_t;
 enum {
-    EVAL_MAX = 10000
+  EVAL_MAX = 100000
 };
 
 typedef int32_t Centipawns_t;
