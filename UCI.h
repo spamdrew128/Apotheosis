@@ -14,8 +14,7 @@ bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo
 bool InterpretUCIInput(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack,
-    Color_t* color
+    ZobristStack_t* zobristStack
 );
 
 #endif

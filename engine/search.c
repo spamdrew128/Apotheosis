@@ -7,22 +7,21 @@ static SearchResults_t DummySearch(
     MoveList_t* moveList,     
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack,
-    Color_t colorToMove
+    ZobristStack_t* zobristStack
 )
 {
     SearchResults_t results;
-    results.score = colorToMove == white ? -EVAL_MAX : EVAL_MAX;
+    results.score = boardInfo->colorToMove == white ? -EVAL_MAX : EVAL_MAX;
 
     for(int i = 0; i <= moveList->maxIndex; i++) {
         Move_t move = moveList->moves[i];
-        MakeMove(boardInfo, gameStack, move, colorToMove);
+        MakeMove(boardInfo, gameStack, move);
         EvalScore_t score = ScoreOfPosition(boardInfo);
 
-        if(colorToMove == white && score > results.score) {
+        if(boardInfo->colorToMove == white && score > results.score) {
             results.score = score;
             results.bestMove = move;
-        } else if(colorToMove == black && score < results.score) {
+        } else if(boardInfo->colorToMove == black && score < results.score) {
             results.score = score;
             results.bestMove = move;
         }
@@ -37,14 +36,13 @@ SearchResults_t Search(
     PlayerTimeInfo_t uciTimeInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack,
-    Color_t color
+    ZobristStack_t* zobristStack
 )
 {
     MoveList_t moveList;
-    CompleteMovegen(&moveList, boardInfo, gameStack, color);
+    CompleteMovegen(&moveList, boardInfo, gameStack);
 
-    SearchResults_t results = DummySearch(&moveList, boardInfo, gameStack, zobristStack, color);
+    SearchResults_t results = DummySearch(&moveList, boardInfo, gameStack, zobristStack);
 
     return results;
 }

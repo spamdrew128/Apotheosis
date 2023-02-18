@@ -622,8 +622,10 @@ static void AddEverything(
     );
 }
 
-void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
+void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack) {
     moveList->maxIndex = movelist_empty;
+
+    Color_t color = boardInfo->colorToMove;
 
     Bitboard_t unsafeSquares = UnsafeSquares(boardInfo, color);
     Square_t kingSquare = KingSquare(boardInfo, color);
@@ -657,8 +659,10 @@ void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
     );
 }
 
-void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
+void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack) {
     moveList->maxIndex = movelist_empty;
+
+    Color_t color = boardInfo->colorToMove;
 
     Bitboard_t unsafeSquares = UnsafeSquares(boardInfo, color);
     Square_t kingSquare = KingSquare(boardInfo, color);
