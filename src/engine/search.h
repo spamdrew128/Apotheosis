@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <limits.h>
 
 #include "move.h"
 #include "board_info.h"
@@ -11,7 +12,12 @@
 #include "zobrist.h"
 #include "evaluation.h"
 
-typedef uint16_t Milliseconds_t;
+typedef uint32_t Milliseconds_t;
+
+enum {
+    MS_MAX_TIME = UINT32_MAX
+};
+
 typedef struct
 {
     Milliseconds_t wTime;

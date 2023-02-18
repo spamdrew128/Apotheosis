@@ -309,7 +309,7 @@ static void GetSearchResults(
     char moveString[BUFFER_SIZE];
     MoveStructToUciString(searchResults.bestMove, moveString);
 
-    SendNumericalInfoCommand("score", searchResults.score);
+    SendNumericalInfoCommand("score cp", searchResults.score);
 
     printf(BESTMOVE);
     printf(" %s\n", moveString);
@@ -339,6 +339,11 @@ PlayerTimeInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
         } else if(StringsMatch(nextWord, "binc")) {
             GetNextWord(input, nextWord, i);
             timeInfo.bInc = TimeStringToNumber(nextWord);       
+        } else if(StringsMatch(nextWord, "infinite")) {
+            timeInfo.wTime = UINT32_MAX;       
+            timeInfo.bTime = UINT32_MAX;
+            timeInfo.wInc = 0;       
+            timeInfo.bInc = 0;  
         }
     }
 
