@@ -4,7 +4,7 @@
 #include "board_constants.h"
 
 typedef struct {
-    Color_t sideToMove;
+    Color_t colorToMove;
 
     Bitboard_t allPieces[2];
     Bitboard_t empty;

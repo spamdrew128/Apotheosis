@@ -96,7 +96,7 @@ static void UpdateHalfmoveClock(FEN_t fen, int i, GameState_t* state) {
     state->halfmoveClock = halfmoves;
 }
 
-Color_t InterpretFEN(
+void InterpretFEN(
     FEN_t fen,
     BoardInfo_t* info,
     GameStack_t* gameStack,
@@ -192,7 +192,7 @@ Color_t InterpretFEN(
     TranslateBitboardsToMailbox(info);
 
     i++;
-    Color_t colorToMove = CharToColor(fen[i]);
+    info->colorToMove = CharToColor(fen[i]);
 
     i += 2;
     GameState_t* gameState = GetEmptyNextGameState(gameStack);
@@ -214,7 +214,5 @@ Color_t InterpretFEN(
 
     gameState->boardInfo = *info;
 
-    AddZobristHashToStack(zobristStack, HashPosition(info, gameStack, colorToMove));
-
-    return colorToMove;
+    AddZobristHashToStack(zobristStack, HashPosition(info, gameStack));
 }

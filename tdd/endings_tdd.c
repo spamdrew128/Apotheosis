@@ -20,8 +20,7 @@ enum {
 // HELPERS
 static bool GameEndStatusShouldBe(
     GameEndStatus_t expected,
-    int moveListMaxIndex,
-    Color_t colorToMove
+    int moveListMaxIndex
 )
 {
     GameEndStatus_t actual = 
@@ -29,34 +28,33 @@ static bool GameEndStatusShouldBe(
             &boardInfo,
             &gameStack,
             &zobristStack,
-            moveListMaxIndex,
-            colorToMove
+            moveListMaxIndex
         );
 
     return actual == expected;
 }
 
-static void MakeMoveAndAddHash(Move_t move, Color_t moveColor) {
-    MakeMove(&boardInfo, &gameStack, move, moveColor);
+static void MakeMoveAndAddHash(Move_t move) {
+    MakeMove(&boardInfo, &gameStack, move);
 
-    AddZobristHashToStack(&zobristStack, HashPosition(&boardInfo, &gameStack, !moveColor));
+    AddZobristHashToStack(&zobristStack, HashPosition(&boardInfo, &gameStack));
 }
 
 // TESTS
 static void ShouldDrawWhenHalfmoveCountHits100() {
-    Color_t color = InterpretFEN(someFen, &boardInfo, &gameStack, &zobristStack);
+    InterpretFEN(someFen, &boardInfo, &gameStack, &zobristStack);
     gameStack.gameStates->halfmoveClock = 100;
-    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max, color));
+    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max));
 }
 
 static void ShouldIdentifyCheckmate() {
-    Color_t color = InterpretFEN(checkmateFen, &boardInfo, &gameStack, &zobristStack);
-    PrintResults(GameEndStatusShouldBe(checkmate, movelist_empty, color));
+    InterpretFEN(checkmateFen, &boardInfo, &gameStack, &zobristStack);
+    PrintResults(GameEndStatusShouldBe(checkmate, movelist_empty));
 }
 
 static void ShouldIdentifyStalemate() {
-    Color_t color = InterpretFEN(stalemateFen, &boardInfo, &gameStack, &zobristStack);
-    PrintResults(GameEndStatusShouldBe(draw, movelist_empty, color));
+    InterpretFEN(stalemateFen, &boardInfo, &gameStack, &zobristStack);
+    PrintResults(GameEndStatusShouldBe(draw, movelist_empty));
 }
 
 static void ShouldRecognizeThreefoldRepetition() {
@@ -82,69 +80,69 @@ static void ShouldRecognizeThreefoldRepetition() {
     WriteFromSquare(&bKnightBack, f6);
     WriteToSquare(&bKnightBack, g8);
 
-    MakeMoveAndAddHash(wKnightOut, white);
-    MakeMoveAndAddHash(bKnightOut, black);
-    MakeMoveAndAddHash(wKnightBack, white);
-    MakeMoveAndAddHash(bKnightBack, black);
-    MakeMoveAndAddHash(wKnightOut, white);
-    MakeMoveAndAddHash(bKnightOut, black);
-    MakeMoveAndAddHash(wKnightBack, white);
+    MakeMoveAndAddHash(wKnightOut);
+    MakeMoveAndAddHash(bKnightOut);
+    MakeMoveAndAddHash(wKnightBack);
+    MakeMoveAndAddHash(bKnightBack);
+    MakeMoveAndAddHash(wKnightOut);
+    MakeMoveAndAddHash(bKnightOut);
+    MakeMoveAndAddHash(wKnightBack);
 
-    bool success = GameEndStatusShouldBe(ongoing, some_movelist_max, black);
+    bool success = GameEndStatusShouldBe(ongoing, some_movelist_max);
     MakeMoveAndAddHash(bKnightBack, black);
 
-    success = success && GameEndStatusShouldBe(draw, some_movelist_max, white);
+    success = success && GameEndStatusShouldBe(draw, some_movelist_max);
 
     PrintResults(success);
 }
 
 static void ShouldDrawWhenJustKings() {
     FEN_t kingsOnly = "8/8/8/6K1/3k4/8/8/8 w - - 0 1";
-    Color_t color = InterpretFEN(kingsOnly, &boardInfo, &gameStack, &zobristStack);
+    InterpretFEN(kingsOnly, &boardInfo, &gameStack, &zobristStack);
 
-    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max, color));
+    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max));
 }
 
 static void ShouldDrawKnightVsBishop() {
     FEN_t knightVsBishop = "8/4b3/8/6K1/3k4/4N3/8/8 w - - 0 1";
-    Color_t color = InterpretFEN(knightVsBishop, &boardInfo, &gameStack, &zobristStack);
+    InterpretFEN(knightVsBishop, &boardInfo, &gameStack, &zobristStack);
 
-    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max, color));
+    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max));
 }
 
 static void ShouldDrawKnightVsKnight() {
     FEN_t knightVsKnight = "8/4n3/8/6K1/3k4/4N3/8/8 w - - 0 1";
-    Color_t color = InterpretFEN(knightVsKnight, &boardInfo, &gameStack, &zobristStack);
+    InterpretFEN(knightVsKnight, &boardInfo, &gameStack, &zobristStack);
 
-    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max, color));
+    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max));
 }
 
 static void ShouldDrawBishopVsBishop() {
     FEN_t bishopVsBishop = "8/1b6/8/6K1/3k4/8/7B/8 w - - 0 1";
-    Color_t color = InterpretFEN(bishopVsBishop, &boardInfo, &gameStack, &zobristStack);
+    InterpretFEN(bishopVsBishop, &boardInfo, &gameStack, &zobristStack);
 
-    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max, color));
+    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max));
 }
 
 static void ShouldDrawOneSideKnight() {
     FEN_t oneSideKnight = "8/4k3/8/8/1K6/8/6N1/8 w - - 0 1";
-    Color_t color = InterpretFEN(oneSideKnight, &boardInfo, &gameStack, &zobristStack);
+    InterpretFEN(oneSideKnight, &boardInfo, &gameStack, &zobristStack);
 
-    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max, color));
+    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max));
 }
 
 static void ShouldDrawOneSideBishop() {
     FEN_t oneSideBishop = "8/4k3/8/8/1K6/8/6b1/8 w - - 0 1";
-    Color_t color = InterpretFEN(oneSideBishop, &boardInfo, &gameStack, &zobristStack);
+    InterpretFEN(oneSideBishop, &boardInfo, &gameStack, &zobristStack);
 
-    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max, color));
+    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max));
 }
 
 static void ShouldNotDrawTwoMinorPieces() {
     FEN_t twoSideBishop = "8/4k3/8/8/1K2bb2/8/8/8 w - - 0 1";
-    Color_t color = InterpretFEN(twoSideBishop, &boardInfo, &gameStack, &zobristStack);
+    InterpretFEN(twoSideBishop, &boardInfo, &gameStack, &zobristStack);
 
-    PrintResults(GameEndStatusShouldBe(ongoing, some_movelist_max, color));
+    PrintResults(GameEndStatusShouldBe(ongoing, some_movelist_max));
 }
 
 void EndingsTDDRunner() {

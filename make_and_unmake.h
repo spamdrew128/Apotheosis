@@ -7,7 +7,7 @@
 #include "movegen.h"
 #include "game_state.h"
 
-void MakeMove(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, Color_t moveColor);
+void MakeMove(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move);
 
 void UnmakeMove(BoardInfo_t* boardInfo, GameStack_t* gameStack);
 

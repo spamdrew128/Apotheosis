@@ -41,7 +41,7 @@ int main(int argc, char** argv)
     UCITDDRunner();
     printf("\n");
 
-    SpeedTest(START_FEN, 6, true);
+    SpeedTest(START_FEN, 6, false);
 
     FEN_t fen = "8/8/8/3p4/4pn1N/6p1/8/5K1k w - - 10 73";
     PERFTRunner(fen, 8, false);

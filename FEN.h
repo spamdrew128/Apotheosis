@@ -8,7 +8,7 @@
 
 typedef const char* FEN_t;
 
-Color_t InterpretFEN(
+void InterpretFEN(
     FEN_t fen,
     BoardInfo_t* info,
     GameStack_t* gameStack,
