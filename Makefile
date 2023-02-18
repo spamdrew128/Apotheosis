@@ -10,6 +10,7 @@ MOVEGEN=$(SRC)\movegen
 PLAY=$(SRC)\play
 RNG=$(SRC)\RNG
 STATE=$(SRC)\state
+TIMER=$(SRC)\timer
 UCI=$(SRC)\UCI
 ZOBRIST=$(SRC)\zobrist
 
@@ -29,6 +30,7 @@ INCDIRS:= \
 -I $(PLAY)\. \
 -I $(RNG)\. \
 -I $(STATE)\. \
+-I $(TIMER)\. \
 -I $(UCI)\. \
 -I $(ZOBRIST)\. \
 \
@@ -52,6 +54,7 @@ $(PLAY)\make_and_unmake.c \
 $(RNG)\RNG.c \
 $(STATE)\board_info.c \
 $(STATE)\game_state.c \
+$(TIMER)\timer.c \
 $(MOVEGEN)\legals.c \
 $(MOVEGEN)\movegen.c \
 $(MOVEGEN)\pieces.c \
@@ -71,6 +74,7 @@ $(PLAY)\make_and_unmake.o \
 $(RNG)\RNG.o \
 $(STATE)\board_info.o \
 $(STATE)\game_state.o \
+$(TIMER)\timer.o \
 $(MOVEGEN)\legals.o \
 $(MOVEGEN)\movegen.o \
 $(MOVEGEN)\pieces.o \

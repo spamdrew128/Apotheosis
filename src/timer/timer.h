@@ -3,8 +3,11 @@
 
 #include <stdint.h>
 
-typedef struct {
+#include "time_constants.h"
 
+typedef struct {
+    Seconds_t startTime;
+    Seconds_t duration;
 } Timer_t;
 
 #endif
