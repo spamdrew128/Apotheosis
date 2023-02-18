@@ -14,7 +14,7 @@ static void ShouldFindM2() {
     InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
     
     PlayerTimeInfo_t uciTimeInfo;
-    SearchResults_t results = Search(uciTimeInfo, &boardInfo, &gameStack, &zobristStack);
+    SearchResults_t results = Search(uciTimeInfo, &boardInfo, &gameStack, &zobristStack, 6);
 }
 
 void BasicTestsRunner() {

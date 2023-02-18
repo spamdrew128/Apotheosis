@@ -25,11 +25,14 @@ typedef struct {
     EvalScore_t score;
 } SearchResults_t;
 
+typedef uint8_t Depth_t;
+
 SearchResults_t Search(
     PlayerTimeInfo_t uciTimeInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack
+    ZobristStack_t* zobristStack,
+    Depth_t maxDepth
 );
 
 #endif

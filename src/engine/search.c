@@ -6,7 +6,6 @@
 #include "RNG.h"
 #include "endings.h"
 
-typedef uint8_t Depth_t;
 typedef uint8_t Ply_t;
 
 static void MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, ZobristStack_t* zobristStack) {
@@ -107,10 +106,11 @@ SearchResults_t Search(
     PlayerTimeInfo_t uciTimeInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack
+    ZobristStack_t* zobristStack,
+    Depth_t maxDepth
 )
 {
-    SearchResults_t results = NegamaxRoot(boardInfo, gameStack, zobristStack, 6);
+    SearchResults_t results = NegamaxRoot(boardInfo, gameStack, zobristStack, maxDepth);
 
     return results;
 }
