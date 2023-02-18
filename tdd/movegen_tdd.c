@@ -19,12 +19,12 @@ static void TestSetup() {
 
 static void CompleteMovegenTestWrapper(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
     boardInfo->colorToMove = color;
-    CompleteMovegen(moveList, boardInfo, stack, color);
+    CompleteMovegen(moveList, boardInfo, stack);
 }
 
 static void CapturesMovegenTestWrapper(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
     boardInfo->colorToMove = color;
-    CapturesMovegen(moveList, boardInfo, stack, color);
+    CapturesMovegen(moveList, boardInfo, stack);
 }
 
 static int CountPieceMoves(Piece_t piece, MoveList_t moveList, BoardInfo_t* info) {

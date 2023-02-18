@@ -206,6 +206,7 @@ bool CompareInfo(BoardInfo_t* info, BoardInfo_t* expectedInfo) {
     }
 
     success = success && (info->empty == expectedInfo->empty);
+    success = success && (info->colorToMove == expectedInfo->colorToMove);
 
     for(int i = 0; i < NUM_SQUARES; i++) {
         success = success && 
@@ -299,8 +300,9 @@ static bool EnemyKingCanBeCaptured(BoardInfo_t *info, Color_t colorToMove) {
     return info->kings[!colorToMove] & attacks;
 }
 
-bool BoardIsValid(BoardInfo_t *info, GameStack_t* gameStack, Color_t color) {
+bool BoardIsValid(BoardInfo_t *info, GameStack_t* gameStack) {
     assert(info != NULL);
+
     Population_t numPawns = PopCount(info->pawns[white] | info->pawns[black]);
     Population_t numKnights = PopCount(info->knights[white] | info->knights[black]);
     Population_t numBishops = PopCount(info->bishops[white] | info->bishops[black]);
@@ -350,7 +352,7 @@ bool BoardIsValid(BoardInfo_t *info, GameStack_t* gameStack, Color_t color) {
         return false;
     }
 
-    if(EnemyKingCanBeCaptured(info, color)) {
+    if(EnemyKingCanBeCaptured(info, info->colorToMove)) {
         return false;
     }
 

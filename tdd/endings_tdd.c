@@ -89,7 +89,7 @@ static void ShouldRecognizeThreefoldRepetition() {
     MakeMoveAndAddHash(wKnightBack);
 
     bool success = GameEndStatusShouldBe(ongoing, some_movelist_max);
-    MakeMoveAndAddHash(bKnightBack, black);
+    MakeMoveAndAddHash(bKnightBack);
 
     success = success && GameEndStatusShouldBe(draw, some_movelist_max);
 
