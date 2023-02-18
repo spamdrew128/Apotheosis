@@ -1,54 +1,58 @@
 CC=gcc
 
+SRC=src
+ENGINE=$(SRC)\engine
+
 TDD_ROOT=tdd
-TDD=tdd\tests
-ENGINE=engine
+TDD=$(TDD_ROOT)\tests
 
 INCDIRS:= \
 -I . \
--I $(TDD)\. \
--I $(ENGINE)\.
+-I $(SRC)\. \
+-I $(ENGINE)\. \
+\
+-I $(TDD)\. 
 
 DEBUGFLAGS=-g
 OPTFLAGS=-O3 -flto
 CFLAGS=-Wall -std=c17 -march=native $(DEBUGFLAGS) $(INCDIRS) 
 
 COMMON_CFILES= \
-bitboards.c \
-board_info.c \
-lookup.c \
-FEN.c \
-pieces.c \
-magic.c \
-RNG.c \
-legals.c \
-movegen.c \
-game_state.c \
-move.c \
-make_and_unmake.c \
-zobrist.c \
-UCI.c \
-endings.c \
+$(SRC)bitboards.c \
+$(SRC)board_info.c \
+$(SRC)\lookup.c \
+$(SRC)\FEN.c \
+$(SRC)\pieces.c \
+$(SRC)\magic.c \
+$(SRC)\RNG.c \
+$(SRC)\legals.c \
+$(SRC)\movegen.c \
+$(SRC)\game_state.c \
+$(SRC)\move.c \
+$(SRC)\make_and_unmake.c \
+$(SRC)\zobrist.c \
+$(SRC)\UCI.c \
+$(SRC)\endings.c \
 \
 $(ENGINE)\search.c \
 $(ENGINE)\evaluation.c
 
 COMMON_OBJECTS= \
-bitboards.o \
-board_info.o \
-lookup.o \
-FEN.o \
-pieces.o \
-magic.o \
-RNG.o \
-legals.o \
-movegen.o \
-game_state.o \
-move.o \
-make_and_unmake.o \
-zobrist.o \
-UCI.o \
-endings.o \
+$(SRC)\bitboards.o \
+$(SRC)\board_info.o \
+$(SRC)\lookup.o \
+$(SRC)\FEN.o \
+$(SRC)\pieces.o \
+$(SRC)\magic.o \
+$(SRC)\RNG.o \
+$(SRC)\legals.o \
+$(SRC)\movegen.o \
+$(SRC)\game_state.o \
+$(SRC)\move.o \
+$(SRC)\make_and_unmake.o \
+$(SRC)\zobrist.o \
+$(SRC)\UCI.o \
+$(SRC)\endings.o \
 \
 $(ENGINE)\search.o \
 $(ENGINE)\evaluation.o 
@@ -114,7 +118,7 @@ $(DEBUG_BINARY): $(D_OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $^
+	$(CC) $(CFLAGS) -c -o $@ $^
 
 clean:
 	del /S *.exe *.o && cls
