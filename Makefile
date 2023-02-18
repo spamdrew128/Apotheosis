@@ -15,6 +15,7 @@ ZOBRIST=$(SRC)\zobrist
 
 TDD_ROOT=tdd
 TDD=$(TDD_ROOT)\tests
+ENGINE_TDD=$(TDD_ROOT)\engine_tests
 
 INCDIRS:= \
 -I . \
@@ -31,11 +32,12 @@ INCDIRS:= \
 -I $(UCI)\. \
 -I $(ZOBRIST)\. \
 \
--I $(TDD)\. 
+-I $(TDD)\. \
+-I $(ENGINE_TDD)\. 
 
 DEBUGFLAGS=-g
 OPTFLAGS=-O3 -flto
-CFLAGS=-Wall -std=c17 -march=native $(DEBUGFLAGS) $(INCDIRS) 
+CFLAGS=-Wall -std=c17 -march=native $(OPTFLAGS) $(INCDIRS) 
 
 COMMON_CFILES= \
 $(BITBOARDS)\bitboards.c \
@@ -99,7 +101,9 @@ $(TDD)\recursive_testing.c \
 $(TDD)\perft_table.c \
 $(TDD)\zobrist_tdd.c \
 $(TDD)\UCI_tdd.c \
-$(TDD)\endings_tdd.c
+$(TDD)\endings_tdd.c \
+\
+$(ENGINE_TDD)\basic_tests.c
 
 D_OBJECTS= \
 $(TDD_MAIN).o \
@@ -119,7 +123,9 @@ $(TDD)\recursive_testing.o \
 $(TDD)\perft_table.o \
 $(TDD)\zobrist_tdd.o \
 $(TDD)\UCI_tdd.o \
-$(TDD)\endings_tdd.o
+$(TDD)\endings_tdd.o \
+\
+$(ENGINE_TDD)\basic_tests.o
 
 BINARY=bin
 DEBUG_BINARY=debug

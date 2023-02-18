@@ -14,10 +14,10 @@
 
 typedef int32_t EvalScore_t;
 enum {
-    EVAL_MAX = 10000
+  EVAL_MAX = 100000,
+  INFINITY = INT32_MAX - 1
 };
 
-typedef int32_t Centipawns_t;
 enum {
   knight_value = 300,
   bishop_value = 320,

@@ -17,6 +17,7 @@
 #include "zobrist_tdd.h"
 #include "endings_tdd.h"
 #include "UCI_tdd.h"
+#include "basic_tests.h"
 
 int main(int argc, char** argv)
 {
@@ -39,6 +40,10 @@ int main(int argc, char** argv)
     ZobristTDDRunner();
     EndingsTDDRunner();
     UCITDDRunner();
+
+    // ENGINE TESTS
+    BasicTestsRunner();
+
     printf("\n");
 
     SpeedTest(START_FEN, 6, false);
@@ -50,7 +55,6 @@ int main(int argc, char** argv)
     BoardInfo_t boardInfo;
     GameStack_t gameStack;
     ZobristStack_t zobristStack;
-
     bool running = true;
     while(running)
     {
