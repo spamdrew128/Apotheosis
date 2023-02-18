@@ -39,6 +39,8 @@ int main(int argc, char** argv)
     ZobristTDDRunner();
     EndingsTDDRunner();
     UCITDDRunner();
+
+    
     printf("\n");
 
     SpeedTest(START_FEN, 6, false);
@@ -50,8 +52,7 @@ int main(int argc, char** argv)
     BoardInfo_t boardInfo;
     GameStack_t gameStack;
     ZobristStack_t zobristStack;
-
-    bool running = true;
+    bool running = false;
     while(running)
     {
         running = InterpretUCIInput(&boardInfo, &gameStack, &zobristStack);

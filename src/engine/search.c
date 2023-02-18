@@ -7,6 +7,7 @@
 #include "endings.h"
 
 typedef uint8_t Depth_t;
+typedef uint8_t Ply_t;
 
 static void MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, ZobristStack_t* zobristStack) {
     MakeMove(boardInfo, gameStack, move);
@@ -24,7 +25,8 @@ static EvalScore_t NegamaxHelper(
     ZobristStack_t* zobristStack,
     EvalScore_t alpha,
     EvalScore_t beta,
-    Depth_t depth
+    Depth_t depth,
+    Ply_t ply
 )
 {
     MoveList_t moveList;
@@ -34,7 +36,7 @@ static EvalScore_t NegamaxHelper(
     switch (gameEndStatus)
     {
         case checkmate:
-            return -EVAL_MAX - depth;
+            return -EVAL_MAX + ply;
         case draw:
             return 0;
     }
@@ -49,7 +51,7 @@ static EvalScore_t NegamaxHelper(
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
-        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, -beta, -alpha, depth-1);
+        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, -beta, -alpha, depth-1, ply+1);
 
         UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
 
@@ -84,7 +86,7 @@ static SearchResults_t NegamaxRoot(
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
-        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, -INFINITY, INFINITY, depth-1);
+        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, -INFINITY, INFINITY, depth-1, 1);
 
         UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
 
