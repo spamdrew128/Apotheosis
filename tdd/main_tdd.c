@@ -41,20 +41,20 @@ int main(int argc, char** argv)
     UCITDDRunner();
     printf("\n");
 
-    SpeedTest(START_FEN, 6, false);
+    SpeedTest(START_FEN, 6, true);
 
     FEN_t fen = "8/8/8/3p4/4pn1N/6p1/8/5K1k w - - 10 73";
     PERFTRunner(fen, 8, false);
     RunAllPerftTests(false);
     
-    BoardInfo_t boardInfo;
-    GameStack_t gameStack;
-    ZobristStack_t zobristStack;
-    Color_t color;
+    // BoardInfo_t boardInfo;
+    // GameStack_t gameStack;
+    // ZobristStack_t zobristStack;
+    // Color_t color;
 
-    bool running = true;
-    while(running)
-    {
-        running = InterpretUCIInput(&boardInfo, &gameStack, &zobristStack, &color);
-    }
+    // bool running = true;
+    // while(running)
+    // {
+    //     running = InterpretUCIInput(&boardInfo, &gameStack, &zobristStack, &color);
+    // }
 }

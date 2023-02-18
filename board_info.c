@@ -13,6 +13,7 @@ void InitBoardInfo(BoardInfo_t* info) {
     }
 
     info->empty = empty_set;
+    info->sideToMove = white;
 
     TranslateBitboardsToMailbox(info);
 }
