@@ -47,14 +47,13 @@ int main(int argc, char** argv)
     PERFTRunner(fen, 8, false);
     RunAllPerftTests(false);
     
-    // BoardInfo_t boardInfo;
-    // GameStack_t gameStack;
-    // ZobristStack_t zobristStack;
-    // Color_t color;
+    BoardInfo_t boardInfo;
+    GameStack_t gameStack;
+    ZobristStack_t zobristStack;
 
-    // bool running = true;
-    // while(running)
-    // {
-    //     running = InterpretUCIInput(&boardInfo, &gameStack, &zobristStack, &color);
-    // }
+    bool running = true;
+    while(running)
+    {
+        running = InterpretUCIInput(&boardInfo, &gameStack, &zobristStack);
+    }
 }

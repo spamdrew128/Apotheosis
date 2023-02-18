@@ -10,18 +10,20 @@ static SearchResults_t DummySearch(
     ZobristStack_t* zobristStack
 )
 {
+    Color_t color = boardInfo->colorToMove;
+
     SearchResults_t results;
-    results.score = boardInfo->colorToMove == white ? -EVAL_MAX : EVAL_MAX;
+    results.score = color == white ? -EVAL_MAX : EVAL_MAX;
 
     for(int i = 0; i <= moveList->maxIndex; i++) {
         Move_t move = moveList->moves[i];
         MakeMove(boardInfo, gameStack, move);
         EvalScore_t score = ScoreOfPosition(boardInfo);
 
-        if(boardInfo->colorToMove == white && score > results.score) {
+        if(color == white && score > results.score) {
             results.score = score;
             results.bestMove = move;
-        } else if(boardInfo->colorToMove == black && score < results.score) {
+        } else if(color == black && score < results.score) {
             results.score = score;
             results.bestMove = move;
         }
