@@ -10,6 +10,8 @@ MOVEGEN=$(SRC)\movegen
 PLAY=$(SRC)\play
 RNG=$(SRC)\RNG
 STATE=$(SRC)\state
+UCI=$(SRC)\UCI
+ZOBRIST=$(SRC)\zobrist
 
 TDD_ROOT=tdd
 TDD=$(TDD_ROOT)\tests
@@ -26,6 +28,8 @@ INCDIRS:= \
 -I $(PLAY)\. \
 -I $(RNG)\. \
 -I $(STATE)\. \
+-I $(UCI)\. \
+-I $(ZOBRIST)\. \
 \
 -I $(TDD)\. 
 
@@ -49,8 +53,8 @@ $(STATE)\game_state.c \
 $(MOVEGEN)\legals.c \
 $(MOVEGEN)\movegen.c \
 $(MOVEGEN)\pieces.c \
-$(SRC)\zobrist.c \
-$(SRC)\UCI.c
+$(UCI)\UCI.c \
+$(ZOBRIST)\zobrist.c
 
 COMMON_OBJECTS= \
 $(BITBOARDS)\bitboards.o \
@@ -68,8 +72,8 @@ $(STATE)\game_state.o \
 $(MOVEGEN)\legals.o \
 $(MOVEGEN)\movegen.o \
 $(MOVEGEN)\pieces.o \
-$(SRC)\zobrist.o \
-$(SRC)\UCI.o 
+$(UCI)\UCI.o \
+$(ZOBRIST)\zobrist.o
 
 MAIN=main
 CFILES=$(MAIN).c $(COMMON_CFILES)
