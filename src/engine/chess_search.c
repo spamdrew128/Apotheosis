@@ -1,6 +1,7 @@
 #include <stdint.h>
+#include <time.h>
 
-#include "search.h"
+#include "chess_search.h"
 #include "movegen.h"
 #include "make_and_unmake.h"
 #include "RNG.h"

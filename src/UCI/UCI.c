@@ -9,7 +9,7 @@
 #include "FEN.h"
 #include "movegen.h"
 #include "make_and_unmake.h"
-#include "search.h"
+#include "chess_search.h"
 
 #define BUFFER_SIZE 50000
 
@@ -304,8 +304,6 @@ static void GetSearchResults(
         
     char moveString[BUFFER_SIZE];
     MoveStructToUciString(searchResults.bestMove, moveString);
-
-    SendNumericalInfoCommand("score cp", searchResults.score);
 
     printf(BESTMOVE);
     printf(" %s\n", moveString);

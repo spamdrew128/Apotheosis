@@ -29,7 +29,9 @@
         "zobrist_tdd.h": "c",
         "stdint.h": "c",
         "endings.h": "c",
-        "basic_tests.h": "c"
+        "basic_tests.h": "c",
+        "search.h": "c",
+        "corecrt_search.h": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",

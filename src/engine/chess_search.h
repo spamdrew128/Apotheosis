@@ -1,5 +1,5 @@
-#ifndef __SEARCH_H__
-#define __SEARCH_H__
+#ifndef __CHESS_SEARCH_H__
+#define __CHESS_SEARCH_H__
 
 #include <stdbool.h>
 #include <stdint.h>

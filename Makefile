@@ -44,7 +44,7 @@ $(BITBOARDS)\bitboards.c \
 $(BITBOARDS)\magic.c \
 $(ENDINGS)\endings.c \
 $(ENGINE)\evaluation.c \
-$(ENGINE)\search.c \
+$(ENGINE)\chess_search.c \
 $(FEN)\FEN.c \
 $(LOOKUP)\lookup.c \
 $(PLAY)\move.c \
@@ -63,7 +63,7 @@ $(BITBOARDS)\bitboards.o \
 $(BITBOARDS)\magic.o \
 $(ENDINGS)\endings.o \
 $(ENGINE)\evaluation.o \
-$(ENGINE)\search.o \
+$(ENGINE)\chess_search.o \
 $(FEN)\FEN.o \
 $(LOOKUP)\lookup.o \
 $(PLAY)\move.o \
