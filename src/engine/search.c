@@ -15,14 +15,26 @@ static EvalScore_t NegamaxHelper(
     Depth_t depth
 )
 {
+    MoveList_t moveList;
+    CompleteMovegen(&moveList, boardInfo, gameStack);
+
+    GameEndStatus_t gameEndStatus = CurrentGameEndStatus(boardInfo, gameStack, zobristStack, moveList.maxIndex);
+    switch (gameEndStatus)
+    {
+        case checkmate:
+            return -EVAL_MAX + depth;
+            break;
+        case draw:
+            return 0;
+            break;
+    }
+
     if(depth == 0) {
         return ScoreOfPosition(boardInfo);
     }
 
     EvalScore_t bestScore = -EVAL_MAX;
     
-    MoveList_t moveList;
-    CompleteMovegen(&moveList, boardInfo, gameStack);
     for(int i = 0; i <= moveList.maxIndex; i++) {
         Move_t move = moveList.moves[i];
         MakeMove(boardInfo, gameStack, move);
