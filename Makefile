@@ -4,6 +4,7 @@ SRC=src
 BITBOARDS=$(SRC)\bitboards
 ENGINE=$(SRC)\engine
 PLAY=$(SRC)\play
+STATE=$(SRC)\state
 
 TDD_ROOT=tdd
 TDD=$(TDD_ROOT)\tests
@@ -14,6 +15,7 @@ INCDIRS:= \
 -I $(BITBOARDS)\. \
 -I $(ENGINE)\. \
 -I $(PLAY)\. \
+-I $(STATE)\. \
 \
 -I $(TDD)\. 
 
@@ -28,14 +30,14 @@ $(ENGINE)\search.c \
 $(ENGINE)\evaluation.c \
 $(PLAY)\move.c \
 $(PLAY)\make_and_unmake.c \
-$(SRC)\board_info.c \
+$(STATE)\board_info.c \
+$(STATE)\game_state.c \
 $(SRC)\lookup.c \
 $(SRC)\FEN.c \
 $(SRC)\pieces.c \
 $(SRC)\RNG.c \
 $(SRC)\legals.c \
 $(SRC)\movegen.c \
-$(SRC)\game_state.c \
 $(SRC)\zobrist.c \
 $(SRC)\UCI.c \
 $(SRC)\endings.c 
@@ -47,14 +49,14 @@ $(ENGINE)\search.o \
 $(ENGINE)\evaluation.o \
 $(PLAY)\move.o \
 $(PLAY)\make_and_unmake.o \
-$(SRC)\board_info.o \
+$(STATE)\board_info.o \
+$(STATE)\game_state.o \
 $(SRC)\lookup.o \
 $(SRC)\FEN.o \
 $(SRC)\pieces.o \
 $(SRC)\RNG.o \
 $(SRC)\legals.o \
 $(SRC)\movegen.o \
-$(SRC)\game_state.o \
 $(SRC)\zobrist.o \
 $(SRC)\UCI.o \
 $(SRC)\endings.o
