@@ -139,4 +139,4 @@ $(DEBUG_BINARY): $(D_OBJECTS)
 	$(CC) $(CFLAGS) -c -o $@ $^
 
 clean:
-	del /S $(BINARY) $(DEBUG_BINARY) *.o && cls
+	del /S *.exe *.o && cls
