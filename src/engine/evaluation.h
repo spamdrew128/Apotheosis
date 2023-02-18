@@ -14,7 +14,8 @@
 
 typedef int32_t EvalScore_t;
 enum {
-  EVAL_MAX = 100000
+  EVAL_MAX = 100000,
+  INFINITY = INT32_MAX - 1
 };
 
 enum {

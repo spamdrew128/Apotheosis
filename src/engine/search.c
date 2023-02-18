@@ -8,12 +8,12 @@
 
 typedef uint8_t Depth_t;
 
-static MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, ZobristStack_t* zobristStack) {
+static void MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, ZobristStack_t* zobristStack) {
     MakeMove(boardInfo, gameStack, move);
     AddZobristHashToStack(zobristStack, HashPosition(boardInfo, gameStack));
 }
 
-static UnmakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, ZobristStack_t* zobristStack) {
+static void UnmakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, ZobristStack_t* zobristStack) {
     UnmakeMove(boardInfo, gameStack);
     RemoveZobristHashFromStack(zobristStack);
 }
@@ -22,6 +22,8 @@ static EvalScore_t NegamaxHelper(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
+    EvalScore_t alpha,
+    EvalScore_t beta,
     Depth_t depth
 )
 {
@@ -49,12 +51,19 @@ static EvalScore_t NegamaxHelper(
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
-        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, depth-1);
+        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, -beta, -alpha, depth-1);
 
         UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
 
+        if(score >= beta) {
+            return score;
+        }
+
         if(score > bestScore) {
             bestScore = score;
+            if(score > alpha) {
+                alpha = score;
+            }
         }
     }
 
@@ -77,7 +86,7 @@ static SearchResults_t NegamaxRoot(
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
-        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, depth-1);
+        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, -INFINITY, INFINITY, depth-1);
 
         UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
 
