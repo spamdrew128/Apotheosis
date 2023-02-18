@@ -8,6 +8,16 @@
 
 typedef uint8_t Depth_t;
 
+static MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, ZobristStack_t* zobristStack) {
+    MakeMove(boardInfo, gameStack, move);
+    AddZobristHashToStack(zobristStack, HashPosition(boardInfo, gameStack));
+}
+
+static UnmakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, ZobristStack_t* zobristStack) {
+    UnmakeMove(boardInfo, gameStack);
+    RemoveZobristHashFromStack(zobristStack);
+}
+
 static EvalScore_t NegamaxHelper(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
@@ -22,7 +32,7 @@ static EvalScore_t NegamaxHelper(
     switch (gameEndStatus)
     {
         case checkmate:
-            return -EVAL_MAX + depth;
+            return -EVAL_MAX - depth;
             break;
         case draw:
             return 0;
@@ -37,11 +47,11 @@ static EvalScore_t NegamaxHelper(
     
     for(int i = 0; i <= moveList.maxIndex; i++) {
         Move_t move = moveList.moves[i];
-        MakeMove(boardInfo, gameStack, move);
+        MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
         EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, depth-1);
 
-        UnmakeMove(boardInfo, gameStack);
+        UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
 
         if(score > bestScore) {
             bestScore = score;
@@ -65,11 +75,11 @@ static SearchResults_t NegamaxRoot(
     CompleteMovegen(&moveList, boardInfo, gameStack);
     for(int i = 0; i <= moveList.maxIndex; i++) {
         Move_t move = moveList.moves[i];
-        MakeMove(boardInfo, gameStack, move);
+        MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
         EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, depth-1);
 
-        UnmakeMove(boardInfo, gameStack);
+        UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
 
         if(score > bestScore) {
             bestScore = score;
