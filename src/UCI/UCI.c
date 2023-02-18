@@ -10,6 +10,7 @@
 #include "movegen.h"
 #include "make_and_unmake.h"
 #include "chess_search.h"
+#include "time_constants.h"
 
 #define BUFFER_SIZE 50000
 

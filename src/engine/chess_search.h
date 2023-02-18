@@ -2,7 +2,6 @@
 #define __CHESS_SEARCH_H__
 
 #include <stdbool.h>
-#include <stdint.h>
 #include <limits.h>
 
 #include "move.h"
@@ -11,8 +10,7 @@
 #include "game_state.h"
 #include "zobrist.h"
 #include "evaluation.h"
-
-typedef uint32_t Milliseconds_t;
+#include "time_constants.h"
 
 enum {
     MS_MAX_TIME = UINT32_MAX

@@ -3,10 +3,8 @@
 
 #include <stdint.h>
 
-typedef uint32_t TimerTicks_t;
-
 typedef struct {
-    
+
 } Timer_t;
 
 #endif
