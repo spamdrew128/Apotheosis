@@ -1,5 +1,5 @@
-#ifndef __BITBOARDS_TDD_H__
-#define __BITBOARDS_TDD_H__
+#ifndef __BASIC_TESTS_TDD_H__
+#define __BASIC_TESTS_TDD_H__
 
 #include "search.h"
 #include "evaluation.h"

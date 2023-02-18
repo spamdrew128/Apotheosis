@@ -4,6 +4,7 @@
 #include "board_info.h"
 #include "game_state.h"
 #include "zobrist.h"
+#include "UCI.h"
 
 static BoardInfo_t boardInfo;
 static GameStack_t gameStack;
@@ -15,6 +16,11 @@ static void ShouldFindM2() {
     
     PlayerTimeInfo_t uciTimeInfo;
     SearchResults_t results = Search(uciTimeInfo, &boardInfo, &gameStack, &zobristStack, 6);
+
+    Move_t expectedBestMove;
+    UCITranslateMove(&expectedBestMove, "a8a2", &boardInfo, &gameStack);
+
+    PrintResults(CompareMoves(results.bestMove, expectedBestMove));
 }
 
 void BasicTestsRunner() {

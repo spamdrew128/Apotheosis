@@ -32,7 +32,8 @@ INCDIRS:= \
 -I $(UCI)\. \
 -I $(ZOBRIST)\. \
 \
--I $(TDD)\. 
+-I $(TDD)\. \
+-I $(ENGINE_TDD)\. 
 
 DEBUGFLAGS=-g
 OPTFLAGS=-O3 -flto

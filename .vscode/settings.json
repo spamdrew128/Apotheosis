@@ -28,7 +28,8 @@
         "rng.h": "c",
         "zobrist_tdd.h": "c",
         "stdint.h": "c",
-        "endings.h": "c"
+        "endings.h": "c",
+        "basic_tests.h": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",

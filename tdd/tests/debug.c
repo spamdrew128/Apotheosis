@@ -363,3 +363,7 @@ bool BoardIsValid(BoardInfo_t *info, GameStack_t* gameStack) {
 
     return true;
 }
+
+bool CompareMoves(Move_t m1, Move_t m2) {
+    return m1.data == m2.data;
+}
