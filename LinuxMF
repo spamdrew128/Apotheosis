@@ -1,62 +1,85 @@
 CC=gcc
 
-TDD=tdd
-ENGINE=engine
+SRC=src
+BITBOARDS=$(SRC)/bitboards
+ENDINGS=$(SRC)/endings
+ENGINE=$(SRC)/engine
+FEN=$(SRC)/fen
+LOOKUP=$(SRC)/lookup
+MOVEGEN=$(SRC)/movegen
+PLAY=$(SRC)/play
+RNG=$(SRC)/RNG
+STATE=$(SRC)/state
+UCI=$(SRC)/UCI
+ZOBRIST=$(SRC)/zobrist
+
+TDD_ROOT=tdd
+TDD=$(TDD_ROOT)/tests
 
 INCDIRS:= \
 -I . \
--I $(TDD)/. \
--I $(ENGINE)/.
+-I $(SRC)/. \
+-I $(BITBOARDS)/. \
+-I $(ENDINGS)/. \
+-I $(ENGINE)/. \
+-I $(FEN)/. \
+-I $(LOOKUP)/. \
+-I $(MOVEGEN)/. \
+-I $(PLAY)/. \
+-I $(RNG)/. \
+-I $(STATE)/. \
+-I $(UCI)/. \
+-I $(ZOBRIST)/. \
+\
+-I $(TDD)/. 
 
 DEBUGFLAGS=-g
 OPTFLAGS=-O3 -flto
 CFLAGS=-Wall -std=c17 -march=native $(DEBUGFLAGS) $(INCDIRS) 
 
 COMMON_CFILES= \
-bitboards.c \
-board_info.c \
-lookup.c \
-FEN.c \
-pieces.c \
-magic.c \
-RNG.c \
-legals.c \
-movegen.c \
-game_state.c \
-move.c \
-make_and_unmake.c \
-zobrist.c \
-UCI.c \
-endings.c \
-\
+$(BITBOARDS)/bitboards.c \
+$(BITBOARDS)/magic.c \
+$(ENDINGS)/endings.c \
+$(ENGINE)/evaluation.c \
 $(ENGINE)/search.c \
-$(ENGINE)\evaluation.c
+$(FEN)/FEN.c \
+$(LOOKUP)/lookup.c \
+$(PLAY)/move.c \
+$(PLAY)/make_and_unmake.c \
+$(RNG)/RNG.c \
+$(STATE)/board_info.c \
+$(STATE)/game_state.c \
+$(MOVEGEN)/legals.c \
+$(MOVEGEN)/movegen.c \
+$(MOVEGEN)/pieces.c \
+$(UCI)/UCI.c \
+$(ZOBRIST)/zobrist.c
 
 COMMON_OBJECTS= \
-bitboards.o \
-board_info.o \
-lookup.o \
-FEN.o \
-pieces.o \
-magic.o \
-RNG.o \
-legals.o \
-movegen.o \
-game_state.o \
-move.o \
-make_and_unmake.o \
-zobrist.o \
-UCI.o \
-endings.o \
-\
+$(BITBOARDS)/bitboards.o \
+$(BITBOARDS)/magic.o \
+$(ENDINGS)/endings.o \
+$(ENGINE)/evaluation.o \
 $(ENGINE)/search.o \
-$(ENGINE)\evaluation.o
+$(FEN)/FEN.o \
+$(LOOKUP)/lookup.o \
+$(PLAY)/move.o \
+$(PLAY)/make_and_unmake.o \
+$(RNG)/RNG.o \
+$(STATE)/board_info.o \
+$(STATE)/game_state.o \
+$(MOVEGEN)/legals.o \
+$(MOVEGEN)/movegen.o \
+$(MOVEGEN)/pieces.o \
+$(UCI)/UCI.o \
+$(ZOBRIST)/zobrist.o
 
 MAIN=main
 CFILES=$(MAIN).c $(COMMON_CFILES)
 OBJECTS=$(MAIN).o $(COMMON_OBJECTS)
 
-TDD_MAIN=$(TDD)/main_tdd
+TDD_MAIN=$(TDD_ROOT)/main_tdd
 
 D_CFILES= \
 $(TDD_MAIN).c \
@@ -113,7 +136,7 @@ $(DEBUG_BINARY): $(D_OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $^
+	$(CC) $(CFLAGS) -c -o $@ $^
 
 clean:
 	rm -rf $(BINARY) $(DEBUG_BINARY) *.o && clear
