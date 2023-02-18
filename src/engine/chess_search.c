@@ -6,6 +6,7 @@
 #include "make_and_unmake.h"
 #include "RNG.h"
 #include "endings.h"
+#include "UCI.h"
 
 typedef uint8_t Ply_t;
 
@@ -109,11 +110,6 @@ static SearchResults_t NegamaxRoot(
     results.bestMove = bestMove;
 
     return results;
-}
-
-// maybe move this to UCI later once I get intellisense working
-static void SendNumericalUciCommand(const char* command, int data) {
-    printf("info %s %d\n", command, data);
 }
 
 SearchResults_t Search(

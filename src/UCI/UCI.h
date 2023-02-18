@@ -11,6 +11,8 @@
 
 bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo, GameStack_t* gameStack);
 
+void SendNumericalUciCommand(const char* command, int data);
+
 bool InterpretUCIInput(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
