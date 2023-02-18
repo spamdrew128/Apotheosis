@@ -1,6 +1,7 @@
 CC=gcc
 
 SRC=src
+BITBOARDS=$(SRC)\bitboards
 ENGINE=$(SRC)\engine
 PLAY=$(SRC)\play
 
@@ -10,6 +11,7 @@ TDD=$(TDD_ROOT)\tests
 INCDIRS:= \
 -I . \
 -I $(SRC)\. \
+-I $(BITBOARDS)\. \
 -I $(ENGINE)\. \
 -I $(PLAY)\. \
 \
@@ -20,16 +22,16 @@ OPTFLAGS=-O3 -flto
 CFLAGS=-Wall -std=c17 -march=native $(DEBUGFLAGS) $(INCDIRS) 
 
 COMMON_CFILES= \
+$(BITBOARDS)\bitboards.c \
+$(BITBOARDS)\magic.c \
 $(ENGINE)\search.c \
 $(ENGINE)\evaluation.c \
 $(PLAY)\move.c \
 $(PLAY)\make_and_unmake.c \
-$(SRC)\bitboards.c \
 $(SRC)\board_info.c \
 $(SRC)\lookup.c \
 $(SRC)\FEN.c \
 $(SRC)\pieces.c \
-$(SRC)\magic.c \
 $(SRC)\RNG.c \
 $(SRC)\legals.c \
 $(SRC)\movegen.c \
@@ -39,16 +41,16 @@ $(SRC)\UCI.c \
 $(SRC)\endings.c 
 
 COMMON_OBJECTS= \
+$(BITBOARDS)\bitboards.o \
+$(BITBOARDS)\magic.o \
 $(ENGINE)\search.o \
 $(ENGINE)\evaluation.o \
 $(PLAY)\move.o \
 $(PLAY)\make_and_unmake.o \
-$(SRC)\bitboards.o \
 $(SRC)\board_info.o \
 $(SRC)\lookup.o \
 $(SRC)\FEN.o \
 $(SRC)\pieces.o \
-$(SRC)\magic.o \
 $(SRC)\RNG.o \
 $(SRC)\legals.o \
 $(SRC)\movegen.o \
