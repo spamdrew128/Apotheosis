@@ -19,7 +19,6 @@ static EvalScore_t NegamaxHelper(
         return ScoreOfPosition(boardInfo);
     }
 
-    Move_t bestMove;
     EvalScore_t bestScore = -EVAL_MAX;
     
     MoveList_t moveList;
@@ -34,7 +33,6 @@ static EvalScore_t NegamaxHelper(
 
         if(score > bestScore) {
             bestScore = score;
-            bestMove = move;
         }
     }
 
