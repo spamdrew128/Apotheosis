@@ -110,7 +110,7 @@ SearchResults_t Search(
     ZobristStack_t* zobristStack
 )
 {
-    SearchResults_t results = NegamaxRoot(boardInfo, gameStack, zobristStack, 5);
+    SearchResults_t results = NegamaxRoot(boardInfo, gameStack, zobristStack, 6);
 
     return results;
 }
