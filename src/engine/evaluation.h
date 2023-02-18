@@ -17,7 +17,6 @@ enum {
   EVAL_MAX = 100000
 };
 
-typedef int32_t Centipawns_t;
 enum {
   knight_value = 300,
   bishop_value = 320,
