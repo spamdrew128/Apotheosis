@@ -8,6 +8,14 @@
 
 typedef uint8_t Ply_t;
 
+typedef struct {
+    bool timeDepleted;
+} SearchInfo_t;
+
+static void InitSearchInfo(SearchInfo_t* searchInfo) {
+    searchInfo->timeDepleted = false;
+}
+
 static void MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, ZobristStack_t* zobristStack) {
     MakeMove(boardInfo, gameStack, move);
     AddZobristHashToStack(zobristStack, HashPosition(boardInfo, gameStack));
@@ -102,6 +110,11 @@ static SearchResults_t NegamaxRoot(
     return results;
 }
 
+// maybe move this to UCI later once I get intellisense working
+static void SendNumericalUciCommand(const char* command, int data) {
+    printf("info %s %d\n", command, data);
+}
+
 SearchResults_t Search(
     PlayerTimeInfo_t uciTimeInfo,
     BoardInfo_t* boardInfo,
@@ -110,6 +123,9 @@ SearchResults_t Search(
     Depth_t maxDepth
 )
 {
+    SearchInfo_t searchInfo;
+    InitSearchInfo(&searchInfo);
+    
     SearchResults_t results = NegamaxRoot(boardInfo, gameStack, zobristStack, maxDepth);
 
     return results;
