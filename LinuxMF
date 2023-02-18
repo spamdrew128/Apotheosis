@@ -29,7 +29,8 @@ zobrist.c \
 UCI.c \
 endings.c \
 \
-$(ENGINE)/search.c
+$(ENGINE)/search.c \
+$(ENGINE)\evaluation.c
 
 COMMON_OBJECTS= \
 bitboards.o \
@@ -48,7 +49,8 @@ zobrist.o \
 UCI.o \
 endings.o \
 \
-$(ENGINE)/search.o
+$(ENGINE)/search.o \
+$(ENGINE)\evaluation.o
 
 MAIN=main
 CFILES=$(MAIN).c $(COMMON_CFILES)

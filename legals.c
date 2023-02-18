@@ -162,7 +162,7 @@ bool IsDoubleCheck(BoardInfo_t* boardInfo, Bitboard_t checkmask, Color_t color) 
     Bitboard_t kingSquare = KingSquare(boardInfo, color);
     Bitboard_t mask = GetKingAttackSet(kingSquare) | GetKnightAttackSet(kingSquare);
 
-    return PopulationCount(mask & checkmask) > 1;
+    return PopCount(mask & checkmask) > 1;
 }
 
 static Bitboard_t CalculateDirectionalPinmask(
@@ -179,7 +179,7 @@ static Bitboard_t CalculateDirectionalPinmask(
         Bitboard_t affectedPieces = 
             directionalPinmask & allPieces;
 
-        bool isValidPin = PopulationCount(affectedPieces) == 1;
+        bool isValidPin = PopCount(affectedPieces) == 1;
         pinmask |= directionalPinmask * isValidPin;
     }
 

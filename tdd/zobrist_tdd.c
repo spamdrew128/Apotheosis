@@ -14,27 +14,26 @@ static GameStack_t gameStack;
 static ZobristStack_t zobristStack;
 
 // HELPERS
-static void PlayMoveFromUCIString(const char* uciMove, BoardInfo_t* boardInfo, GameStack_t* gameStack, Color_t color) {
+static void PlayMoveFromUCIString(const char* uciMove, BoardInfo_t* boardInfo, GameStack_t* gameStack) {
     Move_t move;
     assert(UCITranslateMove(&move, uciMove, boardInfo, gameStack));
 
-    MakeMove(boardInfo, gameStack, move, color);
+    MakeMove(boardInfo, gameStack, move);
 }
 
 static ZobristHash_t GetHashFromSeriesOfMoves(FEN_t fen, const char* moveSet[4]) {
-    Color_t colorToMove = InterpretFEN(fen, &info, &gameStack, &zobristStack);
+    InterpretFEN(fen, &info, &gameStack, &zobristStack);
     for(int j = 0; j < 4; j++) {
-        PlayMoveFromUCIString(moveSet[j], &info, &gameStack, colorToMove);
-        colorToMove = !colorToMove;
+        PlayMoveFromUCIString(moveSet[j], &info, &gameStack);
     }
 
-    return HashPosition(&info, &gameStack, colorToMove);
+    return HashPosition(&info, &gameStack);
 }
 
 // TESTS
 static void ShouldGenerateNonZeroHash() {
-    Color_t colorToMove = InterpretFEN(someFen, &info, &gameStack, &zobristStack);
-    ZobristHash_t hash = HashPosition(&info, &gameStack, colorToMove);
+    InterpretFEN(someFen, &info, &gameStack, &zobristStack);
+    ZobristHash_t hash = HashPosition(&info, &gameStack);
     
     PrintResults(hash);
 }
@@ -76,11 +75,11 @@ static void ShouldGenerateSameHashesForSamePositions() {
 }
 
 static void ShouldGenerateDifferentHashesForDifferentPositions() {
-    Color_t color = InterpretFEN(START_FEN, &info, &gameStack, &zobristStack);
-    ZobristHash_t hash1 = HashPosition(&info, &gameStack, color);
+    InterpretFEN(START_FEN, &info, &gameStack, &zobristStack);
+    ZobristHash_t hash1 = HashPosition(&info, &gameStack);
 
-    color = InterpretFEN(someFen, &info, &gameStack, &zobristStack);
-    ZobristHash_t hash2 = HashPosition(&info, &gameStack, color);
+    InterpretFEN(someFen, &info, &gameStack, &zobristStack);
+    ZobristHash_t hash2 = HashPosition(&info, &gameStack);
 
     PrintResults(hash1 != hash2);
 }

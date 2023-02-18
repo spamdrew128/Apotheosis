@@ -15,6 +15,11 @@ static void TestSetup() {
     InitGameStack(&stack);
 }
 
+static void MakeMoveTestWrapper(BoardInfo_t* info, GameStack_t* gameStack, Move_t move, Color_t color) {
+    info->colorToMove = color;
+    MakeMove(info, gameStack, move);
+}
+
 // r3k2r/8/8/8/8/8/8/R3K2R
 static void InitAllCastlingLegalInfo(BoardInfo_t* info) {
     InitTestInfo(info, {
@@ -308,7 +313,7 @@ static void ShouldCastleKingside() {
     WriteToSquare(&ksCastle, LSB(white_kingside_castle_bb));
     WriteSpecialFlag(&ksCastle, castle_flag);
 
-    MakeMove(&info, &stack, ksCastle, white);
+    MakeMoveTestWrapper(&info, &stack, ksCastle, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareState(&expectedState, &stack);
@@ -330,7 +335,7 @@ static void ShouldCastleQueenside() {
     WriteToSquare(&qsCastle, LSB(white_queenside_castle_bb));
     WriteSpecialFlag(&qsCastle, castle_flag);
 
-    MakeMove(&info, &stack, qsCastle, white);
+    MakeMoveTestWrapper(&info, &stack, qsCastle, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareState(&expectedState, &stack);
@@ -353,7 +358,7 @@ static void ShouldQuietPromote() {
     WritePromotionPiece(&move, queen);
     WriteSpecialFlag(&move, promotion_flag);
 
-    MakeMove(&info, &stack, move, white);
+    MakeMoveTestWrapper(&info, &stack, move, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareState(&expectedState, &stack);
@@ -376,7 +381,7 @@ static void ShouldCapturePromote() {
     WritePromotionPiece(&move, knight);
     WriteSpecialFlag(&move, promotion_flag);
 
-    MakeMove(&info, &stack, move, black);
+    MakeMoveTestWrapper(&info, &stack, move, black);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareState(&expectedState, &stack);
@@ -398,7 +403,7 @@ static void ShouldWhiteEnPassant() {
     WriteToSquare(&move, h6);
     WriteSpecialFlag(&move, en_passant_flag);
 
-    MakeMove(&info, &stack, move, white);
+    MakeMoveTestWrapper(&info, &stack, move, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareState(&expectedState, &stack);
@@ -420,7 +425,7 @@ static void ShouldBlackEnPassant() {
     WriteToSquare(&move, c3);
     WriteSpecialFlag(&move, en_passant_flag);
 
-    MakeMove(&info, &stack, move, black);
+    MakeMoveTestWrapper(&info, &stack, move, black);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareState(&expectedState, &stack);
@@ -441,7 +446,7 @@ static void ShouldMakeNormalQuietMoves() {
     WriteFromSquare(&move, b2);
     WriteToSquare(&move, c3);
 
-    MakeMove(&info, &stack, move, white);
+    MakeMoveTestWrapper(&info, &stack, move, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareState(&expectedState, &stack);
@@ -462,11 +467,11 @@ static void ShouldDoublePushPawns(Color_t moveColor) {
     if(moveColor == white) {
         WriteFromSquare(&move, f2);
         WriteToSquare(&move, f4);
-        MakeMove(&info, &stack, move, white);
+        MakeMoveTestWrapper(&info, &stack, move, white);
     } else {
         WriteFromSquare(&move, d7);
         WriteToSquare(&move, d5);
-        MakeMove(&info, &stack, move, black);
+        MakeMoveTestWrapper(&info, &stack, move, black);
     }
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
@@ -488,7 +493,7 @@ static void ShouldMakeNormalCaptures() {
     WriteFromSquare(&move, e4);
     WriteToSquare(&move, f2);
 
-    MakeMove(&info, &stack, move, black);
+    MakeMoveTestWrapper(&info, &stack, move, black);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareState(&expectedState, &stack);
@@ -509,7 +514,7 @@ static void CapturingRookShouldRemoveCastleSquares() {
     WriteFromSquare(&move, f6);
     WriteToSquare(&move, a1);
 
-    MakeMove(&info, &stack, move, black);
+    MakeMoveTestWrapper(&info, &stack, move, black);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareState(&expectedState, &stack);
@@ -532,7 +537,7 @@ static void PromotionCaptureShouldRemoveCastleSquares() {
     WritePromotionPiece(&move, knight);
     WriteSpecialFlag(&move, promotion_flag);
 
-    MakeMove(&info, &stack, move, white);
+    MakeMoveTestWrapper(&info, &stack, move, white);
 
     bool infoMatches = CompareInfo(&info, &expectedInfo);
     bool stateMatches = CompareState(&expectedState, &stack);
@@ -569,7 +574,7 @@ static bool GenericTestUnmake(BoardInfo_t* startInfo, Move_t move, Color_t moveC
     originalState.enPassantSquares = ReadEnPassant(&stack);
     originalState.capturedPiece = ReadCapturedPiece(&stack);
 
-    MakeMove(startInfo, &stack, move, moveColor);
+    MakeMoveTestWrapper(startInfo, &stack, move, moveColor);
     UnmakeMove(startInfo, &stack);
 
     bool infoMatches = CompareInfo(startInfo, &expectedInfo);

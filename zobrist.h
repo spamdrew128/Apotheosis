@@ -23,7 +23,7 @@ void GenerateZobristKeys();
 
 void InitZobristStack(ZobristStack_t* zobristStack);
 
-ZobristHash_t HashPosition(BoardInfo_t* boardInfo, GameStack_t* gameStack, Color_t colorToMove);
+ZobristHash_t HashPosition(BoardInfo_t* boardInfo, GameStack_t* gameStack);
 
 void AddZobristHashToStack(ZobristStack_t* zobristStack, ZobristHash_t hash);
 

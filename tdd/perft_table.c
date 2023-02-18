@@ -15,20 +15,20 @@ static void TestSetup() {
     InitGameStack(&gameStack);
 }
 
-static void PERFT(BoardInfo_t* boardInfo, int depth, PerftCount_t* count, Color_t color) {
+static void PERFT(BoardInfo_t* boardInfo, int depth, PerftCount_t* count) {
     MoveList_t moveList;
-    CompleteMovegen(&moveList, boardInfo, &gameStack, color);
+    CompleteMovegen(&moveList, boardInfo, &gameStack);
 
     if(depth > 1) {
         for(int i = 0; i <= moveList.maxIndex; i++) {
             Move_t move = moveList.moves[i];
-            MakeMove(boardInfo, &gameStack, move, color);
-            assert(BoardIsValid(boardInfo, &gameStack, !color));
+            MakeMove(boardInfo, &gameStack, move);
+            assert(BoardIsValid(boardInfo, &gameStack));
 
-            PERFT(boardInfo, depth-1, count, !color);
+            PERFT(boardInfo, depth-1, count);
 
             UnmakeMove(boardInfo, &gameStack);
-            assert(BoardIsValid(boardInfo, &gameStack, color));
+            assert(BoardIsValid(boardInfo, &gameStack));
         }
     } else {
         *count += moveList.maxIndex + 1;
@@ -52,12 +52,12 @@ void RunAllPerftTests(bool shouldRun) {
             TestSetup();
             BoardInfo_t info;
             PerftCount_t count = 0;
-            Color_t color = InterpretFEN(fen, &info, &gameStack, &zobristStack);
+            InterpretFEN(fen, &info, &gameStack, &zobristStack);
 
             PerftCount_t expectedCounts = table[i].expectedCounts[j];
             if(expectedCounts) {
                 int depth = j + 1;
-                PERFT(&info, depth, &count, color);
+                PERFT(&info, depth, &count);
                 
                 if(count == expectedCounts) {
                     printf(".");

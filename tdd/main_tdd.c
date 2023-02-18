@@ -50,11 +50,10 @@ int main(int argc, char** argv)
     BoardInfo_t boardInfo;
     GameStack_t gameStack;
     ZobristStack_t zobristStack;
-    Color_t color;
 
     bool running = true;
     while(running)
     {
-        running = InterpretUCIInput(&boardInfo, &gameStack, &zobristStack, &color);
+        running = InterpretUCIInput(&boardInfo, &gameStack, &zobristStack);
     }
 }

@@ -20,8 +20,7 @@ GameEndStatus_t CurrentGameEndStatus(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
-    int moveListMaxIndex,
-    Color_t colorToMove
+    int moveListMaxIndex
 );
 
 #endif

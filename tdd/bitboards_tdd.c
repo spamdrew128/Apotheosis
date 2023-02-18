@@ -12,7 +12,7 @@ enum {
 
 // TESTS
 static void CanCountPopulation(Bitboard_t b, Population_t expected) {
-    PrintResults(PopulationCount(b) == expected);
+    PrintResults(PopCount(b) == expected);
 }
 
 static void CanIdentifyLSB(Bitboard_t b, Square_t expected) {

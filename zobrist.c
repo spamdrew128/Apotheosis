@@ -62,7 +62,7 @@ static void UpdateHashEnPassantFile(ZobristHash_t* zobristHash, Bitboard_t enPas
     }
 }
 
-ZobristHash_t HashPosition(BoardInfo_t* boardInfo, GameStack_t* gameStack, Color_t colorToMove) {
+ZobristHash_t HashPosition(BoardInfo_t* boardInfo, GameStack_t* gameStack) {
     ZobristHash_t zobristHash = empty_set;
     GameState_t gameState = ReadCurrentGameState(gameStack);
 
@@ -83,7 +83,7 @@ ZobristHash_t HashPosition(BoardInfo_t* boardInfo, GameStack_t* gameStack, Color
     UpdateHashWithCastlingRights(&zobristHash, gameState.castleSquares[white], gameState.castleSquares[black]);
     UpdateHashEnPassantFile(&zobristHash, gameState.enPassantSquares);
 
-    if(colorToMove == black) {
+    if(boardInfo->colorToMove == black) {
         zobristHash ^= sideToMoveIsBlackKey;
     }
 

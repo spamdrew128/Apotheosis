@@ -24,7 +24,7 @@ Bitboard_t GenShiftWest(Bitboard_t b, uint8_t shift) {
     return b >> shift;
 }
 
-Population_t PopulationCount(Bitboard_t mask)
+Population_t PopCount(Bitboard_t mask)
 {
 #if defined(_MSC_VER) || defined(__INTEL_COMPILER)
 
