@@ -3,6 +3,7 @@ CC=gcc
 SRC=src
 BITBOARDS=$(SRC)\bitboards
 ENGINE=$(SRC)\engine
+LOOKUP=$(SRC)\lookup
 MOVEGEN=$(SRC)\movegen
 PLAY=$(SRC)\play
 RNG=$(SRC)\RNG
@@ -16,6 +17,7 @@ INCDIRS:= \
 -I $(SRC)\. \
 -I $(BITBOARDS)\. \
 -I $(ENGINE)\. \
+-I $(LOOKUP)\. \
 -I $(MOVEGEN)\. \
 -I $(PLAY)\. \
 -I $(RNG)\. \
@@ -30,8 +32,9 @@ CFLAGS=-Wall -std=c17 -march=native $(DEBUGFLAGS) $(INCDIRS)
 COMMON_CFILES= \
 $(BITBOARDS)\bitboards.c \
 $(BITBOARDS)\magic.c \
-$(ENGINE)\search.c \
 $(ENGINE)\evaluation.c \
+$(ENGINE)\search.c \
+$(LOOKUP)\lookup.c \
 $(PLAY)\move.c \
 $(PLAY)\make_and_unmake.c \
 $(RNG)\RNG.c \
@@ -40,7 +43,6 @@ $(STATE)\game_state.c \
 $(MOVEGEN)\legals.c \
 $(MOVEGEN)\movegen.c \
 $(MOVEGEN)\pieces.c \
-$(SRC)\lookup.c \
 $(SRC)\FEN.c \
 $(SRC)\zobrist.c \
 $(SRC)\UCI.c \
@@ -49,8 +51,9 @@ $(SRC)\endings.c
 COMMON_OBJECTS= \
 $(BITBOARDS)\bitboards.o \
 $(BITBOARDS)\magic.o \
-$(ENGINE)\search.o \
 $(ENGINE)\evaluation.o \
+$(ENGINE)\search.o \
+$(LOOKUP)\lookup.o \
 $(PLAY)\move.o \
 $(PLAY)\make_and_unmake.o \
 $(RNG)\RNG.o \
@@ -59,7 +62,6 @@ $(STATE)\game_state.o \
 $(MOVEGEN)\legals.o \
 $(MOVEGEN)\movegen.o \
 $(MOVEGEN)\pieces.o \
-$(SRC)\lookup.o \
 $(SRC)\FEN.o \
 $(SRC)\zobrist.o \
 $(SRC)\UCI.o \
