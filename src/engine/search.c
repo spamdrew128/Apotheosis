@@ -35,10 +35,8 @@ static EvalScore_t NegamaxHelper(
     {
         case checkmate:
             return -EVAL_MAX - depth;
-            break;
         case draw:
             return 0;
-            break;
     }
 
     if(depth == 0) {
