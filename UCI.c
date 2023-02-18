@@ -212,8 +212,7 @@ static void ParseAndPlayMoves(
     int* i,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack,
-    Color_t* colorToMove
+    ZobristStack_t* zobristStack
 )
 {
     char moveBuffer[BUFFER_SIZE];
@@ -234,9 +233,8 @@ static void ParseAndPlayMoves(
         Move_t move;
         InitMove(&move);
         if(UCITranslateMove(&move, moveBuffer, boardInfo, gameStack)) {
-            MakeMove(boardInfo, gameStack, move, *colorToMove);
-            *colorToMove = !(*colorToMove);
-            AddZobristHashToStack(zobristStack, HashPosition(boardInfo, gameStack, colorToMove));
+            MakeMove(boardInfo, gameStack, move);
+            AddZobristHashToStack(zobristStack, HashPosition(boardInfo, gameStack));
         }
     }
 }
@@ -246,15 +244,14 @@ static void InterpretPosition(
     int* i,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack,
-    Color_t* color
+    ZobristStack_t* zobristStack
 )
 {
     char fenString[BUFFER_SIZE];
     int fenStringIndex = 0;
 
     if(ContainsStartPos(input, *i)) {
-        *color = InterpretFEN(START_FEN, boardInfo, gameStack, zobristStack);
+        InterpretFEN(START_FEN, boardInfo, gameStack, zobristStack);
         *i += strlen(STARTPOS);  
     } else {
         while(input[*i] != 'm' && input[*i] != '\0') {
@@ -264,7 +261,7 @@ static void InterpretPosition(
         }
         fenString[fenStringIndex] = '\0';
 
-        *color = InterpretFEN(fenString, boardInfo, gameStack, zobristStack);
+        InterpretFEN(fenString, boardInfo, gameStack, zobristStack);
     }
 
     SkipToNextCharacter(input, i);
@@ -273,7 +270,7 @@ static void InterpretPosition(
     }
     SkipToNextCharacter(input, i);
 
-    ParseAndPlayMoves(input, i, boardInfo, gameStack, zobristStack, color);
+    ParseAndPlayMoves(input, i, boardInfo, gameStack, zobristStack);
 }
 
 Milliseconds_t TimeStringToNumber(const char* numString) {
@@ -297,8 +294,7 @@ static void GetSearchResults(
     PlayerTimeInfo_t uciTimeInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack,
-    Color_t color
+    ZobristStack_t* zobristStack
 )
 {
     SearchResults_t searchResults = 
@@ -306,8 +302,7 @@ static void GetSearchResults(
             uciTimeInfo,
             boardInfo,
             gameStack,
-            zobristStack,
-            color
+            zobristStack
         );
 
     char moveString[BUFFER_SIZE];
@@ -355,8 +350,7 @@ static bool RespondToSignal(
     UciSignal_t signal,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack,
-    Color_t* color
+    ZobristStack_t* zobristStack
 )
 {
     switch(signal) {
@@ -373,11 +367,11 @@ static bool RespondToSignal(
         // TODO
         break;
     case signal_position:
-        InterpretPosition(input, i, boardInfo, gameStack, zobristStack, color);
+        InterpretPosition(input, i, boardInfo, gameStack, zobristStack);
         break;
     case signal_go:
         PlayerTimeInfo_t uciTimeInfo = InterpretGoArguements(input, i);
-        GetSearchResults(uciTimeInfo, boardInfo, gameStack, zobristStack, *color);
+        GetSearchResults(uciTimeInfo, boardInfo, gameStack, zobristStack);
         break;     
     default:
         break;
@@ -389,8 +383,7 @@ static bool RespondToSignal(
 bool InterpretUCIInput(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack,
-    Color_t* color
+    ZobristStack_t* zobristStack
 )
 {
     char input[BUFFER_SIZE];
@@ -406,7 +399,7 @@ bool InterpretUCIInput(
 
         SkipToNextCharacter(input, &i);
 
-        bool keepRunning = RespondToSignal(input, &i, signal, boardInfo, gameStack, zobristStack, color);
+        bool keepRunning = RespondToSignal(input, &i, signal, boardInfo, gameStack, zobristStack);
         if(!keepRunning) {
             return false; // quit immediately
         }

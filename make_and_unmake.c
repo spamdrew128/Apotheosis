@@ -66,7 +66,8 @@ static void UpdateBoardInfoField(
     MovePieceInMailbox(boardInfo, toSquare, fromSquare);
 }
 
-static void MakeCastlingHandler(BoardInfo_t* boardInfo, GameState_t* nextState, Move_t move, Color_t color) {
+static void MakeCastlingHandler(BoardInfo_t* boardInfo, GameState_t* nextState, Move_t move) {
+    Color_t color = boardInfo->colorToMove;
     Square_t kingFromSquare = ReadFromSquare(move);
     Square_t kingToSquare = ReadToSquare(move);
 
@@ -113,7 +114,8 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, GameState_t* nextState, 
     nextState->castleSquares[color] = empty_set;
 }
 
-static void MakePromotionHandler(BoardInfo_t* boardInfo, GameState_t* nextState, Move_t move, Color_t color) {
+static void MakePromotionHandler(BoardInfo_t* boardInfo, GameState_t* nextState, Move_t move) {
+    Color_t color = boardInfo->colorToMove;
     Square_t fromSquare = ReadFromSquare(move);
     Square_t toSquare = ReadToSquare(move);
     Piece_t promotionPiece = ReadPromotionPiece(move);
@@ -154,7 +156,8 @@ static Bitboard_t GetEnPassantBB(Bitboard_t toBB, Color_t color) {
     }
 }
 
-static void MakeEnPassantHandler(BoardInfo_t* boardInfo, GameState_t* nextState, Move_t move, Color_t color) {
+static void MakeEnPassantHandler(BoardInfo_t* boardInfo, GameState_t* nextState, Move_t move) {
+    Color_t color = boardInfo->colorToMove;
     Square_t fromSquare = ReadFromSquare(move);
     Square_t toSquare = ReadToSquare(move);
     Bitboard_t fromBB = GetSingleBitset(fromSquare);
@@ -182,7 +185,8 @@ static void MakeEnPassantHandler(BoardInfo_t* boardInfo, GameState_t* nextState,
     nextState->capturedPiece = pawn;
 }
 
-static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextState, Move_t move, Color_t color) {
+static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextState, Move_t move) {
+    Color_t color = boardInfo->colorToMove;
     Square_t fromSquare = ReadFromSquare(move);
     Square_t toSquare = ReadToSquare(move);
     Bitboard_t fromBB = GetSingleBitset(fromSquare);
@@ -229,26 +233,27 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextStat
     UpdateCastleSquares(nextState, boardInfo, color);
 }
 
-void MakeMove(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, Color_t moveColor) {
+void MakeMove(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move) {
     SpecialFlag_t specialFlag = ReadSpecialFlag(move);
     GameState_t* nextState = GetDefaultNextGameState(gameStack);
     
     switch (specialFlag) {
         case castle_flag:
-            MakeCastlingHandler(boardInfo, nextState, move, moveColor);
+            MakeCastlingHandler(boardInfo, nextState, move);
         break;
         case promotion_flag:
-            MakePromotionHandler(boardInfo, nextState, move, moveColor);
+            MakePromotionHandler(boardInfo, nextState, move);
         break;
         case en_passant_flag:
-            MakeEnPassantHandler(boardInfo, nextState, move, moveColor);
+            MakeEnPassantHandler(boardInfo, nextState, move);
         break;
         default:
-            MakeMoveDefaultHandler(boardInfo, nextState, move, moveColor);
+            MakeMoveDefaultHandler(boardInfo, nextState, move);
         break;
     }
 
     UpdateEmpty(boardInfo);
+    boardInfo->colorToMove = !(boardInfo->colorToMove);
     nextState->boardInfo = *boardInfo;
 }
 

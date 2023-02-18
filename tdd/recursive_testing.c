@@ -31,13 +31,13 @@ static bool UnmakeSuccess(BoardInfo_t* info, BoardInfo_t* originalInfo, GameStat
 }
 
 static PerftCount_t tests;
-static void UnmakeTest(BoardInfo_t* boardInfo, int depth, Color_t color) {
+static void UnmakeTest(BoardInfo_t* boardInfo, int depth) {
     if(depth == 0) {
         return;
     }
 
     MoveList_t moveList;
-    CompleteMovegen(&moveList, boardInfo, &gameStack, color);
+    CompleteMovegen(&moveList, boardInfo, &gameStack);
     BoardInfo_t initialInfo = *boardInfo;
     GameState_t initalState = ReadCurrentGameState(&gameStack);
 
@@ -45,9 +45,9 @@ static void UnmakeTest(BoardInfo_t* boardInfo, int depth, Color_t color) {
         tests++;
 
         Move_t move = moveList.moves[i];
-        MakeMove(boardInfo, &gameStack, move, color);
+        MakeMove(boardInfo, &gameStack, move);
 
-        UnmakeTest(boardInfo, depth-1, !color);
+        UnmakeTest(boardInfo, depth-1);
 
         UnmakeMove(boardInfo, &gameStack);
 
@@ -66,21 +66,21 @@ void UnmakeRecursiveTestRunner(FEN_t fen, int depth, bool runTests) {
     TestSetup();
     if(runTests) {
         BoardInfo_t info;
-        Color_t color = InterpretFEN(fen, &info, &gameStack, &zobristStack);
-        UnmakeTest(&info, depth, color);
+        InterpretFEN(fen, &info, &gameStack, &zobristStack);
+        UnmakeTest(&info, depth);
     }
 }
 
-static void _SplitPERFTHelper(BoardInfo_t* boardInfo, int depth, PerftCount_t* count, Color_t color) {
+static void _SplitPERFTHelper(BoardInfo_t* boardInfo, int depth, PerftCount_t* count) {
     MoveList_t moveList;
-    CompleteMovegen(&moveList, boardInfo, &gameStack, color);
+    CompleteMovegen(&moveList, boardInfo, &gameStack);
 
     if(depth > 1) {
         for(int i = 0; i <= moveList.maxIndex; i++) {
             Move_t move = moveList.moves[i];
-            MakeMove(boardInfo, &gameStack, move, color);
+            MakeMove(boardInfo, &gameStack, move);
 
-            _SplitPERFTHelper(boardInfo, depth-1, count, !color);
+            _SplitPERFTHelper(boardInfo, depth-1, count);
 
             UnmakeMove(boardInfo, &gameStack);
         }
@@ -95,18 +95,18 @@ static void PrintSplitPerftResults(Move_t move, PerftCount_t count) {
     printf(" - %lld\n", count);
 }
 
-static PerftCount_t SplitPERFT(BoardInfo_t* boardInfo, int depth, Color_t color) {
+static PerftCount_t SplitPERFT(BoardInfo_t* boardInfo, int depth) {
     MoveList_t moveList;
-    CompleteMovegen(&moveList, boardInfo, &gameStack, color);
+    CompleteMovegen(&moveList, boardInfo, &gameStack);
     PerftCount_t total = 0;
 
     for(int i = 0; i <= moveList.maxIndex; i++) {
         Move_t move = moveList.moves[i];
-        MakeMove(boardInfo, &gameStack, move, color);
+        MakeMove(boardInfo, &gameStack, move);
 
         PerftCount_t count = 0;
         if(depth > 1) {
-            _SplitPERFTHelper(boardInfo, depth-1, &count, !color);
+            _SplitPERFTHelper(boardInfo, depth-1, &count);
             PrintSplitPerftResults(move, count);
             total += count;
         } else {
@@ -124,27 +124,27 @@ void PERFTRunner(FEN_t fen, int depth, bool runTests) {
     TestSetup();
     if(runTests) {
         BoardInfo_t info;
-        Color_t color = InterpretFEN(fen, &info, &gameStack, &zobristStack);
+        InterpretFEN(fen, &info, &gameStack, &zobristStack);
 
         printf("\n");
-        PerftCount_t totalCount = SplitPERFT(&info, depth, color);
+        PerftCount_t totalCount = SplitPERFT(&info, depth);
         printf("\nDepth %d found %lld positions\n", depth, totalCount);
     }
 }
 
-static void FullySearchTree(BoardInfo_t* boardInfo, int depth, PerftCount_t* count, Color_t color) {
+static void FullySearchTree(BoardInfo_t* boardInfo, int depth, PerftCount_t* count) {
     if(depth == 0) {
         (*count)++;
         return;
     }
 
     MoveList_t moveList;
-    CompleteMovegen(&moveList, boardInfo, &gameStack, color);
+    CompleteMovegen(&moveList, boardInfo, &gameStack);
     for(int i = 0; i <= moveList.maxIndex; i++) {
         Move_t move = moveList.moves[i];
-        MakeMove(boardInfo, &gameStack, move, color);
+        MakeMove(boardInfo, &gameStack, move);
 
-        FullySearchTree(boardInfo, depth-1, count, !color);
+        FullySearchTree(boardInfo, depth-1, count);
 
         UnmakeMove(boardInfo, &gameStack);
     }
@@ -154,14 +154,14 @@ void SpeedTest(FEN_t fen, int depth, bool runTests) {
     TestSetup();
     if(runTests) {
         BoardInfo_t info;
-        Color_t color = InterpretFEN(fen, &info, &gameStack, &zobristStack);
+        InterpretFEN(fen, &info, &gameStack, &zobristStack);
 
         clock_t t;
         t = clock();
 
         printf("\n");
         PerftCount_t totalCount = 0;
-        FullySearchTree(&info, depth, &totalCount, color);
+        FullySearchTree(&info, depth, &totalCount);
 
         t = clock() - t;
         double time_taken = ((double)t)/CLOCKS_PER_SEC;

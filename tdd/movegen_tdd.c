@@ -17,6 +17,16 @@ static void TestSetup() {
     InitGameStack(&stack);
 }
 
+static void CompleteMovegenTestWrapper(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
+    boardInfo->colorToMove = color;
+    CompleteMovegen(moveList, boardInfo, stack);
+}
+
+static void CapturesMovegenTestWrapper(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
+    boardInfo->colorToMove = color;
+    CapturesMovegen(moveList, boardInfo, stack);
+}
+
 static int CountPieceMoves(Piece_t piece, MoveList_t moveList, BoardInfo_t* info) {
     int count = 0;
     for(int i = 0; i <= moveList.maxIndex; i++) {
@@ -93,7 +103,7 @@ static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
     int expectedNumQueenCaptures = 1;
 
     MoveList_t moveList;
-    CapturesMovegen(&moveList, &info, &stack, white);
+    CapturesMovegenTestWrapper(&moveList, &info, &stack, white);
 
     bool success = 
         (CountPieceMoves(king, moveList, &info) == expectedNumKingCaptures) &&
@@ -116,10 +126,10 @@ static void ShouldCorrectlyEvaluateDoubleEnPassant() {
     int expectedNumPawnBlackCaptures = 2;
 
     MoveList_t wMoveList;
-    CapturesMovegen(&wMoveList, &info, &stack, white);
+    CapturesMovegenTestWrapper(&wMoveList, &info, &stack, white);
 
     MoveList_t bMoveList;
-    CapturesMovegen(&bMoveList, &info, &stack, black);
+    CapturesMovegenTestWrapper(&bMoveList, &info, &stack, black);
 
     bool success = 
         (CountPieceMoves(pawn, wMoveList, &info) == expectedNumPawnWhiteCaptures) &&
@@ -137,7 +147,7 @@ static void ShouldCorrectlyEvaluatePinnedEnPassant() {
     int expectedNumPawnWhiteCaptures = 1;
 
     MoveList_t moveList;
-    CapturesMovegen(&moveList, &info, &stack, white);
+    CapturesMovegenTestWrapper(&moveList, &info, &stack, white);
 
     bool success = 
         (CountPieceMoves(pawn, moveList, &info) == expectedNumPawnWhiteCaptures) &&
@@ -159,7 +169,7 @@ static void ShouldCorrectlyEvaluateInPosWithPins() {
     int expectedNumQueenMoves = 2;
 
     MoveList_t moveList;
-    CompleteMovegen(&moveList, &info, &stack, white);
+    CompleteMovegenTestWrapper(&moveList, &info, &stack, white);
 
     int expectedMaxIndex = (
         expectedNumKingMoves +

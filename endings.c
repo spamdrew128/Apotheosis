@@ -49,10 +49,11 @@ GameEndStatus_t CurrentGameEndStatus(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
-    int moveListMaxIndex,
-    Color_t colorToMove
+    int moveListMaxIndex
 ) 
 {
+    Color_t colorToMove = boardInfo->colorToMove;
+
     if(moveListMaxIndex == movelist_empty) {
         if(boardInfo->kings[colorToMove] & UnsafeSquares(boardInfo, colorToMove)) {
             return checkmate;
