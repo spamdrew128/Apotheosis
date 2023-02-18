@@ -123,7 +123,9 @@ SearchResults_t Search(
     SearchInfo_t searchInfo;
     InitSearchInfo(&searchInfo);
     
-    SearchResults_t results = NegamaxRoot(boardInfo, gameStack, zobristStack, maxDepth);
+    SearchResults_t searchResults = NegamaxRoot(boardInfo, gameStack, zobristStack, maxDepth);
 
-    return results;
+    SendNumericalUciCommand("score cp", searchResults.score);
+
+    return searchResults;
 }
