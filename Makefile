@@ -1,6 +1,7 @@
 CC=gcc
 
-TDD=tdd
+TDD_ROOT=tdd
+TDD=tdd\tests
 ENGINE=engine
 
 INCDIRS:= \
@@ -56,7 +57,7 @@ MAIN=main
 CFILES=$(MAIN).c $(COMMON_CFILES)
 OBJECTS=$(MAIN).o $(COMMON_OBJECTS)
 
-TDD_MAIN=$(TDD)\main_tdd
+TDD_MAIN=$(TDD_ROOT)\main_tdd
 
 D_CFILES= \
 $(TDD_MAIN).c \
