@@ -274,10 +274,7 @@ uint32_t GoStringToNumber(const char* numString) {
     return result;
 }
 
-static void GetSearchResults(
-    UciSearchInfo_t uciSearchInfo,
-    UciApplicationData_t* applicationData
-)
+static void GetSearchResults(UciSearchInfo_t uciSearchInfo, UciApplicationData_t* applicationData)
 {
     SearchResults_t searchResults = 
         Search(
@@ -367,10 +364,7 @@ static bool RespondToSignal(
         break;
     case signal_go:
         UciSearchInfo_t uciSearchInfo = InterpretGoArguements(input, i);
-        GetSearchResults(
-            uciSearchInfo,
-            applicationData
-        );
+        GetSearchResults(uciSearchInfo, applicationData);
         break;     
     default:
         break;

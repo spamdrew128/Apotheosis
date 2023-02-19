@@ -17,7 +17,6 @@ typedef struct
     ZobristStack_t zobristStack;
 } UciApplicationData_t;
 
-
 bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo, GameStack_t* gameStack);
 
 bool InterpretUCIInput(UciApplicationData_t* applicationData);
