@@ -30,6 +30,7 @@ typedef struct {
 } SearchResults_t;
 
 typedef uint8_t Depth_t;
+typedef uint8_t Ply_t;
 
 SearchResults_t Search(
     PlayerTimeInfo_t uciTimeInfo,

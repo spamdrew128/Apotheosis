@@ -7,12 +7,13 @@
 #include "RNG.h"
 #include "endings.h"
 #include "UCI.h"
-
-typedef uint8_t Ply_t;
+#include "timer.h"
 
 typedef struct {
     bool timeDepleted;
 } SearchInfo_t;
+
+static Timer_t globalTimer;
 
 static void InitSearchInfo(SearchInfo_t* searchInfo) {
     searchInfo->timeDepleted = false;
@@ -112,6 +113,21 @@ static SearchResults_t NegamaxRoot(
     return results;
 }
 
+static void SetupGlobalTimer(PlayerTimeInfo_t uciTimeInfo, BoardInfo_t* boardInfo) {
+    Milliseconds_t totalTime;
+    Milliseconds_t increment;
+    if(boardInfo->colorToMove == white) {
+        totalTime = uciTimeInfo.wTime;
+        increment = uciTimeInfo.wInc;
+    } else {
+        totalTime = uciTimeInfo.bTime;
+        increment = uciTimeInfo.bInc;
+    }
+
+    Milliseconds_t timeToUse = (totalTime + increment) / 20;
+    TimerInit(&globalTimer, timeToUse);
+}
+
 SearchResults_t Search(
     PlayerTimeInfo_t uciTimeInfo,
     BoardInfo_t* boardInfo,
@@ -122,6 +138,7 @@ SearchResults_t Search(
 {
     SearchInfo_t searchInfo;
     InitSearchInfo(&searchInfo);
+    SetupGlobalTimer(uciTimeInfo, boardInfo);
     
     SearchResults_t searchResults = NegamaxRoot(boardInfo, gameStack, zobristStack, maxDepth);
 
