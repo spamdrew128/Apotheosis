@@ -1,12 +1,27 @@
 #include <stdint.h>
+#include <time.h>
 
-#include "search.h"
+#include "chess_search.h"
 #include "movegen.h"
 #include "make_and_unmake.h"
 #include "RNG.h"
 #include "endings.h"
+#include "UCI.h"
+#include "timer.h"
 
-typedef uint8_t Ply_t;
+enum {
+    time_fraction = 25
+};
+
+typedef struct {
+    bool outOfTime;
+} SearchInfo_t;
+
+static Timer_t globalTimer;
+
+static void InitSearchInfo(SearchInfo_t* searchInfo) {
+    searchInfo->outOfTime = false;
+}
 
 static void MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, ZobristStack_t* zobristStack) {
     MakeMove(boardInfo, gameStack, move);
@@ -22,6 +37,7 @@ static EvalScore_t NegamaxHelper(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
+    SearchInfo_t* searchInfo,
     EvalScore_t alpha,
     EvalScore_t beta,
     Depth_t depth,
@@ -50,9 +66,14 @@ static EvalScore_t NegamaxHelper(
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
-        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, -beta, -alpha, depth-1, ply+1);
+        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
 
         UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
+
+        if(TimerExpired(&globalTimer)) {
+            searchInfo->outOfTime = true;
+            return score;
+        }
 
         if(score >= beta) {
             return score;
@@ -69,10 +90,11 @@ static EvalScore_t NegamaxHelper(
     return bestScore;
 }
 
-static SearchResults_t NegamaxRoot(  
+static SearchResults_t NegamaxRoot(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
+    SearchInfo_t* searchInfo,
     Depth_t depth
 )
 {
@@ -85,9 +107,13 @@ static SearchResults_t NegamaxRoot(
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
-        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, -INFINITY, INFINITY, depth-1, 1);
+        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, searchInfo, -INFINITY, INFINITY, depth-1, 1);
 
         UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
+
+        if(searchInfo->outOfTime) {
+            break;
+        }
 
         if(score > bestScore) {
             bestScore = score;
@@ -102,6 +128,21 @@ static SearchResults_t NegamaxRoot(
     return results;
 }
 
+static void SetupGlobalTimer(PlayerTimeInfo_t uciTimeInfo, BoardInfo_t* boardInfo) {
+    Milliseconds_t totalTime;
+    Milliseconds_t increment;
+    if(boardInfo->colorToMove == white) {
+        totalTime = uciTimeInfo.wTime;
+        increment = uciTimeInfo.wInc;
+    } else {
+        totalTime = uciTimeInfo.bTime;
+        increment = uciTimeInfo.bInc;
+    }
+
+    Milliseconds_t timeToUse = (totalTime + increment) / time_fraction;
+    TimerInit(&globalTimer, timeToUse);
+}
+
 SearchResults_t Search(
     PlayerTimeInfo_t uciTimeInfo,
     BoardInfo_t* boardInfo,
@@ -110,7 +151,23 @@ SearchResults_t Search(
     Depth_t maxDepth
 )
 {
-    SearchResults_t results = NegamaxRoot(boardInfo, gameStack, zobristStack, maxDepth);
+    SetupGlobalTimer(uciTimeInfo, boardInfo);
 
-    return results;
+    SearchInfo_t searchInfo;
+    InitSearchInfo(&searchInfo);
+
+    SearchResults_t searchResults;
+    Depth_t currentDepth = 0;
+    do {
+        currentDepth++;
+        SearchResults_t newResults
+            = NegamaxRoot(boardInfo, gameStack, zobristStack, &searchInfo, currentDepth);
+
+        if(!searchInfo.outOfTime) {
+            searchResults = newResults;
+            SendUciInfoString("score cp %d depth %d", searchResults.score, currentDepth);
+        }
+    } while(!searchInfo.outOfTime && currentDepth != maxDepth);
+
+    return searchResults;
 }

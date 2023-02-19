@@ -1,8 +1,8 @@
-#ifndef __SEARCH_H__
-#define __SEARCH_H__
+#ifndef __CHESS_SEARCH_H__
+#define __CHESS_SEARCH_H__
 
 #include <stdbool.h>
-#include <stdint.h>
+#include <limits.h>
 
 #include "move.h"
 #include "board_info.h"
@@ -10,8 +10,12 @@
 #include "game_state.h"
 #include "zobrist.h"
 #include "evaluation.h"
+#include "time_constants.h"
 
-typedef uint16_t Milliseconds_t;
+enum {
+    MS_MAX_TIME = UINT32_MAX
+};
+
 typedef struct
 {
     Milliseconds_t wTime;
@@ -26,6 +30,7 @@ typedef struct {
 } SearchResults_t;
 
 typedef uint8_t Depth_t;
+typedef uint8_t Ply_t;
 
 SearchResults_t Search(
     PlayerTimeInfo_t uciTimeInfo,

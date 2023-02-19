@@ -9,7 +9,8 @@
 #include "FEN.h"
 #include "movegen.h"
 #include "make_and_unmake.h"
-#include "search.h"
+#include "chess_search.h"
+#include "time_constants.h"
 
 #define BUFFER_SIZE 50000
 
@@ -286,10 +287,6 @@ Milliseconds_t TimeStringToNumber(const char* numString) {
     return result;
 }
 
-static void SendNumericalInfoCommand(const char* command, int data) {
-    printf("info %s %d\n", command, data);
-}
-
 static void GetSearchResults(
     PlayerTimeInfo_t uciTimeInfo,
     BoardInfo_t* boardInfo,
@@ -303,13 +300,11 @@ static void GetSearchResults(
             boardInfo,
             gameStack,
             zobristStack,
-            6
+            0
         );
-
+        
     char moveString[BUFFER_SIZE];
     MoveStructToUciString(searchResults.bestMove, moveString);
-
-    SendNumericalInfoCommand("score", searchResults.score);
 
     printf(BESTMOVE);
     printf(" %s\n", moveString);
@@ -339,6 +334,11 @@ PlayerTimeInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
         } else if(StringsMatch(nextWord, "binc")) {
             GetNextWord(input, nextWord, i);
             timeInfo.bInc = TimeStringToNumber(nextWord);       
+        } else if(StringsMatch(nextWord, "infinite")) {
+            timeInfo.wTime = UINT32_MAX;       
+            timeInfo.bTime = UINT32_MAX;
+            timeInfo.wInc = 0;       
+            timeInfo.bInc = 0;  
         }
     }
 

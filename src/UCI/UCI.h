@@ -2,6 +2,7 @@
 #define __UCI_H__
 
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "move.h"
 #include "board_info.h"
@@ -16,5 +17,12 @@ bool InterpretUCIInput(
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack
 );
+
+#define SendUciInfoString(formatString, ...) \
+do { \
+    printf("info "); \
+    printf(formatString, __VA_ARGS__); \
+    printf("\n"); \
+} while(0)
 
 #endif

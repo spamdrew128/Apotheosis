@@ -10,6 +10,7 @@ MOVEGEN=$(SRC)\movegen
 PLAY=$(SRC)\play
 RNG=$(SRC)\RNG
 STATE=$(SRC)\state
+TIMER=$(SRC)\timer
 UCI=$(SRC)\UCI
 ZOBRIST=$(SRC)\zobrist
 
@@ -29,9 +30,11 @@ INCDIRS:= \
 -I $(PLAY)\. \
 -I $(RNG)\. \
 -I $(STATE)\. \
+-I $(TIMER)\. \
 -I $(UCI)\. \
 -I $(ZOBRIST)\. \
 \
+-I $(TDD_ROOT)\. \
 -I $(TDD)\. \
 -I $(ENGINE_TDD)\. 
 
@@ -44,7 +47,7 @@ $(BITBOARDS)\bitboards.c \
 $(BITBOARDS)\magic.c \
 $(ENDINGS)\endings.c \
 $(ENGINE)\evaluation.c \
-$(ENGINE)\search.c \
+$(ENGINE)\chess_search.c \
 $(FEN)\FEN.c \
 $(LOOKUP)\lookup.c \
 $(PLAY)\move.c \
@@ -52,6 +55,7 @@ $(PLAY)\make_and_unmake.c \
 $(RNG)\RNG.c \
 $(STATE)\board_info.c \
 $(STATE)\game_state.c \
+$(TIMER)\timer.c \
 $(MOVEGEN)\legals.c \
 $(MOVEGEN)\movegen.c \
 $(MOVEGEN)\pieces.c \
@@ -63,7 +67,7 @@ $(BITBOARDS)\bitboards.o \
 $(BITBOARDS)\magic.o \
 $(ENDINGS)\endings.o \
 $(ENGINE)\evaluation.o \
-$(ENGINE)\search.o \
+$(ENGINE)\chess_search.o \
 $(FEN)\FEN.o \
 $(LOOKUP)\lookup.o \
 $(PLAY)\move.o \
@@ -71,6 +75,7 @@ $(PLAY)\make_and_unmake.o \
 $(RNG)\RNG.o \
 $(STATE)\board_info.o \
 $(STATE)\game_state.o \
+$(TIMER)\timer.o \
 $(MOVEGEN)\legals.o \
 $(MOVEGEN)\movegen.o \
 $(MOVEGEN)\pieces.o \
@@ -86,10 +91,10 @@ TDD_MAIN=$(TDD_ROOT)\main_tdd
 D_CFILES= \
 $(TDD_MAIN).c \
 $(COMMON_CFILES) \
+$(TDD_ROOT)\debug.c \
 $(TDD)\bitboards_tdd.c \
 $(TDD)\board_info_tdd.c \
 $(TDD)\lookup_tdd.c \
-$(TDD)\debug.c \
 $(TDD)\FEN_tdd.c \
 $(TDD)\pieces_tdd.c \
 $(TDD)\magic_tdd.c \
@@ -108,10 +113,10 @@ $(ENGINE_TDD)\basic_tests.c
 D_OBJECTS= \
 $(TDD_MAIN).o \
 $(COMMON_OBJECTS) \
+$(TDD_ROOT)\debug.o \
 $(TDD)\bitboards_tdd.o \
 $(TDD)\board_info_tdd.o \
 $(TDD)\lookup_tdd.o \
-$(TDD)\debug.o \
 $(TDD)\FEN_tdd.o \
 $(TDD)\pieces_tdd.o \
 $(TDD)\magic_tdd.o \
