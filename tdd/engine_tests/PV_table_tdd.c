@@ -1,5 +1,8 @@
 #include "PV_table_tdd.h"
 
-void PvTableTDDRunner() {
+static PvTable_t pvTable;
 
+void PvTableTDDRunner() {
+    PvTableInit(&pvTable, 3);
+    PvTableTeardown(&pvTable, 3);
 }
