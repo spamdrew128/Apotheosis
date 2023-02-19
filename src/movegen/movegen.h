@@ -12,10 +12,10 @@ enum {
 
 typedef struct {
     Move_t moves[MOVELIST_MAX];
+    int maxCapturesIndex;
     int maxIndex;
 } MoveList_t;
 
-// returns max_capture_index
-int CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack);
+void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack);
 
 #endif

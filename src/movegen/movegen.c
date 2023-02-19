@@ -598,9 +598,8 @@ static void AddAllQuietMoves(
     );
 }
 
-int CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack) {
+void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack) {
     moveList->maxIndex = movelist_empty;
-    int max_capture_index;
 
     Color_t color = boardInfo->colorToMove;
 
@@ -621,7 +620,7 @@ int CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* s
     if(inCheck) {
         checkmask = DefineCheckmask(boardInfo, color);
         if(IsDoubleCheck(boardInfo, checkmask, color)) {
-            max_capture_index = moveList->maxIndex;
+            moveList->maxCapturesIndex = moveList->maxIndex;
 
             AddKingMoves(
                 moveList,
@@ -631,7 +630,7 @@ int CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* s
                 boardInfo->empty
             );
         
-            return max_capture_index;
+            return;
         }
     }
 
@@ -646,7 +645,7 @@ int CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* s
         color
     );
 
-    max_capture_index = moveList->maxIndex;
+    moveList->maxCapturesIndex = moveList->maxIndex;
 
     AddAllQuietMoves(
         moveList,
@@ -674,6 +673,4 @@ int CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* s
             color
         );
     }
-
-    return max_capture_index;
 }
