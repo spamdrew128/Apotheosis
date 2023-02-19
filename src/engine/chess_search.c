@@ -8,6 +8,7 @@
 #include "endings.h"
 #include "UCI.h"
 #include "timer.h"
+#include "PV_table.h"
 
 enum {
     overhead_msec = 10,
@@ -16,6 +17,7 @@ enum {
 
 typedef struct {
     bool outOfTime;
+    PvTable_t pvTable;
 } SearchInfo_t;
 
 static Timer_t globalTimer;

@@ -6,10 +6,13 @@
 
 typedef struct {
     Move_t** moveMatrix;
+    Ply_t maxPly;
 } PvTable_t;
 
 void PvTableInit(PvTable_t* pvTable, Depth_t maxDepth);
 
 void PvTableTeardown(PvTable_t* pvTable, Depth_t maxDepth);
+
+void UpdatePvTable(PvTable_t* pvTable, Move_t move, Ply_t ply);
 
 #endif
