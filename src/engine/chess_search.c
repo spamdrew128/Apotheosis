@@ -33,6 +33,7 @@ static EvalScore_t NegamaxHelper(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
+    SearchInfo_t* searchInfo,
     EvalScore_t alpha,
     EvalScore_t beta,
     Depth_t depth,
@@ -61,7 +62,7 @@ static EvalScore_t NegamaxHelper(
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
-        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, -beta, -alpha, depth-1, ply+1);
+        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
 
         UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
 
@@ -80,10 +81,11 @@ static EvalScore_t NegamaxHelper(
     return bestScore;
 }
 
-static SearchResults_t NegamaxRoot(  
+static SearchResults_t NegamaxRoot(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
+    SearchInfo_t* searchInfo,
     Depth_t depth
 )
 {
@@ -96,7 +98,7 @@ static SearchResults_t NegamaxRoot(
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
-        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, -INFINITY, INFINITY, depth-1, 1);
+        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, searchInfo, -INFINITY, INFINITY, depth-1, 1);
 
         UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
 
@@ -136,11 +138,12 @@ SearchResults_t Search(
     Depth_t maxDepth
 )
 {
+    SetupGlobalTimer(uciTimeInfo, boardInfo);
+
     SearchInfo_t searchInfo;
     InitSearchInfo(&searchInfo);
-    SetupGlobalTimer(uciTimeInfo, boardInfo);
-    
-    SearchResults_t searchResults = NegamaxRoot(boardInfo, gameStack, zobristStack, maxDepth);
+
+    SearchResults_t searchResults = NegamaxRoot(boardInfo, gameStack, zobristStack, &searchInfo, maxDepth);
 
     SendNumericalUciCommand("score cp", searchResults.score);
 
