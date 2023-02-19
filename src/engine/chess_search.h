@@ -16,28 +16,32 @@ enum {
     MS_MAX_TIME = UINT32_MAX
 };
 
+typedef uint8_t Depth_t;
+typedef uint8_t Ply_t;
+
 typedef struct
 {
     Milliseconds_t wTime;
     Milliseconds_t bTime;
     Milliseconds_t wInc;
     Milliseconds_t bInc;
-} PlayerTimeInfo_t;
+    Milliseconds_t timeLimit;
+
+    Depth_t depthLimit;
+} UciSearchInfo_t;
 
 typedef struct {
     Move_t bestMove;
     EvalScore_t score;
 } SearchResults_t;
 
-typedef uint8_t Depth_t;
-typedef uint8_t Ply_t;
-
 SearchResults_t Search(
-    PlayerTimeInfo_t uciTimeInfo,
+    UciSearchInfo_t uciSearchInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack,
-    Depth_t depthLimit
+    ZobristStack_t* zobristStack
 );
+
+void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo);
 
 #endif

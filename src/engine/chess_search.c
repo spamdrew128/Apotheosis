@@ -128,30 +128,35 @@ static SearchResults_t NegamaxRoot(
     return results;
 }
 
-static void SetupGlobalTimer(PlayerTimeInfo_t uciTimeInfo, BoardInfo_t* boardInfo) {
+static void SetupGlobalTimer(UciSearchInfo_t uciSearchInfo, BoardInfo_t* boardInfo) {
     Milliseconds_t totalTime;
     Milliseconds_t increment;
     if(boardInfo->colorToMove == white) {
-        totalTime = uciTimeInfo.wTime;
-        increment = uciTimeInfo.wInc;
+        totalTime = uciSearchInfo.wTime;
+        increment = uciSearchInfo.wInc;
     } else {
-        totalTime = uciTimeInfo.bTime;
-        increment = uciTimeInfo.bInc;
+        totalTime = uciSearchInfo.bTime;
+        increment = uciSearchInfo.bInc;
     }
 
-    Milliseconds_t timeToUse = (totalTime + increment) / time_fraction;
+    Milliseconds_t timeToUse;
+    if(uciSearchInfo.timeLimit) {
+        timeToUse = uciSearchInfo.timeLimit;
+    } else {
+        timeToUse = (totalTime + increment) / time_fraction;
+    }
+
     TimerInit(&globalTimer, timeToUse);
 }
 
 SearchResults_t Search(
-    PlayerTimeInfo_t uciTimeInfo,
+    UciSearchInfo_t uciSearchInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack,
-    Depth_t depthLimit
+    ZobristStack_t* zobristStack
 )
 {
-    SetupGlobalTimer(uciTimeInfo, boardInfo);
+    SetupGlobalTimer(uciSearchInfo, boardInfo);
 
     SearchInfo_t searchInfo;
     InitSearchInfo(&searchInfo);
@@ -167,7 +172,16 @@ SearchResults_t Search(
             searchResults = newResults;
             SendUciInfoString("score cp %d depth %d", searchResults.score, currentDepth);
         }
-    } while(!searchInfo.outOfTime && currentDepth != depthLimit);
+    } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo.depthLimit);
 
     return searchResults;
+}
+
+void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {
+    uciSearchInfo->wTime = 0;
+    uciSearchInfo->bTime = 0;
+    uciSearchInfo->wInc = 0;
+    uciSearchInfo->bInc = 0;
+    uciSearchInfo->timeLimit = 0;
+    uciSearchInfo->depthLimit = 0;
 }

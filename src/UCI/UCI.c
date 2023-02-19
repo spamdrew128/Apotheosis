@@ -32,13 +32,6 @@ enum {
     signal_go
 };
 
-static void UciTimeInfoInit(PlayerTimeInfo_t* uciTimeInfo) {
-    uciTimeInfo->wTime = 0;
-    uciTimeInfo->bTime = 0;
-    uciTimeInfo->wInc = 0;
-    uciTimeInfo->bInc = 0;
-}
-
 static char RowToNumberChar(int row) {
     return (char)(row + 49);
 }
@@ -282,7 +275,7 @@ Milliseconds_t TimeStringToNumber(const char* numString) {
 }
 
 static void GetSearchResults(
-    PlayerTimeInfo_t uciTimeInfo,
+    UciSearchInfo_t uciSearchInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack
@@ -290,11 +283,10 @@ static void GetSearchResults(
 {
     SearchResults_t searchResults = 
         Search(
-            uciTimeInfo,
+            uciSearchInfo,
             boardInfo,
             gameStack,
-            zobristStack,
-            0
+            zobristStack
         );
         
     char moveString[BUFFER_SIZE];
@@ -304,9 +296,9 @@ static void GetSearchResults(
     printf(" %s\n", moveString);
 }
 
-PlayerTimeInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
-    PlayerTimeInfo_t timeInfo;
-    UciTimeInfoInit(&timeInfo);
+UciSearchInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
+    UciSearchInfo_t timeInfo;
+    UciSearchInfoInit(&timeInfo);
 
     char nextWord[BUFFER_SIZE];
     while(input[*i] != '\0') {
@@ -365,8 +357,8 @@ static bool RespondToSignal(
         InterpretPosition(input, i, boardInfo, gameStack, zobristStack);
         break;
     case signal_go:
-        PlayerTimeInfo_t uciTimeInfo = InterpretGoArguements(input, i);
-        GetSearchResults(uciTimeInfo, boardInfo, gameStack, zobristStack);
+        UciSearchInfo_t uciSearchInfo = InterpretGoArguements(input, i);
+        GetSearchResults(uciSearchInfo, boardInfo, gameStack, zobristStack);
         break;     
     default:
         break;
