@@ -10,6 +10,7 @@
 #include "timer.h"
 
 enum {
+    overhead_msec = 10,
     time_fraction = 25
 };
 
@@ -146,7 +147,7 @@ static void SetupGlobalTimer(UciSearchInfo_t uciSearchInfo, BoardInfo_t* boardIn
         timeToUse = (totalTime + increment) / time_fraction;
     }
 
-    TimerInit(&globalTimer, timeToUse);
+    TimerInit(&globalTimer, timeToUse - overhead_msec);
 }
 
 SearchResults_t Search(
