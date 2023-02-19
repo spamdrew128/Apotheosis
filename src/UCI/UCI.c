@@ -300,7 +300,7 @@ static void GetSearchResults(
             boardInfo,
             gameStack,
             zobristStack,
-            0
+            5
         );
         
     char moveString[BUFFER_SIZE];

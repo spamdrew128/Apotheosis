@@ -2,11 +2,15 @@
 
 #include "timer.h"
 
+static inline Seconds_t CurrentClockTime() {
+    return ((Seconds_t)clock()) / CLOCKS_PER_SEC;
+}
+
 void TimerInit(Timer_t* timer, Milliseconds_t duration) {
-    timer->startTime = ((Seconds_t)clock()) / CLOCKS_PER_SEC;
+    timer->startTime = CurrentClockTime();
     timer->endTime = (((Seconds_t)duration) / msec_per_sec) + timer->startTime;
 }
 
 bool TimerExpired(Timer_t* timer) {
-    return (Seconds_t)clock() > timer->endTime;
+    return CurrentClockTime() > timer->endTime;
 }
