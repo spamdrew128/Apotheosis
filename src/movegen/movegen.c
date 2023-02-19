@@ -622,7 +622,7 @@ static void AddEverything(
     );
 }
 
-void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack) {
+void QSearchMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack) {
     moveList->maxIndex = movelist_empty;
 
     Color_t color = boardInfo->colorToMove;
