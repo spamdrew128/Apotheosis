@@ -53,8 +53,6 @@ static EvalScore_t NegamaxHelper(
     }
 
     if(depth == 0) {
-        // set flag here and check it later because TimerExpired() is kinda slow
-        searchInfo->outOfTime = TimerExpired(&globalTimer);
         return ScoreOfPosition(boardInfo);
     }
 
@@ -68,7 +66,12 @@ static EvalScore_t NegamaxHelper(
 
         UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
 
-        if(score >= beta || searchInfo->outOfTime) {
+        if(TimerExpired(&globalTimer)) {
+            searchInfo->outOfTime = true;
+            return score;
+        }
+
+        if(score >= beta) {
             return score;
         }
 
@@ -145,9 +148,15 @@ SearchResults_t Search(
     SearchInfo_t searchInfo;
     InitSearchInfo(&searchInfo);
 
-    SearchResults_t searchResults = NegamaxRoot(boardInfo, gameStack, zobristStack, &searchInfo, maxDepth);
+    SearchResults_t searchResults;
+    Depth_t currentDepth = 1;
+    do {
+        searchResults = NegamaxRoot(boardInfo, gameStack, zobristStack, &searchInfo, currentDepth);
 
-    SendNumericalUciCommand("score cp", searchResults.score);
+        if(searchInfo.outOfTime) {
+            SendNumericalUciCommand("score cp", searchResults.score);
+        }
+    } while(!searchInfo.outOfTime && currentDepth != maxDepth);
 
     return searchResults;
 }

@@ -1,7 +1,7 @@
 #include "timer.h"
 
 static clock_t MillisecondsToClockClocks(Milliseconds_t ms) {
-    // idk if CPS is the same across all systems so this is a precaution
+    // idk if CLOCKS_PER_SEC is the same across all systems so this is a precaution
     double clocksPerMs = ((1 / (double)msec_per_sec) * CLOCKS_PER_SEC); 
     return ms * clocksPerMs;
 }
