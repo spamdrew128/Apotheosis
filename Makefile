@@ -46,8 +46,9 @@ COMMON_CFILES= \
 $(BITBOARDS)\bitboards.c \
 $(BITBOARDS)\magic.c \
 $(ENDINGS)\endings.c \
-$(ENGINE)\evaluation.c \
 $(ENGINE)\chess_search.c \
+$(ENGINE)\evaluation.c \
+$(ENGINE)\PV_table.c \
 $(FEN)\FEN.c \
 $(LOOKUP)\lookup.c \
 $(PLAY)\move.c \
@@ -66,8 +67,9 @@ COMMON_OBJECTS= \
 $(BITBOARDS)\bitboards.o \
 $(BITBOARDS)\magic.o \
 $(ENDINGS)\endings.o \
-$(ENGINE)\evaluation.o \
 $(ENGINE)\chess_search.o \
+$(ENGINE)\evaluation.o \
+$(ENGINE)\PV_table.o \
 $(FEN)\FEN.o \
 $(LOOKUP)\lookup.o \
 $(PLAY)\move.o \
