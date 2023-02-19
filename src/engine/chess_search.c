@@ -10,7 +10,7 @@
 #include "timer.h"
 
 enum {
-    time_fraction = 20
+    time_fraction = 25
 };
 
 typedef struct {

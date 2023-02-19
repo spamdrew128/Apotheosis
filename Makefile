@@ -34,6 +34,7 @@ INCDIRS:= \
 -I $(UCI)\. \
 -I $(ZOBRIST)\. \
 \
+-I $(TDD_ROOT)\. \
 -I $(TDD)\. \
 -I $(ENGINE_TDD)\. 
 
@@ -90,10 +91,10 @@ TDD_MAIN=$(TDD_ROOT)\main_tdd
 D_CFILES= \
 $(TDD_MAIN).c \
 $(COMMON_CFILES) \
+$(TDD_ROOT)\debug.c \
 $(TDD)\bitboards_tdd.c \
 $(TDD)\board_info_tdd.c \
 $(TDD)\lookup_tdd.c \
-$(TDD)\debug.c \
 $(TDD)\FEN_tdd.c \
 $(TDD)\pieces_tdd.c \
 $(TDD)\magic_tdd.c \
@@ -112,10 +113,10 @@ $(ENGINE_TDD)\basic_tests.c
 D_OBJECTS= \
 $(TDD_MAIN).o \
 $(COMMON_OBJECTS) \
+$(TDD_ROOT)\debug.o \
 $(TDD)\bitboards_tdd.o \
 $(TDD)\board_info_tdd.o \
 $(TDD)\lookup_tdd.o \
-$(TDD)\debug.o \
 $(TDD)\FEN_tdd.o \
 $(TDD)\pieces_tdd.o \
 $(TDD)\magic_tdd.o \
