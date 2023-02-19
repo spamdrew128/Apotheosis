@@ -331,7 +331,7 @@ UciSearchInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
 
         } else if(StringsMatch(nextWord, "movetime")) {
             GetNextWord(input, nextWord, i);       
-            searchInfo.timeLimit = GoStringToNumber(nextWord); 
+            searchInfo.forceTime = GoStringToNumber(nextWord); 
         }
     }
 

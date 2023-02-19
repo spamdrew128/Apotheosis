@@ -140,8 +140,8 @@ static void SetupGlobalTimer(UciSearchInfo_t uciSearchInfo, BoardInfo_t* boardIn
     }
 
     Milliseconds_t timeToUse;
-    if(uciSearchInfo.timeLimit) {
-        timeToUse = uciSearchInfo.timeLimit;
+    if(uciSearchInfo.forceTime) {
+        timeToUse = uciSearchInfo.forceTime;
     } else {
         timeToUse = (totalTime + increment) / time_fraction;
     }
@@ -182,6 +182,6 @@ void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {
     uciSearchInfo->bTime = 0;
     uciSearchInfo->wInc = 0;
     uciSearchInfo->bInc = 0;
-    uciSearchInfo->timeLimit = 0;
+    uciSearchInfo->forceTime = 0;
     uciSearchInfo->depthLimit = 0;
 }

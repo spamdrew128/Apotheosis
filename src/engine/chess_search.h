@@ -25,7 +25,7 @@ typedef struct
     Milliseconds_t bTime;
     Milliseconds_t wInc;
     Milliseconds_t bInc;
-    Milliseconds_t timeLimit;
+    Milliseconds_t forceTime;
 
     Depth_t depthLimit;
 } UciSearchInfo_t;
