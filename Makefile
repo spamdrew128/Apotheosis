@@ -107,7 +107,6 @@ $(TDD)\make_and_unmake_tdd.c \
 $(TDD)\recursive_testing.c \
 $(TDD)\perft_table.c \
 $(TDD)\zobrist_tdd.c \
-$(TDD)\UCI_tdd.c \
 $(TDD)\endings_tdd.c \
 \
 $(ENGINE_TDD)\basic_tests.c \
@@ -130,7 +129,6 @@ $(TDD)\make_and_unmake_tdd.o \
 $(TDD)\recursive_testing.o \
 $(TDD)\perft_table.o \
 $(TDD)\zobrist_tdd.o \
-$(TDD)\UCI_tdd.o \
 $(TDD)\endings_tdd.o \
 \
 $(ENGINE_TDD)\basic_tests.o \
