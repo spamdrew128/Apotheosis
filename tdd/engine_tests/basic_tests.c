@@ -30,7 +30,7 @@ static void ShouldFindM2() {
     InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
     
     UciSearchInfo_t uciSearchInfo = GetUciSearchInfo();
-    SearchResults_t results = Search(uciSearchInfo, &boardInfo, &gameStack, &zobristStack);
+    SearchResults_t results = Search(uciSearchInfo, &boardInfo, &gameStack, &zobristStack, false);
 
     Move_t expectedBestMove;
     UCITranslateMove(&expectedBestMove, "a8a2", &boardInfo, &gameStack);

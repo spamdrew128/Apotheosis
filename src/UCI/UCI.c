@@ -281,7 +281,8 @@ static void GetSearchResults(UciSearchInfo_t uciSearchInfo, UciApplicationData_t
             uciSearchInfo,
             &applicationData->boardInfo,
             &applicationData->gameStack,
-            &applicationData->zobristStack
+            &applicationData->zobristStack,
+            true
         );
         
     char moveString[BUFFER_SIZE];

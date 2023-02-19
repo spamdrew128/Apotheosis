@@ -39,7 +39,8 @@ SearchResults_t Search(
     UciSearchInfo_t uciSearchInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack
+    ZobristStack_t* zobristStack,
+    bool printUciInfo
 );
 
 void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo);

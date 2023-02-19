@@ -154,7 +154,8 @@ SearchResults_t Search(
     UciSearchInfo_t uciSearchInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack
+    ZobristStack_t* zobristStack,
+    bool printUciInfo
 )
 {
     SetupGlobalTimer(uciSearchInfo, boardInfo);
@@ -171,7 +172,9 @@ SearchResults_t Search(
 
         if(!searchInfo.outOfTime) {
             searchResults = newResults;
-            SendUciInfoString("score cp %d depth %d", searchResults.score, currentDepth);
+            if(printUciInfo) {
+                SendUciInfoString("score cp %d depth %d", searchResults.score, currentDepth);
+            }
         }
     } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo.depthLimit);
 
