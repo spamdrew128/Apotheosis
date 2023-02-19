@@ -557,16 +557,14 @@ static void AddAllCaptures(
     );
 }
 
-static void AddEverything(
+static void AddAllQuietMoves(
     MoveList_t* moveList,
     BoardInfo_t* boardInfo,
     Bitboard_t checkmask,
-    Bitboard_t enPassantBB,
     PinmaskContainer_t pinmasks,
     Color_t color
 )
 {
-    Bitboard_t enemyPieces = boardInfo->allPieces[!color];
     if(color == white) {
         AddWhitePawnMoves(
             moveList,
@@ -576,17 +574,6 @@ static void AddEverything(
             boardInfo->empty,
             checkmask,
             pinmasks
-        );
-
-        AddWhitePawnCaptures(
-            moveList,
-            boardInfo,
-            boardInfo->pawns[color] & ~pinmasks.all,
-            boardInfo->pawns[color] & pinmasks.d12,
-            enPassantBB,
-            enemyPieces,
-            checkmask,
-            pinmasks        
         );
     } else {
         AddBlackPawnMoves(
@@ -598,62 +585,14 @@ static void AddEverything(
             checkmask,
             pinmasks
         );
-
-        AddBlackPawnCaptures(
-            moveList,
-            boardInfo,
-            boardInfo->pawns[color] & ~pinmasks.all,
-            boardInfo->pawns[color] & pinmasks.d12,
-            enPassantBB,
-            enemyPieces,
-            checkmask,
-            pinmasks        
-        );  
     }
 
-    Bitboard_t filter = checkmask & (boardInfo->empty | enemyPieces);
+    Bitboard_t filter = checkmask & boardInfo->empty;
     AddKnightAndSliderMoves(
         moveList,
         boardInfo,
         checkmask,
         filter,
-        pinmasks,
-        color
-    );
-}
-
-void CapturesMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack) {
-    moveList->maxIndex = movelist_empty;
-
-    Color_t color = boardInfo->colorToMove;
-
-    Bitboard_t unsafeSquares = UnsafeSquares(boardInfo, color);
-    Square_t kingSquare = KingSquare(boardInfo, color);
-    Bitboard_t enemyPieces = boardInfo->allPieces[!color];
-
-    AddKingMoves(
-        moveList,
-        kingSquare,
-        KingMoveTargets(kingSquare, enemyPieces),
-        unsafeSquares,
-        boardInfo->empty
-    ); 
-
-    Bitboard_t checkmask = full_set;
-    if(InCheck(boardInfo->kings[color], unsafeSquares)) {
-        checkmask = DefineCheckmask(boardInfo, color);
-        if(IsDoubleCheck(boardInfo, checkmask, color)) {
-            return;
-        }
-    } 
-
-    PinmaskContainer_t pinmasks = DefinePinmasks(boardInfo, color);
-
-    AddAllCaptures(
-        moveList,
-        boardInfo,
-        checkmask,
-        ReadEnPassant(stack),
         pinmasks,
         color
     );
@@ -671,7 +610,7 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
     AddKingMoves(
         moveList,
         kingSquare,
-        KingMoveTargets(kingSquare, (boardInfo->empty | enemyPieces)),
+        KingMoveTargets(kingSquare, enemyPieces),
         unsafeSquares,
         boardInfo->empty
     );
@@ -681,9 +620,50 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
     if(inCheck) {
         checkmask = DefineCheckmask(boardInfo, color);
         if(IsDoubleCheck(boardInfo, checkmask, color)) {
+            moveList->maxCapturesIndex = moveList->maxIndex;
+
+            AddKingMoves(
+                moveList,
+                kingSquare,
+                KingMoveTargets(kingSquare, boardInfo->empty),
+                unsafeSquares,
+                boardInfo->empty
+            );
+        
             return;
         }
-    } else {
+    }
+
+    PinmaskContainer_t pinmasks = DefinePinmasks(boardInfo, color);
+
+    AddAllCaptures(
+        moveList,
+        boardInfo,
+        checkmask,
+        ReadEnPassant(stack),
+        pinmasks,
+        color
+    );
+
+    moveList->maxCapturesIndex = moveList->maxIndex;
+
+    AddAllQuietMoves(
+        moveList,
+        boardInfo,
+        checkmask,
+        pinmasks,
+        color
+    );
+
+    AddKingMoves(
+        moveList,
+        kingSquare,
+        KingMoveTargets(kingSquare, boardInfo->empty),
+        unsafeSquares,
+        boardInfo->empty
+    );
+
+    if(!inCheck) {
         AddCastlingMoves(
             moveList,
             boardInfo,
@@ -693,15 +673,4 @@ void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* 
             color
         );
     }
-
-    PinmaskContainer_t pinmasks = DefinePinmasks(boardInfo, color);
-
-    AddEverything(
-        moveList,
-        boardInfo,
-        checkmask,
-        ReadEnPassant(stack),
-        pinmasks,
-        color
-    );
 }

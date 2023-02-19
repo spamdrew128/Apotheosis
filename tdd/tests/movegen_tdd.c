@@ -24,7 +24,8 @@ static void CompleteMovegenTestWrapper(MoveList_t* moveList, BoardInfo_t* boardI
 
 static void CapturesMovegenTestWrapper(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
     boardInfo->colorToMove = color;
-    CapturesMovegen(moveList, boardInfo, stack);
+    CompleteMovegen(moveList, boardInfo, stack);
+    moveList->maxIndex = moveList->maxCapturesIndex;
 }
 
 static int CountPieceMoves(Piece_t piece, MoveList_t moveList, BoardInfo_t* info) {

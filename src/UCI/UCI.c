@@ -186,17 +186,6 @@ static UciSignal_t InterpretWord(const char* word) {
     return signal_invalid;
 }
 
-static bool ContainsStartPos(char input[BUFFER_SIZE], int i) {
-    char first8Letters[9];
-    for(int j = 0; j < strlen(STARTPOS); j++) {
-        first8Letters[j] = input[i];
-        i++;
-    }
-    first8Letters[8] = '\0';
-
-    return StringsMatch(first8Letters, STARTPOS);
-}
-
 static bool IsLetter(char c) {
     int asciiVal = (int)c;
     return 
@@ -251,10 +240,15 @@ static void InterpretPosition(
     char fenString[BUFFER_SIZE];
     int fenStringIndex = 0;
 
-    if(ContainsStartPos(input, *i)) {
+    char command[BUFFER_SIZE];
+    GetNextWord(input, command, i);
+
+    if(StringsMatch(command, "startpos")) {
+        SkipToNextCharacter(input, i);
         InterpretFEN(START_FEN, boardInfo, gameStack, zobristStack);
-        *i += strlen(STARTPOS);  
-    } else {
+    } else if (StringsMatch(command, "fen")) {
+        SkipToNextCharacter(input, i);
+
         while(input[*i] != 'm' && input[*i] != '\0') {
             fenString[fenStringIndex] = input[*i];
             (*i)++;
