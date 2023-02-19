@@ -598,43 +598,6 @@ static void AddAllQuietMoves(
     );
 }
 
-void QSearchMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack) {
-    moveList->maxIndex = movelist_empty;
-
-    Color_t color = boardInfo->colorToMove;
-
-    Bitboard_t unsafeSquares = UnsafeSquares(boardInfo, color);
-    Square_t kingSquare = KingSquare(boardInfo, color);
-    Bitboard_t enemyPieces = boardInfo->allPieces[!color];
-
-    AddKingMoves(
-        moveList,
-        kingSquare,
-        KingMoveTargets(kingSquare, enemyPieces),
-        unsafeSquares,
-        boardInfo->empty
-    ); 
-
-    Bitboard_t checkmask = full_set;
-    if(InCheck(boardInfo->kings[color], unsafeSquares)) {
-        checkmask = DefineCheckmask(boardInfo, color);
-        if(IsDoubleCheck(boardInfo, checkmask, color)) {
-            return;
-        }
-    } 
-
-    PinmaskContainer_t pinmasks = DefinePinmasks(boardInfo, color);
-
-    AddAllCaptures(
-        moveList,
-        boardInfo,
-        checkmask,
-        ReadEnPassant(stack),
-        pinmasks,
-        color
-    );
-}
-
 int CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack) {
     moveList->maxIndex = movelist_empty;
     int max_capture_index;
