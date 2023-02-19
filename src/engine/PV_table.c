@@ -4,7 +4,7 @@
 #include "PV_table.h"
 
 void PvTableInit(PvTable_t* pvTable, Depth_t maxDepth) {
-    pvTable->moveMatrix = malloc(sizeof(*pvTable->moveMatrix));
+    pvTable->moveMatrix = malloc(maxDepth * sizeof(*pvTable->moveMatrix));
     assert(pvTable->moveMatrix != NULL);
 
     for(int i = 0; i < maxDepth; i++) {
