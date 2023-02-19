@@ -10,13 +10,13 @@
 #include "timer.h"
 
 typedef struct {
-    bool timeDepleted;
+    bool outOfTime;
 } SearchInfo_t;
 
 static Timer_t globalTimer;
 
 static void InitSearchInfo(SearchInfo_t* searchInfo) {
-    searchInfo->timeDepleted = false;
+    searchInfo->outOfTime = false;
 }
 
 static void MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, ZobristStack_t* zobristStack) {
@@ -53,6 +53,8 @@ static EvalScore_t NegamaxHelper(
     }
 
     if(depth == 0) {
+        // set flag here and check it later because TimerExpired() is kinda slow
+        searchInfo->outOfTime = TimerExpired(&globalTimer);
         return ScoreOfPosition(boardInfo);
     }
 
@@ -66,7 +68,7 @@ static EvalScore_t NegamaxHelper(
 
         UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
 
-        if(score >= beta) {
+        if(score >= beta || searchInfo->outOfTime) {
             return score;
         }
 
