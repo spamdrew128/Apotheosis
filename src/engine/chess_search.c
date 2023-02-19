@@ -149,9 +149,11 @@ SearchResults_t Search(
     InitSearchInfo(&searchInfo);
 
     SearchResults_t searchResults;
-    Depth_t currentDepth = 1;
+    Depth_t currentDepth = 0;
     do {
+        currentDepth++;
         searchResults = NegamaxRoot(boardInfo, gameStack, zobristStack, &searchInfo, currentDepth);
+
 
         if(searchInfo.outOfTime) {
             SendNumericalUciCommand("score cp", searchResults.score);
