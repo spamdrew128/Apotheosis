@@ -160,10 +160,11 @@ SearchResults_t Search(
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
-        searchResults = NegamaxRoot(boardInfo, gameStack, zobristStack, &searchInfo, currentDepth);
-
+        SearchResults_t newResults
+            = NegamaxRoot(boardInfo, gameStack, zobristStack, &searchInfo, currentDepth);
 
         if(!searchInfo.outOfTime) {
+            searchResults = newResults;
             SendNumericalUciCommand("score cp", searchResults.score);
         }
     } while(!searchInfo.outOfTime && currentDepth != maxDepth);
