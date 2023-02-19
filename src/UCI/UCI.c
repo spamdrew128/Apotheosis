@@ -276,17 +276,15 @@ uint32_t GoStringToNumber(const char* numString) {
 
 static void GetSearchResults(
     UciSearchInfo_t uciSearchInfo,
-    BoardInfo_t* boardInfo,
-    GameStack_t* gameStack,
-    ZobristStack_t* zobristStack
+    UciApplicationData_t* applicationData
 )
 {
     SearchResults_t searchResults = 
         Search(
             uciSearchInfo,
-            boardInfo,
-            gameStack,
-            zobristStack
+            &applicationData->boardInfo,
+            &applicationData->gameStack,
+            &applicationData->zobristStack
         );
         
     char moveString[BUFFER_SIZE];
@@ -342,9 +340,7 @@ static bool RespondToSignal(
     char input[BUFFER_SIZE],
     int* i,
     UciSignal_t signal,
-    BoardInfo_t* boardInfo,
-    GameStack_t* gameStack,
-    ZobristStack_t* zobristStack
+    UciApplicationData_t* applicationData
 )
 {
     switch(signal) {
@@ -361,11 +357,20 @@ static bool RespondToSignal(
         // TODO
         break;
     case signal_position:
-        InterpretPosition(input, i, boardInfo, gameStack, zobristStack);
+        InterpretPosition(
+            input,
+            i,
+            &applicationData->boardInfo,
+            &applicationData->gameStack,
+            &applicationData->zobristStack
+        );
         break;
     case signal_go:
         UciSearchInfo_t uciSearchInfo = InterpretGoArguements(input, i);
-        GetSearchResults(uciSearchInfo, boardInfo, gameStack, zobristStack);
+        GetSearchResults(
+            uciSearchInfo,
+            applicationData
+        );
         break;     
     default:
         break;
@@ -375,9 +380,7 @@ static bool RespondToSignal(
 }
 
 bool InterpretUCIInput(
-    BoardInfo_t* boardInfo,
-    GameStack_t* gameStack,
-    ZobristStack_t* zobristStack
+    UciApplicationData_t* applicationData
 )
 {
     char input[BUFFER_SIZE];
@@ -393,7 +396,7 @@ bool InterpretUCIInput(
 
         SkipToNextCharacter(input, &i);
 
-        bool keepRunning = RespondToSignal(input, &i, signal, boardInfo, gameStack, zobristStack);
+        bool keepRunning = RespondToSignal(input, &i, signal, applicationData);
         if(!keepRunning) {
             return false; // quit immediately
         }

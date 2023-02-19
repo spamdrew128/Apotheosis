@@ -52,12 +52,10 @@ int main(int argc, char** argv)
     PERFTRunner(fen, 8, false);
     RunAllPerftTests(false);
     
-    BoardInfo_t boardInfo;
-    GameStack_t gameStack;
-    ZobristStack_t zobristStack;
+    UciApplicationData_t uciApplicationData;
     bool running = false;
     while(running)
     {
-        running = InterpretUCIInput(&boardInfo, &gameStack, &zobristStack);
+        running = InterpretUCIInput(&uciApplicationData);
     }
 }
