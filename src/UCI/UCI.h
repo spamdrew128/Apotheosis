@@ -20,9 +20,7 @@ typedef struct
 
 bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo, GameStack_t* gameStack);
 
-bool InterpretUCIInput(
-    UciApplicationData_t* applicationData
-);
+bool InterpretUCIInput(UciApplicationData_t* applicationData);
 
 #define SendUciInfoString(formatString, ...) \
 do { \

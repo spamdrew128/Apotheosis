@@ -379,9 +379,7 @@ static bool RespondToSignal(
     return true;
 }
 
-bool InterpretUCIInput(
-    UciApplicationData_t* applicationData
-)
+bool InterpretUCIInput(UciApplicationData_t* applicationData)
 {
     char input[BUFFER_SIZE];
     memset(input, '\0', BUFFER_SIZE* sizeof(char));
