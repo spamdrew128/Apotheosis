@@ -37,7 +37,7 @@ SearchResults_t Search(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
-    Depth_t maxDepth
+    Depth_t depthLimit
 );
 
 #endif
