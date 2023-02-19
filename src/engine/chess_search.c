@@ -107,6 +107,10 @@ static SearchResults_t NegamaxRoot(
 
         UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
 
+        if(searchInfo->outOfTime) {
+            break;
+        }
+
         if(score > bestScore) {
             bestScore = score;
             bestMove = move;
@@ -155,7 +159,7 @@ SearchResults_t Search(
         searchResults = NegamaxRoot(boardInfo, gameStack, zobristStack, &searchInfo, currentDepth);
 
 
-        if(searchInfo.outOfTime) {
+        if(!searchInfo.outOfTime) {
             SendNumericalUciCommand("score cp", searchResults.score);
         }
     } while(!searchInfo.outOfTime && currentDepth != maxDepth);
