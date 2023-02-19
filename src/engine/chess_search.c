@@ -9,6 +9,10 @@
 #include "UCI.h"
 #include "timer.h"
 
+enum {
+    time_fraction = 20
+};
+
 typedef struct {
     bool outOfTime;
 } SearchInfo_t;
@@ -135,7 +139,7 @@ static void SetupGlobalTimer(PlayerTimeInfo_t uciTimeInfo, BoardInfo_t* boardInf
         increment = uciTimeInfo.bInc;
     }
 
-    Milliseconds_t timeToUse = (totalTime + increment) / 20;
+    Milliseconds_t timeToUse = (totalTime + increment) / time_fraction;
     TimerInit(&globalTimer, timeToUse);
 }
 
