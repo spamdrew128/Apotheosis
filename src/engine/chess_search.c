@@ -165,7 +165,7 @@ SearchResults_t Search(
 
         if(!searchInfo.outOfTime) {
             searchResults = newResults;
-            SendUciInfoString("score %d depth %d", searchResults.score, currentDepth);
+            SendUciInfoString("score cp %d depth %d", searchResults.score, currentDepth);
         }
     } while(!searchInfo.outOfTime && currentDepth != maxDepth);
 
