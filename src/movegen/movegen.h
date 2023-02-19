@@ -17,6 +17,7 @@ typedef struct {
 
 void QSearchMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack);
 
-void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack);
+// returns max_capture_index
+int CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack);
 
 #endif
