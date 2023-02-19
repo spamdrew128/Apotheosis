@@ -261,7 +261,7 @@ static void InterpretPosition(
     ParseAndPlayMoves(input, i, boardInfo, gameStack, zobristStack);
 }
 
-Milliseconds_t TimeStringToNumber(const char* numString) {
+uint32_t GoStringToNumber(const char* numString) {
     int len = strlen(numString);
 
     Milliseconds_t result = 0;
@@ -297,8 +297,8 @@ static void GetSearchResults(
 }
 
 UciSearchInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
-    UciSearchInfo_t timeInfo;
-    UciSearchInfoInit(&timeInfo);
+    UciSearchInfo_t searchInfo;
+    UciSearchInfoInit(&searchInfo);
 
     char nextWord[BUFFER_SIZE];
     while(input[*i] != '\0') {
@@ -307,28 +307,35 @@ UciSearchInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
 
         if(StringsMatch(nextWord, "wtime")) {
             GetNextWord(input, nextWord, i);
-            timeInfo.wTime = TimeStringToNumber(nextWord);
+            searchInfo.wTime = GoStringToNumber(nextWord);
 
         } else if(StringsMatch(nextWord, "btime")) {
             GetNextWord(input, nextWord, i);
-            timeInfo.bTime = TimeStringToNumber(nextWord);
+            searchInfo.bTime = GoStringToNumber(nextWord);
             
         } else if(StringsMatch(nextWord, "winc")) {
             GetNextWord(input, nextWord, i);
-            timeInfo.wInc = TimeStringToNumber(nextWord);
+            searchInfo.wInc = GoStringToNumber(nextWord);
             
         } else if(StringsMatch(nextWord, "binc")) {
             GetNextWord(input, nextWord, i);
-            timeInfo.bInc = TimeStringToNumber(nextWord);       
+            searchInfo.bInc = GoStringToNumber(nextWord);    
+
         } else if(StringsMatch(nextWord, "infinite")) {
-            timeInfo.wTime = UINT32_MAX;       
-            timeInfo.bTime = UINT32_MAX;
-            timeInfo.wInc = 0;       
-            timeInfo.bInc = 0;  
+            searchInfo.wTime = UINT32_MAX;       
+            searchInfo.bTime = UINT32_MAX;
+
+        } else if(StringsMatch(nextWord, "depth")) {
+            GetNextWord(input, nextWord, i);
+            searchInfo.depthLimit = GoStringToNumber(nextWord); 
+
+        } else if(StringsMatch(nextWord, "movetime")) {
+            GetNextWord(input, nextWord, i);       
+            searchInfo.timeLimit = GoStringToNumber(nextWord); 
         }
     }
 
-    return timeInfo;
+    return searchInfo;
 }
 
 static bool RespondToSignal(
