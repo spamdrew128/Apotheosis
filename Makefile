@@ -40,7 +40,7 @@ INCDIRS:= \
 
 DEBUGFLAGS=-g
 OPTFLAGS=-O3 -flto
-CFLAGS=-Wall -std=c17 -march=native $(OPTFLAGS) $(INCDIRS) 
+CFLAGS=-Wall -std=c17 -march=native $(DEBUGFLAGS) $(INCDIRS) 
 
 COMMON_CFILES= \
 $(BITBOARDS)\bitboards.c \
@@ -110,7 +110,8 @@ $(TDD)\zobrist_tdd.c \
 $(TDD)\UCI_tdd.c \
 $(TDD)\endings_tdd.c \
 \
-$(ENGINE_TDD)\basic_tests.c
+$(ENGINE_TDD)\basic_tests.c \
+$(ENGINE_TDD)\PV_table_tdd.c
 
 D_OBJECTS= \
 $(TDD_MAIN).o \
@@ -132,7 +133,8 @@ $(TDD)\zobrist_tdd.o \
 $(TDD)\UCI_tdd.o \
 $(TDD)\endings_tdd.o \
 \
-$(ENGINE_TDD)\basic_tests.o
+$(ENGINE_TDD)\basic_tests.o \
+$(ENGINE_TDD)\PV_table_tdd.o
 
 BINARY=bin
 DEBUG_BINARY=debug

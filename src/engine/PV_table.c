@@ -8,7 +8,7 @@ void PvTableInit(PvTable_t* pvTable, Depth_t maxDepth) {
     assert(pvTable->moveMatrix != NULL);
 
     for(int i = 0; i < maxDepth; i++) {
-        Move_t* moveArray = malloc(sizeof(*moveArray));
+        Move_t* moveArray = malloc(maxDepth * sizeof(*moveArray));
         assert(moveArray != NULL);
 
         pvTable->moveMatrix[i] = moveArray;
