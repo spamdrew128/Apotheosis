@@ -408,7 +408,3 @@ bool InterpretUCIInput(
 
     return true; // true means application keeps running
 }
-
-void SendNumericalUciCommand(const char* command, int data) {
-    printf("info %s %d\n", command, data);
-}
