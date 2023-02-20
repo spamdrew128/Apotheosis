@@ -17,13 +17,10 @@ int main(int argc, char** argv)
     InitLookupTables();
     GenerateZobristKeys();
 
-    BoardInfo_t boardInfo;
-    GameStack_t gameStack;
-    ZobristStack_t zobristStack;
-
+    UciApplicationData_t uciApplicationData;
     bool running = true;
     while(running)
     {
-        running = InterpretUCIInput(&boardInfo, &gameStack, &zobristStack);
+        running = InterpretUCIInput(&uciApplicationData);
     }
 }

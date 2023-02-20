@@ -1,8 +1,7 @@
 #include "zobrist.h"
 #include "RNG.h"
 #include "bitboards.h"
-
-#define NUM_ARRAY_ELEMENTS(array) sizeof(array) / sizeof(*array)
+#include "util_macros.h"
 
 enum {
     white_queenside_castle_shift = c1,

@@ -46,8 +46,9 @@ COMMON_CFILES= \
 $(BITBOARDS)\bitboards.c \
 $(BITBOARDS)\magic.c \
 $(ENDINGS)\endings.c \
-$(ENGINE)\evaluation.c \
 $(ENGINE)\chess_search.c \
+$(ENGINE)\evaluation.c \
+$(ENGINE)\PV_table.c \
 $(FEN)\FEN.c \
 $(LOOKUP)\lookup.c \
 $(PLAY)\move.c \
@@ -66,8 +67,9 @@ COMMON_OBJECTS= \
 $(BITBOARDS)\bitboards.o \
 $(BITBOARDS)\magic.o \
 $(ENDINGS)\endings.o \
-$(ENGINE)\evaluation.o \
 $(ENGINE)\chess_search.o \
+$(ENGINE)\evaluation.o \
+$(ENGINE)\PV_table.o \
 $(FEN)\FEN.o \
 $(LOOKUP)\lookup.o \
 $(PLAY)\move.o \
@@ -105,10 +107,10 @@ $(TDD)\make_and_unmake_tdd.c \
 $(TDD)\recursive_testing.c \
 $(TDD)\perft_table.c \
 $(TDD)\zobrist_tdd.c \
-$(TDD)\UCI_tdd.c \
 $(TDD)\endings_tdd.c \
 \
-$(ENGINE_TDD)\basic_tests.c
+$(ENGINE_TDD)\basic_tests.c \
+$(ENGINE_TDD)\PV_table_tdd.c
 
 D_OBJECTS= \
 $(TDD_MAIN).o \
@@ -127,10 +129,10 @@ $(TDD)\make_and_unmake_tdd.o \
 $(TDD)\recursive_testing.o \
 $(TDD)\perft_table.o \
 $(TDD)\zobrist_tdd.o \
-$(TDD)\UCI_tdd.o \
 $(TDD)\endings_tdd.o \
 \
-$(ENGINE_TDD)\basic_tests.o
+$(ENGINE_TDD)\basic_tests.o \
+$(ENGINE_TDD)\PV_table_tdd.o
 
 BINARY=bin
 DEBUG_BINARY=debug

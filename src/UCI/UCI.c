@@ -32,13 +32,6 @@ enum {
     signal_go
 };
 
-static void UciTimeInfoInit(PlayerTimeInfo_t* uciTimeInfo) {
-    uciTimeInfo->wTime = 0;
-    uciTimeInfo->bTime = 0;
-    uciTimeInfo->wInc = 0;
-    uciTimeInfo->bInc = 0;
-}
-
 static char RowToNumberChar(int row) {
     return (char)(row + 49);
 }
@@ -110,8 +103,8 @@ bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo
     return true;
 }
 
-static void MoveStructToUciString(Move_t move, char moveString[BUFFER_SIZE]) {
-    memset(moveString, '\0', BUFFER_SIZE* sizeof(char));
+static void MoveStructToUciString(Move_t move, char* moveString, size_t bufferSize) {
+    memset(moveString, '\0', bufferSize* sizeof(char));
 
     Square_t fromSquare = ReadFromSquare(move);
     int fromRow = fromSquare / 8;
@@ -268,7 +261,7 @@ static void InterpretPosition(
     ParseAndPlayMoves(input, i, boardInfo, gameStack, zobristStack);
 }
 
-Milliseconds_t TimeStringToNumber(const char* numString) {
+uint32_t GoStringToNumber(const char* numString) {
     int len = strlen(numString);
 
     Milliseconds_t result = 0;
@@ -281,32 +274,27 @@ Milliseconds_t TimeStringToNumber(const char* numString) {
     return result;
 }
 
-static void GetSearchResults(
-    PlayerTimeInfo_t uciTimeInfo,
-    BoardInfo_t* boardInfo,
-    GameStack_t* gameStack,
-    ZobristStack_t* zobristStack
-)
+static void GetSearchResults(UciSearchInfo_t uciSearchInfo, UciApplicationData_t* applicationData)
 {
     SearchResults_t searchResults = 
         Search(
-            uciTimeInfo,
-            boardInfo,
-            gameStack,
-            zobristStack,
-            0
+            uciSearchInfo,
+            &applicationData->boardInfo,
+            &applicationData->gameStack,
+            &applicationData->zobristStack,
+            true
         );
         
     char moveString[BUFFER_SIZE];
-    MoveStructToUciString(searchResults.bestMove, moveString);
+    MoveStructToUciString(searchResults.bestMove, moveString, BUFFER_SIZE);
 
     printf(BESTMOVE);
     printf(" %s\n", moveString);
 }
 
-PlayerTimeInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
-    PlayerTimeInfo_t timeInfo;
-    UciTimeInfoInit(&timeInfo);
+UciSearchInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
+    UciSearchInfo_t searchInfo;
+    UciSearchInfoInit(&searchInfo);
 
     char nextWord[BUFFER_SIZE];
     while(input[*i] != '\0') {
@@ -315,37 +303,47 @@ PlayerTimeInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
 
         if(StringsMatch(nextWord, "wtime")) {
             GetNextWord(input, nextWord, i);
-            timeInfo.wTime = TimeStringToNumber(nextWord);
+            searchInfo.wTime = GoStringToNumber(nextWord);
 
         } else if(StringsMatch(nextWord, "btime")) {
             GetNextWord(input, nextWord, i);
-            timeInfo.bTime = TimeStringToNumber(nextWord);
+            searchInfo.bTime = GoStringToNumber(nextWord);
             
         } else if(StringsMatch(nextWord, "winc")) {
             GetNextWord(input, nextWord, i);
-            timeInfo.wInc = TimeStringToNumber(nextWord);
+            searchInfo.wInc = GoStringToNumber(nextWord);
             
         } else if(StringsMatch(nextWord, "binc")) {
             GetNextWord(input, nextWord, i);
-            timeInfo.bInc = TimeStringToNumber(nextWord);       
+            searchInfo.bInc = GoStringToNumber(nextWord);    
+
         } else if(StringsMatch(nextWord, "infinite")) {
-            timeInfo.wTime = UINT32_MAX;       
-            timeInfo.bTime = UINT32_MAX;
-            timeInfo.wInc = 0;       
-            timeInfo.bInc = 0;  
+            searchInfo.wTime = MSEC_MAX;       
+            searchInfo.bTime = MSEC_MAX;
+
+        } else if(StringsMatch(nextWord, "depth")) {
+            GetNextWord(input, nextWord, i);
+            searchInfo.depthLimit = GoStringToNumber(nextWord);
+
+            if(searchInfo.wTime == 0 || !searchInfo.bTime == 0) {
+                searchInfo.wTime = MSEC_MAX;       
+                searchInfo.bTime = MSEC_MAX;
+            }
+
+        } else if(StringsMatch(nextWord, "movetime")) {
+            GetNextWord(input, nextWord, i);       
+            searchInfo.forceTime = GoStringToNumber(nextWord); 
         }
     }
 
-    return timeInfo;
+    return searchInfo;
 }
 
 static bool RespondToSignal(
     char input[BUFFER_SIZE],
     int* i,
     UciSignal_t signal,
-    BoardInfo_t* boardInfo,
-    GameStack_t* gameStack,
-    ZobristStack_t* zobristStack
+    UciApplicationData_t* applicationData
 )
 {
     switch(signal) {
@@ -362,11 +360,17 @@ static bool RespondToSignal(
         // TODO
         break;
     case signal_position:
-        InterpretPosition(input, i, boardInfo, gameStack, zobristStack);
+        InterpretPosition(
+            input,
+            i,
+            &applicationData->boardInfo,
+            &applicationData->gameStack,
+            &applicationData->zobristStack
+        );
         break;
     case signal_go:
-        PlayerTimeInfo_t uciTimeInfo = InterpretGoArguements(input, i);
-        GetSearchResults(uciTimeInfo, boardInfo, gameStack, zobristStack);
+        UciSearchInfo_t uciSearchInfo = InterpretGoArguements(input, i);
+        GetSearchResults(uciSearchInfo, applicationData);
         break;     
     default:
         break;
@@ -375,11 +379,7 @@ static bool RespondToSignal(
     return true;
 }
 
-bool InterpretUCIInput(
-    BoardInfo_t* boardInfo,
-    GameStack_t* gameStack,
-    ZobristStack_t* zobristStack
-)
+bool InterpretUCIInput(UciApplicationData_t* applicationData)
 {
     char input[BUFFER_SIZE];
     memset(input, '\0', BUFFER_SIZE* sizeof(char));
@@ -394,11 +394,24 @@ bool InterpretUCIInput(
 
         SkipToNextCharacter(input, &i);
 
-        bool keepRunning = RespondToSignal(input, &i, signal, boardInfo, gameStack, zobristStack);
+        bool keepRunning = RespondToSignal(input, &i, signal, applicationData);
         if(!keepRunning) {
             return false; // quit immediately
         }
     }
 
     return true; // true means application keeps running
+}
+
+void SendPvInfo(PvTable_t* pvTable) {
+    printf("info depth %d pv", pvTable->maxPly);
+
+    char moveString[6];
+    for(int i = 0; i < pvTable->maxPly; i++) {
+        Move_t move = pvTable->moveMatrix[0][i];
+        MoveStructToUciString(move, moveString, 6);
+        printf(" %s", moveString);
+    }
+
+    printf("\n");
 }

@@ -8,13 +8,16 @@
 #include "endings.h"
 #include "UCI.h"
 #include "timer.h"
+#include "PV_table.h"
 
 enum {
+    overhead_msec = 10,
     time_fraction = 25
 };
 
 typedef struct {
     bool outOfTime;
+    PvTable_t pvTable;
 } SearchInfo_t;
 
 static Timer_t globalTimer;
@@ -33,7 +36,7 @@ static void UnmakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Zob
     RemoveZobristHashFromStack(zobristStack);
 }
 
-static EvalScore_t NegamaxHelper(
+static EvalScore_t Negamax(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
@@ -48,8 +51,7 @@ static EvalScore_t NegamaxHelper(
     CompleteMovegen(&moveList, boardInfo, gameStack);
 
     GameEndStatus_t gameEndStatus = CurrentGameEndStatus(boardInfo, gameStack, zobristStack, moveList.maxIndex);
-    switch (gameEndStatus)
-    {
+    switch (gameEndStatus) {
         case checkmate:
             return -EVAL_MAX + ply;
         case draw:
@@ -66,7 +68,7 @@ static EvalScore_t NegamaxHelper(
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
-        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
+        EvalScore_t score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
 
         UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
 
@@ -83,6 +85,7 @@ static EvalScore_t NegamaxHelper(
             bestScore = score;
             if(score > alpha) {
                 alpha = score;
+                UpdatePvTable(&searchInfo->pvTable, move, ply);
             }
         }
     }
@@ -90,68 +93,36 @@ static EvalScore_t NegamaxHelper(
     return bestScore;
 }
 
-static SearchResults_t NegamaxRoot(
-    BoardInfo_t* boardInfo,
-    GameStack_t* gameStack,
-    ZobristStack_t* zobristStack,
-    SearchInfo_t* searchInfo,
-    Depth_t depth
-)
-{
-    Move_t bestMove;
-    EvalScore_t bestScore = -EVAL_MAX;
-    
-    MoveList_t moveList;
-    CompleteMovegen(&moveList, boardInfo, gameStack);
-    for(int i = 0; i <= moveList.maxIndex; i++) {
-        Move_t move = moveList.moves[i];
-        MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
-
-        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, searchInfo, -INFINITY, INFINITY, depth-1, 1);
-
-        UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
-
-        if(searchInfo->outOfTime) {
-            break;
-        }
-
-        if(score > bestScore) {
-            bestScore = score;
-            bestMove = move;
-        }
-    }
-
-    SearchResults_t results;
-    results.score = bestScore;
-    results.bestMove = bestMove;
-
-    return results;
-}
-
-static void SetupGlobalTimer(PlayerTimeInfo_t uciTimeInfo, BoardInfo_t* boardInfo) {
+static void SetupGlobalTimer(UciSearchInfo_t uciSearchInfo, BoardInfo_t* boardInfo) {
     Milliseconds_t totalTime;
     Milliseconds_t increment;
     if(boardInfo->colorToMove == white) {
-        totalTime = uciTimeInfo.wTime;
-        increment = uciTimeInfo.wInc;
+        totalTime = uciSearchInfo.wTime;
+        increment = uciSearchInfo.wInc;
     } else {
-        totalTime = uciTimeInfo.bTime;
-        increment = uciTimeInfo.bInc;
+        totalTime = uciSearchInfo.bTime;
+        increment = uciSearchInfo.bInc;
     }
 
-    Milliseconds_t timeToUse = (totalTime + increment) / time_fraction;
+    Milliseconds_t timeToUse;
+    if(uciSearchInfo.forceTime) {
+        timeToUse = uciSearchInfo.forceTime;
+    } else {
+        timeToUse = ((totalTime + increment) / time_fraction) - overhead_msec;
+    }
+
     TimerInit(&globalTimer, timeToUse);
 }
 
 SearchResults_t Search(
-    PlayerTimeInfo_t uciTimeInfo,
+    UciSearchInfo_t uciSearchInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
-    Depth_t maxDepth
+    bool printUciInfo
 )
 {
-    SetupGlobalTimer(uciTimeInfo, boardInfo);
+    SetupGlobalTimer(uciSearchInfo, boardInfo);
 
     SearchInfo_t searchInfo;
     InitSearchInfo(&searchInfo);
@@ -160,14 +131,40 @@ SearchResults_t Search(
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
-        SearchResults_t newResults
-            = NegamaxRoot(boardInfo, gameStack, zobristStack, &searchInfo, currentDepth);
+        PvTableInit(&searchInfo.pvTable, currentDepth);
+
+        EvalScore_t score = Negamax(
+            boardInfo,
+            gameStack,
+            zobristStack,
+            &searchInfo,
+            -INFINITY,
+            INFINITY,
+            currentDepth,
+            0
+        );
 
         if(!searchInfo.outOfTime) {
-            searchResults = newResults;
-            SendUciInfoString("score cp %d depth %d", searchResults.score, currentDepth);
+            searchResults.bestMove = PvTableBestMove(&searchInfo.pvTable);
+            searchResults.score = score;
+
+            if(printUciInfo) {
+                SendUciInfoString("score cp %d depth %d", searchResults.score, currentDepth);
+                SendPvInfo(&searchInfo.pvTable);
+            }
         }
-    } while(!searchInfo.outOfTime && currentDepth != maxDepth);
+
+        PvTableTeardown(&searchInfo.pvTable);
+    } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo.depthLimit);
 
     return searchResults;
+}
+
+void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {
+    uciSearchInfo->wTime = 0;
+    uciSearchInfo->bTime = 0;
+    uciSearchInfo->wInc = 0;
+    uciSearchInfo->bInc = 0;
+    uciSearchInfo->forceTime = 0;
+    uciSearchInfo->depthLimit = 0;
 }

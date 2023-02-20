@@ -9,14 +9,20 @@
 #include "board_constants.h"
 #include "game_state.h"
 #include "zobrist.h"
+#include "PV_table.h"
+
+typedef struct
+{
+    BoardInfo_t boardInfo;
+    GameStack_t gameStack;
+    ZobristStack_t zobristStack;
+} UciApplicationData_t;
 
 bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo, GameStack_t* gameStack);
 
-bool InterpretUCIInput(
-    BoardInfo_t* boardInfo,
-    GameStack_t* gameStack,
-    ZobristStack_t* zobristStack
-);
+bool InterpretUCIInput(UciApplicationData_t* applicationData);
+
+void SendPvInfo(PvTable_t* pvTable);
 
 #define SendUciInfoString(formatString, ...) \
 do { \
