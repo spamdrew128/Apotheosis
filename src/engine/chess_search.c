@@ -14,8 +14,8 @@ enum {
     overhead_msec = 15,
     time_fraction = 30,
     timer_check_freq = 1024,
-    
-    max_depth = 200
+
+    DEPTH_MAX = PLY_MAX
 };
 
 typedef struct {
@@ -52,6 +52,8 @@ static EvalScore_t Negamax(
     Ply_t ply
 )
 {
+    PvLengthInit(&searchInfo->pvTable, ply);
+
     MoveList_t moveList;
     CompleteMovegen(&moveList, boardInfo, gameStack);
 
@@ -138,7 +140,6 @@ SearchResults_t Search(
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
-        PvTableInit(&searchInfo.pvTable, currentDepth);
 
         EvalScore_t score = Negamax(
             boardInfo,
@@ -162,12 +163,11 @@ SearchResults_t Search(
                     currentDepth,
                     (long long)searchInfo.nodeCount
                 );
-                SendPvInfo(&searchInfo.pvTable);
+                SendPvInfo(&searchInfo.pvTable, currentDepth);
             }
         }
 
-        PvTableTeardown(&searchInfo.pvTable);
-    } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo.depthLimit && currentDepth != max_depth);
+    } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo.depthLimit && currentDepth < DEPTH_MAX);
 
     return searchResults;
 }
