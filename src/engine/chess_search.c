@@ -51,8 +51,7 @@ static EvalScore_t Negamax(
     CompleteMovegen(&moveList, boardInfo, gameStack);
 
     GameEndStatus_t gameEndStatus = CurrentGameEndStatus(boardInfo, gameStack, zobristStack, moveList.maxIndex);
-    switch (gameEndStatus)
-    {
+    switch (gameEndStatus) {
         case checkmate:
             return -EVAL_MAX + ply;
         case draw:
@@ -69,7 +68,7 @@ static EvalScore_t Negamax(
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
-        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
+        EvalScore_t score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
 
         UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
 
@@ -151,6 +150,7 @@ SearchResults_t Search(
 
             if(printUciInfo) {
                 SendUciInfoString("score cp %d depth %d", searchResults.score, currentDepth);
+                SendPvInfo(&searchInfo.pvTable);
             }
         }
 

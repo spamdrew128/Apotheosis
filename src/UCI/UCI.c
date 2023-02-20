@@ -103,8 +103,8 @@ bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo
     return true;
 }
 
-static void MoveStructToUciString(Move_t move, char moveString[BUFFER_SIZE]) {
-    memset(moveString, '\0', BUFFER_SIZE* sizeof(char));
+static void MoveStructToUciString(Move_t move, char* moveString, size_t bufferSize) {
+    memset(moveString, '\0', bufferSize* sizeof(char));
 
     Square_t fromSquare = ReadFromSquare(move);
     int fromRow = fromSquare / 8;
@@ -286,7 +286,7 @@ static void GetSearchResults(UciSearchInfo_t uciSearchInfo, UciApplicationData_t
         );
         
     char moveString[BUFFER_SIZE];
-    MoveStructToUciString(searchResults.bestMove, moveString);
+    MoveStructToUciString(searchResults.bestMove, moveString, BUFFER_SIZE);
 
     printf(BESTMOVE);
     printf(" %s\n", moveString);
@@ -396,4 +396,17 @@ bool InterpretUCIInput(UciApplicationData_t* applicationData)
     }
 
     return true; // true means application keeps running
+}
+
+void SendPvInfo(PvTable_t* pvTable) {
+    printf("info pv");
+
+    char moveString[6];
+    for(int i = 0; i < pvTable->maxPly; i++) {
+        Move_t move = pvTable->moveMatrix[0][i];
+        MoveStructToUciString(move, moveString, 6);
+        printf(" %s", moveString);
+    }
+
+    printf("\n");
 }
