@@ -399,7 +399,7 @@ bool InterpretUCIInput(UciApplicationData_t* applicationData)
 }
 
 void SendPvInfo(PvTable_t* pvTable) {
-    printf("info pv");
+    printf("info depth %d pv", pvTable->maxPly);
 
     char moveString[6];
     for(int i = 0; i < pvTable->maxPly; i++) {
