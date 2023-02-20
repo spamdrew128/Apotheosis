@@ -318,12 +318,17 @@ UciSearchInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
             searchInfo.bInc = GoStringToNumber(nextWord);    
 
         } else if(StringsMatch(nextWord, "infinite")) {
-            searchInfo.wTime = UINT32_MAX;       
-            searchInfo.bTime = UINT32_MAX;
+            searchInfo.wTime = MSEC_MAX;       
+            searchInfo.bTime = MSEC_MAX;
 
         } else if(StringsMatch(nextWord, "depth")) {
             GetNextWord(input, nextWord, i);
-            searchInfo.depthLimit = GoStringToNumber(nextWord); 
+            searchInfo.depthLimit = GoStringToNumber(nextWord);
+
+            if(searchInfo.wTime == 0 || !searchInfo.bTime == 0) {
+                searchInfo.wTime = MSEC_MAX;       
+                searchInfo.bTime = MSEC_MAX;
+            }
 
         } else if(StringsMatch(nextWord, "movetime")) {
             GetNextWord(input, nextWord, i);       

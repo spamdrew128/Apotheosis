@@ -12,10 +12,6 @@
 #include "evaluation.h"
 #include "time_constants.h"
 
-enum {
-    MS_MAX_TIME = UINT32_MAX
-};
-
 typedef uint8_t Depth_t;
 typedef uint8_t Ply_t;
 
