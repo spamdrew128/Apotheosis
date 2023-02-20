@@ -12,11 +12,13 @@
 
 enum {
     overhead_msec = 10,
-    time_fraction = 25
+    time_fraction = 25,
+    timer_check_freq = 1024
 };
 
 typedef struct {
     bool outOfTime;
+    uint64_t nodeCount;
     PvTable_t pvTable;
 } SearchInfo_t;
 
@@ -24,6 +26,7 @@ static Timer_t globalTimer;
 
 static void InitSearchInfo(SearchInfo_t* searchInfo) {
     searchInfo->outOfTime = false;
+    searchInfo->nodeCount = 0;
 }
 
 static void MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, ZobristStack_t* zobristStack) {
@@ -67,12 +70,13 @@ static EvalScore_t Negamax(
     for(int i = 0; i <= moveList.maxIndex; i++) {
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
+        searchInfo->nodeCount++;
 
         EvalScore_t score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
 
         UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
 
-        if(TimerExpired(&globalTimer)) {
+        if(searchInfo->nodeCount % timer_check_freq == 0 && TimerExpired(&globalTimer)) {
             searchInfo->outOfTime = true;
             return score;
         }
@@ -125,12 +129,11 @@ SearchResults_t Search(
     SetupGlobalTimer(uciSearchInfo, boardInfo);
 
     SearchInfo_t searchInfo;
-    InitSearchInfo(&searchInfo);
-
     SearchResults_t searchResults;
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
+        InitSearchInfo(&searchInfo);
         PvTableInit(&searchInfo.pvTable, currentDepth);
 
         EvalScore_t score = Negamax(
@@ -149,7 +152,7 @@ SearchResults_t Search(
             searchResults.score = score;
 
             if(printUciInfo) {
-                SendUciInfoString("score cp %d depth %d", searchResults.score, currentDepth);
+                SendUciInfoString("score cp %d depth %d nodes %lld", searchResults.score, currentDepth);
                 SendPvInfo(&searchInfo.pvTable);
             }
         }
