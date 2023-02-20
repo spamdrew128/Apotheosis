@@ -32,3 +32,7 @@ void UpdatePvTable(PvTable_t* pvTable, Move_t move, Ply_t ply) {
         pvTable->moveMatrix[ply][currentPly] = pvTable->moveMatrix[ply+1][currentPly];
     }
 }
+
+Move_t PvTableBestMove(PvTable_t* pvTable) {
+    return pvTable->moveMatrix[0][0];
+}

@@ -36,7 +36,7 @@ static void UnmakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Zob
     RemoveZobristHashFromStack(zobristStack);
 }
 
-static EvalScore_t NegamaxHelper(
+static EvalScore_t Negamax(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
@@ -86,49 +86,12 @@ static EvalScore_t NegamaxHelper(
             bestScore = score;
             if(score > alpha) {
                 alpha = score;
+                UpdatePvTable(&searchInfo->pvTable, move, ply);
             }
         }
     }
 
     return bestScore;
-}
-
-static SearchResults_t NegamaxRoot(
-    BoardInfo_t* boardInfo,
-    GameStack_t* gameStack,
-    ZobristStack_t* zobristStack,
-    SearchInfo_t* searchInfo,
-    Depth_t depth
-)
-{
-    Move_t bestMove;
-    EvalScore_t bestScore = -EVAL_MAX;
-    
-    MoveList_t moveList;
-    CompleteMovegen(&moveList, boardInfo, gameStack);
-    for(int i = 0; i <= moveList.maxIndex; i++) {
-        Move_t move = moveList.moves[i];
-        MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
-
-        EvalScore_t score = -NegamaxHelper(boardInfo, gameStack, zobristStack, searchInfo, -INFINITY, INFINITY, depth-1, 1);
-
-        UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
-
-        if(searchInfo->outOfTime) {
-            break;
-        }
-
-        if(score > bestScore) {
-            bestScore = score;
-            bestMove = move;
-        }
-    }
-
-    SearchResults_t results;
-    results.score = bestScore;
-    results.bestMove = bestMove;
-
-    return results;
 }
 
 static void SetupGlobalTimer(UciSearchInfo_t uciSearchInfo, BoardInfo_t* boardInfo) {
@@ -171,11 +134,21 @@ SearchResults_t Search(
         currentDepth++;
         PvTableInit(&searchInfo.pvTable, currentDepth);
 
-        SearchResults_t newResults
-            = NegamaxRoot(boardInfo, gameStack, zobristStack, &searchInfo, currentDepth);
+        EvalScore_t score = Negamax(
+            boardInfo,
+            gameStack,
+            zobristStack,
+            &searchInfo,
+            -INFINITY,
+            INFINITY,
+            currentDepth,
+            0
+        );
 
         if(!searchInfo.outOfTime) {
-            searchResults = newResults;
+            searchResults.bestMove = PvTableBestMove(&searchInfo.pvTable);
+            searchResults.score = score;
+
             if(printUciInfo) {
                 SendUciInfoString("score cp %d depth %d", searchResults.score, currentDepth);
             }

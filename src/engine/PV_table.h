@@ -15,4 +15,6 @@ void PvTableTeardown(PvTable_t* pvTable);
 
 void UpdatePvTable(PvTable_t* pvTable, Move_t move, Ply_t ply);
 
+Move_t PvTableBestMove(PvTable_t* pvTable);
+
 #endif
