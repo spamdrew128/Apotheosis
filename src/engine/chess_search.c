@@ -108,10 +108,10 @@ static void SetupGlobalTimer(UciSearchInfo_t uciSearchInfo, BoardInfo_t* boardIn
     if(uciSearchInfo.forceTime) {
         timeToUse = uciSearchInfo.forceTime;
     } else {
-        timeToUse = (totalTime + increment) / time_fraction;
+        timeToUse = ((totalTime + increment) / time_fraction) - overhead_msec;
     }
 
-    TimerInit(&globalTimer, timeToUse - overhead_msec);
+    TimerInit(&globalTimer, timeToUse);
 }
 
 SearchResults_t Search(
