@@ -152,7 +152,12 @@ SearchResults_t Search(
             searchResults.score = score;
 
             if(printUciInfo) {
-                SendUciInfoString("score cp %d depth %d nodes %lld", searchResults.score, currentDepth);
+                SendUciInfoString(
+                    "score cp %d depth %d nodes %lld",
+                    searchResults.score,
+                    currentDepth,
+                    (long long)searchInfo.nodeCount
+                );
                 SendPvInfo(&searchInfo.pvTable);
             }
         }
