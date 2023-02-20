@@ -14,7 +14,9 @@ static EvalScore_t NegamaxFakeout(
     if(depth == 0) {
         int eval = evaluations[*leafCount];
         (*leafCount)++;
-        return eval;
+
+        bool isBlack = ply % 2;
+        return isBlack ? -eval : eval;
     }
 
     EvalScore_t bestScore = -EVAL_MAX;
@@ -33,6 +35,7 @@ static EvalScore_t NegamaxFakeout(
             );
 
         if(score > bestScore) {
+            bestScore = score;
             UpdatePvTable(pvTable, move, ply);
         }
     }
