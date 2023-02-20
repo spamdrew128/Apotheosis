@@ -11,7 +11,7 @@ typedef struct {
 
 void PvTableInit(PvTable_t* pvTable, Depth_t maxDepth);
 
-void PvTableTeardown(PvTable_t* pvTable, Depth_t maxDepth);
+void PvTableTeardown(PvTable_t* pvTable);
 
 void UpdatePvTable(PvTable_t* pvTable, Move_t move, Ply_t ply);
 

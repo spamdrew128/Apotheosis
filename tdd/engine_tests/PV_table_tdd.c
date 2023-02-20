@@ -8,7 +8,7 @@ static EvalScore_t NegamaxFakeout(
     Ply_t ply,
     int branchingFactor,
     int* leafCount,
-    const int* evaluations
+    int* evaluations
 )
 {
     if(depth == 0) {
@@ -36,22 +36,25 @@ static EvalScore_t NegamaxFakeout(
             UpdatePvTable(pvTable, move, ply);
         }
     }
+
+    return bestScore;
 }
 
 static bool PvMatchesExpectedPath(PvTable_t* pvTable, uint16_t* expectedPathFromRoot) {
-    bool success = true;
     for(int i = 0; i < pvTable->maxPly; i++) {
         if(pvTable->moveMatrix[0][i].data != expectedPathFromRoot[i]) {
             return false;
         }
     }
+
+    return true;
 }
 
 static bool FindsCorrectPv(
     Depth_t depth,
     int branchingFactor,
-    const int* evaluations,
-    const uint16_t* expectedPathFromRoot
+    int* evaluations,
+    uint16_t* expectedPathFromRoot
 )
 {
     PvTable_t pvTable;
@@ -69,7 +72,9 @@ static bool FindsCorrectPv(
 
     bool success = PvMatchesExpectedPath(&pvTable, expectedPathFromRoot);
 
-    PvTableTeardown(&pvTable, depth);
+    PvTableTeardown(&pvTable);
+
+    return success;
 }
 
 static void ShouldFindCorrectPv() {
