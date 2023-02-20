@@ -70,11 +70,12 @@ static EvalScore_t Negamax(
     for(int i = 0; i <= moveList.maxIndex; i++) {
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
-        searchInfo->nodeCount++;
 
         EvalScore_t score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
 
         UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
+
+        searchInfo->nodeCount++;
 
         if(searchInfo->nodeCount % timer_check_freq == 0 && TimerExpired(&globalTimer)) {
             searchInfo->outOfTime = true;
