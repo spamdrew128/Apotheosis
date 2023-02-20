@@ -169,6 +169,8 @@ SearchResults_t Search(
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
+        PvTableInit(&searchInfo.pvTable, currentDepth);
+
         SearchResults_t newResults
             = NegamaxRoot(boardInfo, gameStack, zobristStack, &searchInfo, currentDepth);
 
@@ -178,6 +180,8 @@ SearchResults_t Search(
                 SendUciInfoString("score cp %d depth %d", searchResults.score, currentDepth);
             }
         }
+
+        PvTableTeardown(&searchInfo.pvTable);
     } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo.depthLimit);
 
     return searchResults;
