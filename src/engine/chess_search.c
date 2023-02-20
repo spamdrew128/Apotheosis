@@ -13,7 +13,9 @@
 enum {
     overhead_msec = 15,
     time_fraction = 30,
-    timer_check_freq = 1024
+    timer_check_freq = 1024,
+    
+    max_depth = 200
 };
 
 typedef struct {
@@ -130,11 +132,12 @@ SearchResults_t Search(
     SetupGlobalTimer(uciSearchInfo, boardInfo);
 
     SearchInfo_t searchInfo;
+    InitSearchInfo(&searchInfo);
+
     SearchResults_t searchResults;
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
-        InitSearchInfo(&searchInfo);
         PvTableInit(&searchInfo.pvTable, currentDepth);
 
         EvalScore_t score = Negamax(
@@ -164,7 +167,7 @@ SearchResults_t Search(
         }
 
         PvTableTeardown(&searchInfo.pvTable);
-    } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo.depthLimit);
+    } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo.depthLimit && currentDepth != max_depth);
 
     return searchResults;
 }
