@@ -11,7 +11,7 @@
 #include "PV_table.h"
 
 enum {
-    overhead_msec = 20,
+    overhead_msec = 15,
     time_fraction = 30,
     timer_check_freq = 1024,
 
@@ -81,7 +81,7 @@ static EvalScore_t Negamax(
 
         searchInfo->nodeCount++;
 
-        if(searchInfo->nodeCount % timer_check_freq == 0 && TimerExpired(&globalTimer)) {
+        if(TimerExpired(&globalTimer)) {
             searchInfo->outOfTime = true;
             return score;
         }
@@ -115,7 +115,7 @@ static void SetupGlobalTimer(UciSearchInfo_t uciSearchInfo, BoardInfo_t* boardIn
 
     Milliseconds_t timeToUse;
     if(uciSearchInfo.forceTime) {
-        timeToUse = uciSearchInfo.forceTime;
+        timeToUse = uciSearchInfo.forceTime - overhead_msec;
     } else {
         timeToUse = ((totalTime + increment/2) / time_fraction) - overhead_msec;
     }
