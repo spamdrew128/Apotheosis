@@ -11,7 +11,7 @@
 #include "PV_table.h"
 
 enum {
-    overhead_msec = 15,
+    overhead_msec = 20,
     time_fraction = 30,
     timer_check_freq = 1024,
 
