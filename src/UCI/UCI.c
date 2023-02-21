@@ -403,11 +403,12 @@ bool InterpretUCIInput(UciApplicationData_t* applicationData)
     return true; // true means application keeps running
 }
 
-void SendPvInfo(PvTable_t* pvTable) {
-    printf("info depth %d pv", pvTable->maxPly);
+void SendPvInfo(PvTable_t* pvTable, Depth_t depth) {
+    PvLength_t variationLength = pvTable->pvLength[0];
+    printf("info depth %d pv", depth);
 
     char moveString[6];
-    for(int i = 0; i < pvTable->maxPly; i++) {
+    for(int i = 0; i < variationLength; i++) {
         Move_t move = pvTable->moveMatrix[0][i];
         MoveStructToUciString(move, moveString, 6);
         printf(" %s", moveString);

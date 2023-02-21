@@ -11,6 +11,8 @@ static EvalScore_t NegamaxFakeout(
     int* evaluations
 )
 {
+    PvLengthInit(pvTable, ply);
+
     if(depth == 0) {
         int eval = evaluations[*leafCount];
         (*leafCount)++;
@@ -44,7 +46,7 @@ static EvalScore_t NegamaxFakeout(
 }
 
 static bool PvMatchesExpectedPath(PvTable_t* pvTable, uint16_t* expectedPathFromRoot) {
-    for(int i = 0; i < pvTable->maxPly; i++) {
+    for(int i = 0; i < pvTable->pvLength[0]; i++) {
         if(pvTable->moveMatrix[0][i].data != expectedPathFromRoot[i]) {
             return false;
         }
@@ -61,7 +63,6 @@ static bool FindsCorrectPv(
 )
 {
     PvTable_t pvTable;
-    PvTableInit(&pvTable, depth);
     int leafCount = 0;
 
     NegamaxFakeout(
@@ -73,11 +74,7 @@ static bool FindsCorrectPv(
         evaluations
     );
 
-    bool success = PvMatchesExpectedPath(&pvTable, expectedPathFromRoot);
-
-    PvTableTeardown(&pvTable);
-
-    return success;
+    return PvMatchesExpectedPath(&pvTable, expectedPathFromRoot);;
 }
 
 static void ShouldFindCorrectPv() {

@@ -11,12 +11,16 @@
 #include "PV_table.h"
 
 enum {
-    overhead_msec = 10,
-    time_fraction = 25
+    overhead_msec = 15,
+    time_fraction = 30,
+    timer_check_freq = 1024,
+
+    DEPTH_MAX = PLY_MAX
 };
 
 typedef struct {
     bool outOfTime;
+    uint64_t nodeCount;
     PvTable_t pvTable;
 } SearchInfo_t;
 
@@ -24,6 +28,7 @@ static Timer_t globalTimer;
 
 static void InitSearchInfo(SearchInfo_t* searchInfo) {
     searchInfo->outOfTime = false;
+    searchInfo->nodeCount = 0;
 }
 
 static void MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, ZobristStack_t* zobristStack) {
@@ -47,6 +52,8 @@ static EvalScore_t Negamax(
     Ply_t ply
 )
 {
+    PvLengthInit(&searchInfo->pvTable, ply);
+
     MoveList_t moveList;
     CompleteMovegen(&moveList, boardInfo, gameStack);
 
@@ -71,6 +78,8 @@ static EvalScore_t Negamax(
         EvalScore_t score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
 
         UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
+
+        searchInfo->nodeCount++;
 
         if(TimerExpired(&globalTimer)) {
             searchInfo->outOfTime = true;
@@ -106,9 +115,9 @@ static void SetupGlobalTimer(UciSearchInfo_t uciSearchInfo, BoardInfo_t* boardIn
 
     Milliseconds_t timeToUse;
     if(uciSearchInfo.forceTime) {
-        timeToUse = uciSearchInfo.forceTime;
+        timeToUse = uciSearchInfo.forceTime - overhead_msec;
     } else {
-        timeToUse = ((totalTime + increment) / time_fraction) - overhead_msec;
+        timeToUse = ((totalTime + increment/2) / time_fraction) - overhead_msec;
     }
 
     TimerInit(&globalTimer, timeToUse);
@@ -131,7 +140,6 @@ SearchResults_t Search(
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
-        PvTableInit(&searchInfo.pvTable, currentDepth);
 
         EvalScore_t score = Negamax(
             boardInfo,
@@ -149,13 +157,17 @@ SearchResults_t Search(
             searchResults.score = score;
 
             if(printUciInfo) {
-                SendUciInfoString("score cp %d depth %d", searchResults.score, currentDepth);
-                SendPvInfo(&searchInfo.pvTable);
+                SendUciInfoString(
+                    "score cp %d depth %d nodes %lld",
+                    searchResults.score,
+                    currentDepth,
+                    (long long)searchInfo.nodeCount
+                );
+                SendPvInfo(&searchInfo.pvTable, currentDepth);
             }
         }
 
-        PvTableTeardown(&searchInfo.pvTable);
-    } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo.depthLimit);
+    } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo.depthLimit && currentDepth < DEPTH_MAX);
 
     return searchResults;
 }
