@@ -117,7 +117,7 @@ static void SetupGlobalTimer(UciSearchInfo_t uciSearchInfo, BoardInfo_t* boardIn
     if(uciSearchInfo.forceTime) {
         timeToUse = uciSearchInfo.forceTime;
     } else {
-        timeToUse = ((totalTime + increment) / time_fraction) - overhead_msec;
+        timeToUse = ((totalTime + increment/2) / time_fraction) - overhead_msec;
     }
 
     TimerInit(&globalTimer, timeToUse);
