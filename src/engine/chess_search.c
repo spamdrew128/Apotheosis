@@ -57,6 +57,11 @@ static EvalScore_t Negamax(
     Ply_t ply
 )
 {
+    if(ShouldCheckTimer(searchInfo->nodeCount) && TimerExpired(&globalTimer)) {
+        searchInfo->outOfTime = true;
+        return 0;
+    }
+
     PvLengthInit(&searchInfo->pvTable, ply);
 
     MoveList_t moveList;
@@ -85,11 +90,6 @@ static EvalScore_t Negamax(
         UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
 
         searchInfo->nodeCount++;
-
-        if(ShouldCheckTimer(searchInfo->nodeCount) && TimerExpired(&globalTimer)) {
-            searchInfo->outOfTime = true;
-            return score;
-        }
 
         if(score >= beta) {
             return score;
@@ -172,7 +172,7 @@ SearchResults_t Search(
                     (long long)ElapsedTime(&stopwatch)
                 );
                 SendPvInfo(&searchInfo.pvTable, currentDepth);
-                // SendUciInfoString("nps %lld", (long long)searchInfo.nodeCount / (ElapsedTime(&stopwatch)/msec_per_sec));
+                // removed NPS uci because it breaks cutechess for some reason
             }
         }
 
