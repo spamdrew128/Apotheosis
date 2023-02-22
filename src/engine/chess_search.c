@@ -11,8 +11,8 @@
 #include "PV_table.h"
 
 enum {
-    overhead_msec = 15,
-    time_fraction = 30,
+    overhead_msec = 10,
+    time_fraction = 25,
     timer_check_freq = 1024,
 
     DEPTH_MAX = PLY_MAX
@@ -115,12 +115,12 @@ static void SetupGlobalTimer(UciSearchInfo_t uciSearchInfo, BoardInfo_t* boardIn
 
     Milliseconds_t timeToUse;
     if(uciSearchInfo.forceTime) {
-        timeToUse = uciSearchInfo.forceTime - overhead_msec;
+        timeToUse = uciSearchInfo.forceTime;
     } else {
-        timeToUse = ((totalTime + increment/2) / time_fraction) - overhead_msec;
+        timeToUse = (totalTime + increment/2) / time_fraction;
     }
 
-    TimerInit(&globalTimer, timeToUse);
+    TimerInit(&globalTimer, timeToUse - overhead_msec);
 }
 
 SearchResults_t Search(

@@ -8,8 +8,8 @@
 #include "time_constants.h"
 
 typedef struct {
-    clock_t startTime;
-    clock_t endTime;
+    Milliseconds_t startTime;
+    Milliseconds_t endTime;
 } Timer_t;
 
 void TimerInit(Timer_t* timer, Milliseconds_t duration);

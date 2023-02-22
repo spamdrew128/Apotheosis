@@ -3,13 +3,15 @@
 
 #include <stdint.h>
 #include <limits.h>
+#include <time.h>
 
 enum {
     msec_per_sec = 1000,
+    nsec_per_msec = 1000000,
     MSEC_MAX = INT32_MAX
 };
 
-typedef int32_t Milliseconds_t;
+typedef clock_t Milliseconds_t;
 typedef double Seconds_t;
 
 #endif
