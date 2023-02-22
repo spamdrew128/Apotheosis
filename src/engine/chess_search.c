@@ -41,7 +41,7 @@ static void MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_
     AddZobristHashToStack(zobristStack, HashPosition(boardInfo, gameStack));
 }
 
-static void UnmakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, ZobristStack_t* zobristStack) {
+static void UnmakeAndRemoveHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, ZobristStack_t* zobristStack) {
     UnmakeMove(boardInfo, gameStack);
     RemoveZobristHashFromStack(zobristStack);
 }
@@ -87,9 +87,13 @@ static EvalScore_t Negamax(
 
         EvalScore_t score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
 
-        UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
+        UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
 
         searchInfo->nodeCount++;
+
+        if(searchInfo->outOfTime) {
+            return 0;
+        }
 
         if(score >= beta) {
             return score;
