@@ -6,12 +6,12 @@ static Milliseconds_t ClockRead() {
     struct timeb tp;
 
     ftime(&tp);
-    return ((Milliseconds_t)tp.time * 1000 + tp.millitm);
+    return ((Milliseconds_t)tp.time * msec_per_sec + tp.millitm);
 #else
     struct timespec tp;
 
     clock_gettime(CLOCK_REALTIME, &tp);
-    return ((Milliseconds_t)tp.tv_sec * 1000 + tp.tv_nsec / 1000000);
+    return ((Milliseconds_t)tp.tv_sec * msec_per_sec + tp.tv_nsec / nsec_per_msec);
 #endif
 }
 

@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <time.h>
 
 #include "recursive_testing.h"
 #include "debug.h"
@@ -7,6 +6,7 @@
 #include "movegen.h"
 #include "make_and_unmake.h"
 #include "zobrist.h"
+#include "timer.h"
 
 typedef unsigned long long PerftCount_t;
 
@@ -156,19 +156,18 @@ void SpeedTest(FEN_t fen, int depth, bool runTests) {
         BoardInfo_t info;
         InterpretFEN(fen, &info, &gameStack, &zobristStack);
 
-        clock_t t;
-        t = clock();
+        Stopwatch_t stopwatch;
+        StopwatchInit(&stopwatch);
 
         printf("\n");
         PerftCount_t totalCount = 0;
         FullySearchTree(&info, depth, &totalCount);
 
-        t = clock() - t;
-        double time_taken = ((double)t)/CLOCKS_PER_SEC;
+        double time_taken = ElapsedTime(&stopwatch);
         double nodes = (double)totalCount;
-        double MNPS = (nodes / 1000000) / time_taken;
+        double MNPS = (nodes / 1000000) / time_taken*msec_per_sec;
 
-        printf("%lld Nodes in %f seconds\n", totalCount, time_taken);
+        printf("%lld Nodes in %f seconds\n", totalCount, time_taken/msec_per_sec);
         printf("%f MNPS\n", MNPS);
     }
 }
