@@ -18,9 +18,10 @@ enum {
     DEPTH_MAX = PLY_MAX
 };
 
+typedef uint64_t NodeCount_t;
 typedef struct {
     bool outOfTime;
-    uint64_t nodeCount;
+    NodeCount_t nodeCount;
     PvTable_t pvTable;
 } SearchInfo_t;
 
@@ -29,6 +30,10 @@ static Timer_t globalTimer;
 static void InitSearchInfo(SearchInfo_t* searchInfo) {
     searchInfo->outOfTime = false;
     searchInfo->nodeCount = 0;
+}
+
+static bool ShouldCheckTimer(NodeCount_t nodeCount) {
+    return nodeCount % timer_check_freq == 0;
 }
 
 static void MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, ZobristStack_t* zobristStack) {
@@ -81,7 +86,7 @@ static EvalScore_t Negamax(
 
         searchInfo->nodeCount++;
 
-        if(TimerExpired(&globalTimer)) {
+        if(ShouldCheckTimer(searchInfo->nodeCount) && TimerExpired(&globalTimer)) {
             searchInfo->outOfTime = true;
             return score;
         }
