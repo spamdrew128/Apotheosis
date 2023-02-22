@@ -172,6 +172,7 @@ SearchResults_t Search(
                     (long)ElapsedTime(&stopwatch)
                 );
                 SendPvInfo(&searchInfo.pvTable, currentDepth);
+                SendUciInfoString("nps %lld", (long long)searchInfo.nodeCount/ElapsedTime(&stopwatch));
             }
         }
 
