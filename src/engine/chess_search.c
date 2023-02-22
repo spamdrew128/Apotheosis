@@ -165,14 +165,14 @@ SearchResults_t Search(
 
             if(printUciInfo) {
                 SendUciInfoString(
-                    "score cp %d depth %d nodes %lld time %ld",
+                    "score cp %d depth %d nodes %lld time %lld",
                     searchResults.score,
                     currentDepth,
                     (long long)searchInfo.nodeCount,
-                    (long)ElapsedTime(&stopwatch)
+                    (long long)ElapsedTime(&stopwatch)
                 );
                 SendPvInfo(&searchInfo.pvTable, currentDepth);
-                SendUciInfoString("nps %lld", (long long)searchInfo.nodeCount/ElapsedTime(&stopwatch));
+                // SendUciInfoString("nps %lld", (long long)searchInfo.nodeCount / (ElapsedTime(&stopwatch)/msec_per_sec));
             }
         }
 
