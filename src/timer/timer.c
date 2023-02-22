@@ -23,3 +23,11 @@ void TimerInit(Timer_t* timer, Milliseconds_t duration) {
 bool TimerExpired(Timer_t* timer) {
     return ClockRead() > timer->endTime;
 }
+
+void StopwatchInit(Stopwatch_t* stopwatch) {
+    stopwatch->startTime = ClockRead();
+}
+
+Milliseconds_t ElapsedTime(Stopwatch_t* stopwatch) {
+    return ClockRead() - stopwatch->startTime;
+}

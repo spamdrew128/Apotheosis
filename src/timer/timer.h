@@ -12,8 +12,16 @@ typedef struct {
     Milliseconds_t endTime;
 } Timer_t;
 
+typedef struct {
+    Milliseconds_t startTime;
+} Stopwatch_t;
+
 void TimerInit(Timer_t* timer, Milliseconds_t duration);
 
 bool TimerExpired(Timer_t* timer);
+
+void StopwatchInit(Stopwatch_t* stopwatch);
+
+Milliseconds_t ElapsedTime(Stopwatch_t* stopwatch);
 
 #endif

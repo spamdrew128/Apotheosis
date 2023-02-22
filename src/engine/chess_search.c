@@ -131,6 +131,8 @@ SearchResults_t Search(
     bool printUciInfo
 )
 {
+    Stopwatch_t stopwatch;
+    StopwatchInit(&stopwatch);
     SetupGlobalTimer(uciSearchInfo, boardInfo);
 
     SearchInfo_t searchInfo;
@@ -158,10 +160,11 @@ SearchResults_t Search(
 
             if(printUciInfo) {
                 SendUciInfoString(
-                    "score cp %d depth %d nodes %lld",
+                    "score cp %d depth %d nodes %lld time %ld",
                     searchResults.score,
                     currentDepth,
-                    (long long)searchInfo.nodeCount
+                    (long long)searchInfo.nodeCount,
+                    (long)ElapsedTime(&stopwatch)
                 );
                 SendPvInfo(&searchInfo.pvTable, currentDepth);
             }
