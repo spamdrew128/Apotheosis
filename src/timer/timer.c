@@ -1,16 +1,33 @@
 #include "timer.h"
 
-static clock_t MillisecondsToClockClocks(Milliseconds_t ms) {
-    // idk if CLOCKS_PER_SEC is the same across all systems so this is a precaution
-    double clocksPerMs = ((1 / (double)msec_per_sec) * CLOCKS_PER_SEC); 
-    return ms * clocksPerMs;
+// shamelessly stolen from https://github.com/mhouppin/stash-bot
+static Milliseconds_t ClockRead() {
+#if defined(_WIN32) || defined(_WIN64)
+    struct timeb tp;
+
+    ftime(&tp);
+    return ((Milliseconds_t)tp.time * msec_per_sec + tp.millitm);
+#else
+    struct timespec tp;
+
+    clock_gettime(CLOCK_REALTIME, &tp);
+    return ((Milliseconds_t)tp.tv_sec * msec_per_sec + tp.tv_nsec / nsec_per_msec);
+#endif
 }
 
 void TimerInit(Timer_t* timer, Milliseconds_t duration) {
-    timer->startTime = clock();
-    timer->endTime = timer->startTime + MillisecondsToClockClocks(duration);
+    timer->startTime = ClockRead();
+    timer->endTime = timer->startTime + duration;
 }
 
 bool TimerExpired(Timer_t* timer) {
-    return clock() > timer->endTime;
+    return ClockRead() > timer->endTime;
+}
+
+void StopwatchInit(Stopwatch_t* stopwatch) {
+    stopwatch->startTime = ClockRead();
+}
+
+Milliseconds_t ElapsedTime(Stopwatch_t* stopwatch) {
+    return ClockRead() - stopwatch->startTime;
 }

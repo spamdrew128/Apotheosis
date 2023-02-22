@@ -11,16 +11,17 @@
 #include "PV_table.h"
 
 enum {
-    overhead_msec = 15,
-    time_fraction = 30,
+    overhead_msec = 10,
+    time_fraction = 25,
     timer_check_freq = 1024,
 
     DEPTH_MAX = PLY_MAX
 };
 
+typedef uint64_t NodeCount_t;
 typedef struct {
     bool outOfTime;
-    uint64_t nodeCount;
+    NodeCount_t nodeCount;
     PvTable_t pvTable;
 } SearchInfo_t;
 
@@ -31,12 +32,16 @@ static void InitSearchInfo(SearchInfo_t* searchInfo) {
     searchInfo->nodeCount = 0;
 }
 
+static bool ShouldCheckTimer(NodeCount_t nodeCount) {
+    return nodeCount % timer_check_freq == 0;
+}
+
 static void MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, ZobristStack_t* zobristStack) {
     MakeMove(boardInfo, gameStack, move);
     AddZobristHashToStack(zobristStack, HashPosition(boardInfo, gameStack));
 }
 
-static void UnmakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, ZobristStack_t* zobristStack) {
+static void UnmakeAndRemoveHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, ZobristStack_t* zobristStack) {
     UnmakeMove(boardInfo, gameStack);
     RemoveZobristHashFromStack(zobristStack);
 }
@@ -52,6 +57,11 @@ static EvalScore_t Negamax(
     Ply_t ply
 )
 {
+    if(ShouldCheckTimer(searchInfo->nodeCount) && TimerExpired(&globalTimer)) {
+        searchInfo->outOfTime = true;
+        return 0;
+    }
+
     PvLengthInit(&searchInfo->pvTable, ply);
 
     MoveList_t moveList;
@@ -77,13 +87,12 @@ static EvalScore_t Negamax(
 
         EvalScore_t score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
 
-        UnmakeAndAddHash(boardInfo, gameStack, zobristStack);
+        UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
 
         searchInfo->nodeCount++;
 
-        if(TimerExpired(&globalTimer)) {
-            searchInfo->outOfTime = true;
-            return score;
+        if(searchInfo->outOfTime) {
+            return 0;
         }
 
         if(score >= beta) {
@@ -115,12 +124,12 @@ static void SetupGlobalTimer(UciSearchInfo_t uciSearchInfo, BoardInfo_t* boardIn
 
     Milliseconds_t timeToUse;
     if(uciSearchInfo.forceTime) {
-        timeToUse = uciSearchInfo.forceTime - overhead_msec;
+        timeToUse = uciSearchInfo.forceTime;
     } else {
-        timeToUse = ((totalTime + increment/2) / time_fraction) - overhead_msec;
+        timeToUse = (totalTime + increment/2) / time_fraction;
     }
 
-    TimerInit(&globalTimer, timeToUse);
+    TimerInit(&globalTimer, timeToUse - overhead_msec);
 }
 
 SearchResults_t Search(
@@ -131,6 +140,8 @@ SearchResults_t Search(
     bool printUciInfo
 )
 {
+    Stopwatch_t stopwatch;
+    StopwatchInit(&stopwatch);
     SetupGlobalTimer(uciSearchInfo, boardInfo);
 
     SearchInfo_t searchInfo;
@@ -158,12 +169,14 @@ SearchResults_t Search(
 
             if(printUciInfo) {
                 SendUciInfoString(
-                    "score cp %d depth %d nodes %lld",
+                    "score cp %d depth %d nodes %lld time %lld",
                     searchResults.score,
                     currentDepth,
-                    (long long)searchInfo.nodeCount
+                    (long long)searchInfo.nodeCount,
+                    (long long)ElapsedTime(&stopwatch)
                 );
                 SendPvInfo(&searchInfo.pvTable, currentDepth);
+                // removed NPS uci because it breaks cutechess for some reason
             }
         }
 
