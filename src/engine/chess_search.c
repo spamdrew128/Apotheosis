@@ -32,6 +32,27 @@ static void InitSearchInfo(SearchInfo_t* searchInfo) {
     searchInfo->nodeCount = 0;
 }
 
+static void SetupGlobalTimer(UciSearchInfo_t uciSearchInfo, BoardInfo_t* boardInfo) {
+    Milliseconds_t totalTime;
+    Milliseconds_t increment;
+    if(boardInfo->colorToMove == white) {
+        totalTime = uciSearchInfo.wTime;
+        increment = uciSearchInfo.wInc;
+    } else {
+        totalTime = uciSearchInfo.bTime;
+        increment = uciSearchInfo.bInc;
+    }
+
+    Milliseconds_t timeToUse;
+    if(uciSearchInfo.forceTime) {
+        timeToUse = uciSearchInfo.forceTime;
+    } else {
+        timeToUse = (totalTime + increment/2) / time_fraction;
+    }
+
+    TimerInit(&globalTimer, timeToUse - overhead_msec);
+}
+
 static bool ShouldCheckTimer(NodeCount_t nodeCount) {
     return nodeCount % timer_check_freq == 0;
 }
@@ -44,6 +65,70 @@ static void MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_
 static void UnmakeAndRemoveHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, ZobristStack_t* zobristStack) {
     UnmakeMove(boardInfo, gameStack);
     RemoveZobristHashFromStack(zobristStack);
+}
+
+static EvalScore_t QSearch(
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    SearchInfo_t* searchInfo,
+    EvalScore_t alpha,
+    EvalScore_t beta,
+    Ply_t ply
+)
+{
+    if(ShouldCheckTimer(searchInfo->nodeCount) && TimerExpired(&globalTimer)) {
+        searchInfo->outOfTime = true;
+        return 0;
+    }
+
+    MoveList_t moveList;
+    CompleteMovegen(&moveList, boardInfo, gameStack);
+
+    GameEndStatus_t gameEndStatus = CurrentGameEndStatus(boardInfo, gameStack, zobristStack, moveList.maxIndex);
+    switch (gameEndStatus) {
+        case checkmate:
+            return -EVAL_MAX + ply;
+        case draw:
+            return 0;
+    }
+
+    EvalScore_t standPat = ScoreOfPosition(boardInfo);
+    if(standPat >= beta) {
+        return standPat;
+    }
+
+    if(standPat > alpha) {
+        alpha = standPat;
+    }
+
+    EvalScore_t bestScore = standPat;
+    for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
+        searchInfo->nodeCount++;
+        Move_t move = moveList.moves[i];
+        MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
+
+        EvalScore_t score = -QSearch(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, ply+1);
+
+        UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
+
+        if(searchInfo->outOfTime) {
+            return 0;
+        }
+
+        if(score >= beta) {
+            return score;
+        }
+
+        if(score > bestScore) {
+            bestScore = score;
+            if(score > alpha) {
+                alpha = score;
+            }
+        }
+    }
+
+    return bestScore;
 }
 
 static EvalScore_t Negamax(
@@ -76,20 +161,19 @@ static EvalScore_t Negamax(
     }
 
     if(depth == 0) {
-        return ScoreOfPosition(boardInfo);
+        return QSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, ply+1);
     }
 
     EvalScore_t bestScore = -EVAL_MAX;
     
     for(int i = 0; i <= moveList.maxIndex; i++) {
+        searchInfo->nodeCount++;
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
         EvalScore_t score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
 
         UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
-
-        searchInfo->nodeCount++;
 
         if(searchInfo->outOfTime) {
             return 0;
