@@ -32,27 +32,6 @@ static void InitSearchInfo(SearchInfo_t* searchInfo) {
     searchInfo->nodeCount = 0;
 }
 
-static void SetupGlobalTimer(UciSearchInfo_t uciSearchInfo, BoardInfo_t* boardInfo) {
-    Milliseconds_t totalTime;
-    Milliseconds_t increment;
-    if(boardInfo->colorToMove == white) {
-        totalTime = uciSearchInfo.wTime;
-        increment = uciSearchInfo.wInc;
-    } else {
-        totalTime = uciSearchInfo.bTime;
-        increment = uciSearchInfo.bInc;
-    }
-
-    Milliseconds_t timeToUse;
-    if(uciSearchInfo.forceTime) {
-        timeToUse = uciSearchInfo.forceTime;
-    } else {
-        timeToUse = (totalTime + increment/2) / time_fraction;
-    }
-
-    TimerInit(&globalTimer, timeToUse - overhead_msec);
-}
-
 static bool ShouldCheckTimer(NodeCount_t nodeCount) {
     return nodeCount % timer_check_freq == 0;
 }
@@ -167,13 +146,14 @@ static EvalScore_t Negamax(
     EvalScore_t bestScore = -EVAL_MAX;
     
     for(int i = 0; i <= moveList.maxIndex; i++) {
-        searchInfo->nodeCount++;
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
         EvalScore_t score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
 
         UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
+
+        searchInfo->nodeCount++;
 
         if(searchInfo->outOfTime) {
             return 0;
