@@ -18,8 +18,7 @@ static UciSearchInfo_t GetUciSearchInfo() {
     UciSearchInfo_t uciSearchInfo;
     UciSearchInfoInit(&uciSearchInfo);
 
-    uciSearchInfo.wTime = large_time;
-    uciSearchInfo.bTime = large_time;
+    uciSearchInfo.forceTime = large_time;
     uciSearchInfo.depthLimit = 6;
 
     return uciSearchInfo;
