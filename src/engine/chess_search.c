@@ -4,6 +4,7 @@
 #include "chess_search.h"
 #include "movegen.h"
 #include "make_and_unmake.h"
+#include "move.h"
 #include "RNG.h"
 #include "endings.h"
 #include "UCI.h"

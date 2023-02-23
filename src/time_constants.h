@@ -11,7 +11,7 @@ enum {
     MSEC_MAX = INT32_MAX
 };
 
-typedef clock_t Milliseconds_t;
+typedef int64_t Milliseconds_t;
 typedef double Seconds_t;
 
 #endif
