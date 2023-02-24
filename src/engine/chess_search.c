@@ -4,6 +4,7 @@
 #include "chess_search.h"
 #include "movegen.h"
 #include "make_and_unmake.h"
+#include "move.h"
 #include "RNG.h"
 #include "endings.h"
 #include "UCI.h"
@@ -46,6 +47,70 @@ static void UnmakeAndRemoveHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, 
     RemoveZobristHashFromStack(zobristStack);
 }
 
+static EvalScore_t QSearch(
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    SearchInfo_t* searchInfo,
+    EvalScore_t alpha,
+    EvalScore_t beta,
+    Ply_t ply
+)
+{
+    if(ShouldCheckTimer(searchInfo->nodeCount) && TimerExpired(&globalTimer)) {
+        searchInfo->outOfTime = true;
+        return 0;
+    }
+
+    MoveList_t moveList;
+    CompleteMovegen(&moveList, boardInfo, gameStack);
+
+    GameEndStatus_t gameEndStatus = CheckForMates(boardInfo, moveList.maxIndex);
+    switch (gameEndStatus) {
+        case checkmate:
+            return -EVAL_MAX + ply;
+        case draw:
+            return 0;
+    }
+
+    EvalScore_t standPat = ScoreOfPosition(boardInfo);
+    if(standPat >= beta) {
+        return standPat;
+    }
+
+    if(standPat > alpha) {
+        alpha = standPat;
+    }
+
+    EvalScore_t bestScore = standPat;
+    for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
+        searchInfo->nodeCount++;
+        Move_t move = moveList.moves[i];
+        MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
+
+        EvalScore_t score = -QSearch(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, ply+1);
+
+        UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
+
+        if(searchInfo->outOfTime) {
+            return 0;
+        }
+
+        if(score >= beta) {
+            return score;
+        }
+
+        if(score > bestScore) {
+            bestScore = score;
+            if(score > alpha) {
+                alpha = score;
+            }
+        }
+    }
+
+    return bestScore;
+}
+
 static EvalScore_t Negamax(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
@@ -76,7 +141,7 @@ static EvalScore_t Negamax(
     }
 
     if(depth == 0) {
-        return ScoreOfPosition(boardInfo);
+        return QSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, ply+1);
     }
 
     EvalScore_t bestScore = -EVAL_MAX;

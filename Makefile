@@ -134,18 +134,18 @@ $(TDD)\endings_tdd.o \
 $(ENGINE_TDD)\basic_tests.o \
 $(ENGINE_TDD)\PV_table_tdd.o
 
-BINARY=bin
-DEBUG_BINARY=debug
+EXE=bin
+DEBUG_EXE=debug
 
-all: $(BINARY) $(DEBUG_BINARY)
+all: $(EXE) $(DEBUG_EXE)
 
-test: $(DEBUG_BINARY)
-	$(DEBUG_BINARY).exe
+test: $(DEBUG_EXE)
+	$(DEBUG_EXE).exe
 
-$(BINARY): $(OBJECTS)
+$(EXE): $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^
 
-$(DEBUG_BINARY): $(D_OBJECTS)
+$(DEBUG_EXE): $(D_OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^
 
 %.o: %.c
