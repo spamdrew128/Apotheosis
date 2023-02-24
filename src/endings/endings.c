@@ -45,6 +45,20 @@ static bool IsInsufficientMaterialDraw(BoardInfo_t* boardInfo) {
         AtMostOneMinorPiece(boardInfo, black);
 }
 
+GameEndStatus_t CheckForMates(BoardInfo_t* boardInfo, int moveListMaxIndex) {
+    Color_t colorToMove = boardInfo->colorToMove;
+
+    if(moveListMaxIndex == movelist_empty) {
+        if(boardInfo->kings[colorToMove] & UnsafeSquares(boardInfo, colorToMove)) {
+            return checkmate;
+        } else {
+            return draw;
+        }
+    }
+
+    return ongoing;
+}
+
 GameEndStatus_t CurrentGameEndStatus(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,

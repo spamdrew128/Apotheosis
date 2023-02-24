@@ -16,6 +16,8 @@ enum {
     draw
 };
 
+GameEndStatus_t CheckForMates(BoardInfo_t* boardInfo, int moveListMaxIndex);
+
 GameEndStatus_t CurrentGameEndStatus(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,

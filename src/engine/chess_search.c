@@ -65,7 +65,7 @@ static EvalScore_t QSearch(
     MoveList_t moveList;
     CompleteMovegen(&moveList, boardInfo, gameStack);
 
-    GameEndStatus_t gameEndStatus = CurrentGameEndStatus(boardInfo, gameStack, zobristStack, moveList.maxIndex);
+    GameEndStatus_t gameEndStatus = CheckForMates(boardInfo, moveList.maxIndex);
     switch (gameEndStatus) {
         case checkmate:
             return -EVAL_MAX + ply;
