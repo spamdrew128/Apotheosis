@@ -86,11 +86,11 @@ static EvalScore_t QSearch(
     for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
         searchInfo->nodeCount++;
         Move_t move = moveList.moves[i];
-        MakeMove(boardInfo, gameStack, move);
+        MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
         EvalScore_t score = -QSearch(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, ply+1);
 
-        UnmakeMove(boardInfo, gameStack);
+        UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
 
         if(searchInfo->outOfTime) {
             return 0;
