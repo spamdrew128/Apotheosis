@@ -145,6 +145,14 @@ static void ShouldNotDrawTwoMinorPieces() {
     PrintResults(GameEndStatusShouldBe(ongoing, some_movelist_max));
 }
 
+static void ShouldFindEndgameThreefold() {
+    const char* uciString = "position fen 3k1b2/3r3p/4p3/2p1Np1p/1p6/7R/2P1KPPP/r7 b - - 1 37 moves d7d1 f2f4 d1c1 e2d2 c1d1 d2e2 d1c1 e2d2 c1d1 d2e2";
+
+    InterpretUCIString(&boardInfo, &gameStack, &zobristStack, uciString);
+
+    PrintResults(GameEndStatusShouldBe(draw, some_movelist_max));
+}
+
 void EndingsTDDRunner() {
     ShouldDrawWhenHalfmoveCountHits100();
     ShouldIdentifyCheckmate();
@@ -157,4 +165,5 @@ void EndingsTDDRunner() {
     ShouldDrawOneSideKnight();
     ShouldDrawOneSideBishop();
     ShouldNotDrawTwoMinorPieces();
+    ShouldFindEndgameThreefold();
 }

@@ -403,7 +403,14 @@ bool InterpretUCIInput(UciApplicationData_t* applicationData)
     return true; // true means application keeps running
 }
 
-void InterpretUCIString(UciApplicationData_t* applicationData, const char* _input) {
+void InterpretUCIString(
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    const char* _input
+)
+{
+    UciApplicationData_t data;
     char input[BUFFER_SIZE];
     memset(input, '\0', BUFFER_SIZE* sizeof(char));
     memcpy(input, _input, strlen(_input));
@@ -417,11 +424,15 @@ void InterpretUCIString(UciApplicationData_t* applicationData, const char* _inpu
 
         SkipToNextCharacter(input, &i);
 
-        bool keepRunning = RespondToSignal(input, &i, signal, applicationData);
+        bool keepRunning = RespondToSignal(input, &i, signal, &data);
         if(!keepRunning) {
             return; 
         }
     }
+
+    *boardInfo = data.boardInfo;
+    *gameStack = data.gameStack;
+    *zobristStack = data.zobristStack;
 }
 
 void SendPvInfo(PvTable_t* pvTable, Depth_t depth) {
