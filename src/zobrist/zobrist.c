@@ -80,7 +80,7 @@ ZobristHash_t HashPosition(BoardInfo_t* boardInfo, GameStack_t* gameStack) {
     UpdateHashWithPieceBitboard(&zobristHash, boardInfo->kings[black], king, blackPieceKeys);
 
     UpdateHashWithCastlingRights(&zobristHash, gameState.castleSquares[white], gameState.castleSquares[black]);
-    UpdateHashEnPassantFile(&zobristHash, gameState.enPassantSquares);
+    UpdateHashEnPassantFile(&zobristHash, gameState.enPassantSquare);
 
     if(boardInfo->colorToMove == black) {
         zobristHash ^= sideToMoveIsBlackKey;

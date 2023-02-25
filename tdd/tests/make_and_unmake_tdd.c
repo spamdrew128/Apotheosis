@@ -125,7 +125,7 @@ static void InitBothSidesEnPassantInfo(BoardInfo_t* info) {
     state->halfmoveClock = some_halfmove_clock;
     state->castleSquares[white] = empty_set;
     state->castleSquares[black] = empty_set;
-    state->enPassantSquares = CreateBitboard(2, c3,h6);
+    state->enPassantSquare = CreateBitboard(2, c3,h6);
     state->capturedPiece = none_type;
     state->boardInfo = *info;
 }
@@ -151,7 +151,7 @@ static void InitSideEnPassantExpectedInfo(BoardInfo_t* expectedInfo, GameState_t
 
     GameState_t nextState = ReadDefaultNextGameState(&stack);
     nextState.halfmoveClock = 0;
-    nextState.enPassantSquares = empty_set;
+    nextState.enPassantSquare = empty_set;
     nextState.capturedPiece = pawn;
     *expectedState = nextState;
 }
@@ -169,7 +169,7 @@ static void InitNormalPosition(BoardInfo_t* info) {
 
     GameState_t* state = GetEmptyNextGameState(&stack);
     state->halfmoveClock = some_halfmove_clock;
-    state->enPassantSquares = empty_set;
+    state->enPassantSquare = empty_set;
     state->castleSquares[white] = empty_set;
     state->castleSquares[black] = empty_set;
     state->capturedPiece = none_type;
@@ -204,7 +204,7 @@ static void InitPawnDoublePushExpected(BoardInfo_t* expectedInfo, GameState_t* e
             expectedInfo->knights[black] = CreateBitboard(1, e4);
         });
 
-        state.enPassantSquares = CreateBitboard(1, f3);
+        state.enPassantSquare = CreateBitboard(1, f3);
     } else {
         InitTestInfo(expectedInfo, {
             expectedInfo->kings[white] = CreateBitboard(1, b2);
@@ -215,7 +215,7 @@ static void InitPawnDoublePushExpected(BoardInfo_t* expectedInfo, GameState_t* e
             expectedInfo->knights[black] = CreateBitboard(1, e4);
         });   
 
-        state.enPassantSquares = CreateBitboard(1, d6);
+        state.enPassantSquare = CreateBitboard(1, d6);
     }
 
     *expectedState = state;
@@ -274,7 +274,7 @@ static void InitPromotionCastleBreakPosition(BoardInfo_t* info) {
 
     GameState_t* state = GetEmptyNextGameState(&stack);
     state->halfmoveClock = some_halfmove_clock;
-    state->enPassantSquares = empty_set;
+    state->enPassantSquare = empty_set;
     state->castleSquares[white] = empty_set;
     state->castleSquares[black] = CreateBitboard(1, c8);
     state->boardInfo = *info;
@@ -571,7 +571,7 @@ static bool GenericTestUnmake(BoardInfo_t* startInfo, Move_t move, Color_t moveC
     originalState.halfmoveClock = ReadHalfmoveClock(&stack);
     originalState.castleSquares[white] = ReadCastleSquares(&stack, white);
     originalState.castleSquares[black] = ReadCastleSquares(&stack, black);
-    originalState.enPassantSquares = ReadEnPassant(&stack);
+    originalState.enPassantSquare = ReadEnPassant(&stack);
     originalState.capturedPiece = ReadCapturedPiece(&stack);
 
     MakeMoveTestWrapper(startInfo, &stack, move, moveColor);

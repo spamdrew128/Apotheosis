@@ -73,7 +73,7 @@ static void UpdateEnPassant(FEN_t fen, int* i, GameState_t* state) {
     if(fen[*i] == '-') {
         (*i)++;
     } else {
-        state->enPassantSquares = SquareCharsToBitboard(fen[*i], fen[*i + 1]);
+        state->enPassantSquare = SquareCharsToBitboard(fen[*i], fen[*i + 1]);
         (*i) += 2;
     }
 }

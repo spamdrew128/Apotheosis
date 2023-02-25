@@ -71,7 +71,7 @@ static void InitDoubleEnPassantPosition(BoardInfo_t* info) {
     });
 
     GameState_t* state = GetEmptyNextGameState(&stack);
-    state->enPassantSquares = CreateBitboard(2, b2,b7);
+    state->enPassantSquare = CreateBitboard(2, b2,b7);
 }
 
 // 1b6/8/2pP4/4KPpr/8/8/8/k7
@@ -87,7 +87,7 @@ static void InitTrickyPinnedEnPassantPostitionInfo(BoardInfo_t* info) {
     });
 
     GameState_t* state = GetEmptyNextGameState(&stack);
-    state->enPassantSquares = CreateBitboard(2, g6,c7);
+    state->enPassantSquare = CreateBitboard(2, g6,c7);
 }
 
 // TESTS

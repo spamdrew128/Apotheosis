@@ -181,7 +181,7 @@ static void MakeEnPassantHandler(BoardInfo_t* boardInfo, GameState_t* nextState,
     );
 
     nextState->halfmoveClock = empty_set;
-    nextState->enPassantSquares = empty_set;
+    nextState->enPassantSquare = empty_set;
     nextState->capturedPiece = pawn;
 }
 
@@ -212,7 +212,7 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextStat
             nextState->halfmoveClock = 0;
 
             if(PawnIsDoublePushed(fromBB, toBB)) {
-                nextState->enPassantSquares = GetEnPassantBB(toBB, color);
+                nextState->enPassantSquare = GetEnPassantBB(toBB, color);
             }
         break;
         case king:

@@ -364,9 +364,9 @@ static void ShouldIdentifyIllegalEnPassant() {
     BoardInfo_t info;
     InitEnPassantIllegalPositionInfo(&info);
 
-    Bitboard_t enPassantSquares = CreateBitboard(1, c6);
+    Bitboard_t enPassantSquare = CreateBitboard(1, c6);
 
-    bool success = WestEnPassantIsLegal(&info, SoEaOne(enPassantSquares), white) == 0;
+    bool success = WestEnPassantIsLegal(&info, SoEaOne(enPassantSquare), white) == 0;
 
     PrintResults(success);
 }

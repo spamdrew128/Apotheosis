@@ -18,7 +18,7 @@ static bool GameStateIsCorrect(GameStack_t* stack, GameState_t* expected) {
         (ReadHalfmoveClock(stack) == expected->halfmoveClock) &&
         (ReadCastleSquares(stack, white) == expected->castleSquares[white]) &&
         (ReadCastleSquares(stack, black) == expected->castleSquares[black]) &&
-        (ReadEnPassant(stack) == expected->enPassantSquares);
+        (ReadEnPassant(stack) == expected->enPassantSquare);
 }
 
 static GameState_t* GetSomeGamestate(GameStack_t* stack) {
@@ -27,7 +27,7 @@ static GameState_t* GetSomeGamestate(GameStack_t* stack) {
     state->capturedPiece = some_captured_piece;
     state->halfmoveClock = some_halfmove_clock;
     state->castleSquares[white] = some_white_castle_squares;
-    state->enPassantSquares = some_white_enpassant_squares;
+    state->enPassantSquare = some_white_enpassant_squares;
     state->castleSquares[black] = some_black_castle_squares;
 
     return state;
@@ -51,7 +51,7 @@ static void ShouldGetDefaultState() {
         .capturedPiece = none_type,
         .halfmoveClock = state->halfmoveClock + 1,
         .castleSquares = {state->castleSquares[white], state->castleSquares[black]},
-        .enPassantSquares = empty_set
+        .enPassantSquare = empty_set
     };
 
     GetDefaultNextGameState(&stack);
