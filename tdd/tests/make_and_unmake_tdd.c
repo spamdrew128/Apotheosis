@@ -203,6 +203,8 @@ static void InitPawnDoublePushExpected(BoardInfo_t* expectedInfo, GameState_t* e
             expectedInfo->pawns[black] = CreateBitboard(1, d7);
             expectedInfo->knights[black] = CreateBitboard(1, e4);
         });
+
+        state.enPassantSquares = CreateBitboard(1, f3);
     } else {
         InitTestInfo(expectedInfo, {
             expectedInfo->kings[white] = CreateBitboard(1, b2);
@@ -212,9 +214,10 @@ static void InitPawnDoublePushExpected(BoardInfo_t* expectedInfo, GameState_t* e
             expectedInfo->pawns[black] = CreateBitboard(1, d5);
             expectedInfo->knights[black] = CreateBitboard(1, e4);
         });   
+
+        state.enPassantSquares = CreateBitboard(1, d6);
     }
 
-    state.enPassantSquares = empty_set;
     *expectedState = state;
 }
 

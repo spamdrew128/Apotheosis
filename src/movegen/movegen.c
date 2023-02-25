@@ -193,15 +193,8 @@ static void AddHvSliderMoves(
     });
 }
 
-static void TryWhiteEnPassant(
-    MoveList_t* moveList,
-    BoardInfo_t* boardInfo,
-    Bitboard_t toBB,
-    Bitboard_t fromBB,
-    Color_t color
-)
-{
-    Bitboard_t captureBB = SoutOne(toBB);
+static bool EnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t toBB, Bitboard_t fromBB, Color_t color) {
+    Bitboard_t captureBB = (color == white) ? SoutOne(toBB) : NortOne(toBB);;
 
     ResetBits(&boardInfo->pawns[color], fromBB);
     SetBits(&boardInfo->pawns[color], toBB);
@@ -211,14 +204,7 @@ static void TryWhiteEnPassant(
     ResetBits(&boardInfo->empty, toBB);
 
     Bitboard_t unsafeSquares = UnsafeSquares(boardInfo, white);
-    if(!InCheck(boardInfo->kings[color], unsafeSquares)) {
-        InitializeNewMove(moveList);
-        Move_t* current = CurrentMove(moveList);
-
-        WriteToSquare(current, LSB(toBB));
-        WriteFromSquare(current, LSB(fromBB));
-        WriteSpecialFlag(current, en_passant_flag);
-    }
+    bool isLegal = !InCheck(boardInfo->kings[color], unsafeSquares);
 
     SetBits(&boardInfo->pawns[color], fromBB);
     ResetBits(&boardInfo->pawns[color], toBB);
@@ -226,9 +212,11 @@ static void TryWhiteEnPassant(
 
     ResetBits(&boardInfo->empty, fromBB|captureBB);
     SetBits(&boardInfo->empty, toBB);
+
+    return isLegal;
 }
 
-static void TryBlackEnPassant(
+static void TryEnPassant(
     MoveList_t* moveList,
     BoardInfo_t* boardInfo,
     Bitboard_t toBB,
@@ -236,17 +224,7 @@ static void TryBlackEnPassant(
     Color_t color
 )
 {
-    Bitboard_t captureBB = NortOne(toBB);
-
-    ResetBits(&boardInfo->pawns[color], fromBB);
-    SetBits(&boardInfo->pawns[color], toBB);
-    ResetBits(&boardInfo->pawns[!color], captureBB);
-
-    SetBits(&boardInfo->empty, fromBB|captureBB);
-    ResetBits(&boardInfo->empty, toBB);
-
-    Bitboard_t unsafeSquares = UnsafeSquares(boardInfo, black);
-    if(!InCheck(boardInfo->kings[color], unsafeSquares)) {
+    if(EnPassantIsLegal(boardInfo, toBB, fromBB, color)) {
         InitializeNewMove(moveList);
         Move_t* current = CurrentMove(moveList);
 
@@ -254,13 +232,6 @@ static void TryBlackEnPassant(
         WriteFromSquare(current, LSB(fromBB));
         WriteSpecialFlag(current, en_passant_flag);
     }
-
-    SetBits(&boardInfo->pawns[color], fromBB);
-    ResetBits(&boardInfo->pawns[color], toBB);
-    SetBits(&boardInfo->pawns[!color], captureBB);
-
-    ResetBits(&boardInfo->empty, fromBB|captureBB);
-    SetBits(&boardInfo->empty, toBB);
 }
 
 static void AddWhiteLegalEnPassant(
@@ -281,7 +252,7 @@ static void AddWhiteLegalEnPassant(
         (WhiteWestEnPassantTargets(d12PinnedPawns, enPassantBB) & pinmasks.d12);
 
     if(eastLegalEnPassantTargets) {
-        TryWhiteEnPassant(
+        TryEnPassant(
             moveList,
             boardInfo,
             eastLegalEnPassantTargets,
@@ -291,7 +262,7 @@ static void AddWhiteLegalEnPassant(
     }
 
     if(westLegalEnPassantTargets) {
-        TryWhiteEnPassant(
+        TryEnPassant(
             moveList,
             boardInfo,
             westLegalEnPassantTargets,
@@ -319,7 +290,7 @@ static void AddBlackLegalEnPassant(
         (BlackWestEnPassantTargets(d12PinnedPawns, enPassantBB) & pinmasks.d12);
 
     if(eastLegalEnPassantTargets) {
-        TryBlackEnPassant(
+        TryEnPassant(
             moveList,
             boardInfo,
             eastLegalEnPassantTargets,
@@ -329,7 +300,7 @@ static void AddBlackLegalEnPassant(
     }
 
     if(westLegalEnPassantTargets) {
-        TryBlackEnPassant(
+        TryEnPassant(
             moveList,
             boardInfo,
             westLegalEnPassantTargets,
