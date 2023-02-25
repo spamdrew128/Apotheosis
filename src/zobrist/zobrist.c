@@ -55,10 +55,8 @@ static void UpdateHashWithCastlingRights(ZobristHash_t* zobristHash, Bitboard_t 
     *zobristHash ^= castlingKeys[keyIndex];
 }
 
-static void UpdateHashEnPassantFile(ZobristHash_t* zobristHash, Bitboard_t enPassant) {
-    if(enPassant) {
-        *zobristHash ^= enPassantFileKeys[LSB(enPassant) % 8];
-    }
+static void UpdateHashEnPassantFile(ZobristHash_t* zobristHash, Bitboard_t enPassantBB) {
+    *zobristHash ^= enPassantFileKeys[LSB(enPassantBB) % 8];
 }
 
 ZobristHash_t HashPosition(BoardInfo_t* boardInfo, GameStack_t* gameStack) {
@@ -80,7 +78,10 @@ ZobristHash_t HashPosition(BoardInfo_t* boardInfo, GameStack_t* gameStack) {
     UpdateHashWithPieceBitboard(&zobristHash, boardInfo->kings[black], king, blackPieceKeys);
 
     UpdateHashWithCastlingRights(&zobristHash, gameState.castleSquares[white], gameState.castleSquares[black]);
-    UpdateHashEnPassantFile(&zobristHash, gameState.enPassantSquares);
+
+    if(gameState.canEastEP || gameState.canWestEP) {
+        UpdateHashEnPassantFile(&zobristHash, gameState.enPassantSquare);
+    }
 
     if(boardInfo->colorToMove == black) {
         zobristHash ^= sideToMoveIsBlackKey;

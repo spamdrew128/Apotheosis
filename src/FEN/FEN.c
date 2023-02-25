@@ -2,7 +2,6 @@
 #include <assert.h>
 
 #include "FEN.h"
-#include "board_constants.h"
 
 static double usr_pow(int x, int y) {
     double result = 1;
@@ -69,11 +68,21 @@ static Bitboard_t SquareCharsToBitboard(char col, char row) {
     return CalculateSingleBitset(square);
 }
 
-static void UpdateEnPassant(FEN_t fen, int* i, GameState_t* state) {
+// will break if double en passant is possible. Ultra edge case and I am lazy.
+static void UpdateEnPassant(FEN_t fen, int* i, GameState_t* state, Color_t color) { 
     if(fen[*i] == '-') {
         (*i)++;
     } else {
-        state->enPassantSquares = SquareCharsToBitboard(fen[*i], fen[*i + 1]);
+        state->enPassantSquare = SquareCharsToBitboard(fen[*i], fen[*i + 1]);
+        
+        Bitboard_t eastPawn = (color == white) ? SoWeOne(state->enPassantSquare) : NoWeOne(state->enPassantSquare);
+
+        if(eastPawn) {
+            state->canEastEP = true;
+        } else {
+            state->canWestEP = true;
+        }
+
         (*i) += 2;
     }
 }
@@ -207,7 +216,7 @@ void InterpretFEN(
     }
 
     i++;
-    UpdateEnPassant(fen, &i, gameState);
+    UpdateEnPassant(fen, &i, gameState, info->colorToMove);
 
     i++;
     UpdateHalfmoveClock(fen, i, gameState);

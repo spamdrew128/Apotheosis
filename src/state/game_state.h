@@ -8,8 +8,10 @@
 typedef uint16_t HalfmoveCount_t;
 typedef struct {
     Piece_t capturedPiece;
+    bool canEastEP;
+    bool canWestEP;
     HalfmoveCount_t halfmoveClock;
-    Bitboard_t enPassantSquares;
+    Bitboard_t enPassantSquare;
     Bitboard_t castleSquares[2];
     BoardInfo_t boardInfo;
 } GameState_t;
@@ -36,6 +38,10 @@ HalfmoveCount_t ReadHalfmoveClock(GameStack_t* stack);
 Bitboard_t ReadCastleSquares(GameStack_t* stack, Color_t color);
 
 Bitboard_t ReadEnPassant(GameStack_t* stack);
+
+bool CanWestEnPassant(GameStack_t* stack);
+
+bool CanEastEnPassant(GameStack_t* stack);
 
 BoardInfo_t ReadCurrentBoardInfo(GameStack_t* stack);
 

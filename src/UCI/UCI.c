@@ -403,6 +403,38 @@ bool InterpretUCIInput(UciApplicationData_t* applicationData)
     return true; // true means application keeps running
 }
 
+void InterpretUCIString(
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    const char* _input
+)
+{
+    UciApplicationData_t data;
+    char input[BUFFER_SIZE];
+    memset(input, '\0', BUFFER_SIZE* sizeof(char));
+    memcpy(input, _input, strlen(_input));
+
+    char currentWord[BUFFER_SIZE];
+
+    int i = 0;
+    while(i < BUFFER_SIZE && input[i] != '\0') {
+        GetNextWord(input, currentWord, &i);
+        UciSignal_t signal = InterpretWord(currentWord);
+
+        SkipToNextCharacter(input, &i);
+
+        bool keepRunning = RespondToSignal(input, &i, signal, &data);
+        if(!keepRunning) {
+            return; 
+        }
+    }
+
+    *boardInfo = data.boardInfo;
+    *gameStack = data.gameStack;
+    *zobristStack = data.zobristStack;
+}
+
 void SendPvInfo(PvTable_t* pvTable, Depth_t depth) {
     PvLength_t variationLength = pvTable->pvLength[0];
     printf("info depth %d pv", depth);

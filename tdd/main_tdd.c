@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 
     InitLookupTables();
     GenerateZobristKeys();
-    
+
     LookupTDDRunner();
     BitboardsTDDRunner();
     BoardInfoTDDRunner();
@@ -49,12 +49,12 @@ int main(int argc, char** argv)
 
     SpeedTest(START_FEN, 6, false);
 
-    FEN_t fen = "8/8/8/3p4/4pn1N/6p1/8/5K1k w - - 10 73";
-    PERFTRunner(fen, 8, false);
+    FEN_t fen = "rnbqkbnr/pppppp1p/6p1/8/8/3P4/PPP1PPPP/RNBQKBNR w KQkq - 0 2";
+    PERFTRunner(fen, 2, false);
     RunAllPerftTests(false);
     
     UciApplicationData_t uciApplicationData;
-    bool running = true;
+    bool running = false;
     while(running)
     {
         running = InterpretUCIInput(&uciApplicationData);

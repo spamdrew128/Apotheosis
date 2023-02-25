@@ -23,7 +23,9 @@ GameState_t* GetEmptyNextGameState(GameStack_t* stack) {
     nextState->halfmoveClock = 0;
     nextState->castleSquares[white] = empty_set;
     nextState->castleSquares[black] = empty_set;
-    nextState->enPassantSquares = empty_set;
+    nextState->enPassantSquare = empty_set;
+    nextState->canEastEP = false;
+    nextState->canWestEP = false;
     InitBoardInfo(&nextState->boardInfo);
 
     stack->top++;
@@ -37,7 +39,9 @@ GameState_t* GetDefaultNextGameState(GameStack_t* stack) {
     defaultState->halfmoveClock = ReadHalfmoveClock(stack) + 1;
     defaultState->castleSquares[white] = ReadCastleSquares(stack, white);
     defaultState->castleSquares[black] = ReadCastleSquares(stack, black);
-    defaultState->enPassantSquares = empty_set;
+    defaultState->enPassantSquare = empty_set;
+    defaultState->canEastEP = false;
+    defaultState->canWestEP = false;
 
     stack->top++;
     return defaultState;
@@ -68,7 +72,15 @@ Bitboard_t ReadCastleSquares(GameStack_t* stack, Color_t color) {
 }
 
 Bitboard_t ReadEnPassant(GameStack_t* stack) {
-    return CurrentState(stack).enPassantSquares;
+    return CurrentState(stack).enPassantSquare;
+}
+
+bool CanWestEnPassant(GameStack_t* stack) {
+    return CurrentState(stack).canWestEP;
+}
+
+bool CanEastEnPassant(GameStack_t* stack) {
+    return CurrentState(stack).canEastEP;
 }
 
 BoardInfo_t ReadCurrentBoardInfo(GameStack_t* stack) {

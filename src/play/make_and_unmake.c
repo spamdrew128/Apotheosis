@@ -2,6 +2,7 @@
 #include <assert.h>
 
 #include "make_and_unmake.h"
+#include "movegen.h"
 #include "game_state.h"
 #include "lookup.h"
 
@@ -13,6 +14,24 @@ enum {
 
 static bool PawnIsDoublePushed(Bitboard_t fromBB, Bitboard_t toBB) {
     return (fromBB & pawn_start_ranks) && (toBB & pawn_double_ranks);
+}
+
+static Bitboard_t GetEnPassantBB(Bitboard_t toBB, Color_t color) {
+    if(color == white) {
+        return SoutOne(toBB);
+    } else {
+        return NortOne(toBB);
+    }
+}
+
+static void UpdateEnPassantInfo(BoardInfo_t* info, GameState_t* nextState, Bitboard_t fromBB, Bitboard_t toBB, Color_t color) {
+    Bitboard_t eastAdjPawn = info->pawns[!color] & EastOne(toBB);
+    Bitboard_t westAdjPawn = info->pawns[!color] & WestOne(toBB);
+    Bitboard_t enPassantSquare = GetEnPassantBB(toBB, color);
+
+    nextState->canWestEP = eastAdjPawn && EnPassantIsLegal(info, enPassantSquare, eastAdjPawn, !color);
+    nextState->canEastEP = westAdjPawn && EnPassantIsLegal(info, enPassantSquare, westAdjPawn, !color);
+    nextState->enPassantSquare = enPassantSquare;
 }
 
 static void UpdateCastleSquares(GameState_t* nextState, BoardInfo_t* info, Color_t color) {
@@ -148,14 +167,6 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, GameState_t* nextState,
     nextState->halfmoveClock = empty_set;
 }
 
-static Bitboard_t GetEnPassantBB(Bitboard_t toBB, Color_t color) {
-    if(color == white) {
-        return SoutOne(toBB);
-    } else {
-        return NortOne(toBB);
-    }
-}
-
 static void MakeEnPassantHandler(BoardInfo_t* boardInfo, GameState_t* nextState, Move_t move) {
     Color_t color = boardInfo->colorToMove;
     Square_t fromSquare = ReadFromSquare(move);
@@ -181,7 +192,7 @@ static void MakeEnPassantHandler(BoardInfo_t* boardInfo, GameState_t* nextState,
     );
 
     nextState->halfmoveClock = empty_set;
-    nextState->enPassantSquares = empty_set;
+    nextState->enPassantSquare = empty_set;
     nextState->capturedPiece = pawn;
 }
 
@@ -206,14 +217,12 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextStat
         UpdateCastleSquares(nextState, boardInfo, !color); // if we captured, we might have messed up our opponent's castling rights
     }
 
+    bool pawnDoublePushed = false;
     Piece_t type = PieceOnSquare(boardInfo, fromSquare);
     switch (type) {
         case pawn:
             nextState->halfmoveClock = 0;
-
-            if(PawnIsDoublePushed(fromBB, toBB)) {
-                nextState->enPassantSquares = GetEnPassantBB(toBB, color);
-            }
+            pawnDoublePushed = PawnIsDoublePushed(fromBB, toBB);
         break;
         case king:
             nextState->castleSquares[color] = empty_set;
@@ -231,6 +240,10 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextStat
     );
 
     UpdateCastleSquares(nextState, boardInfo, color);
+
+    if(pawnDoublePushed) {
+        UpdateEnPassantInfo(boardInfo, nextState, fromBB, toBB, color);
+    }
 }
 
 void MakeMove(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move) {
