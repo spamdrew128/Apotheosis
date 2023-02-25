@@ -403,6 +403,27 @@ bool InterpretUCIInput(UciApplicationData_t* applicationData)
     return true; // true means application keeps running
 }
 
+void InterpretUCIString(UciApplicationData_t* applicationData, const char* _input) {
+    char input[BUFFER_SIZE];
+    memset(input, '\0', BUFFER_SIZE* sizeof(char));
+    memcpy(input, _input, strlen(_input));
+
+    char currentWord[BUFFER_SIZE];
+
+    int i = 0;
+    while(i < BUFFER_SIZE && input[i] != '\0') {
+        GetNextWord(input, currentWord, &i);
+        UciSignal_t signal = InterpretWord(currentWord);
+
+        SkipToNextCharacter(input, &i);
+
+        bool keepRunning = RespondToSignal(input, &i, signal, applicationData);
+        if(!keepRunning) {
+            return; 
+        }
+    }
+}
+
 void SendPvInfo(PvTable_t* pvTable, Depth_t depth) {
     PvLength_t variationLength = pvTable->pvLength[0];
     printf("info depth %d pv", depth);

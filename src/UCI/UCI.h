@@ -22,6 +22,8 @@ bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo
 
 bool InterpretUCIInput(UciApplicationData_t* applicationData);
 
+void InterpretUCIString(UciApplicationData_t* applicationData, const char* _input);
+
 void SendPvInfo(PvTable_t* pvTable, Depth_t depth);
 
 #define SendUciInfoString(formatString, ...) \
