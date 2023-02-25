@@ -29,5 +29,5 @@ void Bench(int argc, char** argv) {
     }
 
     Milliseconds_t msec = ElapsedTime(&stopwatch);
-    printf("%lld nodes %lld nps\n", nodeCount, (nodeCount/msec)*msec_per_sec);
+    printf("%lld nodes %lld nps\n", nodeCount, (nodeCount * msec_per_sec) / msec);
 }
