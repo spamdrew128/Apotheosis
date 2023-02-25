@@ -2,6 +2,7 @@
 #include <assert.h>
 
 #include "make_and_unmake.h"
+#include "movegen.h"
 #include "game_state.h"
 #include "lookup.h"
 
@@ -13,6 +14,16 @@ enum {
 
 static bool PawnIsDoublePushed(Bitboard_t fromBB, Bitboard_t toBB) {
     return (fromBB & pawn_start_ranks) && (toBB & pawn_double_ranks);
+}
+
+static void UpdateEnPassantInfo(BoardInfo_t* info, GameState_t* nextState, Bitboard_t fromBB, Bitboard_t toBB, Color_t color) {
+    Bitboard_t eastAdjPawn = info->pawns[!color] & EastOne(toBB);
+    Bitboard_t westAdjPawn = info->pawns[!color] & WestOne(toBB);
+    Bitboard_t enPassantSquare = GetEnPassantBB(toBB, color);
+
+    nextState->canEastEP = eastAdjPawn && EnPassantIsLegal(info, enPassantSquare, eastAdjPawn, color);
+    nextState->canWestEP = westAdjPawn && EnPassantIsLegal(info, enPassantSquare, westAdjPawn, color);
+    nextState->enPassantSquare = enPassantSquare;
 }
 
 static void UpdateCastleSquares(GameState_t* nextState, BoardInfo_t* info, Color_t color) {
@@ -212,7 +223,7 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextStat
             nextState->halfmoveClock = 0;
 
             if(PawnIsDoublePushed(fromBB, toBB)) {
-                nextState->enPassantSquare = GetEnPassantBB(toBB, color);
+                
             }
         break;
         case king:

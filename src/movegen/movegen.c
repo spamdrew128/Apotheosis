@@ -193,7 +193,7 @@ static void AddHvSliderMoves(
     });
 }
 
-static bool EnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t toBB, Bitboard_t fromBB, Color_t color) {
+bool EnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t toBB, Bitboard_t fromBB, Color_t color) {
     Bitboard_t captureBB = (color == white) ? SoutOne(toBB) : NortOne(toBB);
 
     ResetBits(&boardInfo->pawns[color], fromBB);
@@ -216,7 +216,7 @@ static bool EnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t toBB, Bitboard_t
     return isLegal;
 }
 
-static void TryEnPassant(
+static void AddEnPassantMove(
     MoveList_t* moveList,
     BoardInfo_t* boardInfo,
     Bitboard_t toBB,
@@ -224,14 +224,12 @@ static void TryEnPassant(
     Color_t color
 )
 {
-    if(EnPassantIsLegal(boardInfo, toBB, fromBB, color)) {
-        InitializeNewMove(moveList);
-        Move_t* current = CurrentMove(moveList);
+    InitializeNewMove(moveList);
+    Move_t* current = CurrentMove(moveList);
 
-        WriteToSquare(current, LSB(toBB));
-        WriteFromSquare(current, LSB(fromBB));
-        WriteSpecialFlag(current, en_passant_flag);
-    }
+    WriteToSquare(current, LSB(toBB));
+    WriteFromSquare(current, LSB(fromBB));
+    WriteSpecialFlag(current, en_passant_flag);
 }
 
 static void AddWhiteLegalEnPassant(
@@ -252,7 +250,7 @@ static void AddWhiteLegalEnPassant(
         (WhiteWestEnPassantTargets(d12PinnedPawns, enPassantBB) & pinmasks.d12);
 
     if(eastLegalEnPassantTargets) {
-        TryEnPassant(
+        AddEnPassantMove(
             moveList,
             boardInfo,
             eastLegalEnPassantTargets,
@@ -262,7 +260,7 @@ static void AddWhiteLegalEnPassant(
     }
 
     if(westLegalEnPassantTargets) {
-        TryEnPassant(
+        AddEnPassantMove(
             moveList,
             boardInfo,
             westLegalEnPassantTargets,
@@ -290,7 +288,7 @@ static void AddBlackLegalEnPassant(
         (BlackWestEnPassantTargets(d12PinnedPawns, enPassantBB) & pinmasks.d12);
 
     if(eastLegalEnPassantTargets) {
-        TryEnPassant(
+        AddEnPassantMove(
             moveList,
             boardInfo,
             eastLegalEnPassantTargets,
@@ -300,7 +298,7 @@ static void AddBlackLegalEnPassant(
     }
 
     if(westLegalEnPassantTargets) {
-        TryEnPassant(
+        AddEnPassantMove(
             moveList,
             boardInfo,
             westLegalEnPassantTargets,
