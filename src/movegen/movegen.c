@@ -194,7 +194,7 @@ static void AddHvSliderMoves(
 }
 
 static bool EnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t toBB, Bitboard_t fromBB, Color_t color) {
-    Bitboard_t captureBB = (color == white) ? SoutOne(toBB) : NortOne(toBB);;
+    Bitboard_t captureBB = (color == white) ? SoutOne(toBB) : NortOne(toBB);
 
     ResetBits(&boardInfo->pawns[color], fromBB);
     SetBits(&boardInfo->pawns[color], toBB);
@@ -203,7 +203,7 @@ static bool EnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t toBB, Bitboard_t
     SetBits(&boardInfo->empty, fromBB|captureBB);
     ResetBits(&boardInfo->empty, toBB);
 
-    Bitboard_t unsafeSquares = UnsafeSquares(boardInfo, white);
+    Bitboard_t unsafeSquares = UnsafeSquares(boardInfo, color);
     bool isLegal = !InCheck(boardInfo->kings[color], unsafeSquares);
 
     SetBits(&boardInfo->pawns[color], fromBB);
