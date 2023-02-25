@@ -38,6 +38,8 @@ GameState_t* GetDefaultNextGameState(GameStack_t* stack) {
     defaultState->castleSquares[white] = ReadCastleSquares(stack, white);
     defaultState->castleSquares[black] = ReadCastleSquares(stack, black);
     defaultState->enPassantSquare = empty_set;
+    defaultState->canEastEP = false;
+    defaultState->canWestEP = false;
 
     stack->top++;
     return defaultState;

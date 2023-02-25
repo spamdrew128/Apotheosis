@@ -16,6 +16,14 @@ static bool PawnIsDoublePushed(Bitboard_t fromBB, Bitboard_t toBB) {
     return (fromBB & pawn_start_ranks) && (toBB & pawn_double_ranks);
 }
 
+static Bitboard_t GetEnPassantBB(Bitboard_t toBB, Color_t color) {
+    if(color == white) {
+        return SoutOne(toBB);
+    } else {
+        return NortOne(toBB);
+    }
+}
+
 static void UpdateEnPassantInfo(BoardInfo_t* info, GameState_t* nextState, Bitboard_t fromBB, Bitboard_t toBB, Color_t color) {
     Bitboard_t eastAdjPawn = info->pawns[!color] & EastOne(toBB);
     Bitboard_t westAdjPawn = info->pawns[!color] & WestOne(toBB);
@@ -159,14 +167,6 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, GameState_t* nextState,
     nextState->halfmoveClock = empty_set;
 }
 
-static Bitboard_t GetEnPassantBB(Bitboard_t toBB, Color_t color) {
-    if(color == white) {
-        return SoutOne(toBB);
-    } else {
-        return NortOne(toBB);
-    }
-}
-
 static void MakeEnPassantHandler(BoardInfo_t* boardInfo, GameState_t* nextState, Move_t move) {
     Color_t color = boardInfo->colorToMove;
     Square_t fromSquare = ReadFromSquare(move);
@@ -221,9 +221,8 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextStat
     switch (type) {
         case pawn:
             nextState->halfmoveClock = 0;
-
             if(PawnIsDoublePushed(fromBB, toBB)) {
-                
+                UpdateEnPassantInfo(boardInfo, nextState, fromBB, toBB, color);
             }
         break;
         case king:
