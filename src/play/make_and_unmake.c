@@ -29,8 +29,8 @@ static void UpdateEnPassantInfo(BoardInfo_t* info, GameState_t* nextState, Bitbo
     Bitboard_t westAdjPawn = info->pawns[!color] & WestOne(toBB);
     Bitboard_t enPassantSquare = GetEnPassantBB(toBB, color);
 
-    nextState->canEastEP = eastAdjPawn && EnPassantIsLegal(info, enPassantSquare, eastAdjPawn, color);
-    nextState->canWestEP = westAdjPawn && EnPassantIsLegal(info, enPassantSquare, westAdjPawn, color);
+    nextState->canWestEP = eastAdjPawn && EnPassantIsLegal(info, enPassantSquare, eastAdjPawn, !color);
+    nextState->canEastEP = westAdjPawn && EnPassantIsLegal(info, enPassantSquare, westAdjPawn, !color);
     nextState->enPassantSquare = enPassantSquare;
 }
 
@@ -217,13 +217,12 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextStat
         UpdateCastleSquares(nextState, boardInfo, !color); // if we captured, we might have messed up our opponent's castling rights
     }
 
+    bool pawnDoublePushed;
     Piece_t type = PieceOnSquare(boardInfo, fromSquare);
     switch (type) {
         case pawn:
             nextState->halfmoveClock = 0;
-            if(PawnIsDoublePushed(fromBB, toBB)) {
-                UpdateEnPassantInfo(boardInfo, nextState, fromBB, toBB, color);
-            }
+            pawnDoublePushed = PawnIsDoublePushed(fromBB, toBB);
         break;
         case king:
             nextState->castleSquares[color] = empty_set;
@@ -241,6 +240,10 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextStat
     );
 
     UpdateCastleSquares(nextState, boardInfo, color);
+
+    if(pawnDoublePushed) {
+        UpdateEnPassantInfo(boardInfo, nextState, fromBB, toBB, color);
+    }
 }
 
 void MakeMove(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move) {

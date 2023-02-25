@@ -20,6 +20,18 @@
 #include "basic_tests.h"
 #include "PV_table_tdd.h"
 
+void RandomTest() {
+    const char* uciString = "position fen r7/4n2p/1p4p1/6P1/2k2P2/1q6/7K/8 b - - 25 68 moves h7h5";
+    BoardInfo_t boardInfo;
+    GameStack_t gameStack;
+    ZobristStack_t zobristStack;
+
+    InterpretUCIString(&boardInfo, &gameStack, &zobristStack, uciString);
+
+    MoveList_t moveList;
+    CompleteMovegen(&moveList, &boardInfo, &gameStack);
+}
+
 int main(int argc, char** argv)
 {
     setvbuf(stdout, NULL, _IONBF, 0);
@@ -27,6 +39,8 @@ int main(int argc, char** argv)
     InitLookupTables();
     GenerateZobristKeys();
     
+    RandomTest();
+
     LookupTDDRunner();
     BitboardsTDDRunner();
     BoardInfoTDDRunner();
@@ -51,7 +65,7 @@ int main(int argc, char** argv)
 
     FEN_t fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/Pp2P3/2N2Q1p/1PPBBPPP/R3K2R b KQkq a3 0";
     PERFTRunner(fen, 1, false);
-    RunAllPerftTests(false);
+    RunAllPerftTests(true);
     
     UciApplicationData_t uciApplicationData;
     bool running = false;
