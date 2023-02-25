@@ -24,6 +24,8 @@ GameState_t* GetEmptyNextGameState(GameStack_t* stack) {
     nextState->castleSquares[white] = empty_set;
     nextState->castleSquares[black] = empty_set;
     nextState->enPassantSquare = empty_set;
+    nextState->canEastEP = false;
+    nextState->canWestEP = false;
     InitBoardInfo(&nextState->boardInfo);
 
     stack->top++;

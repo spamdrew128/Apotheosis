@@ -79,9 +79,7 @@ static void UpdateEnPassant(FEN_t fen, int* i, GameState_t* state, Color_t color
 
         if(eastPawn) {
             state->canEastEP = true;
-            state->canWestEP = false;
         } else {
-            state->canEastEP = false;
             state->canWestEP = true;
         }
 
