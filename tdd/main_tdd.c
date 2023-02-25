@@ -20,26 +20,12 @@
 #include "basic_tests.h"
 #include "PV_table_tdd.h"
 
-void RandomTest() {
-    const char* uciString = "position fen r7/4n2p/1p4p1/6P1/2k2P2/1q6/7K/8 b - - 25 68 moves h7h5";
-    BoardInfo_t boardInfo;
-    GameStack_t gameStack;
-    ZobristStack_t zobristStack;
-
-    InterpretUCIString(&boardInfo, &gameStack, &zobristStack, uciString);
-
-    MoveList_t moveList;
-    CompleteMovegen(&moveList, &boardInfo, &gameStack);
-}
-
 int main(int argc, char** argv)
 {
     setvbuf(stdout, NULL, _IONBF, 0);
 
     InitLookupTables();
     GenerateZobristKeys();
-    
-    RandomTest();
 
     LookupTDDRunner();
     BitboardsTDDRunner();

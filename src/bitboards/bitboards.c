@@ -37,7 +37,7 @@ Population_t PopCount(Bitboard_t mask)
 #endif
 }
 
-Square_t LSB(Bitboard_t b) { // I hate macros and you can't force me to use them
+Square_t LSB(Bitboard_t b) {
     assert(b);
     return __builtin_ctzll(b);
 }
