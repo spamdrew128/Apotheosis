@@ -3,4 +3,6 @@
 
 #define NUM_ARRAY_ELEMENTS(array) sizeof(array) / sizeof(*array)
 
+#define MIRROR(sq) ((sq)^56)
+
 #endif
