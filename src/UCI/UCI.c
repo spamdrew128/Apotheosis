@@ -411,6 +411,10 @@ void InterpretUCIString(
 )
 {
     UciApplicationData_t data;
+    data.boardInfo = *boardInfo;
+    data.gameStack = *gameStack;
+    data.zobristStack = *zobristStack;
+
     char input[BUFFER_SIZE];
     memset(input, '\0', BUFFER_SIZE* sizeof(char));
     memcpy(input, _input, strlen(_input));
