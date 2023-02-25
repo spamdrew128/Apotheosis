@@ -47,14 +47,14 @@ int main(int argc, char** argv)
     PvTableTDDRunner();
 
     // RANDOM CRASHES
-    RandomCrashTestRunner(true);
+    RandomCrashTestRunner(false);
 
     printf("\n");
 
     SpeedTest(START_FEN, 6, false);
 
-    FEN_t fen = "rnbqkbnr/pppppp1p/6p1/8/8/3P4/PPP1PPPP/RNBQKBNR w KQkq - 0 2";
-    PERFTRunner(fen, 2, false);
+    FEN_t fen = "4q3/5p2/2p1k3/2P1P2K/7P/8/8/8 b - - 0 1";
+    PERFTRunner(fen, 4, false);
     RunAllPerftTests(false);
     
     UciApplicationData_t uciApplicationData;

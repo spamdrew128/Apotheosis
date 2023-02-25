@@ -44,7 +44,7 @@ INCDIRS:= \
 
 DEBUGFLAGS=-g
 OPTFLAGS=-O3 -flto
-CFLAGS=-Wall -std=c17 -march=native $(DEBUGFLAGS) $(INCDIRS) 
+CFLAGS=-Wall -std=c17 -march=native $(OPTFLAGS) $(INCDIRS) 
 
 COMMON_CFILES= \
 $(BITBOARDS)\bitboards.c \
@@ -90,7 +90,6 @@ $(ZOBRIST)\zobrist.o
 
 CFILES=$(MAIN).c $(BENCH).c $(COMMON_CFILES)
 OBJECTS=$(MAIN).o $(BENCH).o $(COMMON_OBJECTS)
-
 
 D_CFILES= \
 $(TDD_MAIN).c \
