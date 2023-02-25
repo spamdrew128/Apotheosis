@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 
 #include "bench.h"
@@ -21,7 +22,12 @@ void Bench(int argc, char** argv) {
 
     Stopwatch_t stopwatch;
     StopwatchInit(&stopwatch);
+    NodeCount_t nodeCount = 0;
     for(int i = 0; i < NUM_PERFT_ENTRIES; i++) {
-        
+        InterpretFEN(fenList[i], &boardInfo, &gameStack, &zobristStack);
+        nodeCount += BenchSearch(&boardInfo, &gameStack, &zobristStack, 5);
     }
+
+    Milliseconds_t msec = ElapsedTime(&stopwatch);
+    printf("%lld nodes %lld nps\n", nodeCount, (nodeCount/msec)*msec_per_sec);
 }

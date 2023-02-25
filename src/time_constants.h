@@ -12,6 +12,6 @@ enum {
 };
 
 typedef int64_t Milliseconds_t;
-typedef double Seconds_t;
+typedef int32_t Seconds_t;
 
 #endif

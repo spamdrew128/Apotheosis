@@ -19,7 +19,6 @@ enum {
     DEPTH_MAX = PLY_MAX
 };
 
-typedef uint64_t NodeCount_t;
 typedef struct {
     bool outOfTime;
     NodeCount_t nodeCount;
@@ -248,6 +247,40 @@ SearchResults_t Search(
     } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo.depthLimit && currentDepth < DEPTH_MAX);
 
     return searchResults;
+}
+
+NodeCount_t BenchSearch(
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    Depth_t depth
+)
+{
+    UciSearchInfo_t dummySearchInfo;
+    UciSearchInfoInit(&dummySearchInfo);
+    dummySearchInfo.forceTime = 1000000;
+    SetupGlobalTimer(dummySearchInfo, boardInfo);
+    
+    SearchInfo_t searchInfo;
+    InitSearchInfo(&searchInfo);
+
+    Depth_t currentDepth = 0;
+    do {
+        currentDepth++;
+
+        EvalScore_t score = Negamax(
+            boardInfo,
+            gameStack,
+            zobristStack,
+            &searchInfo,
+            -INFINITY,
+            INFINITY,
+            currentDepth,
+            0
+        );
+    } while(currentDepth < depth);
+
+    return searchInfo.nodeCount;
 }
 
 void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {

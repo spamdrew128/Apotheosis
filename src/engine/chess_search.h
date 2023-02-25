@@ -14,6 +14,7 @@
 
 typedef uint8_t Depth_t;
 typedef uint8_t Ply_t;
+typedef uint64_t NodeCount_t;
 
 typedef struct
 {
@@ -37,6 +38,13 @@ SearchResults_t Search(
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
     bool printUciInfo
+);
+
+NodeCount_t BenchSearch(
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    Depth_t depth
 );
 
 void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo);
