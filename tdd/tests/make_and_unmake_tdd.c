@@ -153,6 +153,9 @@ static void InitSideEnPassantExpectedInfo(BoardInfo_t* expectedInfo, GameState_t
     nextState.halfmoveClock = 0;
     nextState.enPassantSquare = empty_set;
     nextState.capturedPiece = pawn;
+    nextState.canEastEP = false;
+    nextState.canWestEP = false;
+
     *expectedState = nextState;
 }
 
@@ -396,6 +399,7 @@ static void ShouldWhiteEnPassant() {
     GameState_t expectedState;
     InitBothSidesEnPassantInfo(&info);
     InitSideEnPassantExpectedInfo(&expectedInfo, &expectedState, white);
+    expectedState.canEastEP = true;
 
     Move_t move;
     InitMove(&move);
@@ -418,6 +422,7 @@ static void ShouldBlackEnPassant() {
     GameState_t expectedState;
     InitBothSidesEnPassantInfo(&info);
     InitSideEnPassantExpectedInfo(&expectedInfo, &expectedState, black);
+    expectedState.canWestEP = true;
 
     Move_t move;
     InitMove(&move);

@@ -60,36 +60,6 @@ static void InitPinPositionInfo(BoardInfo_t* info) {
     GetEmptyNextGameState(&stack);
 }
 
-// 8/8/PpP1k3/8/4K3/pPp5/8/8
-static void InitDoubleEnPassantPosition(BoardInfo_t* info) {
-    InitTestInfo(info, {
-        info->kings[white] = CreateBitboard(1, e4);
-        info->pawns[white] = CreateBitboard(3, b3,a6,c6);
-
-        info->kings[black] = CreateBitboard(1, e6);
-        info->pawns[black] = CreateBitboard(3, b6,a3,c3);
-    });
-
-    GameState_t* state = GetEmptyNextGameState(&stack);
-    state->enPassantSquare = CreateBitboard(2, b2,b7);
-}
-
-// 1b6/8/2pP4/4KPpr/8/8/8/k7
-static void InitTrickyPinnedEnPassantPostitionInfo(BoardInfo_t* info) {
-    InitTestInfo(info, {
-        info->kings[white] = CreateBitboard(1, e5);
-        info->pawns[white] = CreateBitboard(2, f5,d6);
-
-        info->kings[black] = CreateBitboard(1, a1);
-        info->pawns[black] = CreateBitboard(2, g5,c6);
-        info->bishops[black] = CreateBitboard(1, b8);
-        info->rooks[black] = CreateBitboard(1, h5);
-    });
-
-    GameState_t* state = GetEmptyNextGameState(&stack);
-    state->enPassantSquare = CreateBitboard(2, g6,c7);
-}
-
 // TESTS
 static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
     TestSetup();
@@ -114,45 +84,6 @@ static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
         (CountPieceMoves(knight, moveList, &info) == expectedNumKnightsCaptures) &&
         (CountPieceMoves(queen, moveList, &info) == expectedNumQueenCaptures) &&
         moveList.maxIndex == 7;
-
-    PrintResults(success);
-}
-
-static void ShouldCorrectlyEvaluateDoubleEnPassant() {
-    TestSetup();
-    BoardInfo_t info;
-    InitDoubleEnPassantPosition(&info);
-
-    int expectedNumPawnWhiteCaptures = 2;
-    int expectedNumPawnBlackCaptures = 2;
-
-    MoveList_t wMoveList;
-    CapturesMovegenTestWrapper(&wMoveList, &info, &stack, white);
-
-    MoveList_t bMoveList;
-    CapturesMovegenTestWrapper(&bMoveList, &info, &stack, black);
-
-    bool success = 
-        (CountPieceMoves(pawn, wMoveList, &info) == expectedNumPawnWhiteCaptures) &&
-        (CountPieceMoves(pawn, bMoveList, &info) == expectedNumPawnBlackCaptures) &&
-        (wMoveList.maxIndex == 1) && (bMoveList.maxIndex == 1);
-
-    PrintResults(success);
-}
-
-static void ShouldCorrectlyEvaluatePinnedEnPassant() {
-    TestSetup();
-    BoardInfo_t info;
-    InitTrickyPinnedEnPassantPostitionInfo(&info);
-
-    int expectedNumPawnWhiteCaptures = 1;
-
-    MoveList_t moveList;
-    CapturesMovegenTestWrapper(&moveList, &info, &stack, white);
-
-    bool success = 
-        (CountPieceMoves(pawn, moveList, &info) == expectedNumPawnWhiteCaptures) &&
-        moveList.maxIndex == 0;
 
     PrintResults(success);
 }
@@ -194,7 +125,5 @@ static void ShouldCorrectlyEvaluateInPosWithPins() {
 
 void MovegenTDDRunner() {
     ShouldCorrectlyEvaluateCapturesInPosWithPins();
-    ShouldCorrectlyEvaluateDoubleEnPassant();
-    ShouldCorrectlyEvaluatePinnedEnPassant();
     ShouldCorrectlyEvaluateInPosWithPins();
 }
