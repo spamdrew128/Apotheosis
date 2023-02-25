@@ -112,7 +112,8 @@ $(TDD)\zobrist_tdd.c \
 $(TDD)\endings_tdd.c \
 \
 $(ENGINE_TDD)\basic_tests.c \
-$(ENGINE_TDD)\PV_table_tdd.c
+$(ENGINE_TDD)\PV_table_tdd.c \
+$(ENGINE_TDD)\random_crashes.c
 
 D_OBJECTS= \
 $(TDD_MAIN).o \
@@ -134,7 +135,8 @@ $(TDD)\zobrist_tdd.o \
 $(TDD)\endings_tdd.o \
 \
 $(ENGINE_TDD)\basic_tests.o \
-$(ENGINE_TDD)\PV_table_tdd.o
+$(ENGINE_TDD)\PV_table_tdd.o \
+$(ENGINE_TDD)\random_crashes.o
 
 EXE=bin
 DEBUG_EXE=debug

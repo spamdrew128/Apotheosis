@@ -45,6 +45,9 @@ int main(int argc, char** argv)
     BasicTestsRunner();
     PvTableTDDRunner();
 
+    // RANDOM CRASHES
+    RandomCrashTestRunner(true);
+
     printf("\n");
 
     SpeedTest(START_FEN, 6, false);
