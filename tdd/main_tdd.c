@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 
     FEN_t fen = "rnbqkbnr/pppppp1p/6p1/8/8/3P4/PPP1PPPP/RNBQKBNR w KQkq - 0 2";
     PERFTRunner(fen, 2, false);
-    RunAllPerftTests(true);
+    RunAllPerftTests(false);
     
     UciApplicationData_t uciApplicationData;
     bool running = false;
