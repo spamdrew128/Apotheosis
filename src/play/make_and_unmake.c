@@ -217,7 +217,7 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextStat
         UpdateCastleSquares(nextState, boardInfo, !color); // if we captured, we might have messed up our opponent's castling rights
     }
 
-    bool pawnDoublePushed;
+    bool pawnDoublePushed = false;
     Piece_t type = PieceOnSquare(boardInfo, fromSquare);
     switch (type) {
         case pawn:
