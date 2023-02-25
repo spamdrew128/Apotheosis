@@ -54,7 +54,7 @@ int main(int argc, char** argv)
     RunAllPerftTests(false);
     
     UciApplicationData_t uciApplicationData;
-    bool running = true;
+    bool running = false;
     while(running)
     {
         running = InterpretUCIInput(&uciApplicationData);

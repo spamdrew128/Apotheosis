@@ -11,8 +11,10 @@ enum {
     rook_start_squares = board_corners
 };
 
-static bool PawnIsDoublePushed(Bitboard_t fromBB, Bitboard_t toBB) {
-    return (fromBB & pawn_start_ranks) && (toBB & pawn_double_ranks);
+static bool PsuedovalidEPSquare(Bitboard_t fromBB, Bitboard_t toBB, Bitboard_t enemyPawns) {
+    bool isDoublePush = (fromBB & pawn_start_ranks) && (toBB & pawn_double_ranks);
+    bool enemyPawnNeighbors = (EastOne(toBB) | WestOne(toBB)) & enemyPawns;
+    return isDoublePush && enemyPawnNeighbors;
 }
 
 static void UpdateCastleSquares(GameState_t* nextState, BoardInfo_t* info, Color_t color) {
@@ -211,7 +213,7 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextStat
         case pawn:
             nextState->halfmoveClock = 0;
 
-            if(PawnIsDoublePushed(fromBB, toBB)) {
+            if(PsuedovalidEPSquare(fromBB, toBB, boardInfo->pawns[!color])) { // psuedovalid good enough for now in zobrist hashes
                 nextState->enPassantSquares = GetEnPassantBB(toBB, color);
             }
         break;
