@@ -268,7 +268,7 @@ NodeCount_t BenchSearch(
     do {
         currentDepth++;
 
-        EvalScore_t score = Negamax(
+        Negamax(
             boardInfo,
             gameStack,
             zobristStack,
