@@ -143,4 +143,7 @@
         .expectedCounts = { d1, d2, d3, d4, d5, d6 } \
     },
 
+    #define EXPAND_AS_FEN_ARRAY(_fen, d1, d2, d3, d4, d5, d6) \
+        _fen,
+
 #endif

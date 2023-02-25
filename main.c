@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "board_constants.h"
 #include "bitboards.h"
@@ -9,6 +10,7 @@
 #include "game_state.h"
 #include "zobrist.h"
 #include "UCI.h"
+#include "bench.h"
 
 int main(int argc, char** argv)
 {
@@ -16,6 +18,8 @@ int main(int argc, char** argv)
 
     InitLookupTables();
     GenerateZobristKeys();
+
+    Bench(argc, argv);
 
     UciApplicationData_t uciApplicationData;
     bool running = true;

@@ -1,6 +1,7 @@
 CC=gcc
 
 SRC=src
+BENCH=bench
 BITBOARDS=$(SRC)\bitboards
 ENDINGS=$(SRC)\endings
 ENGINE=$(SRC)\engine
@@ -17,6 +18,9 @@ ZOBRIST=$(SRC)\zobrist
 TDD_ROOT=tdd
 TDD=$(TDD_ROOT)\tests
 ENGINE_TDD=$(TDD_ROOT)\engine_tests
+
+MAIN=main
+TDD_MAIN=$(TDD_ROOT)\main_tdd
 
 INCDIRS:= \
 -I . \
@@ -84,11 +88,9 @@ $(MOVEGEN)\pieces.o \
 $(UCI)\UCI.o \
 $(ZOBRIST)\zobrist.o
 
-MAIN=main
-CFILES=$(MAIN).c $(COMMON_CFILES)
-OBJECTS=$(MAIN).o $(COMMON_OBJECTS)
+CFILES=$(MAIN).c $(BENCH).c $(COMMON_CFILES)
+OBJECTS=$(MAIN).o $(BENCH).o $(COMMON_OBJECTS)
 
-TDD_MAIN=$(TDD_ROOT)\main_tdd
 
 D_CFILES= \
 $(TDD_MAIN).c \
