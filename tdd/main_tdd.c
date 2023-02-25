@@ -19,6 +19,7 @@
 #include "UCI.h"
 #include "basic_tests.h"
 #include "PV_table_tdd.h"
+#include "random_crashes.h"
 
 int main(int argc, char** argv)
 {
