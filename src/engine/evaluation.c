@@ -1,30 +1,73 @@
 #include "evaluation.h"
 #include "PST.h"
+#include "util_macros.h"
 
 typedef uint8_t PieceCount_t;
 typedef int32_t Centipawns_t;
 
-static Centipawns_t pawnPST[2][NUM_SQUARES] = { PAWN_MG_PST, PAWN_EG_PST };
-static Centipawns_t knightPST[2][NUM_SQUARES] = { KNIGHT_MG_PST, KNIGHT_EG_PST };
-static Centipawns_t bishopPST[2][NUM_SQUARES] = { BISHOP_MG_PST, BISHOP_EG_PST };
-static Centipawns_t rookPST[2][NUM_SQUARES] = { ROOK_MG_PST, ROOK_EG_PST };
-static Centipawns_t queenPST[2][NUM_SQUARES] = { QUEEN_MG_PST, QUEEN_EG_PST };
-static Centipawns_t kingPST[2][NUM_SQUARES] = { KING_MG_PST, KING_EG_PST };
+static Centipawns_t midgamePST[6][NUM_SQUARES] = { PAWN_MG_PST, KNIGHT_MG_PST, BISHOP_MG_PST, ROOK_MG_PST, QUEEN_MG_PST, KING_MG_PST };
+static Centipawns_t endgamePST[6][NUM_SQUARES] = { PAWN_EG_PST, KNIGHT_EG_PST, BISHOP_EG_PST, ROOK_EG_PST, QUEEN_EG_PST, KING_EG_PST };
+static Phase_t gamePhaseLookup[6] = GAMEPHASE_VALUES;
 
-static Centipawns_t SingleTypeMaterialBalanceScore(Bitboard_t infoField[2], Centipawns_t value) {
-    return value * (PopCount(infoField[white]) - PopCount(infoField[black]));
+static void MaterialAndPST(
+    Bitboard_t infoField[2],
+    Piece_t piece,
+    Centipawns_t value,
+    Phase_t* gamePhase,
+    Centipawns_t mgTotal[],
+    Centipawns_t egTotal[]
+)
+{
+    Bitboard_t whitePieces = infoField[white];
+    Bitboard_t blackPieces = infoField[black];
+
+    while(whitePieces) {
+        Square_t sq = LSB(whitePieces);
+        mgTotal[white] += value + midgamePST[piece][MIRROR(sq)];
+        egTotal[white] += value + endgamePST[piece][MIRROR(sq)];
+        *gamePhase += gamePhaseLookup[piece];
+        ResetLSB(&whitePieces);
+    }
+    while(blackPieces) {
+        Square_t sq = LSB(blackPieces);
+        mgTotal[black] += value + midgamePST[piece][sq];
+        egTotal[black] += value + endgamePST[piece][sq];
+        *gamePhase += gamePhaseLookup[piece];
+        ResetLSB(&blackPieces);
+    }
 }
 
-static Centipawns_t MaterialBalance(BoardInfo_t* boardInfo) {
-    return 
-        SingleTypeMaterialBalanceScore(boardInfo->knights, knight_value) +
-        SingleTypeMaterialBalanceScore(boardInfo->bishops, bishop_value) +
-        SingleTypeMaterialBalanceScore(boardInfo->rooks, rook_value) +
-        SingleTypeMaterialBalanceScore(boardInfo->queens, queen_value) +
-        SingleTypeMaterialBalanceScore(boardInfo->pawns, pawn_value);
+static void AddKingPSTBonus(BoardInfo_t* boardInfo, Centipawns_t mgTotal[], Centipawns_t egTotal[]) {
+    Square_t whiteKing = MIRROR(KingSquare(boardInfo, white));
+    Square_t blackKing = KingSquare(boardInfo, black);
+
+    mgTotal[white] += midgamePST[king][whiteKing];
+    egTotal[white] += endgamePST[king][whiteKing];
+    mgTotal[black] += midgamePST[king][blackKing];
+    egTotal[black] += endgamePST[king][blackKing];
+}
+
+static Centipawns_t MaterialBalanceAndPSTBonus(BoardInfo_t* boardInfo) {
+    Centipawns_t mgTotal[] = { 0, 0 };
+    Centipawns_t egTotal[] = { 0, 0 };
+    Phase_t gamePhase = 0;
+
+    MaterialAndPST(boardInfo->knights, knight, knight_value, &gamePhase, mgTotal, egTotal);
+    MaterialAndPST(boardInfo->bishops, bishop, bishop_value, &gamePhase, mgTotal, egTotal);
+    MaterialAndPST(boardInfo->rooks, rook, rook_value, &gamePhase, mgTotal, egTotal);
+    MaterialAndPST(boardInfo->queens, queen, queen_value, &gamePhase, mgTotal, egTotal);
+    MaterialAndPST(boardInfo->pawns, pawn, pawn_value, &gamePhase, mgTotal, egTotal);
+    AddKingPSTBonus(boardInfo, mgTotal, egTotal);
+
+    Centipawns_t mgScore = mgTotal[white] - mgTotal[black];
+    Centipawns_t egScore = egTotal[white] - egTotal[black];
+    Phase_t mgPhase = (gamePhase < PHASE_MAX) ? gamePhase : PHASE_MAX;
+    Phase_t egPhase = PHASE_MAX - mgPhase;
+    return (mgScore * mgPhase + egScore * egPhase) / PHASE_MAX; // weighted average
 }
 
 EvalScore_t ScoreOfPosition(BoardInfo_t* boardInfo) {
-    EvalScore_t eval = MaterialBalance(boardInfo);
+    EvalScore_t eval = MaterialBalanceAndPSTBonus(boardInfo);
+
     return boardInfo->colorToMove == white ? eval : -eval;
 }
