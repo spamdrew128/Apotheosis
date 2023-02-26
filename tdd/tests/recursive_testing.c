@@ -103,6 +103,7 @@ static PerftCount_t SplitPERFT(BoardInfo_t* boardInfo, int depth) {
     for(int i = 0; i <= moveList.maxIndex; i++) {
         Move_t move = moveList.moves[i];
         MakeMove(boardInfo, &gameStack, move);
+        assert(BoardIsValid(boardInfo, &gameStack));
 
         PerftCount_t count = 0;
         if(depth > 1) {
@@ -115,6 +116,7 @@ static PerftCount_t SplitPERFT(BoardInfo_t* boardInfo, int depth) {
         }
 
         UnmakeMove(boardInfo, &gameStack);
+        assert(BoardIsValid(boardInfo, &gameStack));
     }
 
     return total;

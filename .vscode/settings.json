@@ -33,7 +33,8 @@
         "search.h": "c",
         "corecrt_search.h": "c",
         "limits.h": "c",
-        "chess_search.h": "c"
+        "chess_search.h": "c",
+        "random": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",

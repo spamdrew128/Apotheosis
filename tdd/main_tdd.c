@@ -19,6 +19,7 @@
 #include "UCI.h"
 #include "basic_tests.h"
 #include "PV_table_tdd.h"
+#include "random_crashes.h"
 
 int main(int argc, char** argv)
 {
@@ -45,12 +46,15 @@ int main(int argc, char** argv)
     BasicTestsRunner();
     PvTableTDDRunner();
 
+    // RANDOM CRASHES
+    RandomCrashTestRunner(false);
+
     printf("\n");
 
     SpeedTest(START_FEN, 6, false);
 
-    FEN_t fen = "rnbqkbnr/pppppp1p/6p1/8/8/3P4/PPP1PPPP/RNBQKBNR w KQkq - 0 2";
-    PERFTRunner(fen, 2, false);
+    FEN_t fen = "4k3/8/8/1rpP2K1/8/8/8/8 w - c6 0 1";
+    PERFTRunner(fen, 1, false);
     RunAllPerftTests(false);
     
     UciApplicationData_t uciApplicationData;

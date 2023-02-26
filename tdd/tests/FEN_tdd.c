@@ -7,7 +7,7 @@
 #include "board_info.h"
 #include "zobrist.h"
 
-#define COMPLEX_FEN "r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R w K e3 34 56"
+#define COMPLEX_FEN "r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R w K - 34 56"
 
 static GameStack_t gameStack;
 static ZobristStack_t zobristStack;
@@ -58,7 +58,6 @@ static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* e
     GameState_t* state = GetEmptyNextGameState(&gameStack);
     state->halfmoveClock = 34;
     state->castleSquares[white] = white_kingside_castle_bb;
-    state->enPassantSquare = CreateBitboard(1, e3);
     *expectedState = *state;
 }
 

@@ -130,6 +130,7 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, GameState_t* nextState, 
         );
     }
 
+    UpdateEmpty(boardInfo);
     nextState->castleSquares[color] = empty_set;
 }
 
@@ -164,6 +165,8 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, GameState_t* nextState,
 
     SetBits(GetPieceInfoField(boardInfo, promotionPiece, color), toBB);
 
+    UpdateEmpty(boardInfo);
+
     nextState->halfmoveClock = empty_set;
 }
 
@@ -190,6 +193,7 @@ static void MakeEnPassantHandler(BoardInfo_t* boardInfo, GameState_t* nextState,
         toSquare,
         color
     );
+    UpdateEmpty(boardInfo);
 
     nextState->halfmoveClock = empty_set;
     nextState->enPassantSquare = empty_set;
@@ -240,6 +244,7 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextStat
     );
 
     UpdateCastleSquares(nextState, boardInfo, color);
+    UpdateEmpty(boardInfo);
 
     if(pawnDoublePushed) {
         UpdateEnPassantInfo(boardInfo, nextState, fromBB, toBB, color);
@@ -265,7 +270,6 @@ void MakeMove(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move) {
         break;
     }
 
-    UpdateEmpty(boardInfo);
     boardInfo->colorToMove = !(boardInfo->colorToMove);
     nextState->boardInfo = *boardInfo;
 }

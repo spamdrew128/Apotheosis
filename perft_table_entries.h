@@ -1,7 +1,7 @@
 #ifndef __PERFT_TABLE_ENTRIES_H__
 #define __PERFT_TABLE_ENTRIES_H__
 
-#define NUM_PERFT_ENTRIES 129
+#define NUM_PERFT_ENTRIES 147
 #define MAX_DEPTH 6
 
 #define PERFT_TEST_TABLE(ENTRY) \
@@ -134,9 +134,30 @@
     \
     ENTRY("8/8/8/3p4/4pn1N/6p1/8/5K1k w - - 10 73", 5, 55, 390, 3895, 27806, 281422) \
     ENTRY("8/8/8/3p4/5n2/4p3/6pk/4KN2 b - - 3 76", 7, 21, 275, 1354, 18520, 118617) \
-    ENTRY("rnbq1b1r/ppPknQ1p/3pp3/1B6/5pp1/BP2P3/P1PK1PPP/RN4NR b - - 4 11", 2, 0, 0, 0, 0, 0)
+    ENTRY("rnbq1b1r/ppPknQ1p/3pp3/1B6/5pp1/BP2P3/P1PK1PPP/RN4NR b - - 4 11", 2, 0, 0, 0, 0, 0) \
+    ENTRY("4q3/5p2/2p1k3/2P1P2K/7P/8/8/8 b - - 0 1", 16, 42, 784, 4013, 81689, 415599) \
+    \
+    ENTRY("4k3/8/8/1rpP2K1/8/8/8/8 w - c6 0 1", 9, 122, 878, 0, 0, 0) \
+    ENTRY("4k3/8/8/1KpP2r1/8/8/8/8 w - c6 0 1", 8, 132, 821, 0, 0, 0) \
+    ENTRY("4k3/3r4/8/2pP4/8/8/3K4/8 w - c6 0 3", 9, 133, 930, 0, 0, 0) \
+    ENTRY("4k3/5b2/8/2pP4/8/8/K7/8 w - c6 0 3", 5, 50, 299, 0, 0, 0) \
+    ENTRY("4k3/1b6/8/2pP4/8/8/6K1/8 w - c6 0 3", 9, 96, 630, 0, 0, 0) \
+    ENTRY("4k3/8/8/1r1Pp1K1/8/8/8/8 w - e6 0 1", 8, 124, 827, 0, 0, 0) \
+    ENTRY("4k3/8/8/1K1Pp1r1/8/8/8/8 w - e6 0 1", 9, 133, 923, 0, 0, 0) \
+    ENTRY("4k3/3r4/8/3Pp3/8/8/3K4/8 w - e6 0 3", 9, 133, 930, 0, 0, 0) \
+    ENTRY("4k3/5b2/8/3Pp3/8/8/K7/8 w - e6 0 3", 6, 57, 357, 0, 0, 0) \
+    ENTRY("4k3/1b6/8/3Pp3/8/8/6K1/8 w - e6 0 3", 8, 88, 543, 0, 0, 0) \
+    ENTRY("4k3/8/8/1rpP1nK1/8/8/8/8 w - c6 0 1", 8, 165, 1031, 0, 0, 0) \
+    ENTRY("4k3/8/8/1qpP2K1/8/8/8/8 w - c6 0 1", 9, 194, 1266, 0, 0, 0) \
+    ENTRY("6k1/3K4/8/2pP4/8/8/3r4/8 w - c6 0 3", 9, 149, 954, 0, 0, 0) \
+    ENTRY("4k1K1/8/8/2pP4/8/1b6/8/8 w - c6 0 3", 3, 34, 173, 0, 0, 0) \
+    ENTRY("4k1K1/8/8/2pP4/8/1q6/8/8 w - c6 0 3", 3, 76, 357, 0, 0, 0) \
+    ENTRY("4k3/8/8/8/2pP4/8/8/4K3 b - d3 0 1", 7, 39, 283, 0, 0, 0) \
+    ENTRY("4k3/8/8/3pP3/4K3/8/8/8 w - d6 0 2", 8, 44, 316, 0, 0, 0)
 
-    // user tests start after the backslash
+
+    // user tests start after the first backslash
+    // Twipply's tests start after the second backslash
 
     #define EXPAND_AS_TEST_CONTAINER(_fen, d1, d2, d3, d4, d5, d6) { \
         .fen = _fen, \
