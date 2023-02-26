@@ -7,11 +7,10 @@
 // all values are for black, becuase my scheme is flipped
 
 typedef uint8_t Phase_t;
-typedef struct {
-    Centipawns_t mgTable[6][NUM_SQUARES];
-    Centipawns_t egTable[6][NUM_SQUARES];
-    Phase_t phaseTable[6];
-} PstStorage_T;
+enum {
+    mg_phase,
+    eg_phase
+};
 
 #define PAWN_MG_PST { \
     0,  0,  0,  0,  0,  0,  0,  0, \
