@@ -10,9 +10,9 @@
 #include "zobrist.h"
 #include "FEN.h"
 
-void Bench(int argc, char** argv) {
+bool Bench(int argc, char** argv) {
     if(argc != 2 || strcmp(argv[1], "bench")) {
-        return;
+        return true; // keep running
     }
 
     FEN_t fenList[] = { PERFT_TEST_TABLE(EXPAND_AS_FEN_ARRAY) };
@@ -30,4 +30,6 @@ void Bench(int argc, char** argv) {
 
     Milliseconds_t msec = ElapsedTime(&stopwatch);
     printf("%lld nodes %lld nps\n", nodeCount, (nodeCount * msec_per_sec) / msec);
+
+    return false;
 }
