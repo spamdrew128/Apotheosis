@@ -39,8 +39,4 @@ static void ShouldFindM2() {
 
 void BasicTestsRunner() {
     ShouldFindM2();
-
-    // FEN_t fen = "r1bqkb1r/pppppppp/2n2n2/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    // InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
-    // ScoreOfPosition(&boardInfo);
 }
