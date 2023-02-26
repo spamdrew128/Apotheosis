@@ -16,12 +16,18 @@
 #include "perft_table.h"
 #include "zobrist_tdd.h"
 #include "endings_tdd.h"
+#include "UCI.h"
+#include "basic_tests.h"
+#include "PV_table_tdd.h"
+#include "random_crashes.h"
 
 int main(int argc, char** argv)
 {
-    InitLookup();
+    setvbuf(stdout, NULL, _IONBF, 0);
+
+    InitLookupTables();
     GenerateZobristKeys();
-    
+
     LookupTDDRunner();
     BitboardsTDDRunner();
     BoardInfoTDDRunner();
@@ -36,9 +42,25 @@ int main(int argc, char** argv)
     ZobristTDDRunner();
     EndingsTDDRunner();
 
+    // ENGINE TESTS
+    BasicTestsRunner();
+    PvTableTDDRunner();
+
+    // RANDOM CRASHES
+    RandomCrashTestRunner(false);
+
+    printf("\n");
+
     SpeedTest(START_FEN, 6, false);
 
-    FEN_t fen = "8/8/8/3p4/4pn1N/6p1/8/5K1k w - - 10 73";
-    PERFTRunner(fen, 8, false);
+    FEN_t fen = "4k3/8/8/1rpP2K1/8/8/8/8 w - c6 0 1";
+    PERFTRunner(fen, 1, false);
     RunAllPerftTests(false);
+    
+    UciApplicationData_t uciApplicationData;
+    bool running = false;
+    while(running)
+    {
+        running = InterpretUCIInput(&uciApplicationData);
+    }
 }

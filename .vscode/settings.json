@@ -26,7 +26,15 @@
         "perft_table_entries.h": "c",
         "zobrist.h": "c",
         "rng.h": "c",
-        "zobrist_tdd.h": "c"
+        "zobrist_tdd.h": "c",
+        "stdint.h": "c",
+        "endings.h": "c",
+        "basic_tests.h": "c",
+        "search.h": "c",
+        "corecrt_search.h": "c",
+        "limits.h": "c",
+        "chess_search.h": "c",
+        "random": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",
