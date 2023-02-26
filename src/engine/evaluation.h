@@ -19,11 +19,11 @@ enum {
 };
 
 enum {
-  knight_value = 300,
-  bishop_value = 320,
+  knight_value = 310,
+  bishop_value = 330,
   rook_value = 500,
   queen_value = 900,
-  pawn_value = 100
+  pawn_value = 100,
 };
 
 EvalScore_t ScoreOfPosition(BoardInfo_t* boardInfo);

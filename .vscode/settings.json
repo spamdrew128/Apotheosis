@@ -34,7 +34,13 @@
         "corecrt_search.h": "c",
         "limits.h": "c",
         "chess_search.h": "c",
-        "random": "c"
+        "random": "c",
+        "system_error": "c",
+        "array": "c",
+        "functional": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",
