@@ -16,8 +16,14 @@ enum {
     time_fraction = 25,
     timer_check_freq = 1024,
 
+    MATE_THRESHOLD = EVAL_MAX - 100,
+
     DEPTH_MAX = PLY_MAX
 };
+
+#define MATING "mate "
+#define MATED "mate -"
+#define NO_MATE "cp "
 
 typedef struct {
     bool outOfTime;
@@ -196,6 +202,39 @@ static void SetupGlobalTimer(UciSearchInfo_t uciSearchInfo, BoardInfo_t* boardIn
     TimerInit(&globalTimer, timeToUse - overhead_msec);
 }
 
+static void PrintUciInformation(
+    SearchInfo_t searchInfo,
+    SearchResults_t searchResults,
+    Depth_t currentDepth,
+    Stopwatch_t* stopwatch
+)
+{
+    const char* scoreType = NO_MATE;
+    EvalScore_t scoreValue = searchResults.score;
+
+    if(searchResults.score > MATE_THRESHOLD) {
+        scoreType = MATING;
+        Ply_t ply = EVAL_MAX - searchResults.score;
+        scoreValue = (ply + 1)/2;
+
+    } else if(searchResults.score < -MATE_THRESHOLD) {
+        scoreType = MATED;
+        Ply_t ply = EVAL_MAX + searchResults.score;
+        scoreValue = (ply + 1)/2;
+    }
+
+    SendUciInfoString(
+        "score %s%d depth %d nodes %lld time %lld",
+        scoreType,
+        scoreValue,
+        currentDepth,
+        (long long)searchInfo.nodeCount,
+        (long long)ElapsedTime(stopwatch)
+    );
+
+    SendPvInfo(&searchInfo.pvTable, currentDepth);
+}
+
 SearchResults_t Search(
     UciSearchInfo_t uciSearchInfo,
     BoardInfo_t* boardInfo,
@@ -232,15 +271,7 @@ SearchResults_t Search(
             searchResults.score = score;
 
             if(printUciInfo) {
-                SendUciInfoString(
-                    "score cp %d depth %d nodes %lld time %lld",
-                    searchResults.score,
-                    currentDepth,
-                    (long long)searchInfo.nodeCount,
-                    (long long)ElapsedTime(&stopwatch)
-                );
-                SendPvInfo(&searchInfo.pvTable, currentDepth);
-                // removed NPS uci because it breaks cutechess for some reason
+                PrintUciInformation(searchInfo, searchResults, currentDepth, &stopwatch);
             }
         }
 
