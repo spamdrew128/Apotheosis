@@ -14,8 +14,8 @@ static void MaterialAndPST(
     Piece_t piece,
     Centipawns_t value,
     Phase_t* gamePhase,
-    Centipawns_t mgTotal[],
-    Centipawns_t egTotal[]
+    Centipawns_t* mgScore,
+    Centipawns_t* egScore
 )
 {
     Bitboard_t whitePieces = infoField[white];
@@ -23,44 +23,43 @@ static void MaterialAndPST(
 
     while(whitePieces) {
         Square_t sq = LSB(whitePieces);
-        mgTotal[white] += value + midgamePST[piece][MIRROR(sq)];
-        egTotal[white] += value + endgamePST[piece][MIRROR(sq)];
+        *mgScore += value + midgamePST[piece][MIRROR(sq)];
+        *egScore += value + endgamePST[piece][MIRROR(sq)];
         *gamePhase += gamePhaseLookup[piece];
         ResetLSB(&whitePieces);
     }
     while(blackPieces) {
         Square_t sq = LSB(blackPieces);
-        mgTotal[black] += value + midgamePST[piece][sq];
-        egTotal[black] += value + endgamePST[piece][sq];
+        *mgScore -= value + midgamePST[piece][sq];
+        *egScore -= value + endgamePST[piece][sq];
         *gamePhase += gamePhaseLookup[piece];
         ResetLSB(&blackPieces);
     }
 }
 
-static void AddKingPSTBonus(BoardInfo_t* boardInfo, Centipawns_t mgTotal[], Centipawns_t egTotal[]) {
+static void AddKingPSTBonus(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* egScore) {
     Square_t whiteKing = MIRROR(KingSquare(boardInfo, white));
     Square_t blackKing = KingSquare(boardInfo, black);
 
-    mgTotal[white] += midgamePST[king][whiteKing];
-    egTotal[white] += endgamePST[king][whiteKing];
-    mgTotal[black] += midgamePST[king][blackKing];
-    egTotal[black] += endgamePST[king][blackKing];
+    *mgScore += midgamePST[king][whiteKing];
+    *egScore += endgamePST[king][whiteKing];
+
+    *mgScore -= midgamePST[king][blackKing];
+    *egScore -= endgamePST[king][blackKing];
 }
 
 static Centipawns_t MaterialBalanceAndPSTBonus(BoardInfo_t* boardInfo) {
-    Centipawns_t mgTotal[] = { 0, 0 };
-    Centipawns_t egTotal[] = { 0, 0 };
+    Centipawns_t mgScore = 0;
+    Centipawns_t egScore = 0;
     Phase_t gamePhase = 0;
 
-    MaterialAndPST(boardInfo->knights, knight, knight_value, &gamePhase, mgTotal, egTotal);
-    MaterialAndPST(boardInfo->bishops, bishop, bishop_value, &gamePhase, mgTotal, egTotal);
-    MaterialAndPST(boardInfo->rooks, rook, rook_value, &gamePhase, mgTotal, egTotal);
-    MaterialAndPST(boardInfo->queens, queen, queen_value, &gamePhase, mgTotal, egTotal);
-    MaterialAndPST(boardInfo->pawns, pawn, pawn_value, &gamePhase, mgTotal, egTotal);
-    AddKingPSTBonus(boardInfo, mgTotal, egTotal);
+    MaterialAndPST(boardInfo->knights, knight, knight_value, &gamePhase, &mgScore, &egScore);
+    MaterialAndPST(boardInfo->bishops, bishop, bishop_value, &gamePhase, &mgScore, &egScore);
+    MaterialAndPST(boardInfo->rooks, rook, rook_value, &gamePhase, &mgScore, &egScore);
+    MaterialAndPST(boardInfo->queens, queen, queen_value, &gamePhase, &mgScore, &egScore);
+    MaterialAndPST(boardInfo->pawns, pawn, pawn_value, &gamePhase, &mgScore, &egScore);
+    AddKingPSTBonus(boardInfo, &mgScore, &egScore);
 
-    Centipawns_t mgScore = mgTotal[white] - mgTotal[black];
-    Centipawns_t egScore = egTotal[white] - egTotal[black];
     Phase_t mgPhase = (gamePhase < PHASE_MAX) ? gamePhase : PHASE_MAX;
     Phase_t egPhase = PHASE_MAX - mgPhase;
     return (mgScore * mgPhase + egScore * egPhase) / PHASE_MAX; // weighted average
