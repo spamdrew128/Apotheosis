@@ -53,8 +53,8 @@ int main(int argc, char** argv)
 
     SpeedTest(START_FEN, 6, false);
 
-    FEN_t fen = "4q3/5p2/2p1k3/2P1P2K/7P/8/8/8 b - - 0 1";
-    PERFTRunner(fen, 4, false);
+    FEN_t fen = "4k3/8/8/1rpP2K1/8/8/8/8 w - c6 0 1";
+    PERFTRunner(fen, 1, true);
     RunAllPerftTests(false);
     
     UciApplicationData_t uciApplicationData;
