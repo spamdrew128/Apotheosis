@@ -19,10 +19,9 @@ int main(int argc, char** argv)
     InitLookupTables();
     GenerateZobristKeys();
 
-    Bench(argc, argv);
+    bool running = Bench(argc, argv);
 
     UciApplicationData_t uciApplicationData;
-    bool running = true;
     while(running)
     {
         running = InterpretUCIInput(&uciApplicationData);
