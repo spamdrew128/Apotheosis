@@ -5,8 +5,8 @@
 typedef uint8_t PieceCount_t;
 typedef int32_t Centipawns_t;
 
-static Centipawns_t midgamePST[6][NUM_SQUARES] = { PAWN_MG_PST, KNIGHT_MG_PST, BISHOP_MG_PST, ROOK_MG_PST, QUEEN_MG_PST, KING_MG_PST };
-static Centipawns_t endgamePST[6][NUM_SQUARES] = { PAWN_EG_PST, KNIGHT_EG_PST, BISHOP_EG_PST, ROOK_EG_PST, QUEEN_EG_PST, KING_EG_PST };
+static Centipawns_t midgamePST[6][NUM_SQUARES] = { KNIGHT_MG_PST, BISHOP_MG_PST, ROOK_MG_PST, QUEEN_MG_PST, PAWN_MG_PST, KING_MG_PST };
+static Centipawns_t endgamePST[6][NUM_SQUARES] = { KNIGHT_EG_PST, BISHOP_EG_PST, ROOK_EG_PST, QUEEN_EG_PST, PAWN_EG_PST, KING_EG_PST };
 static Phase_t gamePhaseLookup[6] = GAMEPHASE_VALUES;
 
 static void MaterialAndPST(
@@ -22,9 +22,9 @@ static void MaterialAndPST(
     Bitboard_t blackPieces = infoField[black];
 
     while(whitePieces) {
-        Square_t sq = LSB(whitePieces);
-        *mgScore += value + midgamePST[piece][MIRROR(sq)];
-        *egScore += value + endgamePST[piece][MIRROR(sq)];
+        Square_t sq = MIRROR(LSB(whitePieces));
+        *mgScore += value + midgamePST[piece][sq];
+        *egScore += value + endgamePST[piece][sq];
         *gamePhase += gamePhaseLookup[piece];
         ResetLSB(&whitePieces);
     }
