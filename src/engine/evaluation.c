@@ -1,4 +1,5 @@
 #include "evaluation.h"
+#include "PST.h"
 
 typedef uint8_t PieceCount_t;
 typedef int32_t Centipawns_t;

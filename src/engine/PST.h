@@ -1,8 +1,17 @@
 #ifndef __PST_H__
 #define __PST_H__
 
+#include <stdint.h>
+
 // inspired by https://www.chessprogramming.org/Simplified_Evaluation_Function
 // all values are for black, becuase my scheme is flipped
+
+typedef uint8_t Phase_t;
+typedef struct {
+    Centipawns_t mgTable[6][NUM_SQUARES];
+    Centipawns_t egTable[6][NUM_SQUARES];
+    Phase_t phaseTable[6];
+} PstStorage_T;
 
 #define PAWN_MG_PST { \
     0,  0,  0,  0,  0,  0,  0,  0, \
