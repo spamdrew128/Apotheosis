@@ -2,6 +2,7 @@
 #include <assert.h>
 
 #include "FEN.h"
+#include "movegen.h"
 
 static double usr_pow(int x, int y) {
     double result = 1;
@@ -68,20 +69,18 @@ static Bitboard_t SquareCharsToBitboard(char col, char row) {
     return CalculateSingleBitset(square);
 }
 
-// will break if double en passant is possible. Ultra edge case and I am lazy.
-static void UpdateEnPassant(FEN_t fen, int* i, GameState_t* state, Color_t color) { 
+static void UpdateEnPassant(FEN_t fen, BoardInfo_t* info,  int* i, GameState_t* state, Color_t color) { 
     if(fen[*i] == '-') {
         (*i)++;
     } else {
         state->enPassantSquare = SquareCharsToBitboard(fen[*i], fen[*i + 1]);
         
-        Bitboard_t eastPawn = (color == white) ? SoWeOne(state->enPassantSquare) : NoWeOne(state->enPassantSquare);
+        Bitboard_t capturablePawnLocation = (color == white) ? SoutOne(state->enPassantSquare) : NortOne(state->enPassantSquare);
+        Bitboard_t eastAdjPawn = info->pawns[color] & EastOne(capturablePawnLocation);
+        Bitboard_t westAdjPawn = info->pawns[color] & WestOne(capturablePawnLocation);
 
-        if(eastPawn) {
-            state->canEastEP = true;
-        } else {
-            state->canWestEP = true;
-        }
+        state->canWestEP = eastAdjPawn && EnPassantIsLegal(info, state->enPassantSquare, eastAdjPawn, color);
+        state->canEastEP = westAdjPawn && EnPassantIsLegal(info, state->enPassantSquare, westAdjPawn, color);
 
         (*i) += 2;
     }
@@ -216,7 +215,7 @@ void InterpretFEN(
     }
 
     i++;
-    UpdateEnPassant(fen, &i, gameState, info->colorToMove);
+    UpdateEnPassant(fen, info, &i, gameState, info->colorToMove);
 
     i++;
     UpdateHalfmoveClock(fen, i, gameState);
