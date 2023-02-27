@@ -19,3 +19,6 @@ Linux:
 MacOS:
 
 Bro I have no idea, you're on your own
+
+# UCI
+This is not a complete chess program, you need a UCI compatible program to run it.
