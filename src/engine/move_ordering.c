@@ -10,7 +10,7 @@ static EvalScore_t MVVScore(BoardInfo_t* boardInfo, Move_t capture) {
     Piece_t victim = PieceOnSquare(boardInfo, toSquare);
     Piece_t attacker = PieceOnSquare(boardInfo, fromSquare);
     
-    assert(victim != none_type);
+    assert(victim != none_type || ReadSpecialFlag(capture) == en_passant_flag);
 
     return ValueOfPiece(victim) - ValueOfPiece(attacker);
 }
