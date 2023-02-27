@@ -120,7 +120,7 @@ $(COMMON_OBJECTS) \
 $(TDD_ROOT)/debug.o \
 $(TDD)/bitboards_tdd.o \
 $(TDD)/board_info_tdd.o \
-$(TDD)/lookup_tdd.o /cls
+$(TDD)/lookup_tdd.o \
 $(TDD)/FEN_tdd.o \
 $(TDD)/pieces_tdd.o \
 $(TDD)/magic_tdd.o \
