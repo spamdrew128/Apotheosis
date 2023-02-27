@@ -5,7 +5,7 @@ BENCH=bench
 BITBOARDS=$(SRC)/bitboards
 ENDINGS=$(SRC)/endings
 ENGINE=$(SRC)/engine
-FEN=$(SRC)/fen
+FEN=$(SRC)/FEN
 LOOKUP=$(SRC)/lookup
 MOVEGEN=$(SRC)/movegen
 PLAY=$(SRC)/play
@@ -44,7 +44,8 @@ INCDIRS:= \
 
 DEBUGFLAGS=-g
 OPTFLAGS=-O3 -flto
-CFLAGS=-Wall -std=c17 -march=native $(OPTFLAGS) $(INCDIRS) 
+CFLAGS=-Wall -std=c17 -march=native $(OPTFLAGS)
+CPPFLAGS=$(INCDIRS) 
 
 COMMON_CFILES= \
 $(BITBOARDS)/bitboards.c \
@@ -53,6 +54,7 @@ $(ENDINGS)/endings.c \
 $(ENGINE)/chess_search.c \
 $(ENGINE)/evaluation.c \
 $(ENGINE)/PV_table.c \
+$(ENGINE)/move_ordering.c \
 $(FEN)/FEN.c \
 $(LOOKUP)/lookup.c \
 $(PLAY)/move.c \
@@ -67,26 +69,7 @@ $(MOVEGEN)/pieces.c \
 $(UCI)/UCI.c \
 $(ZOBRIST)/zobrist.c
 
-COMMON_OBJECTS= \
-$(BITBOARDS)/bitboards.o \
-$(BITBOARDS)/magic.o \
-$(ENDINGS)/endings.o \
-$(ENGINE)/chess_search.o \
-$(ENGINE)/evaluation.o \
-$(ENGINE)/PV_table.o \
-$(FEN)/FEN.o \
-$(LOOKUP)/lookup.o \
-$(PLAY)/move.o \
-$(PLAY)/make_and_unmake.o \
-$(RNG)/RNG.o \
-$(STATE)/board_info.o \
-$(STATE)/game_state.o \
-$(TIMER)/timer.o \
-$(MOVEGEN)/legals.o \
-$(MOVEGEN)/movegen.o \
-$(MOVEGEN)/pieces.o \
-$(UCI)/UCI.o \
-$(ZOBRIST)/zobrist.o
+COMMON_OBJECTS=$(COMMON_CFILES:%.c=%.o)
 
 CFILES=$(MAIN).c $(BENCH).c $(COMMON_CFILES)
 OBJECTS=$(MAIN).o $(BENCH).o $(COMMON_OBJECTS)
@@ -112,30 +95,10 @@ $(TDD)/endings_tdd.c \
 \
 $(ENGINE_TDD)/basic_tests.c \
 $(ENGINE_TDD)/PV_table_tdd.c \
-$(ENGINE_TDD)/random_crashes.c
+$(ENGINE_TDD)/random_crashes.c \
+$(ENGINE_TDD)/move_ordering_tdd.c
 
-D_OBJECTS= \
-$(TDD_MAIN).o \
-$(COMMON_OBJECTS) \
-$(TDD_ROOT)/debug.o \
-$(TDD)/bitboards_tdd.o \
-$(TDD)/board_info_tdd.o \
-$(TDD)/lookup_tdd.o /cls
-$(TDD)/FEN_tdd.o \
-$(TDD)/pieces_tdd.o \
-$(TDD)/magic_tdd.o \
-$(TDD)/legals_tdd.o \
-$(TDD)/movegen_tdd.o \
-$(TDD)/game_state_tdd.o \
-$(TDD)/make_and_unmake_tdd.o \
-$(TDD)/recursive_testing.o \
-$(TDD)/perft_table.o \
-$(TDD)/zobrist_tdd.o \
-$(TDD)/endings_tdd.o \
-\
-$(ENGINE_TDD)/basic_tests.o \
-$(ENGINE_TDD)/PV_table_tdd.o \
-$(ENGINE_TDD)/random_crashes.o
+D_OBJECTS=$(D_CFILES:%.c=%.o)
 
 EXE=bin
 DEBUG_EXE=debug
@@ -143,7 +106,7 @@ DEBUG_EXE=debug
 all: $(EXE) $(DEBUG_EXE)
 
 test: $(DEBUG_EXE)
-	$(DEBUG_EXE).exe
+	$(DEBUG_EXE)
 
 $(EXE): $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^
@@ -152,7 +115,7 @@ $(DEBUG_EXE): $(D_OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $^
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $^
 
 clean:
 	rm -rf $(EXE) $(DEBUG_EXE) *.o
