@@ -1,7 +1,7 @@
 #include "evaluation.h"
 #include "PST.h"
 #include "util_macros.h"
-#include "assert.h"
+#include <assert.h>
 
 typedef uint8_t PieceCount_t;
 
