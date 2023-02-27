@@ -8,6 +8,7 @@
 #include "board_info.h"
 #include "movegen.h"
 #include "game_state.h"
+#include "assert.h"
 
 #define PrintResults(success) \
     if(success) {printf(".");} else {printf("\n%s Failure\n", __func__);}
