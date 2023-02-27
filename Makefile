@@ -44,7 +44,7 @@ INCDIRS:= \
 
 DEBUGFLAGS=-g
 OPTFLAGS=-O3 -flto
-CFLAGS=-Wall -std=c17 -march=native $(OPTFLAGS) $(INCDIRS) 
+CFLAGS=-Wall -std=c17 -march=native $(DEBUGFLAGS) $(INCDIRS) 
 
 COMMON_CFILES= \
 $(BITBOARDS)\bitboards.c \
@@ -53,6 +53,7 @@ $(ENDINGS)\endings.c \
 $(ENGINE)\chess_search.c \
 $(ENGINE)\evaluation.c \
 $(ENGINE)\PV_table.c \
+$(ENGINE)\move_ordering.c \
 $(FEN)\FEN.c \
 $(LOOKUP)\lookup.c \
 $(PLAY)\move.c \
@@ -74,6 +75,7 @@ $(ENDINGS)\endings.o \
 $(ENGINE)\chess_search.o \
 $(ENGINE)\evaluation.o \
 $(ENGINE)\PV_table.o \
+$(ENGINE)\move_ordering.o \
 $(FEN)\FEN.o \
 $(LOOKUP)\lookup.o \
 $(PLAY)\move.o \
@@ -112,7 +114,8 @@ $(TDD)\endings_tdd.c \
 \
 $(ENGINE_TDD)\basic_tests.c \
 $(ENGINE_TDD)\PV_table_tdd.c \
-$(ENGINE_TDD)\random_crashes.c
+$(ENGINE_TDD)\random_crashes.c \
+$(ENGINE_TDD)\move_ordering_tdd.c
 
 D_OBJECTS= \
 $(TDD_MAIN).o \
@@ -135,7 +138,8 @@ $(TDD)\endings_tdd.o \
 \
 $(ENGINE_TDD)\basic_tests.o \
 $(ENGINE_TDD)\PV_table_tdd.o \
-$(ENGINE_TDD)\random_crashes.o
+$(ENGINE_TDD)\random_crashes.o \
+$(ENGINE_TDD)\move_ordering_tdd.o
 
 EXE=bin
 DEBUG_EXE=debug
