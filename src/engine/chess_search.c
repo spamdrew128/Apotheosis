@@ -10,6 +10,7 @@
 #include "UCI.h"
 #include "timer.h"
 #include "PV_table.h"
+#include "move_ordering.h"
 
 enum {
     overhead_msec = 10,
@@ -87,6 +88,8 @@ static EvalScore_t QSearch(
         alpha = standPat;
     }
 
+    SortMoveList(&moveList, boardInfo);
+
     EvalScore_t bestScore = standPat;
     for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
         searchInfo->nodeCount++;
@@ -149,8 +152,9 @@ static EvalScore_t Negamax(
         return QSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, ply+1);
     }
 
+    SortMoveList(&moveList, boardInfo);
+
     EvalScore_t bestScore = -EVAL_MAX;
-    
     for(int i = 0; i <= moveList.maxIndex; i++) {
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);

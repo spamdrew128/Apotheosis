@@ -1,13 +1,21 @@
 #include "evaluation.h"
 #include "PST.h"
 #include "util_macros.h"
+#include <assert.h>
 
 typedef uint8_t PieceCount_t;
-typedef int32_t Centipawns_t;
+
+// eventually I'll have different piece values for midgame and endgame.
+// also I needed to make none_type worth as much as a pawn so I don't need an edge case for en_passant. Really hacky but it works lol.
+static Centipawns_t pieceValues[7] = { knight_value, bishop_value, rook_value, queen_value, pawn_value, king_value, pawn_value };
 
 static Centipawns_t midgamePST[6][NUM_SQUARES] = { KNIGHT_MG_PST, BISHOP_MG_PST, ROOK_MG_PST, QUEEN_MG_PST, PAWN_MG_PST, KING_MG_PST };
 static Centipawns_t endgamePST[6][NUM_SQUARES] = { KNIGHT_EG_PST, BISHOP_EG_PST, ROOK_EG_PST, QUEEN_EG_PST, PAWN_EG_PST, KING_EG_PST };
 static Phase_t gamePhaseLookup[6] = GAMEPHASE_VALUES;
+
+Centipawns_t ValueOfPiece(Piece_t piece) {
+    return pieceValues[piece];
+}
 
 static void MaterialAndPST(
     Bitboard_t infoField[2],
