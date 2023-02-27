@@ -20,6 +20,7 @@
 #include "basic_tests.h"
 #include "PV_table_tdd.h"
 #include "random_crashes.h"
+#include "move_ordering_tdd.h"
 
 int main(int argc, char** argv)
 {
@@ -45,6 +46,7 @@ int main(int argc, char** argv)
     // ENGINE TESTS
     BasicTestsRunner();
     PvTableTDDRunner();
+    MoveOrderingTDDRunner();
 
     // RANDOM CRASHES
     RandomCrashTestRunner(false);
