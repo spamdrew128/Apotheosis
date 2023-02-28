@@ -383,7 +383,9 @@ bool InterpretUCIInput(UciApplicationData_t* applicationData)
 {
     char input[BUFFER_SIZE];
     memset(input, '\0', BUFFER_SIZE* sizeof(char));
-    fgets(input, BUFFER_SIZE, stdin);
+    if(fgets(input, BUFFER_SIZE, stdin) == NULL) {
+        return true;
+    }
 
     char currentWord[BUFFER_SIZE];
 
