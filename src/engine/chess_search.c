@@ -137,6 +137,10 @@ static EvalScore_t Negamax(
 
     PvLengthInit(&searchInfo->pvTable, ply);
 
+    if(depth == 0) {
+        return QSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, ply);
+    }
+
     MoveList_t moveList;
     CompleteMovegen(&moveList, boardInfo, gameStack);
 
@@ -146,10 +150,6 @@ static EvalScore_t Negamax(
             return -EVAL_MAX + ply;
         case draw:
             return 0;
-    }
-
-    if(depth == 0) {
-        return QSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, ply+1);
     }
 
     SortMoveList(&moveList, boardInfo);
