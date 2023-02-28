@@ -1,9 +1,13 @@
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 200809L
+#endif
+#include <time.h>
+
 #include <stdbool.h>
 #include <stdint.h>
-#include <time.h>
 
 #include "time_constants.h"
 

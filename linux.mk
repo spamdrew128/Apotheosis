@@ -109,4 +109,4 @@ $(DEBUG_EXE): $(D_OBJECTS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $^
 
 clean:
-	rm -rf $(EXE) $(DEBUG_EXE) *.o
+	rm $(EXE) $(DEBUG_EXE) $(OBJECTS) $(D_OBJECTS) 
