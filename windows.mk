@@ -1,7 +1,3 @@
-CC=gcc
-
-SRC=src
-BENCH=bench
 BITBOARDS=$(SRC)\bitboards
 ENDINGS=$(SRC)\endings
 ENGINE=$(SRC)\engine
@@ -41,11 +37,6 @@ INCDIRS:= \
 -I $(TDD_ROOT)\. \
 -I $(TDD)\. \
 -I $(ENGINE_TDD)\. 
-
-DEBUGFLAGS=-g
-OPTFLAGS=-O3 -flto
-CFLAGS=-Wall -std=c17 -march=native $(OPTFLAGS)
-CPPFLAGS=$(INCDIRS) 
 
 COMMON_CFILES= \
 $(BITBOARDS)\bitboards.c \
