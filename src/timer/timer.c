@@ -8,10 +8,13 @@ static Milliseconds_t ClockRead() {
     ftime(&tp);
     return ((Milliseconds_t)tp.time * msec_per_sec + tp.millitm);
 #else
-    struct timespec tp;
+    // struct timespec tp;
 
-    clock_gettime(CLOCK_REALTIME, &tp);
-    return ((Milliseconds_t)tp.tv_sec * msec_per_sec + tp.tv_nsec / nsec_per_msec);
+    // clock_gettime(CLOCK_REALTIME, &tp);
+    // return ((Milliseconds_t)tp.tv_sec * msec_per_sec + tp.tv_nsec / nsec_per_msec);
+
+    // I could not get the above implementation to work so ill use this for now
+    return (clock() * msec_per_sec) / CLOCKS_PER_SEC;
 #endif
 }
 
