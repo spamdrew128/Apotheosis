@@ -85,6 +85,8 @@ static Bitboard_t AttackedSquares(BoardInfo_t* boardInfo, Bitboard_t empty, Colo
         attackedSquares |= QueenAttacks(sq, empty);
         ResetLSB(&queens);
     }
+
+    return attackedSquares;
 }
 
 Bitboard_t UnsafeSquares(BoardInfo_t* boardInfo, Color_t color) {
