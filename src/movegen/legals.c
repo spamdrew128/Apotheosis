@@ -43,59 +43,56 @@ static bool QueensideCastlingIsSafe(Color_t color, Bitboard_t unsafeSquares, Bit
         (qscBlockableSquares[color] & ~empty));
 }
 
-static Bitboard_t KnightAttacks(Square_t square, Bitboard_t empty) {
-    (void)empty;
-    return GetKnightAttackSet(square);
-}
-
 static Bitboard_t QueenAttacks(Square_t square, Bitboard_t empty) {
     return GetRookAttackSet(square, empty) | GetBishopAttackSet(square, empty);
 }
 
-static Bitboard_t GetAllAttacks(Bitboard_t pieceLocations, Bitboard_t empty, GetAttacksCallback_t GetAttacksCallback) {
-    Bitboard_t result = empty_set;
-    while(pieceLocations) {
-        SetBits(&result, GetAttacksCallback(LSB(pieceLocations), empty));
-        ResetLSB(&pieceLocations);
+Bitboard_t AttackedSquares(BoardInfo_t* boardInfo, Bitboard_t empty, Color_t color) {
+    Bitboard_t attackedSquares = GetKingAttackSet(KingSquare(boardInfo, color));
+
+    if(color == white) {
+        attackedSquares |= 
+            NoEaOne(boardInfo->pawns[white]) | 
+            NoWeOne(boardInfo->pawns[white]);
+    } else {
+        attackedSquares |= 
+            SoEaOne(boardInfo->pawns[black]) |
+            SoWeOne(boardInfo->pawns[black]);
     }
 
-    return result;
-}
+    Bitboard_t knights = boardInfo->knights[color];
+    Bitboard_t bishops = boardInfo->bishops[color];
+    Bitboard_t rooks = boardInfo->rooks[color];
+    Bitboard_t queens = boardInfo->queens[color];
 
-static Bitboard_t NonPawnUnsafeSquares(BoardInfo_t* boardInfo, Color_t enemyColor) {
-    Bitboard_t empty = boardInfo->empty | (boardInfo->kings[!enemyColor]); // king does not count as blocker!
+    while(knights) {
+        Square_t sq = LSB(knights);
+        attackedSquares |= GetKnightAttackSet(sq);
+        ResetLSB(&knights);
+    }
+    while(bishops) {
+        Square_t sq = LSB(bishops);
+        attackedSquares |= GetBishopAttackSet(sq, empty);
+        ResetLSB(&bishops);
+    }
+    while(rooks) {
+        Square_t sq = LSB(rooks);
+        attackedSquares |= GetRookAttackSet(sq, empty);
+        ResetLSB(&rooks);
+    }
+    while(queens) {
+        Square_t sq = LSB(queens);
+        attackedSquares |= QueenAttacks(sq, empty);
+        ResetLSB(&queens);
+    }
 
-    return (
-        GetKingAttackSet(LSB(boardInfo->kings[enemyColor])) |
-        GetAllAttacks(boardInfo->knights[enemyColor], empty, KnightAttacks) |
-        GetAllAttacks(boardInfo->rooks[enemyColor], empty, GetRookAttackSet) |
-        GetAllAttacks(boardInfo->bishops[enemyColor], empty, GetBishopAttackSet) |
-        GetAllAttacks(boardInfo->queens[enemyColor], empty, QueenAttacks)
-    );
-}
-
-static Bitboard_t WhiteUnsafeSquares(BoardInfo_t* boardInfo) {
-    return (
-        SoEaOne(boardInfo->pawns[black]) |
-        SoWeOne(boardInfo->pawns[black]) |
-        NonPawnUnsafeSquares(boardInfo, black)
-    );
-}
-
-static Bitboard_t BlackUnsafeSquares(BoardInfo_t* boardInfo) {
-    return (
-        NoEaOne(boardInfo->pawns[white]) |
-        NoWeOne(boardInfo->pawns[white]) |
-        NonPawnUnsafeSquares(boardInfo, white)
-    );
+    return attackedSquares;
 }
 
 Bitboard_t UnsafeSquares(BoardInfo_t* boardInfo, Color_t color) {
-    if(color == white) {
-        return WhiteUnsafeSquares(boardInfo);
-    } else {
-        return BlackUnsafeSquares(boardInfo);
-    }
+    // king does not count as blocker in this case!
+    Bitboard_t empty = boardInfo->empty | (boardInfo->kings[color]); 
+    return AttackedSquares(boardInfo, empty, !color);
 }
 
 Bitboard_t KingLegalMoves(Bitboard_t kingMoves, Bitboard_t unsafeSquares) {

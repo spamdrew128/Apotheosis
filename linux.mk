@@ -1,3 +1,7 @@
+SRC=src
+BENCH=bench
+TDD_ROOT=tdd
+
 BITBOARDS=$(SRC)/bitboards
 ENDINGS=$(SRC)/endings
 ENGINE=$(SRC)/engine
@@ -11,7 +15,6 @@ TIMER=$(SRC)/timer
 UCI=$(SRC)/UCI
 ZOBRIST=$(SRC)/zobrist
 
-TDD_ROOT=tdd
 TDD=$(TDD_ROOT)/tests
 ENGINE_TDD=$(TDD_ROOT)/engine_tests
 

@@ -1,9 +1,13 @@
+#include <assert.h>
+
 #include "evaluation.h"
 #include "PST.h"
 #include "util_macros.h"
-#include <assert.h>
+#include "legals.h"
 
-typedef uint8_t PieceCount_t;
+enum {
+    mobility_weight = 5
+};
 
 // eventually I'll have different piece values for midgame and endgame.
 // also I needed to make none_type worth as much as a pawn so I don't need an edge case for en_passant. Really hacky but it works lol.
@@ -73,8 +77,18 @@ static Centipawns_t MaterialBalanceAndPSTBonus(BoardInfo_t* boardInfo) {
     return (mgScore * mgPhase + egScore * egPhase) / PHASE_MAX; // weighted average
 }
 
+static Centipawns_t MobilityEval(BoardInfo_t* boardInfo) {
+    Bitboard_t empty = boardInfo->empty;
+    Bitboard_t whitePseudolegals = AttackedSquares(boardInfo, empty, white) & ~boardInfo->allPieces[white];
+    Bitboard_t blackPseudolegals = AttackedSquares(boardInfo, empty, black) & ~boardInfo->allPieces[black];
+
+    return (PopCount(whitePseudolegals) - PopCount(blackPseudolegals)) * mobility_weight;
+}
+
 EvalScore_t ScoreOfPosition(BoardInfo_t* boardInfo) {
-    EvalScore_t eval = MaterialBalanceAndPSTBonus(boardInfo);
+    EvalScore_t eval = 0;
+    eval += MaterialBalanceAndPSTBonus(boardInfo);
+    eval += MobilityEval(boardInfo);
 
     return boardInfo->colorToMove == white ? eval : -eval;
 }
