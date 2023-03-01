@@ -47,7 +47,7 @@ static Bitboard_t QueenAttacks(Square_t square, Bitboard_t empty) {
     return GetRookAttackSet(square, empty) | GetBishopAttackSet(square, empty);
 }
 
-static Bitboard_t AttackedSquares(BoardInfo_t* boardInfo, Bitboard_t empty, Color_t color) {
+Bitboard_t AttackedSquares(BoardInfo_t* boardInfo, Bitboard_t empty, Color_t color) {
     Bitboard_t attackedSquares = GetKingAttackSet(KingSquare(boardInfo, color));
 
     if(color == white) {

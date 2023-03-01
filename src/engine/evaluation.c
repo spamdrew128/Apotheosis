@@ -1,7 +1,9 @@
+#include <assert.h>
+
 #include "evaluation.h"
 #include "PST.h"
 #include "util_macros.h"
-#include <assert.h>
+#include "legals.h"
 
 typedef uint8_t PieceCount_t;
 
