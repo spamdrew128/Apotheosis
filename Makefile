@@ -5,8 +5,14 @@ OPTFLAGS=-O3 -flto
 CFLAGS=-Wall -std=c17 -march=native $(OPTFLAGS)
 CPPFLAGS=$(INCDIRS)
 
+RELEASE=false
+
+ifeq ($(RELEASE), yes)
+	CFLAGS += -DNDEBUG
+endif
+
 ifeq ($(OS),Windows_NT)
-include windows.mk
+	include windows.mk
 else
-include linux.mk
+	include linux.mk
 endif
