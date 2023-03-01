@@ -88,7 +88,9 @@ static Bitboard_t AttackedSquares(BoardInfo_t* boardInfo, Bitboard_t empty, Colo
 }
 
 Bitboard_t UnsafeSquares(BoardInfo_t* boardInfo, Color_t color) {
-    return AttackedSquares(boardInfo, !color);
+    // king does not count as blocker in this case!
+    Bitboard_t empty = boardInfo->empty | (boardInfo->kings[color]); 
+    return AttackedSquares(boardInfo, empty, !color);
 }
 
 Bitboard_t KingLegalMoves(Bitboard_t kingMoves, Bitboard_t unsafeSquares) {
