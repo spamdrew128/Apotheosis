@@ -18,6 +18,8 @@ typedef uint64_t NodeCount_t;
 
 enum UciSearchInfoDefaults {
     overhead_default_msec = 50,
+    overhead_min_msec = 1,
+    overhead_max_msec = 128,
 };
 
 typedef struct {
@@ -50,6 +52,8 @@ NodeCount_t BenchSearch(
     ZobristStack_t* zobristStack,
     Depth_t depth
 );
+
+void UciSearchInfoTimeInfoReset(UciSearchInfo_t* uciSearchInfo);
 
 void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo);
 

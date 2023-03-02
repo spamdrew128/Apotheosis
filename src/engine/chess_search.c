@@ -317,6 +317,14 @@ NodeCount_t BenchSearch(
     return searchInfo.nodeCount;
 }
 
+void UciSearchInfoTimeInfoReset(UciSearchInfo_t* uciSearchInfo) {
+    uciSearchInfo->wTime = 0;
+    uciSearchInfo->bTime = 0;
+    uciSearchInfo->wInc = 0;
+    uciSearchInfo->bInc = 0;
+    uciSearchInfo->forceTime = 0;
+}
+
 void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {
     uciSearchInfo->wTime = 0;
     uciSearchInfo->bTime = 0;
