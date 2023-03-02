@@ -146,6 +146,12 @@ static void MoveStructToUciString(Move_t move, char* moveString, size_t bufferSi
     }
 }
 
+static void SkipToNextCharacter(char input[BUFFER_SIZE], int* i) {
+    while(input[*i] == ' ' || input[*i] == '\n') {
+        (*i)++;
+    }
+}
+
 static void GetNextWord(char input[BUFFER_SIZE], char nextWord[BUFFER_SIZE], int* i) {
     memset(nextWord, '\0', BUFFER_SIZE* sizeof(char));
 
@@ -155,16 +161,20 @@ static void GetNextWord(char input[BUFFER_SIZE], char nextWord[BUFFER_SIZE], int
         wordIndex++;
         (*i)++;
     }
+
+    SkipToNextCharacter(input, i);
+}
+
+static void SkipNextWord(char input[BUFFER_SIZE], int* i) {
+    SkipToNextCharacter(input, i);
+    while(input[*i] != '\n' && input[*i] != ' ' && input[*i] != '\0') {
+        (*i)++;
+    }
+    SkipToNextCharacter(input, i);
 }
 
 static bool StringsMatch(const char* s1, const char* s2) {
     return !strcmp(s1, s2);
-}
-
-static void SkipToNextCharacter(char input[BUFFER_SIZE], int* i) {
-    while(input[*i] == ' ' || input[*i] == '\n') {
-        (*i)++;
-    }
 }
 
 static UciSignal_t InterpretWord(const char* word) {
@@ -245,11 +255,8 @@ static void InterpretPosition(
     GetNextWord(input, command, i);
 
     if(StringsMatch(command, "startpos")) {
-        SkipToNextCharacter(input, i);
         InterpretFEN(START_FEN, boardInfo, gameStack, zobristStack);
     } else if (StringsMatch(command, "fen")) {
-        SkipToNextCharacter(input, i);
-
         while(input[*i] != 'm' && input[*i] != '\0') {
             fenString[fenStringIndex] = input[*i];
             (*i)++;
@@ -260,11 +267,7 @@ static void InterpretPosition(
         InterpretFEN(fenString, boardInfo, gameStack, zobristStack);
     }
 
-    SkipToNextCharacter(input, i);
-    while(input[*i] != ' ' && input[*i] != '\0') {
-        (*i)++; // skips past the "moves" command which I assume is there
-    }
-    SkipToNextCharacter(input, i);
+    SkipNextWord(input, i);
 
     ParseAndPlayMoves(input, i, boardInfo, gameStack, zobristStack);
 }
@@ -304,7 +307,6 @@ void InterpretGoArguements(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* sea
     char nextWord[BUFFER_SIZE];
     while(input[*i] != '\0') {
         GetNextWord(input, nextWord, i);
-        SkipToNextCharacter(input, i);
 
         if(StringsMatch(nextWord, "wtime")) {
             GetNextWord(input, nextWord, i);
@@ -364,8 +366,7 @@ static void SetOption(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* searchIn
     GetNextWord(input, nextWord, i);
 
     if(StringsMatch(nextWord, OVERHEAD)) {
-        // skips past "value"
-        GetNextWord(input, nextWord, i);
+        SkipNextWord(input, i);
 
         GetNextWord(input, nextWord, i);
         searchInfo->overhead = NumberStringToNumber(nextWord);
@@ -431,8 +432,6 @@ bool InterpretUCIInput(UciApplicationData_t* applicationData)
         GetNextWord(input, currentWord, &i);
         UciSignal_t signal = InterpretWord(currentWord);
 
-        SkipToNextCharacter(input, &i);
-
         bool keepRunning = RespondToSignal(input, &i, signal, applicationData, &searchInfo);
         if(!keepRunning) {
             return false; // quit immediately
@@ -466,8 +465,6 @@ void InterpretUCIString(
     while(i < BUFFER_SIZE && input[i] != '\0') {
         GetNextWord(input, currentWord, &i);
         UciSignal_t signal = InterpretWord(currentWord);
-
-        SkipToNextCharacter(input, &i);
 
         bool keepRunning = RespondToSignal(input, &i, signal, &data, &searchInfo);
         if(!keepRunning) {
