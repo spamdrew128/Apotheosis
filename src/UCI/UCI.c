@@ -364,9 +364,11 @@ static void SetOption(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* searchIn
     GetNextWord(input, nextWord, i);
 
     if(StringsMatch(nextWord, OVERHEAD)) {
+        // skips past "value"
+        GetNextWord(input, nextWord, i);
+
         GetNextWord(input, nextWord, i);
         searchInfo->overhead = NumberStringToNumber(nextWord);
-        
     }
 }
 
