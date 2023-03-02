@@ -13,8 +13,8 @@
 #include "move_ordering.h"
 
 enum {
-    overhead_msec = 10,
-    time_fraction = 32,
+    overhead_msec = 3,
+    time_fraction = 30,
     timer_check_freq = 1024,
 
     MATE_THRESHOLD = EVAL_MAX - 100,
