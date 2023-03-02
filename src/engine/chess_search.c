@@ -14,7 +14,7 @@
 
 enum {
     overhead_msec = 10,
-    time_fraction = 25,
+    time_fraction = 32,
     timer_check_freq = 1024,
 
     MATE_THRESHOLD = EVAL_MAX - 100,
