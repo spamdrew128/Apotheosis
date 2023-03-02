@@ -16,13 +16,17 @@ typedef uint8_t Depth_t;
 typedef uint8_t Ply_t;
 typedef uint64_t NodeCount_t;
 
-typedef struct
-{
+enum UciSearchInfoDefaults {
+    overhead_default_msec = 50,
+};
+
+typedef struct {
     Milliseconds_t wTime;
     Milliseconds_t bTime;
     Milliseconds_t wInc;
     Milliseconds_t bInc;
     Milliseconds_t forceTime;
+    Milliseconds_t overhead;
 
     Depth_t depthLimit;
 } UciSearchInfo_t;

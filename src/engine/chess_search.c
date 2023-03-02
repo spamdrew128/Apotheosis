@@ -13,7 +13,6 @@
 #include "move_ordering.h"
 
 enum {
-    overhead_msec = 3,
     time_fraction = 25,
     timer_check_freq = 1024,
 
@@ -203,7 +202,7 @@ static void SetupGlobalTimer(UciSearchInfo_t uciSearchInfo, BoardInfo_t* boardIn
         timeToUse = (totalTime + increment/2) / time_fraction;
     }
 
-    TimerInit(&globalTimer, timeToUse - overhead_msec);
+    TimerInit(&globalTimer, timeToUse - uciSearchInfo.overhead);
 }
 
 static void PrintUciInformation(
@@ -324,5 +323,7 @@ void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {
     uciSearchInfo->wInc = 0;
     uciSearchInfo->bInc = 0;
     uciSearchInfo->forceTime = 0;
+    uciSearchInfo->overhead = overhead_default_msec;
+
     uciSearchInfo->depthLimit = 0;
 }

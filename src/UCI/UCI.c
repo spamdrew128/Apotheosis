@@ -17,6 +17,11 @@
 #define ENGINE_ID "id name Apotheosis\nid author Spamdrew\n"
 #define UCI_OK "uciok\n"
 #define READY_OK "readyok\n"
+
+// UCI Options
+#define OVERHEAD "Overhead"
+#define HASH "Hash"
+
 #define BESTMOVE "bestmove"
 
 #define STARTPOS "startpos"
@@ -29,7 +34,8 @@ enum {
     signal_quit,
     signal_new_game,
     signal_position,
-    signal_go
+    signal_go,
+    signal_setoption
 };
 
 static char RowToNumberChar(int row) {
@@ -174,6 +180,8 @@ static UciSignal_t InterpretWord(const char* word) {
         return signal_position;
     } else if(StringsMatch(word, "go")) {
         return signal_go;
+    } else if (StringsMatch(word, "setoption")) {
+        return signal_setoption;
     }
 
     return signal_invalid;
@@ -339,6 +347,16 @@ UciSearchInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
     return searchInfo;
 }
 
+static void SendUciOption(const char* name, const char* type, const char* more) {
+    printf("option name %s type %s %s\n", name, type, more);
+}
+
+static void UciSignalResponse() {
+    printf(ENGINE_ID);
+    SendUciOption(OVERHEAD, "spin", "default 50 min 1 max 128");
+    printf(UCI_OK);
+}
+
 static bool RespondToSignal(
     char input[BUFFER_SIZE],
     int* i,
@@ -348,8 +366,7 @@ static bool RespondToSignal(
 {
     switch(signal) {
     case signal_uci:
-        printf(ENGINE_ID);
-        printf(UCI_OK);
+        UciSignalResponse();
         break;
     case signal_is_ready:
         printf(READY_OK);
@@ -371,7 +388,9 @@ static bool RespondToSignal(
     case signal_go:
         UciSearchInfo_t uciSearchInfo = InterpretGoArguements(input, i);
         GetSearchResults(uciSearchInfo, applicationData);
-        break;     
+        break;   
+    case signal_setoption:
+        break;  
     default:
         break;
     }
