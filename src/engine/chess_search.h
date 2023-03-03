@@ -16,7 +16,7 @@ typedef uint8_t Depth_t;
 typedef uint8_t Ply_t;
 typedef uint64_t NodeCount_t;
 
-enum UciSearchInfoDefaults {
+enum UciSearchInfoOptions {
     overhead_default_msec = 50,
     overhead_min_msec = 1,
     overhead_max_msec = 128,
