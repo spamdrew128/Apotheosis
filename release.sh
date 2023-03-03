@@ -1,0 +1,1 @@
+make EXE=ApotheosisV1 RELEASE=y
