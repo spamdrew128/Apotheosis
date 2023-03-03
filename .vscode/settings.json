@@ -41,7 +41,10 @@
         "tuple": "c",
         "type_traits": "c",
         "utility": "c",
-        "evaluation.h": "c"
+        "evaluation.h": "c",
+        "util_macros.h": "c",
+        "typeinfo": "c",
+        "limits": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",
