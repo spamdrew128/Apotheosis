@@ -9,14 +9,19 @@
 #include "FEN.h"
 #include "movegen.h"
 #include "make_and_unmake.h"
-#include "chess_search.h"
 #include "time_constants.h"
+#include "util_macros.h"
 
 #define BUFFER_SIZE 50000
 
 #define ENGINE_ID "id name Apotheosis\nid author Spamdrew\n"
 #define UCI_OK "uciok\n"
 #define READY_OK "readyok\n"
+
+// UCI Options
+#define OVERHEAD "Overhead"
+#define HASH "Hash"
+
 #define BESTMOVE "bestmove"
 
 #define STARTPOS "startpos"
@@ -29,7 +34,8 @@ enum {
     signal_quit,
     signal_new_game,
     signal_position,
-    signal_go
+    signal_go,
+    signal_setoption
 };
 
 static char RowToNumberChar(int row) {
@@ -140,6 +146,12 @@ static void MoveStructToUciString(Move_t move, char* moveString, size_t bufferSi
     }
 }
 
+static void SkipToNextCharacter(char input[BUFFER_SIZE], int* i) {
+    while(input[*i] == ' ' || input[*i] == '\n') {
+        (*i)++;
+    }
+}
+
 static void GetNextWord(char input[BUFFER_SIZE], char nextWord[BUFFER_SIZE], int* i) {
     memset(nextWord, '\0', BUFFER_SIZE* sizeof(char));
 
@@ -149,16 +161,20 @@ static void GetNextWord(char input[BUFFER_SIZE], char nextWord[BUFFER_SIZE], int
         wordIndex++;
         (*i)++;
     }
+
+    SkipToNextCharacter(input, i);
+}
+
+static void SkipNextWord(char input[BUFFER_SIZE], int* i) {
+    SkipToNextCharacter(input, i);
+    while(input[*i] != '\n' && input[*i] != ' ' && input[*i] != '\0') {
+        (*i)++;
+    }
+    SkipToNextCharacter(input, i);
 }
 
 static bool StringsMatch(const char* s1, const char* s2) {
     return !strcmp(s1, s2);
-}
-
-static void SkipToNextCharacter(char input[BUFFER_SIZE], int* i) {
-    while(input[*i] == ' ' || input[*i] == '\n') {
-        (*i)++;
-    }
 }
 
 static UciSignal_t InterpretWord(const char* word) {
@@ -174,6 +190,8 @@ static UciSignal_t InterpretWord(const char* word) {
         return signal_position;
     } else if(StringsMatch(word, "go")) {
         return signal_go;
+    } else if (StringsMatch(word, "setoption")) {
+        return signal_setoption;
     }
 
     return signal_invalid;
@@ -237,11 +255,8 @@ static void InterpretPosition(
     GetNextWord(input, command, i);
 
     if(StringsMatch(command, "startpos")) {
-        SkipToNextCharacter(input, i);
         InterpretFEN(START_FEN, boardInfo, gameStack, zobristStack);
     } else if (StringsMatch(command, "fen")) {
-        SkipToNextCharacter(input, i);
-
         while(input[*i] != 'm' && input[*i] != '\0') {
             fenString[fenStringIndex] = input[*i];
             (*i)++;
@@ -252,16 +267,12 @@ static void InterpretPosition(
         InterpretFEN(fenString, boardInfo, gameStack, zobristStack);
     }
 
-    SkipToNextCharacter(input, i);
-    while(input[*i] != ' ' && input[*i] != '\0') {
-        (*i)++; // skips past the "moves" command which I assume is there
-    }
-    SkipToNextCharacter(input, i);
+    SkipNextWord(input, i);
 
     ParseAndPlayMoves(input, i, boardInfo, gameStack, zobristStack);
 }
 
-uint32_t GoStringToNumber(const char* numString) {
+uint32_t NumberStringToNumber(const char* numString) {
     int len = strlen(numString);
 
     Milliseconds_t result = 0;
@@ -274,7 +285,7 @@ uint32_t GoStringToNumber(const char* numString) {
     return result;
 }
 
-static void GetSearchResults(UciSearchInfo_t uciSearchInfo, UciApplicationData_t* applicationData)
+static void GetSearchResults(UciSearchInfo_t* uciSearchInfo, UciApplicationData_t* applicationData)
 {
     SearchResults_t searchResults = 
         Search(
@@ -292,51 +303,79 @@ static void GetSearchResults(UciSearchInfo_t uciSearchInfo, UciApplicationData_t
     printf(" %s\n", moveString);
 }
 
-UciSearchInfo_t InterpretGoArguements(char input[BUFFER_SIZE], int* i) {
-    UciSearchInfo_t searchInfo;
-    UciSearchInfoInit(&searchInfo);
+void InterpretGoArguements(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* searchInfo) {
+    UciSearchInfoTimeInfoReset(searchInfo);
 
     char nextWord[BUFFER_SIZE];
+
     while(input[*i] != '\0') {
         GetNextWord(input, nextWord, i);
-        SkipToNextCharacter(input, i);
 
         if(StringsMatch(nextWord, "wtime")) {
             GetNextWord(input, nextWord, i);
-            searchInfo.wTime = GoStringToNumber(nextWord);
+            searchInfo->wTime = NumberStringToNumber(nextWord);
 
         } else if(StringsMatch(nextWord, "btime")) {
             GetNextWord(input, nextWord, i);
-            searchInfo.bTime = GoStringToNumber(nextWord);
+            searchInfo->bTime = NumberStringToNumber(nextWord);
             
         } else if(StringsMatch(nextWord, "winc")) {
             GetNextWord(input, nextWord, i);
-            searchInfo.wInc = GoStringToNumber(nextWord);
+            searchInfo->wInc = NumberStringToNumber(nextWord);
             
         } else if(StringsMatch(nextWord, "binc")) {
             GetNextWord(input, nextWord, i);
-            searchInfo.bInc = GoStringToNumber(nextWord);    
+            searchInfo->bInc = NumberStringToNumber(nextWord);    
 
         } else if(StringsMatch(nextWord, "infinite")) {
-            searchInfo.wTime = MSEC_MAX;       
-            searchInfo.bTime = MSEC_MAX;
+            searchInfo->wTime = MSEC_MAX;       
+            searchInfo->bTime = MSEC_MAX;
 
         } else if(StringsMatch(nextWord, "depth")) {
             GetNextWord(input, nextWord, i);
-            searchInfo.depthLimit = GoStringToNumber(nextWord);
+            searchInfo->depthLimit = NumberStringToNumber(nextWord);
 
-            if(searchInfo.wTime == 0 || !searchInfo.bTime == 0) {
-                searchInfo.wTime = MSEC_MAX;       
-                searchInfo.bTime = MSEC_MAX;
+            if(searchInfo->wTime == 0 || !searchInfo->bTime == 0) {
+                searchInfo->wTime = MSEC_MAX;       
+                searchInfo->bTime = MSEC_MAX;
             }
 
         } else if(StringsMatch(nextWord, "movetime")) {
             GetNextWord(input, nextWord, i);       
-            searchInfo.forceTime = GoStringToNumber(nextWord); 
+            searchInfo->forceTime = NumberStringToNumber(nextWord); 
         }
     }
+}
 
-    return searchInfo;
+#define SendUciOption(name, type, formatString, ...) \
+do { \
+    printf("option name %s type %s ", name, type); \
+    printf(formatString, __VA_ARGS__); \
+    printf("\n"); \
+} while(0)
+
+static void UciSignalResponse() {
+    printf(ENGINE_ID);
+    SendUciOption(OVERHEAD, "spin", "default %d min %d max %d", overhead_default_msec, overhead_min_msec, overhead_max_msec);
+    printf(UCI_OK);
+}
+
+static void SetOption(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* searchInfo) {
+    char nextWord[BUFFER_SIZE];
+    GetNextWord(input, nextWord, i);
+
+    if(!StringsMatch(nextWord, "name")) {
+        return;
+    }
+    GetNextWord(input, nextWord, i);
+
+    if(StringsMatch(nextWord, OVERHEAD)) {
+        SkipNextWord(input, i);
+
+        GetNextWord(input, nextWord, i);
+        searchInfo->overhead = NumberStringToNumber(nextWord);
+        CLAMP_TO_RANGE(searchInfo->overhead, overhead_min_msec, overhead_max_msec);
+    }
 }
 
 static bool RespondToSignal(
@@ -348,8 +387,7 @@ static bool RespondToSignal(
 {
     switch(signal) {
     case signal_uci:
-        printf(ENGINE_ID);
-        printf(UCI_OK);
+        UciSignalResponse();
         break;
     case signal_is_ready:
         printf(READY_OK);
@@ -369,9 +407,12 @@ static bool RespondToSignal(
         );
         break;
     case signal_go:
-        UciSearchInfo_t uciSearchInfo = InterpretGoArguements(input, i);
-        GetSearchResults(uciSearchInfo, applicationData);
-        break;     
+        InterpretGoArguements(input, i, &applicationData->uciSearchInfo);
+        GetSearchResults(&applicationData->uciSearchInfo, applicationData);
+        break;   
+    case signal_setoption:
+        SetOption(input, i, &applicationData->uciSearchInfo);
+        break;  
     default:
         break;
     }
@@ -394,8 +435,6 @@ bool InterpretUCIInput(UciApplicationData_t* applicationData)
         GetNextWord(input, currentWord, &i);
         UciSignal_t signal = InterpretWord(currentWord);
 
-        SkipToNextCharacter(input, &i);
-
         bool keepRunning = RespondToSignal(input, &i, signal, applicationData);
         if(!keepRunning) {
             return false; // quit immediately
@@ -412,10 +451,14 @@ void InterpretUCIString(
     const char* _input
 )
 {
+    UciSearchInfo_t searchInfo;
+    UciSearchInfoInit(&searchInfo);
+
     UciApplicationData_t data;
     data.boardInfo = *boardInfo;
     data.gameStack = *gameStack;
     data.zobristStack = *zobristStack;
+    data.uciSearchInfo = searchInfo;
 
     char input[BUFFER_SIZE];
     memset(input, '\0', BUFFER_SIZE* sizeof(char));
@@ -427,8 +470,6 @@ void InterpretUCIString(
     while(i < BUFFER_SIZE && input[i] != '\0') {
         GetNextWord(input, currentWord, &i);
         UciSignal_t signal = InterpretWord(currentWord);
-
-        SkipToNextCharacter(input, &i);
 
         bool keepRunning = RespondToSignal(input, &i, signal, &data);
         if(!keepRunning) {

@@ -16,13 +16,19 @@ typedef uint8_t Depth_t;
 typedef uint8_t Ply_t;
 typedef uint64_t NodeCount_t;
 
-typedef struct
-{
+enum UciSearchInfoOptions {
+    overhead_default_msec = 50,
+    overhead_min_msec = 1,
+    overhead_max_msec = 128,
+};
+
+typedef struct {
     Milliseconds_t wTime;
     Milliseconds_t bTime;
     Milliseconds_t wInc;
     Milliseconds_t bInc;
     Milliseconds_t forceTime;
+    Milliseconds_t overhead;
 
     Depth_t depthLimit;
 } UciSearchInfo_t;
@@ -33,7 +39,7 @@ typedef struct {
 } SearchResults_t;
 
 SearchResults_t Search(
-    UciSearchInfo_t uciSearchInfo,
+    UciSearchInfo_t* uciSearchInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
@@ -46,6 +52,8 @@ NodeCount_t BenchSearch(
     ZobristStack_t* zobristStack,
     Depth_t depth
 );
+
+void UciSearchInfoTimeInfoReset(UciSearchInfo_t* uciSearchInfo);
 
 void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo);
 

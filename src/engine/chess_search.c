@@ -13,7 +13,6 @@
 #include "move_ordering.h"
 
 enum {
-    overhead_msec = 10,
     time_fraction = 25,
     timer_check_freq = 1024,
 
@@ -30,11 +29,11 @@ typedef struct {
     bool outOfTime;
     NodeCount_t nodeCount;
     PvTable_t pvTable;
-} SearchInfo_t;
+} ChessSearchInfo_t;
 
 static Timer_t globalTimer;
 
-static void InitSearchInfo(SearchInfo_t* searchInfo) {
+static void InitSearchInfo(ChessSearchInfo_t* searchInfo) {
     searchInfo->outOfTime = false;
     searchInfo->nodeCount = 0;
 }
@@ -57,7 +56,7 @@ static EvalScore_t QSearch(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
-    SearchInfo_t* searchInfo,
+    ChessSearchInfo_t* searchInfo,
     EvalScore_t alpha,
     EvalScore_t beta,
     Ply_t ply
@@ -123,7 +122,7 @@ static EvalScore_t Negamax(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
-    SearchInfo_t* searchInfo,
+    ChessSearchInfo_t* searchInfo,
     EvalScore_t alpha,
     EvalScore_t beta,
     Depth_t depth,
@@ -137,6 +136,10 @@ static EvalScore_t Negamax(
 
     PvLengthInit(&searchInfo->pvTable, ply);
 
+    if(depth == 0) {
+        return QSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, ply);
+    }
+
     MoveList_t moveList;
     CompleteMovegen(&moveList, boardInfo, gameStack);
 
@@ -146,10 +149,6 @@ static EvalScore_t Negamax(
             return -EVAL_MAX + ply;
         case draw:
             return 0;
-    }
-
-    if(depth == 0) {
-        return QSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, ply+1);
     }
 
     SortMoveList(&moveList, boardInfo);
@@ -185,29 +184,29 @@ static EvalScore_t Negamax(
     return bestScore;
 }
 
-static void SetupGlobalTimer(UciSearchInfo_t uciSearchInfo, BoardInfo_t* boardInfo) {
+static void SetupGlobalTimer(UciSearchInfo_t* uciSearchInfo, BoardInfo_t* boardInfo) {
     Milliseconds_t totalTime;
     Milliseconds_t increment;
     if(boardInfo->colorToMove == white) {
-        totalTime = uciSearchInfo.wTime;
-        increment = uciSearchInfo.wInc;
+        totalTime = uciSearchInfo->wTime;
+        increment = uciSearchInfo->wInc;
     } else {
-        totalTime = uciSearchInfo.bTime;
-        increment = uciSearchInfo.bInc;
+        totalTime = uciSearchInfo->bTime;
+        increment = uciSearchInfo->bInc;
     }
 
     Milliseconds_t timeToUse;
-    if(uciSearchInfo.forceTime) {
-        timeToUse = uciSearchInfo.forceTime;
+    if(uciSearchInfo->forceTime) {
+        timeToUse = uciSearchInfo->forceTime;
     } else {
         timeToUse = (totalTime + increment/2) / time_fraction;
     }
 
-    TimerInit(&globalTimer, timeToUse - overhead_msec);
+    TimerInit(&globalTimer, timeToUse - uciSearchInfo->overhead);
 }
 
 static void PrintUciInformation(
-    SearchInfo_t searchInfo,
+    ChessSearchInfo_t searchInfo,
     SearchResults_t searchResults,
     Depth_t currentDepth,
     Stopwatch_t* stopwatch
@@ -240,7 +239,7 @@ static void PrintUciInformation(
 }
 
 SearchResults_t Search(
-    UciSearchInfo_t uciSearchInfo,
+    UciSearchInfo_t* uciSearchInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
@@ -251,7 +250,7 @@ SearchResults_t Search(
     StopwatchInit(&stopwatch);
     SetupGlobalTimer(uciSearchInfo, boardInfo);
 
-    SearchInfo_t searchInfo;
+    ChessSearchInfo_t searchInfo;
     InitSearchInfo(&searchInfo);
 
     SearchResults_t searchResults;
@@ -279,7 +278,7 @@ SearchResults_t Search(
             }
         }
 
-    } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo.depthLimit && currentDepth < DEPTH_MAX);
+    } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
 
     return searchResults;
 }
@@ -294,9 +293,9 @@ NodeCount_t BenchSearch(
     UciSearchInfo_t dummySearchInfo;
     UciSearchInfoInit(&dummySearchInfo);
     dummySearchInfo.forceTime = 1000000;
-    SetupGlobalTimer(dummySearchInfo, boardInfo);
+    SetupGlobalTimer(&dummySearchInfo, boardInfo);
     
-    SearchInfo_t searchInfo;
+    ChessSearchInfo_t searchInfo;
     InitSearchInfo(&searchInfo);
 
     Depth_t currentDepth = 0;
@@ -318,11 +317,21 @@ NodeCount_t BenchSearch(
     return searchInfo.nodeCount;
 }
 
+void UciSearchInfoTimeInfoReset(UciSearchInfo_t* uciSearchInfo) {
+    uciSearchInfo->wTime = 0;
+    uciSearchInfo->bTime = 0;
+    uciSearchInfo->wInc = 0;
+    uciSearchInfo->bInc = 0;
+    uciSearchInfo->forceTime = 0;
+}
+
 void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {
     uciSearchInfo->wTime = 0;
     uciSearchInfo->bTime = 0;
     uciSearchInfo->wInc = 0;
     uciSearchInfo->bInc = 0;
     uciSearchInfo->forceTime = 0;
+    uciSearchInfo->overhead = overhead_default_msec;
+
     uciSearchInfo->depthLimit = 0;
 }
