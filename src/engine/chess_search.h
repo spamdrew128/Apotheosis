@@ -39,7 +39,7 @@ typedef struct {
 } SearchResults_t;
 
 SearchResults_t Search(
-    UciSearchInfo_t uciSearchInfo,
+    UciSearchInfo_t* uciSearchInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,

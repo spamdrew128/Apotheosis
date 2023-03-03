@@ -289,7 +289,7 @@ static void GetSearchResults(UciSearchInfo_t* uciSearchInfo, UciApplicationData_
 {
     SearchResults_t searchResults = 
         Search(
-            *uciSearchInfo,
+            uciSearchInfo,
             &applicationData->boardInfo,
             &applicationData->gameStack,
             &applicationData->zobristStack,
