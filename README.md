@@ -10,7 +10,7 @@ Windows/Linux (you must have some version of GCC installed):
 
 `make clean` will clean all object files
 
-The release can be build by `sh release.sh`
+The release can be built by `sh release.sh`
 
 MacOS:
 
