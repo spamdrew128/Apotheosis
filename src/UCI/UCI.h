@@ -10,12 +10,14 @@
 #include "game_state.h"
 #include "zobrist.h"
 #include "PV_table.h"
+#include "chess_search.h"
 
 typedef struct
 {
     BoardInfo_t boardInfo;
     GameStack_t gameStack;
     ZobristStack_t zobristStack;
+    UciSearchInfo_t uciSearchInfo;
 } UciApplicationData_t;
 
 bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo, GameStack_t* gameStack);

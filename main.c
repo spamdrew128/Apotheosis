@@ -11,6 +11,7 @@
 #include "zobrist.h"
 #include "UCI.h"
 #include "bench.h"
+#include "chess_search.h"
 
 int main(int argc, char** argv)
 {
@@ -22,6 +23,7 @@ int main(int argc, char** argv)
     bool running = Bench(argc, argv);
 
     UciApplicationData_t uciApplicationData;
+    UciSearchInfoInit(&uciApplicationData.uciSearchInfo);
     while(running)
     {
         running = InterpretUCIInput(&uciApplicationData);
