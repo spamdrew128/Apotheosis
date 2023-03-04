@@ -26,33 +26,20 @@ TTEntry_t* GetTTEntry(TranspositionTable_t* table, ZobristHash_t hash) {
     return &table->entries[hash % table->numEntries];
 }
 
-void TTEntryInit(
+void ReplaceTTEntry(
     TTEntry_t* entry,
+    TTFlag_t flag,
     Depth_t depth,
     Move_t move,
     EvalScore_t score,
     ZobristHash_t hash
 )
 {
-    // flag is upper bound at first, and is updated when
-    // a new score is found that is greater than alpha
-    entry->flag = upper_bound;
+    entry->flag = flag;
     entry->depth = depth;
     entry->move = move;
     entry->score = score;
     entry->hash = hash;
-}
-
-void UpdateTTEntry(
-    TTEntry_t* entry,
-    TTFlag_t flag,
-    Move_t move,
-    EvalScore_t score
-)
-{
-    entry->flag = flag;
-    entry->move = move;
-    entry->score = score;
 }
 
 bool TTHit(TTEntry_t* entry, ZobristHash_t hash) {

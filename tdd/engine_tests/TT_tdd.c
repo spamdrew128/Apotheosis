@@ -8,6 +8,7 @@ static void ShouldInitToCorrectSize() {
     TranspositionTable_t table;
     TranspositionTableInit(&table, some_tt_size);
 
+    
 
     TeardownTT(&table);
 }
