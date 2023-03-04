@@ -20,7 +20,7 @@ static void ShouldInitToCorrectSize() {
     TeardownTT(&table);
 }
 
-static void ShoulNotHitWhenUninitialized() {
+static void ShouldNotHitWhenUninitialized() {
     TTEntry_t entry;
     entry.flag = uninitialized_flag;
     entry.hash = some_zobrist_hash;
@@ -29,13 +29,22 @@ static void ShoulNotHitWhenUninitialized() {
     PrintResults(!hit);
 }
 
-static void ShoulNotHitWithDifferentHashs() {
+static void ShouldNotHitWithDifferentHashs() {
     TTEntry_t entry;
     entry.flag = exact;
     entry.hash = some_zobrist_hash - 1;
 
     bool hit = TTHit(&entry, some_zobrist_hash);
     PrintResults(hit == false);
+}
+
+static void ShouldHitWithSameHashs() {
+    TTEntry_t entry;
+    entry.flag = exact;
+    entry.hash = some_zobrist_hash;
+
+    bool hit = TTHit(&entry, some_zobrist_hash);
+    PrintResults(hit == true);
 }
 
 static void ShouldNotCutoffIfLowerDepth() {
@@ -77,8 +86,9 @@ static void ShouldCutoffIfScoreIsUpperBoundAndLessThanAlpha() {
 
 void TranspositionTableTDDRunner() {
     ShouldInitToCorrectSize();
-    ShoulNotHitWhenUninitialized();
-    ShoulNotHitWithDifferentHashs();
+    ShouldNotHitWhenUninitialized();
+    ShouldNotHitWithDifferentHashs();
+    ShouldHitWithSameHashs();
 
     ShouldNotCutoffIfLowerDepth();
     ShouldCutoffIfScoreIsExact();
