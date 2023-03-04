@@ -34,6 +34,23 @@ typedef struct {
 
 void TranspositionTableInit(TranspositionTable_t* table, Megabytes_t megabytes);
 
+TTEntry_t* GetTTEntry(TranspositionTable_t* table, ZobristHash_t hash);
+
+bool TTHit(TTEntry_t* entry, ZobristHash_t hash) {
+    return (entry->hash == hash) && (entry->flag != uninitialized_flag);
+}
+
+void ReplaceTTEntry(
+    TTEntry_t* entry,
+    TTFlag_t flag,
+    Depth_t depth,
+    Move_t move,
+    EvalScore_t score,
+    ZobristHash_t hash
+);
+
+bool TTCutoffIsPossible(TTEntry_t* entry, EvalScore_t alpha, EvalScore_t beta, Depth_t depth);
+
 void TeardownTT(TranspositionTable_t* table);
 
 #endif

@@ -26,6 +26,10 @@ TTEntry_t* GetTTEntry(TranspositionTable_t* table, ZobristHash_t hash) {
     return &table->entries[hash % table->numEntries];
 }
 
+bool TTHit(TTEntry_t* entry, ZobristHash_t hash) {
+    return (entry->hash == hash) && (entry->flag != uninitialized_flag);
+}
+
 void ReplaceTTEntry(
     TTEntry_t* entry,
     TTFlag_t flag,
@@ -40,10 +44,6 @@ void ReplaceTTEntry(
     entry->move = move;
     entry->score = score;
     entry->hash = hash;
-}
-
-bool TTHit(TTEntry_t* entry, ZobristHash_t hash) {
-    return (entry->hash == hash) && (entry->flag != uninitialized_flag);
 }
 
 bool TTCutoffIsPossible(TTEntry_t* entry, EvalScore_t alpha, EvalScore_t beta, Depth_t depth) {
