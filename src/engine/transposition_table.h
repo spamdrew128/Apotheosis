@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#include "move.h"
 #include "engine_types.h"
 #include "zobrist.h"
 
@@ -14,17 +15,18 @@ enum {
 };
 
 typedef struct {
+    TTFlag_t flag;
     Depth_t depth;
+    Move_t move;
     EvalScore_t score;
     ZobristHash_t hash;
 } TTEntry_t;
-
 
 typedef uint64_t TTLength_t;
 
 typedef struct {
     TTEntry_t* entries;
-    TTLength_t ttSize;
+    TTLength_t numEntries;
 } TranspositionTable_t;
 
 #endif
