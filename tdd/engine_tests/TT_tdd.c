@@ -5,7 +5,8 @@ enum {
     some_tt_size = 16,
     some_zobrist_hash = 830928908,
     some_alpha = 2,
-    some_beta = 4
+    some_beta = 4,
+    some_depth = 3,
 };
 
 static void ShouldInitToCorrectSize() {
@@ -39,10 +40,39 @@ static void ShoulNotHitWithDifferentHashs() {
 
 static void ShouldNotCutoffIfLowerDepth() {
     TTEntry_t entry;
-    entry.depth = 0;
+    entry.depth = some_depth;
 
     bool cutoff = TTCutoffIsPossible(&entry, some_alpha, some_beta, entry.depth + 1);
     PrintResults(cutoff == false);
+}
+
+static void ShouldCutoffIfScoreIsExact() {
+    TTEntry_t entry;
+    entry.depth = some_depth;
+    entry.flag = exact;
+
+    bool cutoff = TTCutoffIsPossible(&entry, some_alpha, some_beta, entry.depth);
+    PrintResults(cutoff == true);
+}
+
+static void ShouldCutoffIfScoreIsLowerBoundAndGreaterThanBeta() {
+    TTEntry_t entry;
+    entry.depth = some_depth;
+    entry.flag = lower_bound;
+    entry.score = some_beta + 1;
+
+    bool cutoff = TTCutoffIsPossible(&entry, some_alpha, some_beta, entry.depth);
+    PrintResults(cutoff == true);
+}
+
+static void ShouldCutoffIfScoreIsUpperBoundAndLessThanAlpha() {
+    TTEntry_t entry;
+    entry.depth = some_depth;
+    entry.flag = upper_bound;
+    entry.score = some_alpha - 1;
+
+    bool cutoff = TTCutoffIsPossible(&entry, some_alpha, some_beta, entry.depth);
+    PrintResults(cutoff == true);
 }
 
 void TranspositionTableTDDRunner() {
@@ -51,4 +81,7 @@ void TranspositionTableTDDRunner() {
     ShoulNotHitWithDifferentHashs();
 
     ShouldNotCutoffIfLowerDepth();
+    ShouldCutoffIfScoreIsExact();
+    ShouldCutoffIfScoreIsLowerBoundAndGreaterThanBeta();
+    ShouldCutoffIfScoreIsUpperBoundAndLessThanAlpha();
 }
