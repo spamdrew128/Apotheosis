@@ -36,9 +36,7 @@ void TranspositionTableInit(TranspositionTable_t* table, Megabytes_t megabytes);
 
 TTEntry_t* GetTTEntry(TranspositionTable_t* table, ZobristHash_t hash);
 
-bool TTHit(TTEntry_t* entry, ZobristHash_t hash) {
-    return (entry->hash == hash) && (entry->flag != uninitialized_flag);
-}
+bool TTHit(TTEntry_t* entry, ZobristHash_t hash);
 
 void ReplaceTTEntry(
     TTEntry_t* entry,
