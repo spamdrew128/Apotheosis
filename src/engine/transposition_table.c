@@ -16,7 +16,7 @@ void TranspositionTableInit(TranspositionTable_t* table, Megabytes_t megabytes) 
 
     table->numEntries = bytes / entrySize;
 
-    table->entries = malloc(bytes);
+    table->entries = malloc(table->numEntries * entrySize);
     assert(table->entries != NULL);
 
     UninitializeTableEntries(table);
