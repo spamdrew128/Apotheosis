@@ -3,7 +3,9 @@
 
 enum {
     some_tt_size = 16,
-    some_zobrist_hash = 830928908
+    some_zobrist_hash = 830928908,
+    some_alpha = 2,
+    some_beta = 4
 };
 
 static void ShouldInitToCorrectSize() {
@@ -32,16 +34,15 @@ static void ShoulNotHitWithDifferentHashs() {
     entry.hash = some_zobrist_hash - 1;
 
     bool hit = TTHit(&entry, some_zobrist_hash);
-    PrintResults(!hit);
+    PrintResults(hit == false);
 }
 
 static void ShouldNotCutoffIfLowerDepth() {
-    TranspositionTable_t table;
-    TranspositionTableInit(&table, some_tt_size);
+    TTEntry_t entry;
+    entry.depth = 0;
 
-    
-
-    TeardownTT(&table);
+    bool cutoff = TTCutoffIsPossible(&entry, some_alpha, some_beta, entry.depth + 1);
+    PrintResults(cutoff == false);
 }
 
 void TranspositionTableTDDRunner() {
