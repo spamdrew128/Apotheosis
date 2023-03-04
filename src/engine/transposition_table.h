@@ -9,6 +9,7 @@
 
 typedef uint8_t TTFlag_t;
 enum {
+    uninitialized_flag,
     lower_bound,
     exact,
     upper_bound
