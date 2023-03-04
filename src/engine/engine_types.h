@@ -2,6 +2,7 @@
 #define __ENGINE_TYPES_H__
 
 #include <stdint.h>
+#include <stddef.h>
 
 typedef int32_t EvalScore_t;
 typedef int32_t Centipawns_t;
