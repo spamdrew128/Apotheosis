@@ -47,7 +47,7 @@ void ReplaceTTEntry(
     ZobristHash_t hash
 );
 
-bool TTCutoffIsPossible(TTEntry_t* entry, EvalScore_t alpha, EvalScore_t beta, Depth_t depth);
+bool TTCutoffIsPossible(TTEntry_t* entry, EvalScore_t alpha, EvalScore_t beta, Depth_t currentDepth);
 
 void TeardownTT(TranspositionTable_t* table);
 

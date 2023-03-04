@@ -46,8 +46,8 @@ void ReplaceTTEntry(
     entry->hash = hash;
 }
 
-bool TTCutoffIsPossible(TTEntry_t* entry, EvalScore_t alpha, EvalScore_t beta, Depth_t depth) {
-    if(entry->depth < depth) {
+bool TTCutoffIsPossible(TTEntry_t* entry, EvalScore_t alpha, EvalScore_t beta, Depth_t currentDepth) {
+    if(entry->depth < currentDepth) {
         return false;
     }
 
