@@ -2,6 +2,7 @@
 #define __TRANSPOSITION_TABLE_H__
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "move.h"
 #include "engine_types.h"

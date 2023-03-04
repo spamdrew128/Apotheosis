@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-static void InitTableEntries(TranspositionTable_t* table) {
+static void UninitializeTableEntries(TranspositionTable_t* table) {
     for(int i = 0; i < table->numEntries; i++) {
         table->entries[i].flag = uninitialized_flag;
         table->entries[i].hash = 0;
@@ -19,7 +19,61 @@ void TranspositionTableInit(TranspositionTable_t* table, Megabytes_t megabytes) 
     table->entries = malloc(bytes);
     assert(table->entries != NULL);
 
-    InitTableEntries(table);
+    UninitializeTableEntries(table);
+}
+
+TTEntry_t* GetTTEntry(TranspositionTable_t* table, ZobristHash_t hash) {
+    return &table->entries[hash % table->numEntries];
+}
+
+void TTEntryInit(
+    TTEntry_t* entry,
+    Depth_t depth,
+    Move_t move,
+    EvalScore_t score,
+    ZobristHash_t hash
+)
+{
+    // flag is upper bound at first, and is updated when
+    // a new score is found that is greater than alpha
+    entry->flag = upper_bound;
+    entry->depth = depth;
+    entry->move = move;
+    entry->score = score;
+    entry->hash = hash;
+}
+
+void UpdateTTEntry(
+    TTEntry_t* entry,
+    TTFlag_t flag,
+    Move_t move,
+    EvalScore_t score
+)
+{
+    entry->flag = flag;
+    entry->move = move;
+    entry->score = score;
+}
+
+bool TTHit(TTEntry_t* entry, ZobristHash_t hash) {
+    return (entry->hash == hash) && (entry->flag != uninitialized_flag);
+}
+
+bool TTCutoffIsPossible(TTEntry_t* entry, EvalScore_t alpha, EvalScore_t beta, Depth_t depth) {
+    if(entry->depth < depth) {
+        return false;
+    }
+
+    switch(entry->flag) {
+        case exact:
+            return true;
+        case lower_bound:
+            return entry->score >= beta;
+        case upper_bound:
+            return entry->score <= alpha;
+        default:
+            return false;
+    }
 }
 
 void TeardownTT(TranspositionTable_t* table) {
