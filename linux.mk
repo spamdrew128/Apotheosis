@@ -49,6 +49,7 @@ $(ENGINE)/chess_search.c \
 $(ENGINE)/evaluation.c \
 $(ENGINE)/PV_table.c \
 $(ENGINE)/move_ordering.c \
+$(ENGINE)/transposition_table.c \
 $(FEN)/FEN.c \
 $(LOOKUP)/lookup.c \
 $(PLAY)/move.c \

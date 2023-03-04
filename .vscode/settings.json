@@ -44,7 +44,8 @@
         "evaluation.h": "c",
         "util_macros.h": "c",
         "typeinfo": "c",
-        "limits": "c"
+        "limits": "c",
+        "time_constants.h": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",

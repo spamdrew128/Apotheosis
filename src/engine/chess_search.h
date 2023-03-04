@@ -11,10 +11,7 @@
 #include "zobrist.h"
 #include "evaluation.h"
 #include "time_constants.h"
-
-typedef uint8_t Depth_t;
-typedef uint8_t Ply_t;
-typedef uint64_t NodeCount_t;
+#include "engine_types.h"
 
 enum UciSearchInfoOptions {
     overhead_default_msec = 50,

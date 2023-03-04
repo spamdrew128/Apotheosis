@@ -11,9 +11,8 @@
 #include "board_info.h"
 #include "game_state.h"
 #include "zobrist.h"
+#include "engine_types.h"
 
-typedef int32_t EvalScore_t;
-typedef int32_t Centipawns_t;
 enum {
   EVAL_MAX = 100000,
   INFINITY = INT32_MAX - 1
