@@ -11,6 +11,7 @@
 #include "timer.h"
 #include "PV_table.h"
 #include "move_ordering.h"
+#include "transposition_table.h"
 
 enum {
     time_fraction = 25,
