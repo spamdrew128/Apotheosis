@@ -29,4 +29,9 @@ typedef struct {
     TTLength_t numEntries;
 } TranspositionTable_t;
 
+
+void TranspositionTableInit(TranspositionTable_t* table, Megabytes_t megabytes);
+
+void TeardownTT(TranspositionTable_t* table);
+
 #endif

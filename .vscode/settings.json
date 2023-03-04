@@ -45,7 +45,8 @@
         "util_macros.h": "c",
         "typeinfo": "c",
         "limits": "c",
-        "time_constants.h": "c"
+        "time_constants.h": "c",
+        "transposition_table.h": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",
