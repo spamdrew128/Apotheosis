@@ -32,7 +32,7 @@ typedef struct {
 } TranspositionTable_t;
 
 
-void ClearTableEntries(TranspositionTable_t* table);
+void ClearTTEntries(TranspositionTable_t* table);
 
 void TranspositionTableInit(TranspositionTable_t* table, Megabytes_t megabytes);
 

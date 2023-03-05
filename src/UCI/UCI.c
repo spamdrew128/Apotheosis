@@ -404,7 +404,7 @@ static bool RespondToSignal(
     case signal_quit:
         return false;
     case signal_new_game:
-        ClearTableEntries(&applicationData->uciSearchInfo.tt);
+        ClearTTEntries(&applicationData->uciSearchInfo.tt);
         break;
     case signal_position:
         InterpretPosition(
