@@ -7,6 +7,7 @@ void ClearTableEntries(TranspositionTable_t* table) {
     for(int i = 0; i < table->numEntries; i++) {
         table->entries[i].flag = uninitialized_flag;
         table->entries[i].hash = 0;
+        InitMove(&table->entries[i].move);
     }
 }
 
