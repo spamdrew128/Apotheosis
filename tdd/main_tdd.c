@@ -68,7 +68,7 @@ int main(int argc, char** argv)
     
     UciApplicationData_t uciApplicationData;
     UciSearchInfoInit(&uciApplicationData.uciSearchInfo);
-    bool running = false;
+    bool running = true;
     while(running)
     {
         running = InterpretUCIInput(&uciApplicationData);

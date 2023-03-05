@@ -65,4 +65,5 @@ bool TTCutoffIsPossible(TTEntry_t* entry, EvalScore_t alpha, EvalScore_t beta, D
 
 void TeardownTT(TranspositionTable_t* table) {
     free(table->entries);
+    table->entries = NULL;
 }
