@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-static void UninitializeTableEntries(TranspositionTable_t* table) {
+void ClearTableEntries(TranspositionTable_t* table) {
     for(int i = 0; i < table->numEntries; i++) {
         table->entries[i].flag = uninitialized_flag;
         table->entries[i].hash = 0;
@@ -19,7 +19,7 @@ void TranspositionTableInit(TranspositionTable_t* table, Megabytes_t megabytes) 
     table->entries = malloc(table->numEntries * entrySize);
     assert(table->entries != NULL);
 
-    UninitializeTableEntries(table);
+    ClearTableEntries(table);
 }
 
 TTEntry_t* GetTTEntry(TranspositionTable_t* table, ZobristHash_t hash) {

@@ -23,6 +23,11 @@
 #include "move_ordering_tdd.h"
 #include "TT_tdd.h"
 
+static void ProgramTeardown(UciApplicationData_t* uciApplicationData) {
+    TranspositionTable_t* tt = &uciApplicationData->uciSearchInfo.tt;
+    TeardownTT(tt);
+}
+
 int main(int argc, char** argv)
 {
     setvbuf(stdout, NULL, _IONBF, 0);
@@ -68,4 +73,6 @@ int main(int argc, char** argv)
     {
         running = InterpretUCIInput(&uciApplicationData);
     }
+
+    ProgramTeardown(&uciApplicationData);
 }

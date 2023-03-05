@@ -32,6 +32,8 @@ typedef struct {
 } TranspositionTable_t;
 
 
+void ClearTableEntries(TranspositionTable_t* table);
+
 void TranspositionTableInit(TranspositionTable_t* table, Megabytes_t megabytes);
 
 TTEntry_t* GetTTEntry(TranspositionTable_t* table, ZobristHash_t hash);
