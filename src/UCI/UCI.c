@@ -376,6 +376,14 @@ static void SetOption(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* searchIn
         GetNextWord(input, nextWord, i);
         searchInfo->overhead = NumberStringToNumber(nextWord);
         CLAMP_TO_RANGE(searchInfo->overhead, overhead_min_msec, overhead_max_msec);
+    } else if (StringsMatch(nextWord, HASH)) {
+        SkipNextWord(input, i);
+
+        GetNextWord(input, nextWord, i);
+        Megabytes_t hashSize = NumberStringToNumber(nextWord);
+        CLAMP_TO_RANGE(hashSize, overhead_min_msec, overhead_max_msec);
+        TeardownTT(&searchInfo->tt);
+        TranspositionTableInit(&searchInfo->tt, hashSize);
     }
 }
 
