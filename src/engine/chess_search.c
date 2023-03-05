@@ -81,29 +81,18 @@ static EvalScore_t QSearch(
             return 0;
     }
 
-    ZobristHash_t hash = ZobristStackTop(zobristStack);
-    TTEntry_t* entry = GetTTEntry(searchInfo->tt, hash);
-    if(TTHit(entry, hash)) {
-        if(TTCutoffIsPossible(entry, alpha, beta, 0)) {
-            return entry->score;
-        }
-    }
-
-    TTFlag_t flag = upper_bound;
     EvalScore_t standPat = ScoreOfPosition(boardInfo);
     if(standPat >= beta) {
         return standPat;
     }
 
     if(standPat > alpha) {
-        flag = exact;
         alpha = standPat;
     }
 
     SortMoveList(&moveList, boardInfo);
 
     EvalScore_t bestScore = standPat;
-    Move_t bestMove;
     for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
         searchInfo->nodeCount++;
         Move_t move = moveList.moves[i];
@@ -118,21 +107,16 @@ static EvalScore_t QSearch(
         }
 
         if(score >= beta) {
-            ReplaceTTEntry(entry, lower_bound, 0, bestMove, bestScore, hash);
             return score;
         }
 
         if(score > bestScore) {
             bestScore = score;
-            bestMove = move;
             if(score > alpha) {
-                flag = exact;
                 alpha = score;
             }
         }
     }
-
-    ReplaceTTEntry(entry, flag, 0, bestMove, bestScore, hash);
 
     return bestScore;
 }
@@ -170,19 +154,9 @@ static EvalScore_t Negamax(
             return 0;
     }
 
-    ZobristHash_t hash = ZobristStackTop(zobristStack);
-    TTEntry_t* entry = GetTTEntry(searchInfo->tt, hash);
-    if(TTHit(entry, hash)) {
-        if(TTCutoffIsPossible(entry, alpha, beta, depth)) {
-            return entry->score;
-        }
-    }
-
     SortMoveList(&moveList, boardInfo);
 
     EvalScore_t bestScore = -EVAL_MAX;
-    TTFlag_t flag = upper_bound;
-    Move_t bestMove;
     for(int i = 0; i <= moveList.maxIndex; i++) {
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
@@ -198,22 +172,17 @@ static EvalScore_t Negamax(
         }
 
         if(score >= beta) {
-            ReplaceTTEntry(entry, lower_bound, depth, bestMove, bestScore, hash);
             return score;
         }
 
         if(score > bestScore) {
             bestScore = score;
-            bestMove = move;
             if(score > alpha) {
                 alpha = score;
-                flag = exact;
                 UpdatePvTable(&searchInfo->pvTable, move, ply);
             }
         }
     }
-
-    ReplaceTTEntry(entry, flag, depth, bestMove, bestScore, hash);
 
     return bestScore;
 }
