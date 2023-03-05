@@ -14,8 +14,8 @@
 #include "chess_search.h"
 #include "transposition_table.h"
 
-static void ProgramTeardown(UciApplicationData_t uciApplicationData) {
-    TranspositionTable_t* tt = &uciApplicationData.uciSearchInfo.tt;
+static void ProgramTeardown(UciApplicationData_t* uciApplicationData) {
+    TranspositionTable_t* tt = &uciApplicationData->uciSearchInfo.tt;
     TeardownTT(tt);
 }
 
@@ -34,4 +34,6 @@ int main(int argc, char** argv)
     {
         running = InterpretUCIInput(&uciApplicationData);
     }
+
+    ProgramTeardown(&uciApplicationData);
 }
