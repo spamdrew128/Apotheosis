@@ -12,11 +12,16 @@
 #include "evaluation.h"
 #include "time_constants.h"
 #include "engine_types.h"
+#include "transposition_table.h"
 
 enum UciSearchInfoOptions {
     overhead_default_msec = 50,
     overhead_min_msec = 1,
     overhead_max_msec = 128,
+
+    hash_default_mb = 16,
+    hash_min_mb = 1,
+    hash_max_mb = 4096,
 };
 
 typedef struct {
@@ -28,6 +33,8 @@ typedef struct {
     Milliseconds_t overhead;
 
     Depth_t depthLimit;
+
+    TranspositionTable_t tt;
 } UciSearchInfo_t;
 
 typedef struct {

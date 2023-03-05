@@ -357,6 +357,7 @@ do { \
 static void UciSignalResponse() {
     printf(ENGINE_ID);
     SendUciOption(OVERHEAD, "spin", "default %d min %d max %d", overhead_default_msec, overhead_min_msec, overhead_max_msec);
+    SendUciOption(HASH, "spin", "default %d min %d max %d", hash_default_mb, hash_min_mb, hash_max_mb);
     printf(UCI_OK);
 }
 

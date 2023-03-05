@@ -335,4 +335,6 @@ void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {
     uciSearchInfo->overhead = overhead_default_msec;
 
     uciSearchInfo->depthLimit = 0;
+
+    TranspositionTableInit(&uciSearchInfo->tt, hash_default_mb);
 }
