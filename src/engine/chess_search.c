@@ -154,6 +154,17 @@ static EvalScore_t Negamax(
             return 0;
     }
 
+    ZobristHash_t hash = ZobristStackTop(zobristStack);
+    TTEntry_t* entry = GetTTEntry(searchInfo->tt, hash);
+    TTFlag_t flag = upper_bound;
+    Move_t ttMove;
+
+    if(TTHit(entry, hash)) {
+        if(TTCutoffIsPossible(entry, alpha, beta, depth)) {
+            return entry->score;
+        }
+    }
+
     SortMoveList(&moveList, boardInfo);
 
     EvalScore_t bestScore = -EVAL_MAX;
@@ -172,17 +183,22 @@ static EvalScore_t Negamax(
         }
 
         if(score >= beta) {
+            ReplaceTTEntry(entry, lower_bound, depth, move, score, hash);
             return score;
         }
 
         if(score > bestScore) {
             bestScore = score;
+            ttMove = move;
             if(score > alpha) {
                 alpha = score;
+                flag = exact;
                 UpdatePvTable(&searchInfo->pvTable, move, ply);
             }
         }
     }
+
+    ReplaceTTEntry(entry, flag, depth, ttMove, bestScore, hash);
 
     return bestScore;
 }
