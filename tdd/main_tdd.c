@@ -59,7 +59,7 @@ int main(int argc, char** argv)
 
     FEN_t fen = "4k3/8/8/1rpP2K1/8/8/8/8 w - c6 0 1";
     PERFTRunner(fen, 1, false);
-    RunAllPerftTests(true);
+    RunAllPerftTests(false);
     
     UciApplicationData_t uciApplicationData;
     UciSearchInfoInit(&uciApplicationData.uciSearchInfo);
