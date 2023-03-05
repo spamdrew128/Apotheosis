@@ -30,13 +30,15 @@ typedef struct {
     bool outOfTime;
     NodeCount_t nodeCount;
     PvTable_t pvTable;
+    TranspositionTable_t* tt;
 } ChessSearchInfo_t;
 
 static Timer_t globalTimer;
 
-static void InitSearchInfo(ChessSearchInfo_t* searchInfo) {
-    searchInfo->outOfTime = false;
-    searchInfo->nodeCount = 0;
+static void InitSearchInfo(ChessSearchInfo_t* chessSearchInfo, UciSearchInfo_t* uciSearchInfo) {
+    chessSearchInfo->outOfTime = false;
+    chessSearchInfo->nodeCount = 0;
+    chessSearchInfo->tt = &uciSearchInfo->tt;
 }
 
 static bool ShouldCheckTimer(NodeCount_t nodeCount) {
@@ -252,7 +254,7 @@ SearchResults_t Search(
     SetupGlobalTimer(uciSearchInfo, boardInfo);
 
     ChessSearchInfo_t searchInfo;
-    InitSearchInfo(&searchInfo);
+    InitSearchInfo(&searchInfo, uciSearchInfo);
 
     SearchResults_t searchResults;
     Depth_t currentDepth = 0;
@@ -297,7 +299,7 @@ NodeCount_t BenchSearch(
     SetupGlobalTimer(&dummySearchInfo, boardInfo);
     
     ChessSearchInfo_t searchInfo;
-    InitSearchInfo(&searchInfo);
+    InitSearchInfo(&searchInfo, &dummySearchInfo);
 
     Depth_t currentDepth = 0;
     do {
@@ -314,6 +316,8 @@ NodeCount_t BenchSearch(
             0
         );
     } while(currentDepth < depth);
+
+    TeardownTT(&dummySearchInfo.tt);
 
     return searchInfo.nodeCount;
 }
