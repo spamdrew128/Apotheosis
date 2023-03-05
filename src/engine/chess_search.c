@@ -29,7 +29,6 @@ enum {
 typedef struct {
     bool outOfTime;
     NodeCount_t nodeCount;
-    PvTable_t pvTable;
     TranspositionTable_t* tt;
 } ChessSearchInfo_t;
 
@@ -137,8 +136,6 @@ static EvalScore_t Negamax(
         return 0;
     }
 
-    PvLengthInit(&searchInfo->pvTable, ply);
-
     if(depth == 0) {
         return QSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, ply);
     }
@@ -193,7 +190,6 @@ static EvalScore_t Negamax(
             if(score > alpha) {
                 alpha = score;
                 flag = exact;
-                UpdatePvTable(&searchInfo->pvTable, move, ply);
             }
         }
     }
@@ -253,8 +249,6 @@ static void PrintUciInformation(
         (long long)searchInfo.nodeCount,
         (long long)ElapsedTime(stopwatch)
     );
-
-    SendPvInfo(&searchInfo.pvTable, currentDepth);
 }
 
 SearchResults_t Search(
@@ -289,7 +283,8 @@ SearchResults_t Search(
         );
 
         if(!searchInfo.outOfTime) {
-            searchResults.bestMove = PvTableBestMove(&searchInfo.pvTable);
+            TTEntry_t* topEntry = GetTTEntry(searchInfo.tt, ZobristStackTop(zobristStack));
+            searchResults.bestMove = topEntry->move;
             searchResults.score = score;
 
             if(printUciInfo) {
