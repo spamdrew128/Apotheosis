@@ -29,6 +29,7 @@ enum {
 typedef struct {
     bool outOfTime;
     NodeCount_t nodeCount;
+    PvTable_t pvTable;
     TranspositionTable_t* tt;
 } ChessSearchInfo_t;
 
@@ -136,6 +137,8 @@ static EvalScore_t Negamax(
         return 0;
     }
 
+    PvLengthInit(&searchInfo->pvTable, ply);
+
     if(depth == 0) {
         return QSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, ply);
     }
@@ -149,17 +152,6 @@ static EvalScore_t Negamax(
             return -EVAL_MAX + ply;
         case draw:
             return 0;
-    }
-
-    ZobristHash_t hash = ZobristStackTop(zobristStack);
-    TTEntry_t* entry = GetTTEntry(searchInfo->tt, hash);
-    TTFlag_t flag = upper_bound;
-    Move_t ttMove;
-
-    if(TTHit(entry, hash)) {
-        if(TTCutoffIsPossible(entry, alpha, beta, depth)) {
-            return entry->score;
-        }
     }
 
     SortMoveList(&moveList, boardInfo);
@@ -180,21 +172,17 @@ static EvalScore_t Negamax(
         }
 
         if(score >= beta) {
-            ReplaceTTEntry(entry, lower_bound, depth, move, score, hash);
             return score;
         }
 
         if(score > bestScore) {
             bestScore = score;
-            ttMove = move;
             if(score > alpha) {
                 alpha = score;
-                flag = exact;
+                UpdatePvTable(&searchInfo->pvTable, move, ply);
             }
         }
     }
-
-    ReplaceTTEntry(entry, flag, depth, ttMove, bestScore, hash);
 
     return bestScore;
 }
@@ -249,6 +237,8 @@ static void PrintUciInformation(
         (long long)searchInfo.nodeCount,
         (long long)ElapsedTime(stopwatch)
     );
+
+    SendPvInfo(&searchInfo.pvTable, currentDepth);
 }
 
 SearchResults_t Search(
@@ -283,8 +273,7 @@ SearchResults_t Search(
         );
 
         if(!searchInfo.outOfTime) {
-            TTEntry_t* topEntry = GetTTEntry(searchInfo.tt, ZobristStackTop(zobristStack));
-            searchResults.bestMove = topEntry->move;
+            searchResults.bestMove = PvTableBestMove(&searchInfo.pvTable);
             searchResults.score = score;
 
             if(printUciInfo) {
