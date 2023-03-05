@@ -37,18 +37,15 @@ static void InsertionSortCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo) 
 }
 
 void MoveListIteratorInit(MoveListIterator_t* iterator, MoveList_t* moveList, BoardInfo_t* boardInfo, int maxIndex) {
-    for(int i = 0; i <= moveList->maxCapturesIndex; i++) {
+    for(int i = 0; i <= maxIndex; i++) {
         Move_t move = moveList->moves[i];
         iterator->itemList[i].move = move;
 
-        iterator->itemList[i].score = MVVScore(boardInfo, move);
-    }
-
-    for(int i = moveList->maxCapturesIndex + 1; i <= maxIndex; i++) {
-        Move_t move = moveList->moves[i];
-        iterator->itemList[i].move = move;
-
-        iterator->itemList[i].score = quiet_move_score;
+        if(i <= moveList->maxCapturesIndex) {
+            iterator->itemList[i].score = MVVScore(boardInfo, move);
+        } else {
+            iterator->itemList[i].score = quiet_move_score;
+        }
     }
     iterator->headIndex = 0;
     iterator->maxIndex = maxIndex;
