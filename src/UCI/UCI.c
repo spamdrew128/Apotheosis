@@ -489,6 +489,8 @@ void InterpretUCIString(
     *boardInfo = data.boardInfo;
     *gameStack = data.gameStack;
     *zobristStack = data.zobristStack;
+
+    TeardownTT(&data.uciSearchInfo.tt);
 }
 
 void SendPvInfo(PvTable_t* pvTable, Depth_t depth) {
