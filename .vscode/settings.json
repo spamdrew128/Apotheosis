@@ -46,9 +46,7 @@
         "typeinfo": "c",
         "limits": "c",
         "time_constants.h": "c",
-        "transposition_table.h": "c",
-        "engine_types.h": "c",
-        "move_ordering.h": "c"
+        "transposition_table.h": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",
