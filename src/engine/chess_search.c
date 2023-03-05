@@ -88,12 +88,13 @@ static EvalScore_t QSearch(
         alpha = standPat;
     }
 
-    SortMoveList(&moveList, boardInfo);
+    MoveListIterator_t iterator;
+    MoveListIteratorInit(&iterator, &moveList, boardInfo, moveList.maxIndex);
 
     EvalScore_t bestScore = standPat;
     for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
         searchInfo->nodeCount++;
-        Move_t move = moveList.moves[i];
+        Move_t move = IteratorGetNextMove(&iterator);
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
         EvalScore_t score = -QSearch(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, ply+1);
@@ -152,11 +153,12 @@ static EvalScore_t Negamax(
             return 0;
     }
 
-    SortMoveList(&moveList, boardInfo);
+    MoveListIterator_t iterator;
+    MoveListIteratorInit(&iterator, &moveList, boardInfo, moveList.maxIndex);
 
     EvalScore_t bestScore = -EVAL_MAX;
     for(int i = 0; i <= moveList.maxIndex; i++) {
-        Move_t move = moveList.moves[i];
+        Move_t move = IteratorGetNextMove(&iterator);
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
         EvalScore_t score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
