@@ -90,7 +90,7 @@ static EvalScore_t QSearch(
         alpha = standPat;
     }
 
-    SortMoveList(&moveList, boardInfo);
+    SortCaptures(&moveList, boardInfo);
 
     EvalScore_t bestScore = standPat;
     for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
@@ -154,9 +154,18 @@ static EvalScore_t Negamax(
             return 0;
     }
 
-    SortMoveList(&moveList, boardInfo);
+    SortCaptures(&moveList, boardInfo);
 
     EvalScore_t bestScore = -EVAL_MAX;
+    Move_t bestMove;
+
+    ZobristHash_t hash = ZobristStackTop(zobristStack);
+    TTEntry_t* ttEntry = GetTTEntry(searchInfo->tt, hash);
+    TTFlag_t ttFlag = upper_bound;
+    if(TTHit(ttEntry, hash)) {
+        SortTTMove(&moveList, ttEntry->move, moveList.maxIndex);
+    }
+
     for(int i = 0; i <= moveList.maxIndex; i++) {
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
@@ -172,17 +181,22 @@ static EvalScore_t Negamax(
         }
 
         if(score >= beta) {
+            ReplaceTTEntry(ttEntry, lower_bound, depth, move, score, hash);
             return score;
         }
 
         if(score > bestScore) {
             bestScore = score;
+            bestMove = move;
             if(score > alpha) {
                 alpha = score;
+                ttFlag = exact;
                 UpdatePvTable(&searchInfo->pvTable, move, ply);
             }
         }
     }
+
+    ReplaceTTEntry(ttEntry, ttFlag, depth, bestMove, bestScore, hash);
 
     return bestScore;
 }

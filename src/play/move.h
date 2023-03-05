@@ -28,4 +28,6 @@ void WriteFromSquare(Move_t* move, Square_t square);
 void WritePromotionPiece(Move_t* move, Piece_t piece);
 void WriteSpecialFlag(Move_t* move, SpecialFlag_t flag);
 
+bool CompareMoves(Move_t m1, Move_t m2);
+
 #endif

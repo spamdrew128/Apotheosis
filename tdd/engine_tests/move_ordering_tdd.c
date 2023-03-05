@@ -38,7 +38,7 @@ static void ShouldOrderCaptures() {
     FEN_t manyCapturesFen = "rnb1kb1r/p4ppp/2p5/4N3/1ppqP1n1/2P1BQ1P/PP3PP1/RN2K2R w KQkq - 2 10";
     InterpretFEN(manyCapturesFen, &boardInfo, &gameStack, &zobristStack);
     CompleteMovegen(&moveList, &boardInfo, &gameStack);
-    SortMoveList(&moveList, &boardInfo);
+    SortCaptures(&moveList, &boardInfo);
 
     PrintResults(CapturesAreCorrectlyOrdered());
 }
