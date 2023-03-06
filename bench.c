@@ -31,6 +31,7 @@ bool Bench(int argc, char** argv) {
     NodeCount_t nodeCount = 0;
     for(int i = 0; i < NUM_PERFT_ENTRIES; i++) {
         InterpretFEN(fenList[i], &boardInfo, &gameStack, &zobristStack);
+        gameStack.gameStates[gameStack.top].halfmoveClock = 0;
         nodeCount += BenchSearch(&uciSearchInfo, &boardInfo, &gameStack, &zobristStack);
     }
 
