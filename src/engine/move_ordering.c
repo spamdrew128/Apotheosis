@@ -37,8 +37,8 @@ void SortCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo) {
 void SortTTMove(MoveList_t* moveList, Move_t ttMove, int maxIndex) {
     for(int i = 0; i <= maxIndex; i++) {
         if(CompareMoves(ttMove, moveList->moves[i])) {
-            for(int j = i; j >= 0; j--) {
-                moveList->moves[j+1] = moveList->moves[j];
+            for(int j = i; j > 0; j--) {
+                moveList->moves[j] = moveList->moves[j-1];
             }
             moveList->moves[0] = ttMove;
             return;
