@@ -287,19 +287,16 @@ SearchResults_t Search(
 }
 
 NodeCount_t BenchSearch(
+    UciSearchInfo_t* uciSearchInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack,
-    Depth_t depth
+    ZobristStack_t* zobristStack
 )
 {
-    UciSearchInfo_t dummySearchInfo;
-    UciSearchInfoInit(&dummySearchInfo);
-    dummySearchInfo.forceTime = 1000000;
-    SetupGlobalTimer(&dummySearchInfo, boardInfo);
+    SetupGlobalTimer(uciSearchInfo, boardInfo);
     
     ChessSearchInfo_t searchInfo;
-    InitSearchInfo(&searchInfo, &dummySearchInfo);
+    InitSearchInfo(&searchInfo, uciSearchInfo);
 
     Depth_t currentDepth = 0;
     do {
@@ -315,9 +312,7 @@ NodeCount_t BenchSearch(
             currentDepth,
             0
         );
-    } while(currentDepth < depth);
-
-    TeardownTT(&dummySearchInfo.tt);
+    } while(currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
 
     return searchInfo.nodeCount;
 }

@@ -22,14 +22,22 @@ bool Bench(int argc, char** argv) {
 
     Stopwatch_t stopwatch;
     StopwatchInit(&stopwatch);
+
+    UciSearchInfo_t uciSearchInfo;
+    UciSearchInfoInit(&uciSearchInfo);
+    uciSearchInfo.forceTime = 1000000;
+    uciSearchInfo.depthLimit = 5;
+
     NodeCount_t nodeCount = 0;
     for(int i = 0; i < NUM_PERFT_ENTRIES; i++) {
         InterpretFEN(fenList[i], &boardInfo, &gameStack, &zobristStack);
-        nodeCount += BenchSearch(&boardInfo, &gameStack, &zobristStack, 5);
+        nodeCount += BenchSearch(&uciSearchInfo, &boardInfo, &gameStack, &zobristStack);
     }
 
     Milliseconds_t msec = ElapsedTime(&stopwatch);
     printf("%lld nodes %lld nps\n", (long long)nodeCount, (long long)(nodeCount * msec_per_sec) / msec);
+
+    TeardownTT(&uciSearchInfo.tt);
 
     return false;
 }
