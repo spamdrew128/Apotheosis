@@ -129,6 +129,8 @@ static EvalScore_t Negamax(
     Ply_t ply
 )
 {
+    const bool isRoot = ply == 0;
+
     if(ShouldCheckTimer(searchInfo->nodeCount) && TimerExpired(&globalTimer)) {
         searchInfo->outOfTime = true;
         return 0;
@@ -143,12 +145,14 @@ static EvalScore_t Negamax(
     MoveList_t moveList;
     CompleteMovegen(&moveList, boardInfo, gameStack);
 
-    GameEndStatus_t gameEndStatus = CurrentGameEndStatus(boardInfo, gameStack, zobristStack, moveList.maxIndex);
-    switch (gameEndStatus) {
-        case checkmate:
-            return -EVAL_MAX + ply;
-        case draw:
-            return 0;
+    if(!isRoot) {
+        GameEndStatus_t gameEndStatus = CurrentGameEndStatus(boardInfo, gameStack, zobristStack, moveList.maxIndex);
+        switch (gameEndStatus) {
+            case checkmate:
+                return -EVAL_MAX + ply;
+            case draw:
+                return 0;
+        }
     }
 
     SortMoveList(&moveList, boardInfo);
