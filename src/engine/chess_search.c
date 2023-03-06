@@ -156,7 +156,16 @@ static EvalScore_t Negamax(
 
     SortCaptures(&moveList, boardInfo);
 
+    ZobristHash_t hash = ZobristStackTop(zobristStack);
+    TTEntry_t* entry = GetTTEntry(searchInfo->tt, hash);
+    if(TTHit(entry, hash)) {
+        SortTTMove(&moveList, entry->move, moveList.maxIndex);
+    }
+
+    TTFlag_t flag = upper_bound; // start at upper bound and update if we know we won't fail low
+
     EvalScore_t bestScore = -EVAL_MAX;
+    Move_t bestMove;
     for(int i = 0; i <= moveList.maxIndex; i++) {
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
@@ -171,18 +180,23 @@ static EvalScore_t Negamax(
             return 0;
         }
 
-        if(score >= beta) {
-            return score;
-        }
-
         if(score > bestScore) {
             bestScore = score;
+            bestMove = move;
+            if(score >= beta) {
+                flag = lower_bound;
+                break;
+            }
+
             if(score > alpha) {
                 alpha = score;
+                flag = exact;
                 UpdatePvTable(&searchInfo->pvTable, move, ply);
             }
         }
     }
+
+    ReplaceTTEntry(entry, flag, depth, bestMove, bestScore, hash);
 
     return bestScore;
 }
