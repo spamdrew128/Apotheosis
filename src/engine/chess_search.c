@@ -246,18 +246,18 @@ static void PrintUciInformation(
         scoreValue = (ply + 1)/2;
     }
 
-    Milliseconds_t time = ElapsedTime(stopwatch);
+    Milliseconds_t time = ElapsedTime(stopwatch) + 1;
+    long long nps =((searchInfo.nodeCount * msec_per_sec) / time);
     SendUciInfoString(
-        "score %s%d depth %d nodes %lld time %lld",
+        "score %s%d depth %d nodes %lld time %lld nps %lld",
         scoreType,
         scoreValue,
         currentDepth,
         (long long)searchInfo.nodeCount,
-        (long long)time
+        (long long)time,
+        nps
     );
     SendPvInfo(&searchInfo.pvTable, currentDepth);
-
-    // SendUciInfoString("nps %lld", (long long)(searchInfo.nodeCount * msec_per_sec) / time);
 }
 
 SearchResults_t Search(
