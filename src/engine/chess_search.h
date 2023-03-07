@@ -51,10 +51,10 @@ SearchResults_t Search(
 );
 
 NodeCount_t BenchSearch(
+    UciSearchInfo_t* uciSearchInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack,
-    Depth_t depth
+    ZobristStack_t* zobristStack
 );
 
 void UciSearchInfoTimeInfoReset(UciSearchInfo_t* uciSearchInfo);

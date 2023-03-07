@@ -90,7 +90,7 @@ static EvalScore_t QSearch(
         alpha = standPat;
     }
 
-    SortMoveList(&moveList, boardInfo);
+    SortCaptures(&moveList, boardInfo);
 
     EvalScore_t bestScore = standPat;
     for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
@@ -106,12 +106,14 @@ static EvalScore_t QSearch(
             return 0;
         }
 
-        if(score >= beta) {
-            return score;
-        }
 
         if(score > bestScore) {
             bestScore = score;
+
+            if(score >= beta) {
+                break;
+            }
+            
             if(score > alpha) {
                 alpha = score;
             }
@@ -158,9 +160,18 @@ static EvalScore_t Negamax(
         }
     }
 
-    SortMoveList(&moveList, boardInfo);
+    SortCaptures(&moveList, boardInfo);
 
+    ZobristHash_t hash = ZobristStackTop(zobristStack);
+    TTIndex_t ttIndex = GetTTIndex(searchInfo->tt, hash);
+    TTEntry_t entry = GetTTEntry(searchInfo->tt, ttIndex);
+    if(TTHit(entry, hash)) {
+        SortTTMove(&moveList, entry.bestMove, moveList.maxIndex);
+    }
+
+    EvalScore_t oldAlpha = alpha;
     EvalScore_t bestScore = -EVAL_MAX;
+    Move_t bestMove;
     for(int i = 0; i <= moveList.maxIndex; i++) {
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
@@ -175,18 +186,22 @@ static EvalScore_t Negamax(
             return 0;
         }
 
-        if(score >= beta) {
-            return score;
-        }
-
         if(score > bestScore) {
             bestScore = score;
+            bestMove = move;
+            if(score >= beta) {
+                break;
+            }
+
             if(score > alpha) {
                 alpha = score;
                 UpdatePvTable(&searchInfo->pvTable, move, ply);
             }
         }
     }
+
+    TTFlag_t flag = DetermineTTFlag(bestScore, oldAlpha, alpha, beta);
+    StoreTTEntry(searchInfo->tt, ttIndex, flag, depth, bestMove, bestScore, hash);
 
     return bestScore;
 }
@@ -293,19 +308,16 @@ SearchResults_t Search(
 }
 
 NodeCount_t BenchSearch(
+    UciSearchInfo_t* uciSearchInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack,
-    Depth_t depth
+    ZobristStack_t* zobristStack
 )
 {
-    UciSearchInfo_t dummySearchInfo;
-    UciSearchInfoInit(&dummySearchInfo);
-    dummySearchInfo.forceTime = 1000000;
-    SetupGlobalTimer(&dummySearchInfo, boardInfo);
+    SetupGlobalTimer(uciSearchInfo, boardInfo);
     
     ChessSearchInfo_t searchInfo;
-    InitSearchInfo(&searchInfo, &dummySearchInfo);
+    InitSearchInfo(&searchInfo, uciSearchInfo);
 
     Depth_t currentDepth = 0;
     do {
@@ -321,9 +333,7 @@ NodeCount_t BenchSearch(
             currentDepth,
             0
         );
-    } while(currentDepth < depth);
-
-    TeardownTT(&dummySearchInfo.tt);
+    } while(currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
 
     return searchInfo.nodeCount;
 }

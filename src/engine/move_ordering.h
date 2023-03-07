@@ -5,6 +5,8 @@
 #include "board_info.h"
 #include "board_constants.h"
 
-void SortMoveList(MoveList_t* moveList, BoardInfo_t* boardInfo);
+void SortCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo);
+
+void SortTTMove(MoveList_t* moveList, Move_t ttMove, int maxIndex);
 
 #endif

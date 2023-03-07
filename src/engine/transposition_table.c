@@ -5,9 +5,8 @@
 
 void ClearTTEntries(TranspositionTable_t* table) {
     for(int i = 0; i < table->numEntries; i++) {
-        table->entries[i].flag = uninitialized_flag;
         table->entries[i].hash = 0;
-        InitMove(&table->entries[i].move);
+        InitMove(&table->entries[i].bestMove);
     }
 }
 
@@ -23,42 +22,57 @@ void TranspositionTableInit(TranspositionTable_t* table, Megabytes_t megabytes) 
     ClearTTEntries(table);
 }
 
-TTEntry_t* GetTTEntry(TranspositionTable_t* table, ZobristHash_t hash) {
-    return &table->entries[hash % table->numEntries];
+TTIndex_t GetTTIndex(TranspositionTable_t* table, ZobristHash_t hash) {
+    return hash % table->numEntries;
 }
 
-bool TTHit(TTEntry_t* entry, ZobristHash_t hash) {
-    return (entry->hash == hash) && (entry->flag != uninitialized_flag);
+TTEntry_t GetTTEntry(TranspositionTable_t* table, TTIndex_t key) {
+    return table->entries[key];
 }
 
-void ReplaceTTEntry(
-    TTEntry_t* entry,
+bool TTHit(TTEntry_t entry, ZobristHash_t hash) {
+    return entry.hash == hash;
+}
+
+TTFlag_t DetermineTTFlag(EvalScore_t bestScore, EvalScore_t oldAlpha, EvalScore_t alpha, EvalScore_t beta) {
+    if(bestScore >= beta) {
+        return lower_bound;
+    } else if(alpha != oldAlpha) {
+        return exact;
+    } else {
+        return upper_bound;
+    }
+}
+
+void StoreTTEntry(
+    TranspositionTable_t* table,
+    TTIndex_t index,
     TTFlag_t flag,
     Depth_t depth,
-    Move_t move,
-    EvalScore_t score,
+    Move_t bestMove,
+    EvalScore_t bestScore,
     ZobristHash_t hash
 )
 {
-    entry->flag = flag;
-    entry->depth = depth;
-    entry->move = move;
-    entry->score = score;
-    entry->hash = hash;
+    table->entries[index].flag = flag;
+    table->entries[index].depth = depth;
+    table->entries[index].bestMove = bestMove;
+    table->entries[index].bestScore = bestScore;
+    table->entries[index].hash = hash;
 }
 
-bool TTCutoffIsPossible(TTEntry_t* entry, EvalScore_t alpha, EvalScore_t beta, Depth_t currentDepth) {
-    if(entry->depth < currentDepth) {
+bool TTCutoffIsPossible(TTEntry_t entry, EvalScore_t alpha, EvalScore_t beta, Depth_t currentDepth) {
+    if(entry.depth < currentDepth) {
         return false;
     }
 
-    switch(entry->flag) {
+    switch(entry.flag) {
         case exact:
             return true;
         case lower_bound:
-            return entry->score >= beta;
+            return entry.bestScore >= beta;
         case upper_bound:
-            return entry->score <= alpha;
+            return entry.bestScore <= alpha;
         default:
             return false;
     }

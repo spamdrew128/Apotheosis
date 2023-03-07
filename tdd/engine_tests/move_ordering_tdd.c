@@ -4,6 +4,7 @@
 #include "debug.h"
 #include "FEN.h"
 #include "evaluation.h"
+#include "move.h"
 
 static MoveList_t moveList;
 static BoardInfo_t boardInfo;
@@ -38,11 +39,26 @@ static void ShouldOrderCaptures() {
     FEN_t manyCapturesFen = "rnb1kb1r/p4ppp/2p5/4N3/1ppqP1n1/2P1BQ1P/PP3PP1/RN2K2R w KQkq - 2 10";
     InterpretFEN(manyCapturesFen, &boardInfo, &gameStack, &zobristStack);
     CompleteMovegen(&moveList, &boardInfo, &gameStack);
-    SortMoveList(&moveList, &boardInfo);
+    SortCaptures(&moveList, &boardInfo);
 
     PrintResults(CapturesAreCorrectlyOrdered());
 }
 
+static void ShouldOrderTTFirst() {
+    FEN_t someFen = "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3";
+    Move_t ttMove;
+    InitMove(&ttMove);
+    WriteFromSquare(&ttMove, f1);
+    WriteToSquare(&ttMove, d3);
+    
+    InterpretFEN(someFen, &boardInfo, &gameStack, &zobristStack);
+    CompleteMovegen(&moveList, &boardInfo, &gameStack);
+    SortTTMove(&moveList, ttMove, moveList.maxIndex);
+
+    PrintResults(CompareMoves(moveList.moves[0], ttMove));
+}
+
 void MoveOrderingTDDRunner() {
     ShouldOrderCaptures();
+    ShouldOrderTTFirst();
 }
