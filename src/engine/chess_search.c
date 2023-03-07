@@ -92,15 +92,7 @@ static EvalScore_t QSearch(
 
     SortCaptures(&moveList, boardInfo);
 
-    ZobristHash_t hash = ZobristStackTop(zobristStack);
-    TTIndex_t ttIndex = GetTTIndex(searchInfo->tt, hash);
-    TTEntry_t entry = GetTTEntry(searchInfo->tt, ttIndex);
-    if(TTHit(entry, hash)) {
-        SortTTMove(&moveList, entry.bestMove, moveList.maxCapturesIndex);
-    }
-
     EvalScore_t bestScore = standPat;
-    Move_t bestMove;
     for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
         searchInfo->nodeCount++;
         Move_t move = moveList.moves[i];
@@ -114,9 +106,10 @@ static EvalScore_t QSearch(
             return 0;
         }
 
+
         if(score > bestScore) {
             bestScore = score;
-            bestMove = move;
+
             if(score >= beta) {
                 break;
             }
@@ -126,9 +119,6 @@ static EvalScore_t QSearch(
             }
         }
     }
-
-    TTFlag_t flag = bestScore >= beta ? lower_bound : upper_bound; // copied SF, not really sure why we don't return exact flags in qsearch
-    StoreTTEntry(searchInfo->tt, ttIndex, flag, 0, bestMove, bestScore, hash);
 
     return bestScore;
 }
@@ -144,17 +134,17 @@ static EvalScore_t Negamax(
     Ply_t ply
 )
 {
+    PvLengthInit(&searchInfo->pvTable, ply);
+
+    if(depth == 0) {
+        return QSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, ply);
+    }
+
     const bool isRoot = ply == 0;
 
     if(ShouldCheckTimer(searchInfo->nodeCount) && TimerExpired(&globalTimer)) {
         searchInfo->outOfTime = true;
         return 0;
-    }
-
-    PvLengthInit(&searchInfo->pvTable, ply);
-
-    if(depth == 0) {
-        return QSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, ply);
     }
 
     MoveList_t moveList;
