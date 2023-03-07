@@ -257,7 +257,7 @@ static void PrintUciInformation(
     );
     SendPvInfo(&searchInfo.pvTable, currentDepth);
 
-    SendUciInfoString("nps %lld", (long long)(searchInfo.nodeCount * msec_per_sec) / time);
+    // SendUciInfoString("nps %lld", (long long)(searchInfo.nodeCount * msec_per_sec) / time);
 }
 
 SearchResults_t Search(
