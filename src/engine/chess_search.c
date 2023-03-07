@@ -106,12 +106,14 @@ static EvalScore_t QSearch(
             return 0;
         }
 
-        if(score >= beta) {
-            return score;
-        }
 
         if(score > bestScore) {
             bestScore = score;
+
+            if(score >= beta) {
+                break;
+            }
+            
             if(score > alpha) {
                 alpha = score;
             }
