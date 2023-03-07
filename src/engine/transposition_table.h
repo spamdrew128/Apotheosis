@@ -10,7 +10,6 @@
 
 typedef uint8_t TTFlag_t;
 enum {
-    uninitialized_flag,
     lower_bound,
     exact,
     upper_bound
@@ -19,12 +18,13 @@ enum {
 typedef struct {
     TTFlag_t flag;
     Depth_t depth;
-    Move_t move;
-    EvalScore_t score;
+    Move_t bestMove;
+    EvalScore_t bestScore;
     ZobristHash_t hash;
 } TTEntry_t;
 
 typedef uint64_t TTLength_t;
+typedef uint32_t TTIndex_t;
 
 typedef struct {
     TTEntry_t* entries;
@@ -36,20 +36,25 @@ void ClearTTEntries(TranspositionTable_t* table);
 
 void TranspositionTableInit(TranspositionTable_t* table, Megabytes_t megabytes);
 
-TTEntry_t* GetTTEntry(TranspositionTable_t* table, ZobristHash_t hash);
+TTIndex_t GetTTIndex(TranspositionTable_t* table, ZobristHash_t hash);
 
-bool TTHit(TTEntry_t* entry, ZobristHash_t hash);
+TTEntry_t GetTTEntry(TranspositionTable_t* table, TTIndex_t key);
 
-void ReplaceTTEntry(
-    TTEntry_t* entry,
+bool TTHit(TTEntry_t entry, ZobristHash_t hash);
+
+TTFlag_t DetermineTTFlag(EvalScore_t bestScore, EvalScore_t oldAlpha, EvalScore_t alpha, EvalScore_t beta);
+
+void StoreTTEntry(
+    TranspositionTable_t* table,
+    TTIndex_t index,
     TTFlag_t flag,
     Depth_t depth,
-    Move_t move,
-    EvalScore_t score,
+    Move_t bestMove,
+    EvalScore_t bestScore,
     ZobristHash_t hash
 );
 
-bool TTCutoffIsPossible(TTEntry_t* entry, EvalScore_t alpha, EvalScore_t beta, Depth_t currentDepth);
+bool TTCutoffIsPossible(TTEntry_t entry, EvalScore_t alpha, EvalScore_t beta, Depth_t currentDepth);
 
 void TeardownTT(TranspositionTable_t* table);
 
