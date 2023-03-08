@@ -117,6 +117,7 @@ static EvalScore_t QSearch(
     }
 
     EvalScore_t bestScore = standPat;
+    Move_t bestMove;
     for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
         searchInfo->nodeCount++;
         Move_t move = moveList.moves[i];
@@ -133,7 +134,7 @@ static EvalScore_t QSearch(
 
         if(score > bestScore) {
             bestScore = score;
-
+            bestMove = move;
             if(score >= beta) {
                 break;
             }
@@ -143,6 +144,9 @@ static EvalScore_t QSearch(
             }
         }
     }
+
+    TTFlag_t flag = bestScore >= beta ? lower_bound : upper_bound;
+    StoreTTEntry(searchInfo->tt, ttIndex, flag, 0, bestMove, bestScore, hash);
 
     return bestScore;
 }
