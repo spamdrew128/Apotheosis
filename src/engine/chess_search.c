@@ -123,13 +123,12 @@ static EvalScore_t QSearch(
     return bestScore;
 }
 
-static bool NullWindowSearch(
+static EvalScore_t NullWindowSearch(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
     ChessSearchInfo_t* searchInfo,
     EvalScore_t alpha,
-    EvalScore_t beta,
     Depth_t depth,
     Ply_t ply
 )
@@ -137,8 +136,7 @@ static bool NullWindowSearch(
     EvalScore_t nullWindowBeta = alpha + 1;
     EvalScore_t score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -nullWindowBeta, -alpha, depth-1, ply+1);
 
-    // if NWS raises alpha and we don't fail high, we need to re-search with full window
-    return score > alpha && score < beta;
+    return score;
 }
 
 static EvalScore_t Negamax(
@@ -159,7 +157,7 @@ static EvalScore_t Negamax(
     }
 
     const bool isRoot = ply == 0;
-    const bool nullWindowNode = beta - alpha == 1;
+    const bool isPVNode = beta - alpha != 1;
 
     if(ShouldCheckTimer(searchInfo->nodeCount) && TimerExpired(&globalTimer)) {
         searchInfo->outOfTime = true;
@@ -185,6 +183,10 @@ static EvalScore_t Negamax(
     TTIndex_t ttIndex = GetTTIndex(searchInfo->tt, hash);
     TTEntry_t entry = GetTTEntry(searchInfo->tt, ttIndex);
     if(TTHit(entry, hash)) {
+        if(!isPVNode && TTCutoffIsPossible(entry, alpha, beta, depth)) {
+            return entry.bestScore;
+        }
+        
         SortTTMove(&moveList, entry.bestMove, moveList.maxIndex);
     }
 
@@ -192,10 +194,19 @@ static EvalScore_t Negamax(
     EvalScore_t bestScore = -EVAL_MAX;
     Move_t bestMove;
     for(int i = 0; i <= moveList.maxIndex; i++) {
+        EvalScore_t score;
         Move_t move = moveList.moves[i];
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
-
-        EvalScore_t score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
+    
+        if(i == 0) {
+            score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
+        } else {
+            score = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, depth, ply);
+            // if our NWS beat alpha without failing high, that means we might have a better move and need to re search
+            if(score > alpha && score < beta) {
+                score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
+            }
+        }
 
         UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
 
