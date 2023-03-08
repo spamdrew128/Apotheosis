@@ -35,6 +35,17 @@ typedef struct {
 
 static Timer_t globalTimer;
 
+static EvalScore_t Negamax(
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    ChessSearchInfo_t* searchInfo,
+    EvalScore_t alpha,
+    EvalScore_t beta,
+    Depth_t depth,
+    Ply_t ply
+);
+
 static void InitSearchInfo(ChessSearchInfo_t* chessSearchInfo, UciSearchInfo_t* uciSearchInfo) {
     chessSearchInfo->outOfTime = false;
     chessSearchInfo->nodeCount = 0;
