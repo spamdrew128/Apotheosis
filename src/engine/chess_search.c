@@ -123,6 +123,24 @@ static EvalScore_t QSearch(
     return bestScore;
 }
 
+static bool NullWindowSearch(
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    ChessSearchInfo_t* searchInfo,
+    EvalScore_t alpha,
+    EvalScore_t beta,
+    Depth_t depth,
+    Ply_t ply
+)
+{
+    EvalScore_t nullWindowBeta = alpha + 1;
+    EvalScore_t score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -nullWindowBeta, -alpha, depth-1, ply+1);
+
+    // if NWS raises alpha and we don't fail high, we need to re-search with full window
+    return score > alpha && score < beta;
+}
+
 static EvalScore_t Negamax(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
@@ -141,6 +159,7 @@ static EvalScore_t Negamax(
     }
 
     const bool isRoot = ply == 0;
+    const bool nullWindowNode = beta - alpha == 1;
 
     if(ShouldCheckTimer(searchInfo->nodeCount) && TimerExpired(&globalTimer)) {
         searchInfo->outOfTime = true;
