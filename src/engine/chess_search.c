@@ -103,21 +103,20 @@ static EvalScore_t QSearch(
 
     SortCaptures(&moveList, boardInfo);
 
-    const bool isPVNode = beta - alpha != 1;
-    ZobristHash_t hash = ZobristStackTop(zobristStack);
-    TTIndex_t ttIndex = GetTTIndex(searchInfo->tt, hash);
-    TTEntry_t entry = GetTTEntry(searchInfo->tt, ttIndex);
-    if(TTHit(entry, hash)) {
-        if(!isPVNode && TTCutoffIsPossible(entry, alpha, beta, 0)) {
-            return entry.bestScore;
-        }
+    // const bool isPVNode = beta - alpha != 1;
+    // ZobristHash_t hash = ZobristStackTop(zobristStack);
+    // TTIndex_t ttIndex = GetTTIndex(searchInfo->tt, hash);
+    // TTEntry_t entry = GetTTEntry(searchInfo->tt, ttIndex);
+    // if(TTHit(entry, hash)) {
+    //     if(!isPVNode && TTCutoffIsPossible(entry, alpha, beta, 0)) {
+    //         return entry.bestScore;
+    //     }
         
-        // TODO: try this again later
-        // SortTTMove(&moveList, entry.bestMove, moveList.maxIndex);
-    }
+    //     // TODO: try this again later
+    //     // SortTTMove(&moveList, entry.bestMove, moveList.maxIndex);
+    // }
 
     EvalScore_t bestScore = standPat;
-    Move_t bestMove;
     for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
         searchInfo->nodeCount++;
         Move_t move = moveList.moves[i];
@@ -134,7 +133,7 @@ static EvalScore_t QSearch(
 
         if(score > bestScore) {
             bestScore = score;
-            bestMove = move;
+
             if(score >= beta) {
                 break;
             }
@@ -144,9 +143,6 @@ static EvalScore_t QSearch(
             }
         }
     }
-
-    TTFlag_t flag = bestScore >= beta ? lower_bound : upper_bound;
-    StoreTTEntry(searchInfo->tt, ttIndex, flag, 0, bestMove, bestScore, hash);
 
     return bestScore;
 }
