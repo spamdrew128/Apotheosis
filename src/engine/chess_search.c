@@ -103,7 +103,6 @@ static EvalScore_t QSearch(
 
     SortCaptures(&moveList, boardInfo);
 
-    const bool isPVNode = beta - alpha != 1;
     ZobristHash_t hash = ZobristStackTop(zobristStack);
     TTIndex_t ttIndex = GetTTIndex(searchInfo->tt, hash);
     TTEntry_t entry = GetTTEntry(searchInfo->tt, ttIndex);
