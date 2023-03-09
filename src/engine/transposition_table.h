@@ -15,16 +15,17 @@ enum {
     upper_bound
 };
 
+typedef uint64_t TTLength_t;
+typedef uint32_t TTIndex_t;
+typedef uint16_t TTKey_t;
+
 typedef struct {
     TTFlag_t flag;
     Depth_t depth;
     Move_t bestMove;
     EvalScore_t bestScore;
-    ZobristHash_t hash;
+    TTKey_t key;
 } TTEntry_t;
-
-typedef uint64_t TTLength_t;
-typedef uint32_t TTIndex_t;
 
 typedef struct {
     TTEntry_t* entries;
@@ -38,7 +39,7 @@ void TranspositionTableInit(TranspositionTable_t* table, Megabytes_t megabytes);
 
 TTIndex_t GetTTIndex(TranspositionTable_t* table, ZobristHash_t hash);
 
-TTEntry_t GetTTEntry(TranspositionTable_t* table, TTIndex_t key);
+TTEntry_t GetTTEntry(TranspositionTable_t* table, TTIndex_t index);
 
 bool TTHit(TTEntry_t entry, ZobristHash_t hash);
 

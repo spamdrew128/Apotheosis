@@ -5,7 +5,7 @@
 
 void ClearTTEntries(TranspositionTable_t* table) {
     for(int i = 0; i < table->numEntries; i++) {
-        table->entries[i].hash = 0;
+        table->entries[i].key = 0;
         InitMove(&table->entries[i].bestMove);
     }
 }
@@ -26,12 +26,12 @@ TTIndex_t GetTTIndex(TranspositionTable_t* table, ZobristHash_t hash) {
     return hash % table->numEntries;
 }
 
-TTEntry_t GetTTEntry(TranspositionTable_t* table, TTIndex_t key) {
-    return table->entries[key];
+TTEntry_t GetTTEntry(TranspositionTable_t* table, TTIndex_t index) {
+    return table->entries[index];
 }
 
 bool TTHit(TTEntry_t entry, ZobristHash_t hash) {
-    return entry.hash == hash;
+    return entry.key == (TTKey_t)hash;
 }
 
 TTFlag_t DetermineTTFlag(EvalScore_t bestScore, EvalScore_t oldAlpha, EvalScore_t alpha, EvalScore_t beta) {
@@ -58,7 +58,7 @@ void StoreTTEntry(
     table->entries[index].depth = depth;
     table->entries[index].bestMove = bestMove;
     table->entries[index].bestScore = bestScore;
-    table->entries[index].hash = hash;
+    table->entries[index].key = (TTKey_t)hash;
 }
 
 bool TTCutoffIsPossible(TTEntry_t entry, EvalScore_t alpha, EvalScore_t beta, Depth_t currentDepth) {

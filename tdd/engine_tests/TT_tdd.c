@@ -24,7 +24,7 @@ static void ShouldInitToCorrectSize() {
 static void ShouldNotHitWhenUninitialized() {
     TTEntry_t entry;
     entry.flag = some_flag;
-    entry.hash = 0;
+    entry.key = 0;
 
     bool hit = TTHit(entry, some_zobrist_hash);
     PrintResults(!hit);
@@ -33,7 +33,7 @@ static void ShouldNotHitWhenUninitialized() {
 static void ShouldNotHitWithDifferentHashs() {
     TTEntry_t entry;
     entry.flag = exact;
-    entry.hash = some_zobrist_hash - 1;
+    entry.key = some_zobrist_hash - 1;
 
     bool hit = TTHit(entry, some_zobrist_hash);
     PrintResults(hit == false);
@@ -42,7 +42,7 @@ static void ShouldNotHitWithDifferentHashs() {
 static void ShouldHitWithSameHashs() {
     TTEntry_t entry;
     entry.flag = exact;
-    entry.hash = some_zobrist_hash;
+    entry.key = some_zobrist_hash;
 
     bool hit = TTHit(entry, some_zobrist_hash);
     PrintResults(hit == true);
