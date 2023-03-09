@@ -202,7 +202,7 @@ static EvalScore_t Negamax(
     }
 
     MovePicker_t movePicker;
-    InitMovePicker(&movePicker, &moveList, boardInfo, ttMove, moveList.maxCapturesIndex);
+    InitMovePicker(&movePicker, &moveList, boardInfo, ttMove, moveList.maxIndex);
 
     EvalScore_t oldAlpha = alpha;
     EvalScore_t bestScore = -EVAL_MAX;

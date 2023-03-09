@@ -17,7 +17,7 @@ enum {
 };
 
 typedef int16_t MoveScore_t;
-typedef uint8_t MoveIndex_t;
+typedef int16_t MoveIndex_t;
 
 enum MoveScores { // for move ordering later
     tt_score = ENTRY_MAX_SCORE,
