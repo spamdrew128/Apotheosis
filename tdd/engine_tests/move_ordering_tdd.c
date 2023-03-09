@@ -11,54 +11,61 @@ static BoardInfo_t boardInfo;
 static GameStack_t gameStack;
 static ZobristStack_t zobristStack;
 
+bool IsCapture(Move_t move) {
+    Piece_t victim = PieceOnSquare(&boardInfo, ReadToSquare(move));
+    return victim != none_type || ReadSpecialFlag(move) == en_passant_flag;
+}
+
 static EvalScore_t MVVScore(Move_t capture) {
     Square_t toSquare = ReadToSquare(capture);
     Square_t fromSquare = ReadFromSquare(capture);
 
     Piece_t victim = PieceOnSquare(&boardInfo, toSquare);
     Piece_t attacker = PieceOnSquare(&boardInfo, fromSquare);
-    
-    assert(victim != none_type);
 
     return ValueOfPiece(victim) - ValueOfPiece(attacker);
 }
 
-static bool CapturesAreCorrectlyOrdered() {
-    for(int i = 1; i <= moveList.maxCapturesIndex; i++) {
-        Move_t prevMove = moveList.moves[i-1];
-        Move_t currentMove = moveList.moves[i];
-        if(MVVScore(prevMove) < MVVScore(currentMove)) {
+static MoveScore_t AssignTestScore(Move_t move, Move_t ttMove) {
+    if(CompareMoves(move, ttMove)) {
+        return tt_score;
+    } else if(ReadSpecialFlag(move) == promotion_flag) {
+        return promotion_score;
+    } else if(IsCapture(move)) {
+        return MVVScore(move);
+    } else {
+        return quiet_score;
+    }
+}
+
+static bool MovesAreCorrectlyOrdered(MovePicker_t* picker, Move_t ttMove) {
+    Move_t prevMove = PickMove(picker);
+    for(int i = 1; i <= moveList.maxIndex; i++) {
+        Move_t currentMove = PickMove(picker);
+        if(AssignTestScore(prevMove, ttMove) < AssignTestScore(currentMove, ttMove)) {
             return false;
         }
+        prevMove = currentMove;
     }
 
     return true;
 }
 
-static void ShouldOrderCaptures() {
-    FEN_t manyCapturesFen = "rnb1kb1r/p4ppp/2p5/4N3/1ppqP1n1/2P1BQ1P/PP3PP1/RN2K2R w KQkq - 2 10";
+static void ShouldOrderCorrectly() {
+    FEN_t manyCapturesFen = "rn2kb1r/p1P2ppp/2p5/4N3/1ppqP1n1/2P1BQ1P/PP3PP1/RN2K2R w KQkq - 2 10";
     InterpretFEN(manyCapturesFen, &boardInfo, &gameStack, &zobristStack);
     CompleteMovegen(&moveList, &boardInfo, &gameStack);
-    SortCaptures(&moveList, &boardInfo);
 
-    PrintResults(CapturesAreCorrectlyOrdered());
-}
+    MovePicker_t picker;
+    Move_t ttMove = NullMove();
+    WriteFromSquare(&ttMove, e3);
+    WriteToSquare(&ttMove, f4);
 
-static void ShouldOrderTTFirst() {
-    FEN_t someFen = "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3";
-    Move_t ttMove;
-    InitMove(&ttMove);
-    WriteFromSquare(&ttMove, f1);
-    WriteToSquare(&ttMove, d3);
-    
-    InterpretFEN(someFen, &boardInfo, &gameStack, &zobristStack);
-    CompleteMovegen(&moveList, &boardInfo, &gameStack);
-    SortTTMove(&moveList, ttMove, moveList.maxIndex);
+    InitMovePicker(&picker, &moveList, &boardInfo, ttMove, moveList.maxIndex);
 
-    PrintResults(CompareMoves(moveList.moves[0], ttMove));
+    PrintResults(MovesAreCorrectlyOrdered(&picker, ttMove));
 }
 
 void MoveOrderingTDDRunner() {
-    ShouldOrderCaptures();
-    ShouldOrderTTFirst();
+    ShouldOrderCorrectly();
 }

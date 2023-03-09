@@ -15,33 +15,58 @@ static EvalScore_t MVVScore(BoardInfo_t* boardInfo, Move_t capture) {
     return ValueOfPiece(victim) - ValueOfPiece(attacker);
 }
 
-static void InsertionSortCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo) {
-    int maxIndex = moveList->maxCapturesIndex;
-    for(int i = 1; i <= maxIndex; i++) {
-        Move_t capture = moveList->moves[i];
-        EvalScore_t captureScore = MVVScore(boardInfo, capture);
+void InitMovePicker(
+    MovePicker_t* movePicker,
+    MoveList_t* moveList,
+    BoardInfo_t* boardInfo,
+    Move_t ttMove,
+    MoveIndex_t finalIndex
+)
+{
+    movePicker->headIndex = 0;
+    movePicker->moveList = moveList;
+    movePicker->tailIndex = finalIndex;
 
-        int j = i - 1;
-        while (j >= 0 && (captureScore > MVVScore(boardInfo, moveList->moves[j]))) {
-            moveList->moves[j+1] = moveList->moves[j]; // shift to the right
-            j--;
+    for(MoveIndex_t i = 0; i <= finalIndex; i++) {
+        Move_t move = moveList->moves[i].move;
+        if(CompareMoves(move, ttMove)) {
+            moveList->moves[i].score = tt_score;
+        } else if(ReadSpecialFlag(move) == promotion_flag) {
+            moveList->moves[i].score = promotion_score;
+        } else if(i <= moveList->maxCapturesIndex) {
+            moveList->moves[i].score = MVVScore(boardInfo, move);
+        } else {
+            moveList->moves[i].score = quiet_score;
         }
-        moveList->moves[j+1] = capture;
     }
 }
 
-void SortCaptures(MoveList_t* moveList, BoardInfo_t* boardInfo) {
-    InsertionSortCaptures(moveList, boardInfo);
+static void SwapEntries(MoveList_t* moveList, MoveIndex_t i, MoveIndex_t j) {
+    MoveEntry_t temp = moveList->moves[i];
+    moveList->moves[i] = moveList->moves[j];
+    moveList->moves[j] = temp;
 }
 
-void SortTTMove(MoveList_t* moveList, Move_t ttMove, int maxIndex) {
-    for(int i = 0; i <= maxIndex; i++) {
-        if(CompareMoves(ttMove, moveList->moves[i])) {
-            for(int j = i; j > 0; j--) {
-                moveList->moves[j] = moveList->moves[j-1];
-            }
-            moveList->moves[0] = ttMove;
-            return;
+Move_t PickMove(MovePicker_t* movePicker) {
+    MoveList_t* moveList = movePicker->moveList;
+    MoveIndex_t head = movePicker->headIndex;
+
+    assert(head <= movePicker->tailIndex);
+
+    MoveIndex_t bestMoveIndex = head;
+    MoveScore_t bestScore = moveList->moves[head].score;
+
+    for(MoveIndex_t i = head+1; i <= movePicker->tailIndex; i++) {
+        MoveScore_t score = moveList->moves[i].score;
+        if(score > bestScore) {
+            bestScore = score;
+            bestMoveIndex = i;
         }
     }
+
+    Move_t bestMove = moveList->moves[bestMoveIndex].move;
+    SwapEntries(moveList, head, bestMoveIndex);
+    movePicker->headIndex++;
+
+    return bestMove;
 }

@@ -16,6 +16,11 @@ void InitMove(Move_t* move) {
     move->data = 0;
 }
 
+Move_t NullMove() {
+    Move_t move = { .data = 0 };
+    return move;
+}
+
 Square_t ReadToSquare(Move_t move) {
     return move.data & to_square;
 }

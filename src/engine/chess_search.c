@@ -101,12 +101,13 @@ static EvalScore_t QSearch(
         alpha = standPat;
     }
 
-    SortCaptures(&moveList, boardInfo);
+    MovePicker_t movePicker;
+    InitMovePicker(&movePicker, &moveList, boardInfo, NullMove(), moveList.maxCapturesIndex);
 
     EvalScore_t bestScore = standPat;
     for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
         searchInfo->nodeCount++;
-        Move_t move = moveList.moves[i];
+        Move_t move = PickMove(&movePicker);
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
         EvalScore_t score = -QSearch(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, ply+1);
@@ -188,25 +189,27 @@ static EvalScore_t Negamax(
         }
     }
 
-    SortCaptures(&moveList, boardInfo);
-
     ZobristHash_t hash = ZobristStackTop(zobristStack);
     TTIndex_t ttIndex = GetTTIndex(searchInfo->tt, hash);
     TTEntry_t entry = GetTTEntry(searchInfo->tt, ttIndex);
+    Move_t ttMove = NullMove();
     if(TTHit(entry, hash)) {
         if(!isPVNode && TTCutoffIsPossible(entry, alpha, beta, depth)) {
             return entry.bestScore;
         }
         
-        SortTTMove(&moveList, entry.bestMove, moveList.maxIndex);
+        ttMove = entry.bestMove;
     }
+
+    MovePicker_t movePicker;
+    InitMovePicker(&movePicker, &moveList, boardInfo, ttMove, moveList.maxIndex);
 
     EvalScore_t oldAlpha = alpha;
     EvalScore_t bestScore = -EVAL_MAX;
     Move_t bestMove;
     for(int i = 0; i <= moveList.maxIndex; i++) {
         EvalScore_t score;
-        Move_t move = moveList.moves[i];
+        Move_t move = PickMove(&movePicker);
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
     
         if(i == 0) {

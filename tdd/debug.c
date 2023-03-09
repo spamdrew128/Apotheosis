@@ -142,7 +142,7 @@ static void PrintSingleTypeMoves(Move_t move, BoardInfo_t* info, Piece_t type, c
 void PrintMoveList(MoveList_t* moveList, BoardInfo_t* info) {
     printf("\n");
     for(int i = 0; i <= moveList->maxIndex; i++) {
-        Move_t move = moveList->moves[i];
+        Move_t move = moveList->moves[i].move;
         PrintSingleTypeMoves(move, info, king, "King");
         PrintSingleTypeMoves(move, info, queen, "Queen");
         PrintSingleTypeMoves(move, info, rook, "Rook");
