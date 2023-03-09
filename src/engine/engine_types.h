@@ -19,7 +19,7 @@ typedef uint64_t NodeCount_t;
 typedef size_t Bytes_t;
 typedef size_t Megabytes_t;
 enum {
-    bytes_per_megabyte = 1000
+  bytes_per_megabyte = 1024 * 1024
 };
 
 #endif
