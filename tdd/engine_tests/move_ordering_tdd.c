@@ -30,7 +30,7 @@ static MoveScore_t AssignTestScore(Move_t move, Move_t ttMove) {
     if(CompareMoves(move, ttMove)) {
         return tt_score;
     } else if(ReadSpecialFlag(move) == promotion_flag) {
-        return 4;
+        return promotion_score;
     } else if(IsCapture(move)) {
         return MVVScore(move);
     } else {
@@ -39,12 +39,13 @@ static MoveScore_t AssignTestScore(Move_t move, Move_t ttMove) {
 }
 
 static bool MovesAreCorrectlyOrdered(MovePicker_t* picker, Move_t ttMove) {
+    Move_t prevMove = PickMove(picker);
     for(int i = 1; i <= moveList.maxIndex; i++) {
-        Move_t prevMove = PickMove(picker);
         Move_t currentMove = PickMove(picker);
         if(AssignTestScore(prevMove, ttMove) < AssignTestScore(currentMove, ttMove)) {
             return false;
         }
+        prevMove = currentMove;
     }
 
     return true;
