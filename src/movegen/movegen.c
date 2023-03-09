@@ -12,7 +12,7 @@
     } while(0)
 
 static Move_t* CurrentMove(MoveList_t* moveList) {
-    return &(moveList->moves[moveList->maxIndex]);
+    return &(moveList->moves[moveList->maxIndex].move);
 }
 
 static void InitializeNewMove(MoveList_t* moveList) {

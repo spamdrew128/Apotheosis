@@ -31,7 +31,7 @@ static void CapturesMovegenTestWrapper(MoveList_t* moveList, BoardInfo_t* boardI
 static int CountPieceMoves(Piece_t piece, MoveList_t moveList, BoardInfo_t* info) {
     int count = 0;
     for(int i = 0; i <= moveList.maxIndex; i++) {
-        Square_t fromSquare = ReadFromSquare(moveList.moves[i]);
+        Square_t fromSquare = ReadFromSquare(moveList.moves[i].move);
         if(PieceOnSquare(info, fromSquare) == piece) {
             count++;
         }

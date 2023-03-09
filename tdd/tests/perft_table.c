@@ -21,7 +21,7 @@ static void PERFT(BoardInfo_t* boardInfo, int depth, PerftCount_t* count) {
 
     if(depth > 1) {
         for(int i = 0; i <= moveList.maxIndex; i++) {
-            Move_t move = moveList.moves[i];
+            Move_t move = moveList.moves[i].move;
             MakeMove(boardInfo, &gameStack, move);
             assert(BoardIsValid(boardInfo, &gameStack));
 

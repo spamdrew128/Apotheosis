@@ -44,7 +44,7 @@ static void UnmakeTest(BoardInfo_t* boardInfo, int depth) {
     for(int i = 0; i <= moveList.maxIndex; i++) {
         tests++;
 
-        Move_t move = moveList.moves[i];
+        Move_t move = moveList.moves[i].move;
         MakeMove(boardInfo, &gameStack, move);
 
         UnmakeTest(boardInfo, depth-1);
@@ -77,7 +77,7 @@ static void _SplitPERFTHelper(BoardInfo_t* boardInfo, int depth, PerftCount_t* c
 
     if(depth > 1) {
         for(int i = 0; i <= moveList.maxIndex; i++) {
-            Move_t move = moveList.moves[i];
+            Move_t move = moveList.moves[i].move;
             MakeMove(boardInfo, &gameStack, move);
 
             _SplitPERFTHelper(boardInfo, depth-1, count);
@@ -101,7 +101,7 @@ static PerftCount_t SplitPERFT(BoardInfo_t* boardInfo, int depth) {
     PerftCount_t total = 0;
 
     for(int i = 0; i <= moveList.maxIndex; i++) {
-        Move_t move = moveList.moves[i];
+        Move_t move = moveList.moves[i].move;
         MakeMove(boardInfo, &gameStack, move);
         assert(BoardIsValid(boardInfo, &gameStack));
 
@@ -143,7 +143,7 @@ static void FullySearchTree(BoardInfo_t* boardInfo, int depth, PerftCount_t* cou
     MoveList_t moveList;
     CompleteMovegen(&moveList, boardInfo, &gameStack);
     for(int i = 0; i <= moveList.maxIndex; i++) {
-        Move_t move = moveList.moves[i];
+        Move_t move = moveList.moves[i].move;
         MakeMove(boardInfo, &gameStack, move);
 
         FullySearchTree(boardInfo, depth-1, count);

@@ -26,7 +26,7 @@ static EvalScore_t MVVScore(Move_t capture) {
 static bool CapturesAreCorrectlyOrdered() {
     for(int i = 1; i <= moveList.maxCapturesIndex; i++) {
         Move_t prevMove = moveList.moves[i-1];
-        Move_t currentMove = moveList.moves[i];
+        Move_t currentMove = moveList.moves[i].move;
         if(MVVScore(prevMove) < MVVScore(currentMove)) {
             return false;
         }

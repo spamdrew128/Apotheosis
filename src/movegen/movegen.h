@@ -1,6 +1,9 @@
 #ifndef __MOVEGEN_H__
 #define __MOVEGEN_H__
 
+#include <stdint.h>
+#include <limits.h>
+
 #include "board_constants.h"
 #include "board_info.h"
 #include "move.h"
@@ -10,8 +13,15 @@ enum {
     movelist_empty = -1
 };
 
+typedef int16_t MoveScore_t;
+
 typedef struct {
-    Move_t moves[MOVELIST_MAX];
+    Move_t move;
+    MoveScore_t score; // for move ordering later
+} MoveEntry_t;
+
+typedef struct {
+    MoveEntry_t moves[MOVELIST_MAX];
     int maxCapturesIndex;
     int maxIndex;
 } MoveList_t;
