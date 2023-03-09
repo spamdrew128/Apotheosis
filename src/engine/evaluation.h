@@ -14,11 +14,6 @@
 #include "engine_types.h"
 
 enum {
-  EVAL_MAX = 100000,
-  INFINITY = INT32_MAX - 1
-};
-
-enum {
   knight_value = 310,
   bishop_value = 330,
   rook_value = 500,

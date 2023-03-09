@@ -4,8 +4,13 @@
 #include <stdint.h>
 #include <stddef.h>
 
-typedef int32_t EvalScore_t;
-typedef int32_t Centipawns_t;
+typedef int16_t EvalScore_t;
+typedef int16_t Centipawns_t;
+
+enum {
+  EVAL_MAX = 30000,
+  INFINITY = INT16_MAX - 1
+};
 
 typedef uint8_t Depth_t;
 typedef uint8_t Ply_t;
