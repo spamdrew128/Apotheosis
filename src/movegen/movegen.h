@@ -10,10 +10,14 @@
 #include "game_state.h"
 
 enum {
-    movelist_empty = -1
+    movelist_empty = -1,
+    
+    ENTRY_MAX_SCORE = INT16_MAX,
+    ENTRY_MIN_SCORE = INT16_MIN,
 };
 
 typedef int16_t MoveScore_t;
+typedef uint8_t MoveIndex_t;
 
 typedef struct {
     Move_t move;
@@ -22,8 +26,8 @@ typedef struct {
 
 typedef struct {
     MoveEntry_t moves[MOVELIST_MAX];
-    int maxCapturesIndex;
-    int maxIndex;
+    MoveIndex_t maxCapturesIndex;
+    MoveIndex_t maxIndex;
 } MoveList_t;
 
 void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack);
