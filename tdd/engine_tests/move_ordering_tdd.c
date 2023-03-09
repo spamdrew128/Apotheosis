@@ -12,11 +12,7 @@ static GameStack_t gameStack;
 static ZobristStack_t zobristStack;
 
 bool IsCapture(Move_t move) {
-    Square_t toSquare = ReadToSquare(move);
-    Square_t fromSquare = ReadFromSquare(move);
-
-    Piece_t victim = PieceOnSquare(&boardInfo, toSquare);
-    Piece_t attacker = PieceOnSquare(&boardInfo, fromSquare);
+    Piece_t victim = PieceOnSquare(&boardInfo, ReadToSquare(move));
     return victim != none_type || ReadSpecialFlag(move) == en_passant_flag;
 }
 
@@ -70,6 +66,5 @@ static void ShouldOrderCorrectly() {
 }
 
 void MoveOrderingTDDRunner() {
-    ShouldOrderCaptures();
-    ShouldOrderTTFirst();
+    ShouldOrderCorrectly();
 }
