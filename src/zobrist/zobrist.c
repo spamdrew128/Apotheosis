@@ -95,6 +95,10 @@ void AddZobristHashToStack(ZobristStack_t* zobristStack, ZobristHash_t hash) {
     zobristStack->entries[zobristStack->maxIndex] = hash;
 }
 
+ZobristHash_t ZobristStackTop(ZobristStack_t* zobristStack) {
+    return zobristStack->entries[zobristStack->maxIndex];
+}
+
 void RemoveZobristHashFromStack(ZobristStack_t* zobristStack) {
     zobristStack->maxIndex--;
 }

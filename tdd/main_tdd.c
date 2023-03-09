@@ -21,6 +21,12 @@
 #include "PV_table_tdd.h"
 #include "random_crashes.h"
 #include "move_ordering_tdd.h"
+#include "TT_tdd.h"
+
+static void ProgramTeardown(UciApplicationData_t* uciApplicationData) {
+    TranspositionTable_t* tt = &uciApplicationData->uciSearchInfo.tt;
+    TeardownTT(tt);
+}
 
 int main(int argc, char** argv)
 {
@@ -47,6 +53,7 @@ int main(int argc, char** argv)
     BasicTestsRunner();
     PvTableTDDRunner();
     MoveOrderingTDDRunner();
+    TranspositionTableTDDRunner();
 
     // RANDOM CRASHES
     RandomCrashTestRunner(false);
@@ -61,9 +68,11 @@ int main(int argc, char** argv)
     
     UciApplicationData_t uciApplicationData;
     UciSearchInfoInit(&uciApplicationData.uciSearchInfo);
-    bool running = !false;
+    bool running = true;
     while(running)
     {
         running = InterpretUCIInput(&uciApplicationData);
     }
+
+    ProgramTeardown(&uciApplicationData);
 }

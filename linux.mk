@@ -49,6 +49,7 @@ $(ENGINE)/chess_search.c \
 $(ENGINE)/evaluation.c \
 $(ENGINE)/PV_table.c \
 $(ENGINE)/move_ordering.c \
+$(ENGINE)/transposition_table.c \
 $(FEN)/FEN.c \
 $(LOOKUP)/lookup.c \
 $(PLAY)/move.c \
@@ -90,7 +91,8 @@ $(TDD)/endings_tdd.c \
 $(ENGINE_TDD)/basic_tests.c \
 $(ENGINE_TDD)/PV_table_tdd.c \
 $(ENGINE_TDD)/random_crashes.c \
-$(ENGINE_TDD)/move_ordering_tdd.c
+$(ENGINE_TDD)/move_ordering_tdd.c \
+$(ENGINE_TDD)/TT_tdd.c 
 
 D_OBJECTS=$(D_CFILES:%.c=%.o)
 

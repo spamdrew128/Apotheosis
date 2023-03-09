@@ -11,15 +11,17 @@
 #include "zobrist.h"
 #include "evaluation.h"
 #include "time_constants.h"
-
-typedef uint8_t Depth_t;
-typedef uint8_t Ply_t;
-typedef uint64_t NodeCount_t;
+#include "engine_types.h"
+#include "transposition_table.h"
 
 enum UciSearchInfoOptions {
     overhead_default_msec = 50,
     overhead_min_msec = 1,
     overhead_max_msec = 128,
+
+    hash_default_mb = 16,
+    hash_min_mb = 1,
+    hash_max_mb = 4096,
 };
 
 typedef struct {
@@ -31,6 +33,8 @@ typedef struct {
     Milliseconds_t overhead;
 
     Depth_t depthLimit;
+
+    TranspositionTable_t tt;
 } UciSearchInfo_t;
 
 typedef struct {
@@ -47,10 +51,10 @@ SearchResults_t Search(
 );
 
 NodeCount_t BenchSearch(
+    UciSearchInfo_t* uciSearchInfo,
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack,
-    Depth_t depth
+    ZobristStack_t* zobristStack
 );
 
 void UciSearchInfoTimeInfoReset(UciSearchInfo_t* uciSearchInfo);

@@ -27,6 +27,8 @@ ZobristHash_t HashPosition(BoardInfo_t* boardInfo, GameStack_t* gameStack);
 
 void AddZobristHashToStack(ZobristStack_t* zobristStack, ZobristHash_t hash);
 
+ZobristHash_t ZobristStackTop(ZobristStack_t* zobristStack);
+
 void RemoveZobristHashFromStack(ZobristStack_t* zobristStack);
 
 #endif

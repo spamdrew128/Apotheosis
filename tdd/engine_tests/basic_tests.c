@@ -14,27 +14,24 @@ enum {
     large_time = 100000
 };
 
-static UciSearchInfo_t GetUciSearchInfo() {
+static void ShouldFindM2() {
+    FEN_t fen = "r7/4n2p/1p4p1/6P1/2k2P2/1q6/7K/8 b - - 25 68";
+    InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
+    
     UciSearchInfo_t uciSearchInfo;
     UciSearchInfoInit(&uciSearchInfo);
 
     uciSearchInfo.forceTime = large_time;
     uciSearchInfo.depthLimit = 6;
 
-    return uciSearchInfo;
-}
-
-static void ShouldFindM2() {
-    FEN_t fen = "r7/4n2p/1p4p1/6P1/2k2P2/1q6/7K/8 b - - 25 68";
-    InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
-    
-    UciSearchInfo_t uciSearchInfo = GetUciSearchInfo();
     SearchResults_t results = Search(&uciSearchInfo, &boardInfo, &gameStack, &zobristStack, false);
 
     Move_t expectedBestMove;
     UCITranslateMove(&expectedBestMove, "a8a2", &boardInfo, &gameStack);
 
     PrintResults(CompareMoves(results.bestMove, expectedBestMove));
+
+    TeardownTT(&uciSearchInfo.tt);
 }
 
 void BasicTestsRunner() {

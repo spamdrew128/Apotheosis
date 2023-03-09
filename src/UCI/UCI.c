@@ -357,6 +357,7 @@ do { \
 static void UciSignalResponse() {
     printf(ENGINE_ID);
     SendUciOption(OVERHEAD, "spin", "default %d min %d max %d", overhead_default_msec, overhead_min_msec, overhead_max_msec);
+    SendUciOption(HASH, "spin", "default %d min %d max %d", hash_default_mb, hash_min_mb, hash_max_mb);
     printf(UCI_OK);
 }
 
@@ -375,6 +376,14 @@ static void SetOption(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* searchIn
         GetNextWord(input, nextWord, i);
         searchInfo->overhead = NumberStringToNumber(nextWord);
         CLAMP_TO_RANGE(searchInfo->overhead, overhead_min_msec, overhead_max_msec);
+    } else if (StringsMatch(nextWord, HASH)) {
+        SkipNextWord(input, i);
+
+        GetNextWord(input, nextWord, i);
+        Megabytes_t hashSize = NumberStringToNumber(nextWord);
+        CLAMP_TO_RANGE(hashSize, overhead_min_msec, overhead_max_msec);
+        TeardownTT(&searchInfo->tt);
+        TranspositionTableInit(&searchInfo->tt, hashSize);
     }
 }
 
@@ -395,7 +404,7 @@ static bool RespondToSignal(
     case signal_quit:
         return false;
     case signal_new_game:
-        // TODO
+        ClearTTEntries(&applicationData->uciSearchInfo.tt);
         break;
     case signal_position:
         InterpretPosition(
@@ -480,6 +489,8 @@ void InterpretUCIString(
     *boardInfo = data.boardInfo;
     *gameStack = data.gameStack;
     *zobristStack = data.zobristStack;
+
+    TeardownTT(&data.uciSearchInfo.tt);
 }
 
 void SendPvInfo(PvTable_t* pvTable, Depth_t depth) {
