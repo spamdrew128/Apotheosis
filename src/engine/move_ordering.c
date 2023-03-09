@@ -47,14 +47,30 @@ void InitMovePicker(
     }
 }
 
-void SortTTMove(MoveList_t* moveList, Move_t ttMove, int maxIndex) {
-    for(int i = 0; i <= maxIndex; i++) {
-        if(CompareMoves(ttMove, moveList->moves[i])) {
-            for(int j = i; j > 0; j--) {
-                moveList->moves[j] = moveList->moves[j-1];
-            }
-            moveList->moves[0] = ttMove;
-            return;
+static void SwapEntries(MoveList_t* moveList, MoveIndex_t i, MoveIndex_t j) {
+    MoveEntry_t temp = moveList->moves[i];
+    moveList->moves[i] = moveList->moves[j];
+    moveList->moves[j] = temp;
+}
+
+void PickMove(MovePicker_t* movePicker) {
+    MoveList_t* moveList = movePicker->moveList;
+    MoveIndex_t head = movePicker->headIndex;
+
+    MoveIndex_t bestMoveIndex = head;
+    MoveScore_t bestScore = moveList->moves[head].score;
+
+    for(MoveIndex_t i = head+1; i <= movePicker->tailIndex; i++) {
+        MoveScore_t score = moveList->moves[i].score;
+        if(score > bestScore) {
+            bestScore = score;
+            bestMoveIndex = i;
         }
     }
+
+    Move_t bestMove = moveList->moves[bestMoveIndex].move;
+    SwapEntries(moveList, head, bestMoveIndex);
+    movePicker->headIndex++;
+
+    return bestMove;
 }
