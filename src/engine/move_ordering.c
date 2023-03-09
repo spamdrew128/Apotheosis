@@ -51,6 +51,8 @@ Move_t PickMove(MovePicker_t* movePicker) {
     MoveList_t* moveList = movePicker->moveList;
     MoveIndex_t head = movePicker->headIndex;
 
+    assert(head <= movePicker->tailIndex);
+
     MoveIndex_t bestMoveIndex = head;
     MoveScore_t bestScore = moveList->moves[head].score;
 
