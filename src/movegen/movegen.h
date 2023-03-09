@@ -11,7 +11,7 @@
 
 enum {
     movelist_empty = -1,
-    
+
     ENTRY_MAX_SCORE = INT16_MAX,
     ENTRY_MIN_SCORE = INT16_MIN,
 };
@@ -19,9 +19,15 @@ enum {
 typedef int16_t MoveScore_t;
 typedef uint8_t MoveIndex_t;
 
+enum MoveScores { // for move ordering later
+    tt_score = ENTRY_MAX_SCORE,
+    promotion_score = tt_score - 1,
+    quiet_score = ENTRY_MIN_SCORE,
+};
+
 typedef struct {
     Move_t move;
-    MoveScore_t score; // for move ordering later
+    MoveScore_t score; 
 } MoveEntry_t;
 
 typedef struct {

@@ -3,12 +3,6 @@
 #include "move_ordering.h"
 #include "evaluation.h"
 
-enum MoveScores {
-    tt_score = ENTRY_MAX_SCORE,
-    promotion_score = tt_score - 1,
-    quiet_score = ENTRY_MIN_SCORE,
-};
-
 static EvalScore_t MVVScore(BoardInfo_t* boardInfo, Move_t capture) {
     Square_t toSquare = ReadToSquare(capture);
     Square_t fromSquare = ReadFromSquare(capture);
@@ -53,7 +47,7 @@ static void SwapEntries(MoveList_t* moveList, MoveIndex_t i, MoveIndex_t j) {
     moveList->moves[j] = temp;
 }
 
-void PickMove(MovePicker_t* movePicker) {
+Move_t PickMove(MovePicker_t* movePicker) {
     MoveList_t* moveList = movePicker->moveList;
     MoveIndex_t head = movePicker->headIndex;
 

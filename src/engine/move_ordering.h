@@ -11,4 +11,14 @@ typedef struct {
     MoveIndex_t tailIndex;
 } MovePicker_t;
 
+void InitMovePicker(
+    MovePicker_t* movePicker,
+    MoveList_t* moveList,
+    BoardInfo_t* boardInfo,
+    Move_t ttMove,
+    MoveIndex_t finalIndex
+);
+
+Move_t PickMove(MovePicker_t* movePicker);
+
 #endif
