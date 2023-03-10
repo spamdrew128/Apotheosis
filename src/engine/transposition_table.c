@@ -5,6 +5,7 @@
 
 void ClearTTEntries(TranspositionTable_t* table) {
     for(int i = 0; i < table->numEntries; i++) {
+        table->entries[i].flag = tt_uninitialized;
         table->entries[i].key = 0;
         InitMove(&table->entries[i].bestMove);
     }
@@ -31,7 +32,7 @@ TTEntry_t GetTTEntry(TranspositionTable_t* table, TTIndex_t index) {
 }
 
 bool TTHit(TTEntry_t entry, ZobristHash_t hash) {
-    return entry.key == (TTKey_t)hash;
+    return (entry.key == (TTKey_t)hash) && (entry.flag != tt_uninitialized);
 }
 
 TTFlag_t DetermineTTFlag(EvalScore_t bestScore, EvalScore_t oldAlpha, EvalScore_t alpha, EvalScore_t beta) {

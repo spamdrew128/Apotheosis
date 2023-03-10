@@ -10,6 +10,7 @@
 
 typedef uint8_t TTFlag_t;
 enum {
+    tt_uninitialized,
     lower_bound,
     exact,
     upper_bound
@@ -17,7 +18,7 @@ enum {
 
 typedef uint64_t TTLength_t;
 typedef uint32_t TTIndex_t;
-typedef uint16_t TTKey_t;
+typedef uint64_t TTKey_t;
 
 typedef struct {
     TTFlag_t flag;
