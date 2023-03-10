@@ -16,7 +16,7 @@ enum {
     upper_bound
 };
 
-typedef uint64_t TTLength_t;
+typedef uint32_t TTLength_t;
 typedef uint32_t TTIndex_t;
 typedef uint64_t TTKey_t;
 
