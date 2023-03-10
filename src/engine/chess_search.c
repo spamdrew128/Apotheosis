@@ -101,10 +101,23 @@ static EvalScore_t QSearch(
         alpha = standPat;
     }
 
+    ZobristHash_t hash = ZobristStackTop(zobristStack);
+    TTIndex_t ttIndex = GetTTIndex(searchInfo->tt, hash);
+    TTEntry_t entry = GetTTEntry(searchInfo->tt, ttIndex);
+    Move_t ttMove = NullMove();
+    if(TTHit(entry, hash)) {
+        if(TTCutoffIsPossible(entry, alpha, beta, 0)) {
+            return entry.bestScore;
+        }
+        
+        ttMove = entry.bestMove;
+    }
+
     MovePicker_t movePicker;
-    InitMovePicker(&movePicker, &moveList, boardInfo, NullMove(), moveList.maxCapturesIndex);
+    InitMovePicker(&movePicker, &moveList, boardInfo, ttMove, moveList.maxCapturesIndex);
 
     EvalScore_t bestScore = standPat;
+    Move_t bestMove;
     for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
         searchInfo->nodeCount++;
         Move_t move = PickMove(&movePicker);
@@ -118,10 +131,9 @@ static EvalScore_t QSearch(
             return 0;
         }
 
-
         if(score > bestScore) {
             bestScore = score;
-
+            bestMove = move;
             if(score >= beta) {
                 break;
             }
@@ -131,6 +143,9 @@ static EvalScore_t QSearch(
             }
         }
     }
+
+    TTFlag_t flag = bestScore >= beta ? lower_bound : upper_bound;
+    StoreTTEntry(searchInfo->tt, ttIndex, flag, 0, bestMove, bestScore, hash);
 
     return bestScore;
 }
