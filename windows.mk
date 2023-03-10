@@ -47,6 +47,7 @@ $(BITBOARDS)\magic.c \
 $(ENDINGS)\endings.c \
 $(ENGINE)\chess_search.c \
 $(ENGINE)\evaluation.c \
+$(ENGINE)\killers.c \
 $(ENGINE)\PV_table.c \
 $(ENGINE)\move_ordering.c \
 $(ENGINE)\transposition_table.c \
