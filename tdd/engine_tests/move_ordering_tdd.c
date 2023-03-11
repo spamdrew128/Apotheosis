@@ -75,6 +75,17 @@ static void ShouldOrderCorrectly() {
 
     Killers_t killers;
     InitKillers(&killers);
+
+    Move_t killer0 = NullMove();
+    WriteFromSquare(&killer0, a2);
+    WriteToSquare(&killer0, a4);
+
+    Move_t killer1 = NullMove();
+    WriteFromSquare(&killer0, a2);
+    WriteToSquare(&killer0, a3);
+
+    AddKiller(&killers, killer0, some_ply);
+    AddKiller(&killers, killer1, some_ply);
     InitAllMovePicker(&picker, &moveList, &boardInfo, ttMove, &killers, some_ply);
 
     PrintResults(MovesAreCorrectlyOrdered(&picker, ttMove, &killers, some_ply));

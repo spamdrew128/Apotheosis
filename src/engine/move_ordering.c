@@ -31,7 +31,7 @@ void InitAllMovePicker(
     Move_t killer_0 = GetKiller(killers, ply, 0);
     Move_t killer_1 = GetKiller(killers, ply, 1);
 
-    for(MoveIndex_t i = 0; i <= moveList->maxIndex; i++) {
+    for(MoveIndex_t i = 0; i <= movePicker->tailIndex; i++) {
         Move_t move = moveList->moves[i].move;
         if(CompareMoves(move, ttMove)) {
             moveList->moves[i].score = tt_score;
@@ -59,7 +59,7 @@ void InitCaptureMovePicker(
     movePicker->moveList = moveList;
     movePicker->tailIndex = moveList->maxCapturesIndex;
 
-    for(MoveIndex_t i = 0; i <= moveList->maxIndex; i++) {
+    for(MoveIndex_t i = 0; i <= movePicker->tailIndex; i++) {
         Move_t move = moveList->moves[i].move;
         if(ReadSpecialFlag(move) == promotion_flag) {
             moveList->moves[i].score = promotion_score;
