@@ -5,11 +5,16 @@
 #include "FEN.h"
 #include "evaluation.h"
 #include "move.h"
+#include "killers.h"
 
 static MoveList_t moveList;
 static BoardInfo_t boardInfo;
 static GameStack_t gameStack;
 static ZobristStack_t zobristStack;
+
+enum {
+    some_ply = 0
+};
 
 bool IsCapture(Move_t move) {
     Piece_t victim = PieceOnSquare(&boardInfo, ReadToSquare(move));
@@ -26,23 +31,30 @@ static EvalScore_t MVVScore(Move_t capture) {
     return ValueOfPiece(victim) - ValueOfPiece(attacker);
 }
 
-static MoveScore_t AssignTestScore(Move_t move, Move_t ttMove) {
+static MoveScore_t AssignTestScore(Move_t move, Move_t ttMove, Killers_t* killers, Ply_t ply) {
     if(CompareMoves(move, ttMove)) {
         return tt_score;
     } else if(ReadSpecialFlag(move) == promotion_flag) {
         return promotion_score;
     } else if(IsCapture(move)) {
         return MVVScore(move);
+    } else if(CompareMoves(move, GetKiller(killers, ply, 0))) {
+        return killer_base_score;
+    } else if(CompareMoves(move, GetKiller(killers, ply, 1))) {
+        return killer_base_score - 1;
     } else {
         return quiet_score;
     }
 }
 
-static bool MovesAreCorrectlyOrdered(MovePicker_t* picker, Move_t ttMove) {
+static bool MovesAreCorrectlyOrdered(MovePicker_t* picker, Move_t ttMove, Killers_t* killers, Ply_t ply) {
     Move_t prevMove = PickMove(picker);
     for(int i = 1; i <= moveList.maxIndex; i++) {
         Move_t currentMove = PickMove(picker);
-        if(AssignTestScore(prevMove, ttMove) < AssignTestScore(currentMove, ttMove)) {
+        if(AssignTestScore(prevMove, ttMove, killers, ply) < 
+            AssignTestScore(currentMove, ttMove, killers, ply)
+        )
+        {
             return false;
         }
         prevMove = currentMove;
@@ -61,9 +73,22 @@ static void ShouldOrderCorrectly() {
     WriteFromSquare(&ttMove, e3);
     WriteToSquare(&ttMove, f4);
 
-    InitMovePicker(&picker, &moveList, &boardInfo, ttMove, moveList.maxIndex);
+    Killers_t killers;
+    InitKillers(&killers);
 
-    PrintResults(MovesAreCorrectlyOrdered(&picker, ttMove));
+    Move_t killer0 = NullMove();
+    WriteFromSquare(&killer0, a2);
+    WriteToSquare(&killer0, a4);
+
+    Move_t killer1 = NullMove();
+    WriteFromSquare(&killer1, a2);
+    WriteToSquare(&killer1, a3);
+
+    AddKiller(&killers, killer0, some_ply);
+    AddKiller(&killers, killer1, some_ply);
+    InitAllMovePicker(&picker, &moveList, &boardInfo, ttMove, &killers, some_ply);
+
+    PrintResults(MovesAreCorrectlyOrdered(&picker, ttMove, &killers, some_ply));
 }
 
 void MoveOrderingTDDRunner() {

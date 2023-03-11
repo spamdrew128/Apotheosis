@@ -12,6 +12,7 @@
 #include "PV_table.h"
 #include "move_ordering.h"
 #include "transposition_table.h"
+#include "killers.h"
 
 enum {
     time_fraction = 25,
@@ -29,6 +30,7 @@ enum {
 typedef struct {
     bool outOfTime;
     NodeCount_t nodeCount;
+    Killers_t killers;
     PvTable_t pvTable;
     TranspositionTable_t* tt;
 } ChessSearchInfo_t;
@@ -46,9 +48,16 @@ static EvalScore_t Negamax(
     Ply_t ply
 );
 
+bool IsQuiet(Move_t move, BoardInfo_t* boardInfo) {
+    return 
+        PieceOnSquare(boardInfo, ReadToSquare(move) == none_type) &&
+        ReadSpecialFlag(move) != en_passant_flag;
+}
+
 static void InitSearchInfo(ChessSearchInfo_t* chessSearchInfo, UciSearchInfo_t* uciSearchInfo) {
     chessSearchInfo->outOfTime = false;
     chessSearchInfo->nodeCount = 0;
+    InitKillers(&chessSearchInfo->killers);
     chessSearchInfo->tt = &uciSearchInfo->tt;
 }
 
@@ -102,7 +111,7 @@ static EvalScore_t QSearch(
     }
 
     MovePicker_t movePicker;
-    InitMovePicker(&movePicker, &moveList, boardInfo, NullMove(), moveList.maxCapturesIndex);
+    InitCaptureMovePicker(&movePicker, &moveList, boardInfo);
 
     EvalScore_t bestScore = standPat;
     for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
@@ -117,7 +126,6 @@ static EvalScore_t QSearch(
         if(searchInfo->outOfTime) {
             return 0;
         }
-
 
         if(score > bestScore) {
             bestScore = score;
@@ -202,7 +210,14 @@ static EvalScore_t Negamax(
     }
 
     MovePicker_t movePicker;
-    InitMovePicker(&movePicker, &moveList, boardInfo, ttMove, moveList.maxIndex);
+    InitAllMovePicker(
+        &movePicker,
+        &moveList,
+        boardInfo,
+        ttMove,
+        &searchInfo->killers,
+        ply
+    );
 
     EvalScore_t oldAlpha = alpha;
     EvalScore_t bestScore = -EVAL_MAX;
@@ -234,6 +249,9 @@ static EvalScore_t Negamax(
             bestScore = score;
             bestMove = move;
             if(score >= beta) {
+                if(IsQuiet(move, boardInfo)) {
+                    AddKiller(&searchInfo->killers, move, ply);
+                }
                 break;
             }
 

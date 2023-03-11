@@ -4,6 +4,7 @@
 #include "movegen.h"
 #include "board_info.h"
 #include "board_constants.h"
+#include "killers.h"
 
 typedef struct {
     MoveList_t* moveList;
@@ -11,12 +12,19 @@ typedef struct {
     MoveIndex_t tailIndex;
 } MovePicker_t;
 
-void InitMovePicker(
+void InitAllMovePicker(
     MovePicker_t* movePicker,
     MoveList_t* moveList,
     BoardInfo_t* boardInfo,
     Move_t ttMove,
-    MoveIndex_t finalIndex
+    Killers_t* killers,
+    Ply_t ply
+);
+
+void InitCaptureMovePicker(
+    MovePicker_t* movePicker,
+    MoveList_t* moveList,
+    BoardInfo_t* boardInfo
 );
 
 Move_t PickMove(MovePicker_t* movePicker);
