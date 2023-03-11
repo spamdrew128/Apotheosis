@@ -52,7 +52,7 @@ static EvalScore_t Negamax(
 
 bool IsQuiet(Move_t move, BoardInfo_t* boardInfo) {
     return 
-        PieceOnSquare(boardInfo, ReadToSquare(move) == none_type) &&
+        PieceOnSquare(boardInfo, ReadToSquare(move)) == none_type &&
         ReadSpecialFlag(move) != en_passant_flag;
 }
 

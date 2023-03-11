@@ -46,6 +46,7 @@ void InitAllMovePicker(
             moveList->moves[i].score = killer_base_score - 1;
         } else {
             moveList->moves[i].score = HistoryScore(history, boardInfo, move);
+            assert(moveList->moves[i].score < killer_base_score);
         }
     }
 }
