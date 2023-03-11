@@ -22,6 +22,8 @@ typedef int16_t MoveIndex_t;
 enum MoveScores { // for move ordering later
     tt_score = ENTRY_MAX_SCORE,
     promotion_score = tt_score - 1,
+    // leaving room for MVV-LVA
+    killer_base_score = ENTRY_MIN_SCORE + 100,
     quiet_score = ENTRY_MIN_SCORE,
 };
 

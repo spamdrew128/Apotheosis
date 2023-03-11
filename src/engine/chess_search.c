@@ -111,7 +111,7 @@ static EvalScore_t QSearch(
     }
 
     MovePicker_t movePicker;
-    InitMovePicker(&movePicker, &moveList, boardInfo, NullMove(), moveList.maxCapturesIndex);
+    InitCaptureMovePicker(&movePicker, &moveList, boardInfo);
 
     EvalScore_t bestScore = standPat;
     for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
@@ -126,7 +126,6 @@ static EvalScore_t QSearch(
         if(searchInfo->outOfTime) {
             return 0;
         }
-
 
         if(score > bestScore) {
             bestScore = score;
@@ -211,7 +210,14 @@ static EvalScore_t Negamax(
     }
 
     MovePicker_t movePicker;
-    InitMovePicker(&movePicker, &moveList, boardInfo, ttMove, moveList.maxIndex);
+    InitAllMovePicker(
+        &movePicker,
+        &moveList,
+        boardInfo,
+        ttMove,
+        &searchInfo->killers,
+        ply
+    );
 
     EvalScore_t oldAlpha = alpha;
     EvalScore_t bestScore = -EVAL_MAX;
