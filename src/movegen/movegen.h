@@ -12,18 +12,18 @@
 enum {
     movelist_empty = -1,
 
-    ENTRY_MAX_SCORE = INT32_MAX,
-    ENTRY_MIN_SCORE = INT32_MIN,
+    ENTRY_MAX_SCORE = INT16_MAX,
+    ENTRY_MIN_SCORE = INT16_MIN,
 };
 
-typedef int32_t MoveScore_t;
-typedef int32_t MoveIndex_t;
+typedef int16_t MoveScore_t;
+typedef int16_t MoveIndex_t;
 
 enum MoveScores { // for move ordering later
     tt_score = ENTRY_MAX_SCORE,
     promotion_score = tt_score - 1,
-    capture_offset = promotion_score - 2000,
-    killer_base_score = capture_offset - 2000,
+    // leaving room for MVV-LVA
+    killer_base_score = ENTRY_MIN_SCORE + 100,
     quiet_score = ENTRY_MIN_SCORE,
 };
 

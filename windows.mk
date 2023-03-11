@@ -51,7 +51,6 @@ $(ENGINE)\killers.c \
 $(ENGINE)\PV_table.c \
 $(ENGINE)\move_ordering.c \
 $(ENGINE)\transposition_table.c \
-$(ENGINE)\history.c \
 $(FEN)\FEN.c \
 $(LOOKUP)\lookup.c \
 $(PLAY)\move.c \
@@ -95,8 +94,7 @@ $(ENGINE_TDD)\PV_table_tdd.c \
 $(ENGINE_TDD)\random_crashes.c \
 $(ENGINE_TDD)\move_ordering_tdd.c \
 $(ENGINE_TDD)\TT_tdd.c \
-$(ENGINE_TDD)\killers_tdd.c \
-$(ENGINE_TDD)\history_tdd.c
+$(ENGINE_TDD)\killers_tdd.c
 
 D_OBJECTS=$(D_CFILES:%.c=%.o)
 
