@@ -12,6 +12,7 @@
 #include "PV_table.h"
 #include "move_ordering.h"
 #include "transposition_table.h"
+#include "killers.h"
 
 enum {
     time_fraction = 25,
@@ -29,6 +30,7 @@ enum {
 typedef struct {
     bool outOfTime;
     NodeCount_t nodeCount;
+    Killers_t killers;
     PvTable_t pvTable;
     TranspositionTable_t* tt;
 } ChessSearchInfo_t;
@@ -46,9 +48,16 @@ static EvalScore_t Negamax(
     Ply_t ply
 );
 
+bool IsQuiet(Move_t move, BoardInfo_t* boardInfo) {
+    return 
+        PieceOnSquare(boardInfo, ReadToSquare(move) == none_type) &&
+        ReadSpecialFlag(move) != en_passant_flag;
+}
+
 static void InitSearchInfo(ChessSearchInfo_t* chessSearchInfo, UciSearchInfo_t* uciSearchInfo) {
     chessSearchInfo->outOfTime = false;
     chessSearchInfo->nodeCount = 0;
+    InitKillers(&chessSearchInfo->killers);
     chessSearchInfo->tt = &uciSearchInfo->tt;
 }
 
@@ -234,6 +243,9 @@ static EvalScore_t Negamax(
             bestScore = score;
             bestMove = move;
             if(score >= beta) {
+                if(IsQuiet(move, boardInfo)) {
+                    AddKiller(&searchInfo->killers, move, ply);
+                }
                 break;
             }
 
