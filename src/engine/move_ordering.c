@@ -21,6 +21,7 @@ void InitAllMovePicker(
     BoardInfo_t* boardInfo,
     Move_t ttMove,
     Killers_t* killers,
+    History_t* history,
     Ply_t ply
 )
 {
@@ -44,7 +45,7 @@ void InitAllMovePicker(
         } else if(CompareMoves(move, killer_1)) {
             moveList->moves[i].score = killer_base_score - 1;
         } else {
-            moveList->moves[i].score = quiet_score;
+            moveList->moves[i].score = HistoryScore(history, boardInfo, move);
         }
     }
 }
