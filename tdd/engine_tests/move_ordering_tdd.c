@@ -81,8 +81,8 @@ static void ShouldOrderCorrectly() {
     WriteToSquare(&killer0, a4);
 
     Move_t killer1 = NullMove();
-    WriteFromSquare(&killer0, a2);
-    WriteToSquare(&killer0, a3);
+    WriteFromSquare(&killer1, a2);
+    WriteToSquare(&killer1, a3);
 
     AddKiller(&killers, killer0, some_ply);
     AddKiller(&killers, killer1, some_ply);
