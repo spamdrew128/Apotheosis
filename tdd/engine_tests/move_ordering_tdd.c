@@ -13,7 +13,8 @@ static GameStack_t gameStack;
 static ZobristStack_t zobristStack;
 
 enum {
-    some_ply = 0
+    some_ply = 0,
+    some_depth = 5,
 };
 
 bool IsCapture(Move_t move) {
@@ -90,6 +91,10 @@ static void ShouldOrderCorrectly() {
     History_t history;
     InitHistory(&history);
 
+    Move_t historyMove = NullMove();
+    WriteFromSquare(&ttMove, h1);
+    WriteToSquare(&ttMove, g1);
+    UpdateHistory(&history, &boardInfo, historyMove, some_depth);
 
     InitAllMovePicker(&picker, &moveList, &boardInfo, ttMove, &killers, &history, some_ply);
 
