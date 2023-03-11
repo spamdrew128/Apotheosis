@@ -92,8 +92,8 @@ static void ShouldOrderCorrectly() {
     InitHistory(&history);
 
     Move_t historyMove = NullMove();
-    WriteFromSquare(&ttMove, h1);
-    WriteToSquare(&ttMove, g1);
+    WriteFromSquare(&historyMove, h1);
+    WriteToSquare(&historyMove, g1);
     UpdateHistory(&history, &boardInfo, historyMove, some_depth);
 
     InitAllMovePicker(&picker, &moveList, &boardInfo, ttMove, &killers, &history, some_ply);
