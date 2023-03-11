@@ -6,10 +6,15 @@
 #include "move.h"
 #include "engine_types.h"
 
-typedef struct
-{
-    Move_t killerMoves[2][PLY_MAX];
+enum {
+    KILLERS_LENGTH = PLY_MAX,
+    KILLERS_WIDTH = 2,
+};
+
+typedef struct {
+    Move_t moves[KILLERS_MAX][KILLERS_WIDTH];
 } Killers_t;
 
+void InitKillers(Killers_t* killers);
 
 #endif
