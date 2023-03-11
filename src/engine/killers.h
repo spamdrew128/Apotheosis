@@ -19,6 +19,6 @@ void InitKillers(Killers_t* killers);
 
 void AddKiller(Killers_t* killers, Move_t move, Ply_t ply);
 
-Move_t GetKiller(Killers_t* killers, Move_t move, Ply_t ply, int index);
+Move_t GetKiller(Killers_t* killers, Ply_t ply, int index);
 
 #endif

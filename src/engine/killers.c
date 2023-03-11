@@ -19,7 +19,7 @@ void AddKiller(Killers_t* killers, Move_t move, Ply_t ply) {
     killers->moves[ply][0] = move;
 }
 
-Move_t GetKiller(Killers_t* killers, Move_t move, Ply_t ply, int index) {
+Move_t GetKiller(Killers_t* killers, Ply_t ply, int index) {
     assert(index < KILLERS_WIDTH);
     return killers->moves[ply][index];
 }
