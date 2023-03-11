@@ -255,7 +255,7 @@ static EvalScore_t Negamax(
             if(score >= beta) {
                 if(IsQuiet(move, boardInfo)) {
                     AddKiller(&searchInfo->killers, move, ply);
-                    // UpdateHistory(&searchInfo->history, boardInfo, move, depth);
+                    UpdateHistory(&searchInfo->history, boardInfo, move, depth);
                 }
                 break;
             }
