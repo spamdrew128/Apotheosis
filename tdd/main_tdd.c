@@ -22,6 +22,7 @@
 #include "random_crashes.h"
 #include "move_ordering_tdd.h"
 #include "TT_tdd.h"
+#include "killers_tdd.h"
 
 static void ProgramTeardown(UciApplicationData_t* uciApplicationData) {
     TranspositionTable_t* tt = &uciApplicationData->uciSearchInfo.tt;
@@ -54,6 +55,7 @@ int main(int argc, char** argv)
     PvTableTDDRunner();
     MoveOrderingTDDRunner();
     TranspositionTableTDDRunner();
+    KillersTDDRunner();
 
     // RANDOM CRASHES
     RandomCrashTestRunner(false);

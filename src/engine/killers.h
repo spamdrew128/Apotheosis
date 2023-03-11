@@ -12,7 +12,7 @@ enum {
 };
 
 typedef struct {
-    Move_t moves[KILLERS_MAX][KILLERS_WIDTH];
+    Move_t moves[KILLERS_LENGTH][KILLERS_WIDTH];
 } Killers_t;
 
 void InitKillers(Killers_t* killers);
