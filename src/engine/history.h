@@ -12,7 +12,7 @@ typedef struct {
 
 void InitHistory(History_t* history);
 
-void UpdateHistory(History_t* history, BoardInfo_t* boardInfo, Move_t move, Depth_t depth);
+void UpdateHistory(History_t* history, BoardInfo_t* boardInfo, MoveList_t* moveList, Move_t cutoffMove, Depth_t depth);
 
 MoveScore_t HistoryScore(History_t* history, BoardInfo_t* boardInfo, Move_t move);
 

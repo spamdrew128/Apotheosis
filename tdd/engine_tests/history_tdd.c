@@ -14,12 +14,15 @@ void ShouldUpdate() {
     ZobristStack_t zobristStack;
     InterpretFEN(START_FEN, &boardInfo, &gameStack, &zobristStack);
 
-    Move_t move = NullMove();
-    WriteFromSquare(&move, a2);
-    WriteToSquare(&move, a3);
+    Move_t historyMove = NullMove();
+    WriteFromSquare(&historyMove, a2);
+    WriteToSquare(&historyMove, a3);
 
-    UpdateHistory(&history, &boardInfo, move, some_depth);
-    PrintResults(HistoryScore(&history, &boardInfo, move) == some_depth*some_depth);
+    MoveList_t moveList;
+    CompleteMovegen(&moveList, &boardInfo, &gameStack);
+
+    UpdateHistory(&history, &boardInfo, &moveList, historyMove, some_depth);
+    PrintResults(HistoryScore(&history, &boardInfo, historyMove) == some_depth*some_depth);
 }
 
 void HistoryTDDRunner() {
