@@ -3,7 +3,7 @@
 #include "history.h"
 
 enum {
-    decay_threshold = 10000
+    decay_threshold = 20000
 };
 
 void InitHistory(History_t* history) {
