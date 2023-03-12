@@ -18,7 +18,11 @@ void ShouldUpdate() {
     WriteFromSquare(&move, a2);
     WriteToSquare(&move, a3);
 
-    UpdateHistory(&history, &boardInfo, move, some_depth);
+    QuietMovesList_t quiets;
+    InitQuietMovesList(&quiets);
+    AddQuietMove(&quiets, move);
+
+    UpdateHistory(&history, &boardInfo, &quiets, some_depth);
     PrintResults(HistoryScore(&history, &boardInfo, move) == some_depth*some_depth);
 }
 

@@ -93,7 +93,7 @@ static EvalScore_t QSearch(
         return 0;
     }
 
-    MoveList_t moveList;
+    MoveEntryList_t moveList;
     CompleteMovegen(&moveList, boardInfo, gameStack);
 
     GameEndStatus_t gameEndStatus = CheckForMates(boardInfo, moveList.maxIndex);
@@ -187,7 +187,7 @@ static EvalScore_t Negamax(
         return 0;
     }
 
-    MoveList_t moveList;
+    MoveEntryList_t moveList;
     CompleteMovegen(&moveList, boardInfo, gameStack);
 
     if(!isRoot) {
@@ -226,6 +226,9 @@ static EvalScore_t Negamax(
     EvalScore_t oldAlpha = alpha;
     EvalScore_t bestScore = -EVAL_MAX;
     Move_t bestMove;
+
+    QuietMovesList_t quiets;
+    InitQuietMovesList(&quiets);
     for(int i = 0; i <= moveList.maxIndex; i++) {
         EvalScore_t score;
         Move_t move = PickMove(&movePicker);
@@ -249,13 +252,18 @@ static EvalScore_t Negamax(
             return 0;
         }
 
+        const bool isQuiet = IsQuiet(move, boardInfo);
+        if(isQuiet) {
+            AddQuietMove(&quiets, move);
+        }
+
         if(score > bestScore) {
             bestScore = score;
             bestMove = move;
             if(score >= beta) {
-                if(IsQuiet(move, boardInfo)) {
+                if(isQuiet) {
                     AddKiller(&searchInfo->killers, move, ply);
-                    UpdateHistory(searchInfo->history, boardInfo, move, depth);
+                    UpdateHistory(searchInfo->history, boardInfo, &quiets, depth);
                 }
                 break;
             }

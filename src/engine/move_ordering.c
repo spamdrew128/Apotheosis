@@ -17,7 +17,7 @@ static EvalScore_t MVVScore(BoardInfo_t* boardInfo, Move_t capture) {
 
 void InitAllMovePicker(
     MovePicker_t* movePicker,
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     BoardInfo_t* boardInfo,
     Move_t ttMove,
     Killers_t* killers,
@@ -53,7 +53,7 @@ void InitAllMovePicker(
 
 void InitCaptureMovePicker(
     MovePicker_t* movePicker,
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     BoardInfo_t* boardInfo
 )
 {
@@ -71,14 +71,14 @@ void InitCaptureMovePicker(
     }
 }
 
-static void SwapEntries(MoveList_t* moveList, MoveIndex_t i, MoveIndex_t j) {
+static void SwapEntries(MoveEntryList_t* moveList, MoveIndex_t i, MoveIndex_t j) {
     MoveEntry_t temp = moveList->moves[i];
     moveList->moves[i] = moveList->moves[j];
     moveList->moves[j] = temp;
 }
 
 Move_t PickMove(MovePicker_t* movePicker) {
-    MoveList_t* moveList = movePicker->moveList;
+    MoveEntryList_t* moveList = movePicker->moveList;
     MoveIndex_t head = movePicker->headIndex;
 
     assert(head <= movePicker->tailIndex);

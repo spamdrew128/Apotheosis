@@ -8,14 +8,14 @@
 #include "history.h"
 
 typedef struct {
-    MoveList_t* moveList;
+    MoveEntryList_t* moveList;
     MoveIndex_t headIndex;
     MoveIndex_t tailIndex;
 } MovePicker_t;
 
 void InitAllMovePicker(
     MovePicker_t* movePicker,
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     BoardInfo_t* boardInfo,
     Move_t ttMove,
     Killers_t* killers,
@@ -25,7 +25,7 @@ void InitAllMovePicker(
 
 void InitCaptureMovePicker(
     MovePicker_t* movePicker,
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     BoardInfo_t* boardInfo
 );
 

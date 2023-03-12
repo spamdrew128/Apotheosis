@@ -7,7 +7,7 @@
 #include "move.h"
 #include "killers.h"
 
-static MoveList_t moveList;
+static MoveEntryList_t moveList;
 static BoardInfo_t boardInfo;
 static GameStack_t gameStack;
 static ZobristStack_t zobristStack;
@@ -94,7 +94,12 @@ static void ShouldOrderCorrectly() {
     Move_t historyMove = NullMove();
     WriteFromSquare(&historyMove, h1);
     WriteToSquare(&historyMove, g1);
-    UpdateHistory(&history, &boardInfo, historyMove, some_depth);
+
+    QuietMovesList_t quiets;
+    InitQuietMovesList(&quiets);
+    AddQuietMove(&quiets, historyMove);
+
+    UpdateHistory(&history, &boardInfo, &quiets, some_depth);
 
     InitAllMovePicker(&picker, &moveList, &boardInfo, ttMove, &killers, &history, some_ply);
 
