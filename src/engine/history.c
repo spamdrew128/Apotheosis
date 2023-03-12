@@ -4,7 +4,7 @@
 #include "util_macros.h"
 
 enum {
-    history_cap = 10000
+    history_cap = 25000
 };
 
 void InitHistory(History_t* history) {
