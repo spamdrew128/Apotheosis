@@ -13,7 +13,8 @@ static GameStack_t gameStack;
 static ZobristStack_t zobristStack;
 
 enum {
-    some_ply = 0
+    some_ply = 0,
+    some_depth = 5,
 };
 
 bool IsCapture(Move_t move) {
@@ -31,28 +32,28 @@ static EvalScore_t MVVScore(Move_t capture) {
     return ValueOfPiece(victim) - ValueOfPiece(attacker);
 }
 
-static MoveScore_t AssignTestScore(Move_t move, Move_t ttMove, Killers_t* killers, Ply_t ply) {
+static MoveScore_t AssignTestScore(Move_t move, Move_t ttMove, Killers_t* killers, History_t* history, Ply_t ply) {
     if(CompareMoves(move, ttMove)) {
         return tt_score;
     } else if(ReadSpecialFlag(move) == promotion_flag) {
         return promotion_score;
     } else if(IsCapture(move)) {
-        return MVVScore(move);
+        return MVVScore(move) + capture_offset;
     } else if(CompareMoves(move, GetKiller(killers, ply, 0))) {
         return killer_base_score;
     } else if(CompareMoves(move, GetKiller(killers, ply, 1))) {
         return killer_base_score - 1;
     } else {
-        return quiet_score;
+        return HistoryScore(history, &boardInfo, move);
     }
 }
 
-static bool MovesAreCorrectlyOrdered(MovePicker_t* picker, Move_t ttMove, Killers_t* killers, Ply_t ply) {
+static bool MovesAreCorrectlyOrdered(MovePicker_t* picker, Move_t ttMove, Killers_t* killers, History_t* history, Ply_t ply) {
     Move_t prevMove = PickMove(picker);
     for(int i = 1; i <= moveList.maxIndex; i++) {
         Move_t currentMove = PickMove(picker);
-        if(AssignTestScore(prevMove, ttMove, killers, ply) < 
-            AssignTestScore(currentMove, ttMove, killers, ply)
+        if(AssignTestScore(prevMove, ttMove, killers, history, ply) < 
+            AssignTestScore(currentMove, ttMove, killers, history, ply)
         )
         {
             return false;
@@ -86,9 +87,18 @@ static void ShouldOrderCorrectly() {
 
     AddKiller(&killers, killer0, some_ply);
     AddKiller(&killers, killer1, some_ply);
-    InitAllMovePicker(&picker, &moveList, &boardInfo, ttMove, &killers, some_ply);
 
-    PrintResults(MovesAreCorrectlyOrdered(&picker, ttMove, &killers, some_ply));
+    History_t history;
+    InitHistory(&history);
+
+    Move_t historyMove = NullMove();
+    WriteFromSquare(&historyMove, h1);
+    WriteToSquare(&historyMove, g1);
+    UpdateHistory(&history, &boardInfo, historyMove, some_depth);
+
+    InitAllMovePicker(&picker, &moveList, &boardInfo, ttMove, &killers, &history, some_ply);
+
+    PrintResults(MovesAreCorrectlyOrdered(&picker, ttMove, &killers, &history, some_ply));
 }
 
 void MoveOrderingTDDRunner() {

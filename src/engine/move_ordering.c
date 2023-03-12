@@ -21,6 +21,7 @@ void InitAllMovePicker(
     BoardInfo_t* boardInfo,
     Move_t ttMove,
     Killers_t* killers,
+    History_t* history,
     Ply_t ply
 )
 {
@@ -38,13 +39,14 @@ void InitAllMovePicker(
         } else if(ReadSpecialFlag(move) == promotion_flag) {
             moveList->moves[i].score = promotion_score;
         } else if(i <= moveList->maxCapturesIndex) {
-            moveList->moves[i].score = MVVScore(boardInfo, move);
+            moveList->moves[i].score = MVVScore(boardInfo, move) + capture_offset;
         } else if(CompareMoves(move, killer_0)) {
             moveList->moves[i].score = killer_base_score;
         } else if(CompareMoves(move, killer_1)) {
             moveList->moves[i].score = killer_base_score - 1;
         } else {
-            moveList->moves[i].score = quiet_score;
+            moveList->moves[i].score = HistoryScore(history, boardInfo, move);
+            assert(moveList->moves[i].score < killer_base_score);
         }
     }
 }
