@@ -13,7 +13,6 @@
 #include "move_ordering.h"
 #include "transposition_table.h"
 #include "killers.h"
-#include "history.h"
 
 enum {
     time_fraction = 25,
@@ -32,8 +31,8 @@ typedef struct {
     bool outOfTime;
     NodeCount_t nodeCount;
     Killers_t killers;
-    History_t history;
     PvTable_t pvTable;
+    History_t* history;
     TranspositionTable_t* tt;
 } ChessSearchInfo_t;
 
@@ -60,7 +59,8 @@ static void InitSearchInfo(ChessSearchInfo_t* chessSearchInfo, UciSearchInfo_t* 
     chessSearchInfo->outOfTime = false;
     chessSearchInfo->nodeCount = 0;
     InitKillers(&chessSearchInfo->killers);
-    InitHistory(&chessSearchInfo->history);
+    
+    chessSearchInfo->history = &uciSearchInfo->history;
     chessSearchInfo->tt = &uciSearchInfo->tt;
 }
 
@@ -329,6 +329,10 @@ static void PrintUciInformation(
     SendPvInfo(&searchInfo.pvTable, currentDepth);
 }
 
+static void UpdateUciSearchInfo(UciSearchInfo_t* uciSearchInfo) {
+    AgeHistory(&uciSearchInfo->history);
+}
+
 SearchResults_t Search(
     UciSearchInfo_t* uciSearchInfo,
     BoardInfo_t* boardInfo,
@@ -370,6 +374,8 @@ SearchResults_t Search(
         }
 
     } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
+
+    UpdateUciSearchInfo(uciSearchInfo);
 
     return searchResults;
 }
@@ -423,5 +429,6 @@ void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {
 
     uciSearchInfo->depthLimit = 0;
 
+    InitHistory(&uciSearchInfo->history);
     TranspositionTableInit(&uciSearchInfo->tt, hash_default_mb);
 }

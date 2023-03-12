@@ -405,6 +405,7 @@ static bool RespondToSignal(
         return false;
     case signal_new_game:
         ClearTTEntries(&applicationData->uciSearchInfo.tt);
+        InitHistory(&applicationData->uciSearchInfo.history);
         break;
     case signal_position:
         InterpretPosition(

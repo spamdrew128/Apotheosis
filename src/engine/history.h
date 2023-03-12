@@ -16,4 +16,6 @@ void UpdateHistory(History_t* history, BoardInfo_t* boardInfo, Move_t move, Dept
 
 MoveScore_t HistoryScore(History_t* history, BoardInfo_t* boardInfo, Move_t move);
 
+void AgeHistory(History_t* history);
+
 #endif
