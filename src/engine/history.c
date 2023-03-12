@@ -7,7 +7,6 @@ enum {
     delta_minimum = 1200,
     delta_multiplier = 16,
     bonus_scaler = 32768,
-    history_cap = 30000,
 };
 
 void InitHistory(History_t* history) {
