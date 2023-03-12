@@ -7,7 +7,7 @@
 #include "engine_types.h"
 
 typedef struct {
-    MoveScore_t scores[NUM_PIECES][NUM_SQUARES];
+    MoveScore_t scores[NUM_SQUARES][NUM_SQUARES];
 } History_t;
 
 void InitHistory(History_t* history);
