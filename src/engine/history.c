@@ -1,7 +1,6 @@
 #include <assert.h>
 
 #include "history.h"
-#include "util_macros.h"
 
 enum {
     history_cap = 1200
@@ -19,8 +18,10 @@ void UpdateHistory(History_t* history, BoardInfo_t* boardInfo, Move_t move, Dept
     Piece_t piece = PieceOnSquare(boardInfo, ReadFromSquare(move));
     Square_t toSquare = ReadToSquare(move);
 
-    MoveScore_t currentScore = history->scores[piece][toSquare];
-    history->scores[piece][toSquare] += MIN(depth * depth, history_cap);
+    history->scores[piece][toSquare] += depth * depth;
+    if(history->scores[piece][toSquare] > history_cap) {
+       history->scores[piece][toSquare] = history_cap;
+    }
 }
 
 MoveScore_t HistoryScore(History_t* history, BoardInfo_t* boardInfo, Move_t move) {
