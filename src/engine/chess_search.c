@@ -59,7 +59,7 @@ static void InitSearchInfo(ChessSearchInfo_t* chessSearchInfo, UciSearchInfo_t* 
     chessSearchInfo->outOfTime = false;
     chessSearchInfo->nodeCount = 0;
     InitKillers(&chessSearchInfo->killers);
-    
+
     chessSearchInfo->history = &uciSearchInfo->history;
     chessSearchInfo->tt = &uciSearchInfo->tt;
 }
@@ -219,7 +219,7 @@ static EvalScore_t Negamax(
         boardInfo,
         ttMove,
         &searchInfo->killers,
-        &searchInfo->history,
+        searchInfo->history,
         ply
     );
 
@@ -255,7 +255,7 @@ static EvalScore_t Negamax(
             if(score >= beta) {
                 if(IsQuiet(move, boardInfo)) {
                     AddKiller(&searchInfo->killers, move, ply);
-                    UpdateHistory(&searchInfo->history, boardInfo, move, depth);
+                    UpdateHistory(searchInfo->history, boardInfo, move, depth);
                 }
                 break;
             }
@@ -407,6 +407,8 @@ NodeCount_t BenchSearch(
             0
         );
     } while(currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
+
+    UpdateUciSearchInfo(uciSearchInfo);
 
     return searchInfo.nodeCount;
 }
