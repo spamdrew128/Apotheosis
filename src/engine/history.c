@@ -18,7 +18,9 @@ void InitHistory(History_t* history) {
 void UpdateHistory(History_t* history, BoardInfo_t* boardInfo, Move_t move, Depth_t depth) {
     Piece_t piece = PieceOnSquare(boardInfo, ReadFromSquare(move));
     Square_t toSquare = ReadToSquare(move);
-    history->scores[piece][toSquare] += depth * depth;
+
+    MoveScore_t currentScore = history->scores[piece][toSquare];
+    history->scores[piece][toSquare] += MIN(depth * depth, history_cap);
 }
 
 MoveScore_t HistoryScore(History_t* history, BoardInfo_t* boardInfo, Move_t move) {
