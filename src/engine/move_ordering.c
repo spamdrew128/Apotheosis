@@ -39,7 +39,7 @@ void InitAllMovePicker(
         } else if(ReadSpecialFlag(move) == promotion_flag) {
             moveList->moves[i].score = promotion_score;
         } else if(i <= moveList->maxCapturesIndex) {
-            moveList->moves[i].score = MVVScore(boardInfo, move);
+            moveList->moves[i].score = MVVScore(boardInfo, move) + capture_offset;
         } else if(CompareMoves(move, killer_0)) {
             moveList->moves[i].score = killer_base_score;
         } else if(CompareMoves(move, killer_1)) {

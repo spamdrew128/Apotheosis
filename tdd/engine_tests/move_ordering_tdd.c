@@ -38,7 +38,7 @@ static MoveScore_t AssignTestScore(Move_t move, Move_t ttMove, Killers_t* killer
     } else if(ReadSpecialFlag(move) == promotion_flag) {
         return promotion_score;
     } else if(IsCapture(move)) {
-        return MVVScore(move);
+        return MVVScore(move) + capture_offset;
     } else if(CompareMoves(move, GetKiller(killers, ply, 0))) {
         return killer_base_score;
     } else if(CompareMoves(move, GetKiller(killers, ply, 1))) {
