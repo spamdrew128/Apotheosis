@@ -103,6 +103,19 @@ bool TTCutoffIsPossible(TTEntry_t entry, EvalScore_t alpha, EvalScore_t beta, De
     }
 }
 
+HashFull_t HashFull(TranspositionTable_t* table) {
+    assert(table->numEntries >= 1000);
+
+    HashFull_t hashFull = 0;
+    for(TTIndex_t i = 0; i < 1000; i++) {
+        if(table->entries[i].flag != tt_uninitialized) {
+            hashFull++;
+        }
+    }
+
+    return hashFull;
+}
+
 void TeardownTT(TranspositionTable_t* table) {
     free(table->entries);
     table->entries = NULL;
