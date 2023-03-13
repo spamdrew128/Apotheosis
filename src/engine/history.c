@@ -4,7 +4,7 @@
 #include "util_macros.h"
 
 enum {
-    bonus_max = 1200,
+    bonus_max = 2500,
 };
 
 void InitHistory(History_t* history) {
