@@ -3,6 +3,9 @@ Name: Apotheosis
 
 Author: Spamdrew
 
+# About
+As my first real experience with engine development, this project is more of a learning experience for me than anything else. My goal in creating this engine is to hit 2500 ELO CCRL.
+
 # How to build:
 Windows/Linux (you must have some version of GCC installed):
 
