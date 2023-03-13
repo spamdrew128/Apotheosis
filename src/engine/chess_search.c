@@ -19,8 +19,6 @@ enum {
     time_fraction = 25,
     timer_check_freq = 1024,
 
-    MATE_THRESHOLD = EVAL_MAX - 100,
-
     DEPTH_MAX = PLY_MAX
 };
 
@@ -202,7 +200,7 @@ static EvalScore_t Negamax(
 
     ZobristHash_t hash = ZobristStackTop(zobristStack);
     TTIndex_t ttIndex = GetTTIndex(searchInfo->tt, hash);
-    TTEntry_t entry = GetTTEntry(searchInfo->tt, ttIndex);
+    TTEntry_t entry = GetTTEntry(searchInfo->tt, ttIndex, ply);
     Move_t ttMove = NullMove();
     if(TTHit(entry, hash)) {
         if(!isPVNode && TTCutoffIsPossible(entry, alpha, beta, depth)) {
@@ -268,7 +266,7 @@ static EvalScore_t Negamax(
     }
 
     TTFlag_t flag = DetermineTTFlag(bestScore, oldAlpha, alpha, beta);
-    StoreTTEntry(searchInfo->tt, ttIndex, flag, depth, bestMove, bestScore, hash);
+    StoreTTEntry(searchInfo->tt, ttIndex, flag, depth, ply, bestMove, bestScore, hash);
 
     return bestScore;
 }
@@ -318,13 +316,14 @@ static void PrintUciInformation(
     Milliseconds_t time = ElapsedTime(stopwatch) + 1;
     long long nps =((searchInfo.nodeCount * msec_per_sec) / time);
     SendUciInfoString(
-        "score %s%d depth %d nodes %lld time %lld nps %lld",
+        "score %s%d depth %d nodes %lld time %lld nps %lld hashfull %d",
         scoreType,
         scoreValue,
         currentDepth,
         (long long)searchInfo.nodeCount,
         (long long)time,
-        nps
+        nps,
+        HashFull(searchInfo.tt)
     );
     SendPvInfo(&searchInfo.pvTable, currentDepth);
 }

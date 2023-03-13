@@ -27,8 +27,31 @@ TTIndex_t GetTTIndex(TranspositionTable_t* table, ZobristHash_t hash) {
     return hash % table->numEntries;
 }
 
-TTEntry_t GetTTEntry(TranspositionTable_t* table, TTIndex_t index) {
-    return table->entries[index];
+static EvalScore_t ScoreToTT(EvalScore_t score, Ply_t ply) {
+    // Adjust to be relative to the node, rather than relative to the position
+    if(score >= MATE_THRESHOLD) {
+        return score + ply;
+    } else if(score <= -MATE_THRESHOLD) {
+        return score - ply;
+    }
+
+    return score;
+}
+
+static EvalScore_t ScoreFromTT(EvalScore_t score, Ply_t ply) {
+    if(score >= MATE_THRESHOLD) {
+        return score - ply;
+    } else if(score <= -MATE_THRESHOLD) {
+        return score + ply;
+    }
+
+    return score;
+}
+
+TTEntry_t GetTTEntry(TranspositionTable_t* table, TTIndex_t index, Ply_t ply) {
+    TTEntry_t entry = table->entries[index];
+    entry.bestScore = ScoreFromTT(entry.bestScore, ply);
+    return entry;
 }
 
 bool TTHit(TTEntry_t entry, ZobristHash_t hash) {
@@ -50,6 +73,7 @@ void StoreTTEntry(
     TTIndex_t index,
     TTFlag_t flag,
     Depth_t depth,
+    Ply_t ply,
     Move_t bestMove,
     EvalScore_t bestScore,
     ZobristHash_t hash
@@ -58,7 +82,7 @@ void StoreTTEntry(
     table->entries[index].flag = flag;
     table->entries[index].depth = depth;
     table->entries[index].bestMove = bestMove;
-    table->entries[index].bestScore = bestScore;
+    table->entries[index].bestScore = ScoreToTT(bestScore, ply);
     table->entries[index].key = (TTKey_t)hash;
 }
 
@@ -77,6 +101,19 @@ bool TTCutoffIsPossible(TTEntry_t entry, EvalScore_t alpha, EvalScore_t beta, De
         default:
             return false;
     }
+}
+
+HashFull_t HashFull(TranspositionTable_t* table) {
+    assert(table->numEntries >= 1000);
+
+    HashFull_t hashFull = 0;
+    for(TTIndex_t i = 0; i < 1000; i++) {
+        if(table->entries[i].flag != tt_uninitialized) {
+            hashFull++;
+        }
+    }
+
+    return hashFull;
 }
 
 void TeardownTT(TranspositionTable_t* table) {

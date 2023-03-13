@@ -8,8 +8,9 @@ typedef int16_t EvalScore_t;
 typedef int16_t Centipawns_t;
 
 enum {
-  EVAL_MAX = 30000,
-  INFINITY = INT16_MAX - 1
+  INFINITY = INT16_MAX - 1,
+  EVAL_MAX = INFINITY - 1,
+  MATE_THRESHOLD = EVAL_MAX - 150,
 };
 
 typedef uint8_t Depth_t;
