@@ -40,7 +40,7 @@ void TranspositionTableInit(TranspositionTable_t* table, Megabytes_t megabytes);
 
 TTIndex_t GetTTIndex(TranspositionTable_t* table, ZobristHash_t hash);
 
-TTEntry_t GetTTEntry(TranspositionTable_t* table, TTIndex_t index);
+TTEntry_t GetTTEntry(TranspositionTable_t* table, TTIndex_t index, Ply_t ply);
 
 bool TTHit(TTEntry_t entry, ZobristHash_t hash);
 
@@ -51,6 +51,7 @@ void StoreTTEntry(
     TTIndex_t index,
     TTFlag_t flag,
     Depth_t depth,
+    Ply_t ply,
     Move_t bestMove,
     EvalScore_t bestScore,
     ZobristHash_t hash

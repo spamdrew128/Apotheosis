@@ -8,6 +8,9 @@ enum {
     some_alpha = 2,
     some_beta = 4,
     some_depth = 3,
+    some_ply = 2,
+
+    m4_score = EVAL_MAX - 4
 };
 
 static void ShouldInitToCorrectSize() {
@@ -83,6 +86,19 @@ static void ShouldCutoffIfScoreIsUpperBoundAndLessThanAlpha() {
 
     bool cutoff = TTCutoffIsPossible(entry, some_alpha, some_beta, entry.depth);
     PrintResults(cutoff == true);
+}
+
+static void ShouldAdjustMateScores() {
+    TranspositionTable_t table;
+    TranspositionTableInit(&table, some_tt_size);
+
+    ZobristHash_t hash = some_zobrist_hash;
+    TTIndex_t index = GetTTIndex(&table, hash);
+
+    StoreTTEntry(&table, index, some_flag, some_depth, some_ply, NullMove(), m4_score, hash);
+
+    TTEntry_t entry = GetTTEntry(&table, index, some_ply + 3);
+    PrintResults(entry.bestScore == m4_score - 3)
 }
 
 void TranspositionTableTDDRunner() {
