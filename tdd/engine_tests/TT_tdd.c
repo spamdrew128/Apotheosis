@@ -111,4 +111,6 @@ void TranspositionTableTDDRunner() {
     ShouldCutoffIfScoreIsExact();
     ShouldCutoffIfScoreIsLowerBoundAndGreaterThanBeta();
     ShouldCutoffIfScoreIsUpperBoundAndLessThanAlpha();
+
+    ShouldAdjustMateScores();
 }
