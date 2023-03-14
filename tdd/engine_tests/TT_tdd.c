@@ -10,7 +10,10 @@ enum {
     some_depth = 3,
     some_ply = 2,
 
-    m4_score = EVAL_MAX - 4
+    some_score = -478,
+    m4_score = EVAL_MAX - 4,
+
+    some_epoch = 54,
 };
 
 static void ShouldInitToCorrectSize() {
@@ -101,6 +104,33 @@ static void ShouldAdjustMateScores() {
     PrintResults(entry.bestScore == m4_score - 3)
 }
 
+static void ShouldFavorHigherDepthEntriesOfSameEpoch() {
+    TranspositionTable_t table;
+    TranspositionTableInit(&table, some_tt_size);
+
+    ZobristHash_t hash = some_zobrist_hash;
+    TTIndex_t index = GetTTIndex(&table, hash);
+
+    StoreTTEntry(&table, index, some_flag, some_depth, some_ply, NullMove(), some_score, hash);
+    TTEntry_t oldEntry = GetTTEntry(&table, index, some_ply);
+
+    PrintResults(ShouldReplace(&table, oldEntry, some_depth + 1));
+}
+
+static void ShouldFavorSlightlyLowerDepthEntriesOfNewerEpoch() {
+    TranspositionTable_t table;
+    TranspositionTableInit(&table, some_tt_size);
+
+    ZobristHash_t hash = some_zobrist_hash;
+    TTIndex_t index = GetTTIndex(&table, hash);
+
+    StoreTTEntry(&table, index, some_flag, some_depth, some_ply, NullMove(), some_score, hash);
+    TTEntry_t oldEntry = GetTTEntry(&table, index, some_ply);
+
+    AgeTranspositionTable(&table);
+    PrintResults(ShouldReplace(&table, oldEntry, some_depth - 1));
+}
+
 void TranspositionTableTDDRunner() {
     ShouldInitToCorrectSize();
     ShouldNotHitWhenUninitialized();
@@ -113,4 +143,7 @@ void TranspositionTableTDDRunner() {
     ShouldCutoffIfScoreIsUpperBoundAndLessThanAlpha();
 
     ShouldAdjustMateScores();
+
+    ShouldFavorHigherDepthEntriesOfSameEpoch();
+    ShouldFavorSlightlyLowerDepthEntriesOfNewerEpoch();
 }
