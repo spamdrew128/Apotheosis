@@ -50,7 +50,7 @@ bool TTHit(TTEntry_t entry, ZobristHash_t hash);
 
 TTFlag_t DetermineTTFlag(EvalScore_t bestScore, EvalScore_t oldAlpha, EvalScore_t alpha, EvalScore_t beta);
 
-bool ShouldReplace(TranspositionTable_t* table, TTEntry_t oldEntry, Depth_t depth);
+bool ShouldReplace(TranspositionTable_t* table, TTEntry_t oldEntry, Depth_t newDepth);
 
 void StoreTTEntry(
     TranspositionTable_t* table,

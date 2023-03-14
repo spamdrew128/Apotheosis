@@ -72,10 +72,10 @@ TTFlag_t DetermineTTFlag(EvalScore_t bestScore, EvalScore_t oldAlpha, EvalScore_
     }
 }
 
-bool ShouldReplace(TranspositionTable_t* table, TTEntry_t oldEntry, Depth_t depth) {
+bool ShouldReplace(TranspositionTable_t* table, TTEntry_t oldEntry, Depth_t newDepth) {
     // replacement formula borrowed from Svart: https://github.com/crippa1337/svart/blob/master/src/engine/tt.rs
     Quality_t oldQuality = oldEntry.entryEpoch * 2 + oldEntry.depth;
-    Quality_t newQuality = table->tableEpoch * 2 + depth;
+    Quality_t newQuality = table->tableEpoch * 2 + newDepth;
 
     return newQuality >= oldQuality;
 }
