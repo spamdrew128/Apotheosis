@@ -265,8 +265,10 @@ static EvalScore_t Negamax(
         }
     }
 
-    TTFlag_t flag = DetermineTTFlag(bestScore, oldAlpha, alpha, beta);
-    StoreTTEntry(searchInfo->tt, ttIndex, flag, depth, ply, bestMove, bestScore, hash);
+    if(ShouldReplace(searchInfo->tt, entry, depth)) {
+        TTFlag_t flag = DetermineTTFlag(bestScore, oldAlpha, alpha, beta);
+        StoreTTEntry(searchInfo->tt, ttIndex, flag, depth, ply, bestMove, bestScore, hash);
+    }
 
     return bestScore;
 }
