@@ -18,7 +18,7 @@ enum {
 
 typedef uint32_t TTLength_t;
 typedef uint32_t TTIndex_t;
-typedef uint64_t TTKey_t;
+typedef uint32_t TTKey_t;
 typedef uint16_t HashFull_t;
 typedef uint16_t SearchEpoch_t;
 
@@ -28,7 +28,7 @@ typedef struct {
     SearchEpoch_t entryEpoch; // 2 bytes
     Move_t bestMove; // 2 bytes
     EvalScore_t bestScore; // 2 bytes
-    TTKey_t key; // 8 bytes
+    TTKey_t key; // 4 bytes
 } TTEntry_t;
 
 typedef struct {

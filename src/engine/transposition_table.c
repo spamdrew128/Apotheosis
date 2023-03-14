@@ -58,8 +58,12 @@ TTEntry_t GetTTEntry(TranspositionTable_t* table, TTIndex_t index, Ply_t ply) {
     return entry;
 }
 
+static TTKey_t HashToTTKeyConversion(ZobristHash_t hash) {
+    return hash >> 32;
+}
+
 bool TTHit(TTEntry_t entry, ZobristHash_t hash) {
-    return (entry.key == (TTKey_t)hash) && (entry.flag != tt_uninitialized);
+    return (entry.key == HashToTTKeyConversion(hash)) && (entry.flag != tt_uninitialized);
 }
 
 TTFlag_t DetermineTTFlag(EvalScore_t bestScore, EvalScore_t oldAlpha, EvalScore_t alpha, EvalScore_t beta) {
@@ -96,7 +100,7 @@ void StoreTTEntry(
     table->entries[index].entryEpoch = table->tableEpoch;
     table->entries[index].bestMove = bestMove;
     table->entries[index].bestScore = ScoreToTT(bestScore, ply);
-    table->entries[index].key = (TTKey_t)hash;
+    table->entries[index].key = HashToTTKeyConversion(hash);
 }
 
 bool TTCutoffIsPossible(TTEntry_t entry, EvalScore_t alpha, EvalScore_t beta, Depth_t currentDepth) {
