@@ -2,7 +2,7 @@
 #include "debug.h"
 
 enum {
-    some_flag = 0,
+    some_flag = 1,
     some_tt_size = 16,
     some_zobrist_hash = 830928908,
     some_alpha = 2,
@@ -114,7 +114,7 @@ static void ShouldFavorHigherDepthEntriesOfSameEpoch() {
     StoreTTEntry(&table, index, some_flag, some_depth, some_ply, NullMove(), some_score, hash);
     TTEntry_t oldEntry = GetTTEntry(&table, index, some_ply);
 
-    PrintResults(ShouldReplace(&table, oldEntry, some_depth + 1));
+    PrintResults(ShouldReplace(&table, oldEntry, some_depth + 1, lower_bound));
 }
 
 static void ShouldFavorSlightlyLowerDepthEntriesOfNewerEpoch() {
@@ -128,7 +128,7 @@ static void ShouldFavorSlightlyLowerDepthEntriesOfNewerEpoch() {
     TTEntry_t oldEntry = GetTTEntry(&table, index, some_ply);
 
     AgeTranspositionTable(&table);
-    PrintResults(ShouldReplace(&table, oldEntry, some_depth - 1));
+    PrintResults(ShouldReplace(&table, oldEntry, some_depth - 1, lower_bound));
 }
 
 void TranspositionTableTDDRunner() {

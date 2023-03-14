@@ -18,7 +18,7 @@ enum {
 
 typedef uint32_t TTLength_t;
 typedef uint32_t TTIndex_t;
-typedef uint32_t TTKey_t;
+typedef uint64_t TTKey_t;
 typedef uint16_t HashFull_t;
 typedef uint16_t SearchEpoch_t;
 
@@ -28,7 +28,7 @@ typedef struct {
     SearchEpoch_t entryEpoch; // 2 bytes
     Move_t bestMove; // 2 bytes
     EvalScore_t bestScore; // 2 bytes
-    TTKey_t key; // 4 bytes
+    TTKey_t key; // 8 bytes
 } TTEntry_t;
 
 typedef struct {
@@ -50,7 +50,7 @@ bool TTHit(TTEntry_t entry, ZobristHash_t hash);
 
 TTFlag_t DetermineTTFlag(EvalScore_t bestScore, EvalScore_t oldAlpha, EvalScore_t alpha, EvalScore_t beta);
 
-bool ShouldReplace(TranspositionTable_t* table, TTEntry_t oldEntry, Depth_t newDepth);
+bool ShouldReplace(TranspositionTable_t* table, TTEntry_t oldEntry, Depth_t newDepth, TTFlag_t newFlag);
 
 void StoreTTEntry(
     TranspositionTable_t* table,

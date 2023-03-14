@@ -58,12 +58,8 @@ TTEntry_t GetTTEntry(TranspositionTable_t* table, TTIndex_t index, Ply_t ply) {
     return entry;
 }
 
-static TTKey_t HashToTTKeyConversion(ZobristHash_t hash) {
-    return hash >> 32;
-}
-
 bool TTHit(TTEntry_t entry, ZobristHash_t hash) {
-    return (entry.key == HashToTTKeyConversion(hash)) && (entry.flag != tt_uninitialized);
+    return (entry.key == (TTKey_t)hash) && (entry.flag != tt_uninitialized);
 }
 
 TTFlag_t DetermineTTFlag(EvalScore_t bestScore, EvalScore_t oldAlpha, EvalScore_t alpha, EvalScore_t beta) {
@@ -76,7 +72,11 @@ TTFlag_t DetermineTTFlag(EvalScore_t bestScore, EvalScore_t oldAlpha, EvalScore_
     }
 }
 
-bool ShouldReplace(TranspositionTable_t* table, TTEntry_t oldEntry, Depth_t newDepth) {
+bool ShouldReplace(TranspositionTable_t* table, TTEntry_t oldEntry, Depth_t newDepth, TTFlag_t newFlag) {
+    if(newFlag == exact) {
+        return true;
+    }
+
     // replacement formula borrowed from Svart: https://github.com/crippa1337/svart/blob/master/src/engine/tt.rs
     Quality_t oldQuality = oldEntry.entryEpoch * 2 + oldEntry.depth;
     Quality_t newQuality = table->tableEpoch * 2 + newDepth;
@@ -100,7 +100,7 @@ void StoreTTEntry(
     table->entries[index].entryEpoch = table->tableEpoch;
     table->entries[index].bestMove = bestMove;
     table->entries[index].bestScore = ScoreToTT(bestScore, ply);
-    table->entries[index].key = HashToTTKeyConversion(hash);
+    table->entries[index].key = (TTKey_t)hash;
 }
 
 bool TTCutoffIsPossible(TTEntry_t entry, EvalScore_t alpha, EvalScore_t beta, Depth_t currentDepth) {
