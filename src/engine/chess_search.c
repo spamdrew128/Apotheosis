@@ -330,6 +330,10 @@ static void PrintUciInformation(
     SendPvInfo(&searchInfo.pvTable, currentDepth);
 }
 
+static void SearchCompleteActions(UciSearchInfo_t* uciSearchInfo) {
+    AgeTranspositionTable(&uciSearchInfo->tt);
+}
+
 SearchResults_t Search(
     UciSearchInfo_t* uciSearchInfo,
     BoardInfo_t* boardInfo,
@@ -371,6 +375,8 @@ SearchResults_t Search(
         }
 
     } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
+
+    SearchCompleteActions(uciSearchInfo);
 
     return searchResults;
 }
