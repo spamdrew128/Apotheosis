@@ -21,7 +21,7 @@ typedef Bitboard_t (*FindMaskCallback_t)(Square_t);
 typedef struct {
     Bitboard_t blockers;
     Bitboard_t attacks;
-} TempStorage_t;
+} TempStorSearchEpoch_t;
 
 static uint32_t totalEntries;
 
@@ -106,7 +106,7 @@ static Bitboard_t FindBishopAttacksFromBlockers(Square_t square, Bitboard_t bloc
 }
 
 static void InitTempStorage(
-    TempStorage_t* tempStorageTable, 
+    TempStorSearchEpoch_t* tempStorageTable, 
     Bitboard_t mask, 
     uint8_t indexBits, 
     Square_t square, 
@@ -145,7 +145,7 @@ static void FillHashTable(
     }
     assert(totalEntries <= NUM_HASH_ENTRIES);
 
-    TempStorage_t* tempStorageTable = malloc(tableEntries * sizeof(*tempStorageTable));
+    TempStorSearchEpoch_t* tempStorageTable = malloc(tableEntries * sizeof(*tempStorageTable));
     InitTempStorage(tempStorageTable, mask, indexBits, square, callback);
 
     for(int i = 0; i < tableEntries; i++) {
