@@ -1,3 +1,5 @@
+# Bitboard Chess Engine in C
+
 Name: Apotheosis
 
 Author: Spamdrew
