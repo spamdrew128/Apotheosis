@@ -14,6 +14,7 @@
 #include "transposition_table.h"
 #include "killers.h"
 #include "history.h"
+#include "util_macros.h"
 
 enum {
     time_fraction = 25,
@@ -96,6 +97,8 @@ static EvalScore_t QSearch(
         searchInfo->outOfTime = true;
         return 0;
     }
+
+    searchInfo->seldepth = MAX(searchInfo->seldepth, ply);
 
     MoveEntryList_t moveList;
     CompleteMovegen(&moveList, boardInfo, gameStack);
@@ -190,6 +193,8 @@ static EvalScore_t Negamax(
         searchInfo->outOfTime = true;
         return 0;
     }
+
+    searchInfo->seldepth = MAX(searchInfo->seldepth, ply);
 
     MoveEntryList_t moveList;
     CompleteMovegen(&moveList, boardInfo, gameStack);
@@ -322,11 +327,12 @@ static void PrintUciInformation(
     Milliseconds_t time = ElapsedTime(stopwatch) + 1;
     long long nps =((searchInfo.nodeCount * msec_per_sec) / time);
     SendUciInfoString(
-        "score %s%d depth %d nodes %lld time %lld nps %lld hashfull %d",
+        "score %s%d depth %d seldepth %d nodes %lld time %lld nps %lld hashfull %d",
         &searchInfo.pvTable,
         scoreType,
         scoreValue,
         currentDepth,
+        searchInfo.seldepth,
         (long long)searchInfo.nodeCount,
         (long long)time,
         nps,
