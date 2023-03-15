@@ -1,1 +1,1 @@
-make EXE=ApotheosisV1 RELEASE=y
+make EXE=ApotheosisV2.0.0 RELEASE=y
