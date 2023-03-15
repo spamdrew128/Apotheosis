@@ -14,7 +14,7 @@
 
 #define BUFFER_SIZE 50000
 
-#define ENGINE_ID "id name Apotheosis\nid author Spamdrew\n"
+#define ENGINE_ID "id name Apotheosis v2.0.0\nid author Andrew Hockman\n"
 #define UCI_OK "uciok\n"
 #define READY_OK "readyok\n"
 

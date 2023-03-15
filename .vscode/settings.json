@@ -51,7 +51,8 @@
         "pv_table.h": "c",
         "move_ordering_tdd.h": "c",
         "move_ordering.h": "c",
-        "history.h": "c"
+        "history.h": "c",
+        "uci.h": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",
