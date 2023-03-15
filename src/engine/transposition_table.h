@@ -41,7 +41,9 @@ void TranspositionTableInit(TranspositionTable_t* table, Megabytes_t megabytes);
 
 TTIndex_t GetTTIndex(TranspositionTable_t* table, ZobristHash_t hash);
 
-TTEntry_t GetTTEntry(TranspositionTable_t* table, TTIndex_t index, Ply_t ply);
+EvalScore_t ScoreFromTT(EvalScore_t score, Ply_t ply);
+
+TTEntry_t GetTTEntry(TranspositionTable_t* table, TTIndex_t index);
 
 bool TTHit(TTEntry_t entry, ZobristHash_t hash);
 
