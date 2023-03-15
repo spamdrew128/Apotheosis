@@ -29,6 +29,7 @@ enum {
 typedef struct {
     bool outOfTime;
     NodeCount_t nodeCount;
+    Depth_t seldepth;
     Killers_t killers;
     History_t history;
     PvTable_t pvTable;
@@ -54,9 +55,14 @@ bool IsQuiet(Move_t move, BoardInfo_t* boardInfo) {
         ReadSpecialFlag(move) != en_passant_flag;
 }
 
+static void ResetSeldepth(ChessSearchInfo_t* chessSearchInfo) {
+    chessSearchInfo->seldepth = 0;
+}
+
 static void InitSearchInfo(ChessSearchInfo_t* chessSearchInfo, UciSearchInfo_t* uciSearchInfo) {
     chessSearchInfo->outOfTime = false;
     chessSearchInfo->nodeCount = 0;
+    ResetSeldepth(chessSearchInfo);
     InitKillers(&chessSearchInfo->killers);
     InitHistory(&chessSearchInfo->history);
     chessSearchInfo->tt = &uciSearchInfo->tt;
@@ -347,6 +353,7 @@ SearchResults_t Search(
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
+        ResetSeldepth(&searchInfo);
 
         EvalScore_t score = Negamax(
             boardInfo,
@@ -388,6 +395,7 @@ NodeCount_t BenchSearch(
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
+        ResetSeldepth(&searchInfo);
 
         Negamax(
             boardInfo,
