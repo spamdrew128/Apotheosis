@@ -29,7 +29,7 @@ int main(int argc, char** argv)
     bool running = Bench(argc, argv);
 
     UciApplicationData_t uciApplicationData;
-    UciSearchInfoInit(&uciApplicationData.uciSearchInfo);
+    UciApplicationDataInit(&uciApplicationData);
     while(running) {
         running = InterpretUCIInput(&uciApplicationData);
     }

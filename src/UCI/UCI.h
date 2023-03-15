@@ -20,6 +20,8 @@ typedef struct
     UciSearchInfo_t uciSearchInfo;
 } UciApplicationData_t;
 
+void UciApplicationDataInit(UciApplicationData_t* data);
+
 bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo, GameStack_t* gameStack);
 
 bool InterpretUCIInput(UciApplicationData_t* applicationData);

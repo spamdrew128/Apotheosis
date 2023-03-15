@@ -58,6 +58,11 @@ static int NumCharToInt(char numChar) {
     return (int)numChar - 48;
 }
  
+void UciApplicationDataInit(UciApplicationData_t* data) {
+    InterpretFEN(START_FEN, &data->boardInfo, &data->gameStack, &data->zobristStack);
+    UciSearchInfoInit(&data->uciSearchInfo);
+}
+
 bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo, GameStack_t* gameStack) {
     int stringLen = strlen(moveText);
     if(stringLen > 5 || stringLen < 4) {
