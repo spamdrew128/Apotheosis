@@ -313,10 +313,12 @@ static void PrintUciInformation(
         scoreValue = (ply + 1)/2;
     }
 
-    Milliseconds_t time = ElapsedTime(stopwatch) + 1;
+    Milliseconds_t time = ElapsedTime(stopwatch);
+    time = (time > 0) ? time : 1; // only losers divide by zero
     long long nps =((searchInfo.nodeCount * msec_per_sec) / time);
     SendUciInfoString(
         "score %s%d depth %d nodes %lld time %lld nps %lld hashfull %d",
+        &searchInfo.pvTable,
         scoreType,
         scoreValue,
         currentDepth,
@@ -325,7 +327,6 @@ static void PrintUciInformation(
         nps,
         HashFull(searchInfo.tt)
     );
-    SendPvInfo(&searchInfo.pvTable, currentDepth);
 }
 
 SearchResults_t Search(

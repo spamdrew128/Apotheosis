@@ -493,9 +493,10 @@ void InterpretUCIString(
     TeardownTT(&data.uciSearchInfo.tt);
 }
 
-void SendPvInfo(PvTable_t* pvTable, Depth_t depth) {
+void SendPvInfo(PvTable_t* pvTable) {
+    // assumes this is part of larger info string-
     PvLength_t variationLength = pvTable->pvLength[0];
-    printf("info depth %d pv", depth);
+    printf(" pv");
 
     char moveString[6];
     for(int i = 0; i < variationLength; i++) {
@@ -503,6 +504,4 @@ void SendPvInfo(PvTable_t* pvTable, Depth_t depth) {
         MoveStructToUciString(move, moveString, 6);
         printf(" %s", moveString);
     }
-
-    printf("\n");
 }

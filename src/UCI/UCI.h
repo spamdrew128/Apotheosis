@@ -31,12 +31,13 @@ void InterpretUCIString(
     const char* _input
 );
 
-void SendPvInfo(PvTable_t* pvTable, Depth_t depth);
+void SendPvInfo(PvTable_t* pvTable);
 
-#define SendUciInfoString(formatString, ...) \
+#define SendUciInfoString(formatString, pvTablePtr, ...) \
 do { \
     printf("info "); \
     printf(formatString, __VA_ARGS__); \
+    SendPvInfo((pvTablePtr)); \
     printf("\n"); \
 } while(0)
 
