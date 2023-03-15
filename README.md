@@ -1,4 +1,3 @@
-# Bitboard_Chess_Engine
 Name: Apotheosis
 
 Author: Spamdrew
