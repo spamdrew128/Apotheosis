@@ -15,8 +15,7 @@
 #include "killers.h"
 #include "history.h"
 
-enum
-{
+enum {
     time_fraction = 25,
     timer_check_freq = 1024,
 
@@ -27,36 +26,35 @@ enum
 #define MATED "mate -"
 #define NO_MATE "cp "
 
-typedef struct
-{
+typedef struct {
     bool outOfTime;
     NodeCount_t nodeCount;
     Killers_t killers;
     History_t history;
     PvTable_t pvTable;
-    TranspositionTable_t *tt;
+    TranspositionTable_t* tt;
 } ChessSearchInfo_t;
 
 static Timer_t globalTimer;
 
 static EvalScore_t Negamax(
-    BoardInfo_t *boardInfo,
-    GameStack_t *gameStack,
-    ZobristStack_t *zobristStack,
-    ChessSearchInfo_t *searchInfo,
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    ChessSearchInfo_t* searchInfo,
     EvalScore_t alpha,
     EvalScore_t beta,
     Depth_t depth,
-    Ply_t ply);
+    Ply_t ply
+);
 
-bool IsQuiet(Move_t move, BoardInfo_t *boardInfo)
-{
-    return PieceOnSquare(boardInfo, ReadToSquare(move)) == none_type &&
-           ReadSpecialFlag(move) != en_passant_flag;
+bool IsQuiet(Move_t move, BoardInfo_t* boardInfo) {
+    return 
+        PieceOnSquare(boardInfo, ReadToSquare(move)) == none_type &&
+        ReadSpecialFlag(move) != en_passant_flag;
 }
 
-static void InitSearchInfo(ChessSearchInfo_t *chessSearchInfo, UciSearchInfo_t *uciSearchInfo)
-{
+static void InitSearchInfo(ChessSearchInfo_t* chessSearchInfo, UciSearchInfo_t* uciSearchInfo) {
     chessSearchInfo->outOfTime = false;
     chessSearchInfo->nodeCount = 0;
     InitKillers(&chessSearchInfo->killers);
@@ -64,34 +62,31 @@ static void InitSearchInfo(ChessSearchInfo_t *chessSearchInfo, UciSearchInfo_t *
     chessSearchInfo->tt = &uciSearchInfo->tt;
 }
 
-static bool ShouldCheckTimer(NodeCount_t nodeCount)
-{
+static bool ShouldCheckTimer(NodeCount_t nodeCount) {
     return nodeCount % timer_check_freq == 0;
 }
 
-static void MakeAndAddHash(BoardInfo_t *boardInfo, GameStack_t *gameStack, Move_t move, ZobristStack_t *zobristStack)
-{
+static void MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, ZobristStack_t* zobristStack) {
     MakeMove(boardInfo, gameStack, move);
     AddZobristHashToStack(zobristStack, HashPosition(boardInfo, gameStack));
 }
 
-static void UnmakeAndRemoveHash(BoardInfo_t *boardInfo, GameStack_t *gameStack, ZobristStack_t *zobristStack)
-{
+static void UnmakeAndRemoveHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, ZobristStack_t* zobristStack) {
     UnmakeMove(boardInfo, gameStack);
     RemoveZobristHashFromStack(zobristStack);
 }
 
 static EvalScore_t QSearch(
-    BoardInfo_t *boardInfo,
-    GameStack_t *gameStack,
-    ZobristStack_t *zobristStack,
-    ChessSearchInfo_t *searchInfo,
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    ChessSearchInfo_t* searchInfo,
     EvalScore_t alpha,
     EvalScore_t beta,
-    Ply_t ply)
+    Ply_t ply
+)
 {
-    if (ShouldCheckTimer(searchInfo->nodeCount) && TimerExpired(&globalTimer))
-    {
+    if(ShouldCheckTimer(searchInfo->nodeCount) && TimerExpired(&globalTimer)) {
         searchInfo->outOfTime = true;
         return 0;
     }
@@ -100,22 +95,19 @@ static EvalScore_t QSearch(
     CompleteMovegen(&moveList, boardInfo, gameStack);
 
     GameEndStatus_t gameEndStatus = CheckForMates(boardInfo, moveList.maxIndex);
-    switch (gameEndStatus)
-    {
-    case checkmate:
-        return -EVAL_MAX + ply;
-    case draw:
-        return 0;
+    switch (gameEndStatus) {
+        case checkmate:
+            return -EVAL_MAX + ply;
+        case draw:
+            return 0;
     }
 
     EvalScore_t standPat = ScoreOfPosition(boardInfo);
-    if (standPat >= beta)
-    {
+    if(standPat >= beta) {
         return standPat;
     }
 
-    if (standPat > alpha)
-    {
+    if(standPat > alpha) {
         alpha = standPat;
     }
 
@@ -123,32 +115,27 @@ static EvalScore_t QSearch(
     InitCaptureMovePicker(&movePicker, &moveList, boardInfo);
 
     EvalScore_t bestScore = standPat;
-    for (int i = 0; i <= moveList.maxCapturesIndex; i++)
-    {
+    for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
         searchInfo->nodeCount++;
         Move_t move = PickMove(&movePicker);
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
 
-        EvalScore_t score = -QSearch(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, ply + 1);
+        EvalScore_t score = -QSearch(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, ply+1);
 
         UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
 
-        if (searchInfo->outOfTime)
-        {
+        if(searchInfo->outOfTime) {
             return 0;
         }
 
-        if (score > bestScore)
-        {
+        if(score > bestScore) {
             bestScore = score;
 
-            if (score >= beta)
-            {
+            if(score >= beta) {
                 break;
             }
-
-            if (score > alpha)
-            {
+            
+            if(score > alpha) {
                 alpha = score;
             }
         }
@@ -158,42 +145,42 @@ static EvalScore_t QSearch(
 }
 
 static EvalScore_t NullWindowSearch(
-    BoardInfo_t *boardInfo,
-    GameStack_t *gameStack,
-    ZobristStack_t *zobristStack,
-    ChessSearchInfo_t *searchInfo,
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    ChessSearchInfo_t* searchInfo,
     EvalScore_t alpha,
     Depth_t depth,
-    Ply_t ply)
+    Ply_t ply
+)
 {
     EvalScore_t nullWindowBeta = alpha + 1;
-    EvalScore_t score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -nullWindowBeta, -alpha, depth - 1, ply + 1);
+    EvalScore_t score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -nullWindowBeta, -alpha, depth-1, ply+1);
 
     return score;
 }
 
 static EvalScore_t Negamax(
-    BoardInfo_t *boardInfo,
-    GameStack_t *gameStack,
-    ZobristStack_t *zobristStack,
-    ChessSearchInfo_t *searchInfo,
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    ChessSearchInfo_t* searchInfo,
     EvalScore_t alpha,
     EvalScore_t beta,
     Depth_t depth,
-    Ply_t ply)
+    Ply_t ply
+)
 {
     PvLengthInit(&searchInfo->pvTable, ply);
 
-    if (depth == 0)
-    {
+    if(depth == 0) {
         return QSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, ply);
     }
 
     const bool isRoot = ply == 0;
     const bool isPVNode = beta - alpha != 1;
 
-    if (ShouldCheckTimer(searchInfo->nodeCount) && TimerExpired(&globalTimer))
-    {
+    if(ShouldCheckTimer(searchInfo->nodeCount) && TimerExpired(&globalTimer)) {
         searchInfo->outOfTime = true;
         return 0;
     }
@@ -201,15 +188,13 @@ static EvalScore_t Negamax(
     MoveEntryList_t moveList;
     CompleteMovegen(&moveList, boardInfo, gameStack);
 
-    if (!isRoot)
-    {
+    if(!isRoot) {
         GameEndStatus_t gameEndStatus = CurrentGameEndStatus(boardInfo, gameStack, zobristStack, moveList.maxIndex);
-        switch (gameEndStatus)
-        {
-        case checkmate:
-            return -EVAL_MAX + ply;
-        case draw:
-            return 0;
+        switch (gameEndStatus) {
+            case checkmate:
+                return -EVAL_MAX + ply;
+            case draw:
+                return 0;
         }
     }
 
@@ -217,13 +202,11 @@ static EvalScore_t Negamax(
     TTIndex_t ttIndex = GetTTIndex(searchInfo->tt, hash);
     TTEntry_t entry = GetTTEntry(searchInfo->tt, ttIndex);
     Move_t ttMove = NullMove();
-    if (TTHit(entry, hash))
-    {
-        if (!isPVNode && TTCutoffIsPossible(entry, alpha, beta, depth))
-        {
+    if(TTHit(entry, hash)) {
+        if(!isPVNode && TTCutoffIsPossible(entry, alpha, beta, depth)) {
             return ScoreFromTT(entry.bestScore, ply);
         }
-
+        
         ttMove = entry.bestMove;
     }
 
@@ -235,28 +218,24 @@ static EvalScore_t Negamax(
         ttMove,
         &searchInfo->killers,
         &searchInfo->history,
-        ply);
+        ply
+    );
 
     EvalScore_t oldAlpha = alpha;
     EvalScore_t bestScore = -EVAL_MAX;
     Move_t bestMove;
-    for (int i = 0; i <= moveList.maxIndex; i++)
-    {
+    for(int i = 0; i <= moveList.maxIndex; i++) {
         EvalScore_t score;
         Move_t move = PickMove(&movePicker);
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
-
-        if (i == 0)
-        {
-            score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth - 1, ply + 1);
-        }
-        else
-        {
+    
+        if(i == 0) {
+            score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
+        } else {
             score = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, depth, ply);
             // if our NWS beat alpha without failing high, that means we might have a better move and need to re search
-            if (score > alpha && score < beta)
-            {
-                score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth - 1, ply + 1);
+            if(score > alpha && score < beta) {
+                score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
             }
         }
 
@@ -264,27 +243,22 @@ static EvalScore_t Negamax(
 
         searchInfo->nodeCount++;
 
-        if (searchInfo->outOfTime)
-        {
+        if(searchInfo->outOfTime) {
             return 0;
         }
 
-        if (score > bestScore)
-        {
+        if(score > bestScore) {
             bestScore = score;
             bestMove = move;
-            if (score >= beta)
-            {
-                if (IsQuiet(move, boardInfo))
-                {
+            if(score >= beta) {
+                if(IsQuiet(move, boardInfo)) {
                     AddKiller(&searchInfo->killers, move, ply);
                     UpdateHistory(&searchInfo->history, boardInfo, move, depth);
                 }
                 break;
             }
 
-            if (score > alpha)
-            {
+            if(score > alpha) {
                 alpha = score;
                 UpdatePvTable(&searchInfo->pvTable, move, ply);
             }
@@ -297,29 +271,22 @@ static EvalScore_t Negamax(
     return bestScore;
 }
 
-static void SetupGlobalTimer(UciSearchInfo_t *uciSearchInfo, BoardInfo_t *boardInfo)
-{
+static void SetupGlobalTimer(UciSearchInfo_t* uciSearchInfo, BoardInfo_t* boardInfo) {
     Milliseconds_t totalTime;
     Milliseconds_t increment;
-    if (boardInfo->colorToMove == white)
-    {
+    if(boardInfo->colorToMove == white) {
         totalTime = uciSearchInfo->wTime;
         increment = uciSearchInfo->wInc;
-    }
-    else
-    {
+    } else {
         totalTime = uciSearchInfo->bTime;
         increment = uciSearchInfo->bInc;
     }
 
     Milliseconds_t timeToUse;
-    if (uciSearchInfo->forceTime)
-    {
+    if(uciSearchInfo->forceTime) {
         timeToUse = uciSearchInfo->forceTime;
-    }
-    else
-    {
-        timeToUse = (totalTime + increment / 2) / time_fraction;
+    } else {
+        timeToUse = (totalTime + increment/2) / time_fraction;
     }
 
     TimerInit(&globalTimer, timeToUse - uciSearchInfo->overhead);
@@ -329,27 +296,25 @@ static void PrintUciInformation(
     ChessSearchInfo_t searchInfo,
     SearchResults_t searchResults,
     Depth_t currentDepth,
-    Stopwatch_t *stopwatch)
+    Stopwatch_t* stopwatch
+)
 {
-    const char *scoreType = NO_MATE;
+    const char* scoreType = NO_MATE;
     EvalScore_t scoreValue = searchResults.score;
 
-    if (searchResults.score > MATE_THRESHOLD)
-    {
+    if(searchResults.score > MATE_THRESHOLD) {
         scoreType = MATING;
         Ply_t ply = EVAL_MAX - searchResults.score;
-        scoreValue = (ply + 1) / 2;
-    }
-    else if (searchResults.score < -MATE_THRESHOLD)
-    {
+        scoreValue = (ply + 1)/2;
+
+    } else if(searchResults.score < -MATE_THRESHOLD) {
         scoreType = MATED;
         Ply_t ply = EVAL_MAX + searchResults.score;
-        scoreValue = (ply + 1) / 2;
+        scoreValue = (ply + 1)/2;
     }
 
-    Milliseconds_t time = ElapsedTime(stopwatch);
-    time = (time > 0) ? time : 1; // only losers divide by zero
-    long long nps = ((searchInfo.nodeCount * msec_per_sec) / time);
+    Milliseconds_t time = ElapsedTime(stopwatch) + 1;
+    long long nps =((searchInfo.nodeCount * msec_per_sec) / time);
     SendUciInfoString(
         "score %s%d depth %d nodes %lld time %lld nps %lld hashfull %d",
         &searchInfo.pvTable,
@@ -359,15 +324,17 @@ static void PrintUciInformation(
         (long long)searchInfo.nodeCount,
         (long long)time,
         nps,
-        HashFull(searchInfo.tt));
+        HashFull(searchInfo.tt)
+    );
 }
 
 SearchResults_t Search(
-    UciSearchInfo_t *uciSearchInfo,
-    BoardInfo_t *boardInfo,
-    GameStack_t *gameStack,
-    ZobristStack_t *zobristStack,
-    bool printUciInfo)
+    UciSearchInfo_t* uciSearchInfo,
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    bool printUciInfo
+)
 {
     Stopwatch_t stopwatch;
     StopwatchInit(&stopwatch);
@@ -378,8 +345,7 @@ SearchResults_t Search(
 
     SearchResults_t searchResults;
     Depth_t currentDepth = 0;
-    do
-    {
+    do {
         currentDepth++;
 
         EvalScore_t score = Negamax(
@@ -390,38 +356,37 @@ SearchResults_t Search(
             -INFINITY,
             INFINITY,
             currentDepth,
-            0);
+            0
+        );
 
-        if (!searchInfo.outOfTime)
-        {
+        if(!searchInfo.outOfTime) {
             searchResults.bestMove = PvTableBestMove(&searchInfo.pvTable);
             searchResults.score = score;
 
-            if (printUciInfo)
-            {
+            if(printUciInfo) {
                 PrintUciInformation(searchInfo, searchResults, currentDepth, &stopwatch);
             }
         }
 
-    } while (!searchInfo.outOfTime && currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
+    } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
 
     return searchResults;
 }
 
 NodeCount_t BenchSearch(
-    UciSearchInfo_t *uciSearchInfo,
-    BoardInfo_t *boardInfo,
-    GameStack_t *gameStack,
-    ZobristStack_t *zobristStack)
+    UciSearchInfo_t* uciSearchInfo,
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack
+)
 {
     SetupGlobalTimer(uciSearchInfo, boardInfo);
-
+    
     ChessSearchInfo_t searchInfo;
     InitSearchInfo(&searchInfo, uciSearchInfo);
 
     Depth_t currentDepth = 0;
-    do
-    {
+    do {
         currentDepth++;
 
         Negamax(
@@ -432,14 +397,14 @@ NodeCount_t BenchSearch(
             -INFINITY,
             INFINITY,
             currentDepth,
-            0);
-    } while (currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
+            0
+        );
+    } while(currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
 
     return searchInfo.nodeCount;
 }
 
-void UciSearchInfoTimeInfoReset(UciSearchInfo_t *uciSearchInfo)
-{
+void UciSearchInfoTimeInfoReset(UciSearchInfo_t* uciSearchInfo) {
     uciSearchInfo->wTime = 0;
     uciSearchInfo->bTime = 0;
     uciSearchInfo->wInc = 0;
@@ -447,8 +412,7 @@ void UciSearchInfoTimeInfoReset(UciSearchInfo_t *uciSearchInfo)
     uciSearchInfo->forceTime = 0;
 }
 
-void UciSearchInfoInit(UciSearchInfo_t *uciSearchInfo)
-{
+void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {
     uciSearchInfo->wTime = 0;
     uciSearchInfo->bTime = 0;
     uciSearchInfo->wInc = 0;
