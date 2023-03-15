@@ -192,9 +192,9 @@ static EvalScore_t Negamax(
         GameEndStatus_t gameEndStatus = CurrentGameEndStatus(boardInfo, gameStack, zobristStack, moveList.maxIndex);
         switch (gameEndStatus) {
             case checkmate:
-                return -EVAL_MAX + ply;
+                return -(-EVAL_MAX + ply);
             case draw:
-                return 0;
+                return -EVAL_MAX + ply;
         }
     }
 

@@ -90,5 +90,5 @@ EvalScore_t ScoreOfPosition(BoardInfo_t* boardInfo) {
     eval += MaterialBalanceAndPSTBonus(boardInfo);
     eval += MobilityEval(boardInfo);
 
-    return boardInfo->colorToMove == white ? eval : -eval;
+    return boardInfo->colorToMove == black ? eval : -eval;
 }
