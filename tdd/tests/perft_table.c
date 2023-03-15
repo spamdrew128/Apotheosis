@@ -19,7 +19,7 @@ static void TestSetup() {
 }
 
 static void PERFT(BoardInfo_t* boardInfo, int depth, PerftCount_t* count) {
-    MoveList_t moveList;
+    MoveEntryList_t moveList;
     CompleteMovegen(&moveList, boardInfo, &gameStack);
 
     MovePicker_t movePicker;

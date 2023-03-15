@@ -36,7 +36,7 @@ static void UnmakeTest(BoardInfo_t* boardInfo, int depth) {
         return;
     }
 
-    MoveList_t moveList;
+    MoveEntryList_t moveList;
     CompleteMovegen(&moveList, boardInfo, &gameStack);
     BoardInfo_t initialInfo = *boardInfo;
     GameState_t initalState = ReadCurrentGameState(&gameStack);
@@ -72,7 +72,7 @@ void UnmakeRecursiveTestRunner(FEN_t fen, int depth, bool runTests) {
 }
 
 static void _SplitPERFTHelper(BoardInfo_t* boardInfo, int depth, PerftCount_t* count) {
-    MoveList_t moveList;
+    MoveEntryList_t moveList;
     CompleteMovegen(&moveList, boardInfo, &gameStack);
 
     if(depth > 1) {
@@ -96,7 +96,7 @@ static void PrintSplitPerftResults(Move_t move, PerftCount_t count) {
 }
 
 static PerftCount_t SplitPERFT(BoardInfo_t* boardInfo, int depth) {
-    MoveList_t moveList;
+    MoveEntryList_t moveList;
     CompleteMovegen(&moveList, boardInfo, &gameStack);
     PerftCount_t total = 0;
 
@@ -140,7 +140,7 @@ static void FullySearchTree(BoardInfo_t* boardInfo, int depth, PerftCount_t* cou
         return;
     }
 
-    MoveList_t moveList;
+    MoveEntryList_t moveList;
     CompleteMovegen(&moveList, boardInfo, &gameStack);
     for(int i = 0; i <= moveList.maxIndex; i++) {
         Move_t move = moveList.moves[i].move;

@@ -7,7 +7,7 @@
 #include "move.h"
 #include "killers.h"
 
-static MoveList_t moveList;
+static MoveEntryList_t moveList;
 static BoardInfo_t boardInfo;
 static GameStack_t gameStack;
 static ZobristStack_t zobristStack;

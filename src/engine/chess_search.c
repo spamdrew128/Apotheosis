@@ -91,7 +91,7 @@ static EvalScore_t QSearch(
         return 0;
     }
 
-    MoveList_t moveList;
+    MoveEntryList_t moveList;
     CompleteMovegen(&moveList, boardInfo, gameStack);
 
     GameEndStatus_t gameEndStatus = CheckForMates(boardInfo, moveList.maxIndex);
@@ -185,7 +185,7 @@ static EvalScore_t Negamax(
         return 0;
     }
 
-    MoveList_t moveList;
+    MoveEntryList_t moveList;
     CompleteMovegen(&moveList, boardInfo, gameStack);
 
     if(!isRoot) {

@@ -36,9 +36,9 @@ typedef struct {
     MoveEntry_t moves[MOVELIST_MAX];
     MoveIndex_t maxCapturesIndex;
     MoveIndex_t maxIndex;
-} MoveList_t;
+} MoveEntryList_t;
 
-void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack);
+void CompleteMovegen(MoveEntryList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack);
 
 bool EnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t toBB, Bitboard_t fromBB, Color_t color);
 
