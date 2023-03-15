@@ -1,6 +1,6 @@
 #include "basic_tests.h"
 #include "debug.h"
-#include "fen.h"
+#include "FEN.h"
 #include "board_info.h"
 #include "game_state.h"
 #include "zobrist.h"
