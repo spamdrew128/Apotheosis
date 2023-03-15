@@ -303,7 +303,7 @@ static void GetSearchResults(UciSearchInfo_t* uciSearchInfo, UciApplicationData_
     printf(" %s\n", moveString);
 }
 
-void InterpretGoArguements(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* searchInfo) {
+void InterpretGoArguments(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* searchInfo) {
     UciSearchInfoTimeInfoReset(searchInfo);
 
     char nextWord[BUFFER_SIZE];
@@ -416,7 +416,7 @@ static bool RespondToSignal(
         );
         break;
     case signal_go:
-        InterpretGoArguements(input, i, &applicationData->uciSearchInfo);
+        InterpretGoArguments(input, i, &applicationData->uciSearchInfo);
         GetSearchResults(&applicationData->uciSearchInfo, applicationData);
         break;   
     case signal_setoption:
