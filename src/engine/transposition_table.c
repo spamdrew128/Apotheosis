@@ -38,7 +38,7 @@ static EvalScore_t ScoreToTT(EvalScore_t score, Ply_t ply) {
     return score;
 }
 
-static EvalScore_t ScoreFromTT(EvalScore_t score, Ply_t ply) {
+EvalScore_t ScoreFromTT(EvalScore_t score, Ply_t ply) {
     if(score >= MATE_THRESHOLD) {
         return score - ply;
     } else if(score <= -MATE_THRESHOLD) {
@@ -48,10 +48,8 @@ static EvalScore_t ScoreFromTT(EvalScore_t score, Ply_t ply) {
     return score;
 }
 
-TTEntry_t GetTTEntry(TranspositionTable_t* table, TTIndex_t index, Ply_t ply) {
-    TTEntry_t entry = table->entries[index];
-    entry.bestScore = ScoreFromTT(entry.bestScore, ply);
-    return entry;
+TTEntry_t GetTTEntry(TranspositionTable_t* table, TTIndex_t index) {
+    return table->entries[index];
 }
 
 bool TTHit(TTEntry_t entry, ZobristHash_t hash) {

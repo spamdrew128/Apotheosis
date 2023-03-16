@@ -14,6 +14,7 @@
 #include "transposition_table.h"
 #include "killers.h"
 #include "history.h"
+#include "util_macros.h"
 
 enum {
     time_fraction = 25,
@@ -29,6 +30,7 @@ enum {
 typedef struct {
     bool outOfTime;
     NodeCount_t nodeCount;
+    Depth_t seldepth;
     Killers_t killers;
     History_t history;
     PvTable_t pvTable;
@@ -54,9 +56,14 @@ bool IsQuiet(Move_t move, BoardInfo_t* boardInfo) {
         ReadSpecialFlag(move) != en_passant_flag;
 }
 
+static void ResetSeldepth(ChessSearchInfo_t* chessSearchInfo) {
+    chessSearchInfo->seldepth = 0;
+}
+
 static void InitSearchInfo(ChessSearchInfo_t* chessSearchInfo, UciSearchInfo_t* uciSearchInfo) {
     chessSearchInfo->outOfTime = false;
     chessSearchInfo->nodeCount = 0;
+    ResetSeldepth(chessSearchInfo);
     InitKillers(&chessSearchInfo->killers);
     InitHistory(&chessSearchInfo->history);
     chessSearchInfo->tt = &uciSearchInfo->tt;
@@ -90,6 +97,8 @@ static EvalScore_t QSearch(
         searchInfo->outOfTime = true;
         return 0;
     }
+
+    searchInfo->seldepth = MAX(searchInfo->seldepth, ply);
 
     MoveEntryList_t moveList;
     CompleteMovegen(&moveList, boardInfo, gameStack);
@@ -185,6 +194,8 @@ static EvalScore_t Negamax(
         return 0;
     }
 
+    searchInfo->seldepth = MAX(searchInfo->seldepth, ply);
+
     MoveEntryList_t moveList;
     CompleteMovegen(&moveList, boardInfo, gameStack);
 
@@ -200,11 +211,11 @@ static EvalScore_t Negamax(
 
     ZobristHash_t hash = ZobristStackTop(zobristStack);
     TTIndex_t ttIndex = GetTTIndex(searchInfo->tt, hash);
-    TTEntry_t entry = GetTTEntry(searchInfo->tt, ttIndex, ply);
+    TTEntry_t entry = GetTTEntry(searchInfo->tt, ttIndex);
     Move_t ttMove = NullMove();
     if(TTHit(entry, hash)) {
         if(!isPVNode && TTCutoffIsPossible(entry, alpha, beta, depth)) {
-            return entry.bestScore;
+            return ScoreFromTT(entry.bestScore, ply);
         }
         
         ttMove = entry.bestMove;
@@ -316,16 +327,17 @@ static void PrintUciInformation(
     Milliseconds_t time = ElapsedTime(stopwatch) + 1;
     long long nps =((searchInfo.nodeCount * msec_per_sec) / time);
     SendUciInfoString(
-        "score %s%d depth %d nodes %lld time %lld nps %lld hashfull %d",
+        "score %s%d depth %d seldepth %d nodes %lld time %lld nps %lld hashfull %d",
+        &searchInfo.pvTable,
         scoreType,
         scoreValue,
         currentDepth,
+        searchInfo.seldepth,
         (long long)searchInfo.nodeCount,
         (long long)time,
         nps,
         HashFull(searchInfo.tt)
     );
-    SendPvInfo(&searchInfo.pvTable, currentDepth);
 }
 
 SearchResults_t Search(
@@ -347,6 +359,7 @@ SearchResults_t Search(
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
+        ResetSeldepth(&searchInfo);
 
         EvalScore_t score = Negamax(
             boardInfo,
@@ -388,6 +401,7 @@ NodeCount_t BenchSearch(
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
+        ResetSeldepth(&searchInfo);
 
         Negamax(
             boardInfo,

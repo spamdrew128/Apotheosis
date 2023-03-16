@@ -71,7 +71,7 @@ int main(int argc, char** argv)
     RunAllPerftTests(false);
     
     UciApplicationData_t uciApplicationData;
-    UciSearchInfoInit(&uciApplicationData.uciSearchInfo);
+    UciApplicationDataInit(&uciApplicationData);
     bool running = false;
     while(running)
     {
