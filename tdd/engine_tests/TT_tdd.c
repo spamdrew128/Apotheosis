@@ -97,8 +97,9 @@ static void ShouldAdjustMateScores() {
 
     StoreTTEntry(&table, index, some_flag, some_depth, some_ply, NullMove(), m4_score, hash);
 
-    TTEntry_t entry = GetTTEntry(&table, index, some_ply + 3);
-    PrintResults(entry.bestScore == m4_score - 3)
+    TTEntry_t entry = GetTTEntry(&table, index);
+    EvalScore_t newScore = ScoreFromTT(entry.bestScore, some_ply + 3);
+    PrintResults(newScore == m4_score - 3)
 }
 
 void TranspositionTableTDDRunner() {
