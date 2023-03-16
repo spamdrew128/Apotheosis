@@ -14,7 +14,7 @@
 
 #define BUFFER_SIZE 50000
 
-#define ENGINE_ID "id name Apotheosis v1.0.1\nid author Spamdrew\n"
+#define ENGINE_ID "id name Apotheosis v2.0.0\nid author Andrew Hockman\n"
 #define UCI_OK "uciok\n"
 #define READY_OK "readyok\n"
 
@@ -58,6 +58,11 @@ static int NumCharToInt(char numChar) {
     return (int)numChar - 48;
 }
  
+void UciApplicationDataInit(UciApplicationData_t* data) {
+    InterpretFEN(START_FEN, &data->boardInfo, &data->gameStack, &data->zobristStack);
+    UciSearchInfoInit(&data->uciSearchInfo);
+}
+
 bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo, GameStack_t* gameStack) {
     int stringLen = strlen(moveText);
     if(stringLen > 5 || stringLen < 4) {
@@ -303,7 +308,7 @@ static void GetSearchResults(UciSearchInfo_t* uciSearchInfo, UciApplicationData_
     printf(" %s\n", moveString);
 }
 
-void InterpretGoArguements(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* searchInfo) {
+void InterpretGoArguments(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* searchInfo) {
     UciSearchInfoTimeInfoReset(searchInfo);
 
     char nextWord[BUFFER_SIZE];
@@ -357,6 +362,7 @@ do { \
 static void UciSignalResponse() {
     printf(ENGINE_ID);
     SendUciOption(OVERHEAD, "spin", "default %d min %d max %d", overhead_default_msec, overhead_min_msec, overhead_max_msec);
+    SendUciOption(HASH, "spin", "default %d min %d max %d", hash_default_mb, hash_min_mb, hash_max_mb);
     printf(UCI_OK);
 }
 
@@ -375,6 +381,14 @@ static void SetOption(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* searchIn
         GetNextWord(input, nextWord, i);
         searchInfo->overhead = NumberStringToNumber(nextWord);
         CLAMP_TO_RANGE(searchInfo->overhead, overhead_min_msec, overhead_max_msec);
+    } else if (StringsMatch(nextWord, HASH)) {
+        SkipNextWord(input, i);
+
+        GetNextWord(input, nextWord, i);
+        Megabytes_t hashSize = NumberStringToNumber(nextWord);
+        CLAMP_TO_RANGE(hashSize, overhead_min_msec, overhead_max_msec);
+        TeardownTT(&searchInfo->tt);
+        TranspositionTableInit(&searchInfo->tt, hashSize);
     }
 }
 
@@ -395,7 +409,7 @@ static bool RespondToSignal(
     case signal_quit:
         return false;
     case signal_new_game:
-        // TODO
+        ClearTTEntries(&applicationData->uciSearchInfo.tt);
         break;
     case signal_position:
         InterpretPosition(
@@ -407,7 +421,7 @@ static bool RespondToSignal(
         );
         break;
     case signal_go:
-        InterpretGoArguements(input, i, &applicationData->uciSearchInfo);
+        InterpretGoArguments(input, i, &applicationData->uciSearchInfo);
         GetSearchResults(&applicationData->uciSearchInfo, applicationData);
         break;   
     case signal_setoption:
@@ -480,11 +494,14 @@ void InterpretUCIString(
     *boardInfo = data.boardInfo;
     *gameStack = data.gameStack;
     *zobristStack = data.zobristStack;
+
+    TeardownTT(&data.uciSearchInfo.tt);
 }
 
-void SendPvInfo(PvTable_t* pvTable, Depth_t depth) {
+void SendPvInfo(PvTable_t* pvTable) {
+    // assumes this is part of larger info string-
     PvLength_t variationLength = pvTable->pvLength[0];
-    printf("info depth %d pv", depth);
+    printf(" pv");
 
     char moveString[6];
     for(int i = 0; i < variationLength; i++) {
@@ -492,6 +509,4 @@ void SendPvInfo(PvTable_t* pvTable, Depth_t depth) {
         MoveStructToUciString(move, moveString, 6);
         printf(" %s", moveString);
     }
-
-    printf("\n");
 }

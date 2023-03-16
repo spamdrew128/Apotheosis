@@ -7,7 +7,7 @@ CPPFLAGS=$(INCDIRS)
 
 RELEASE=false
 
-ifeq ($(RELEASE), y)
+ifeq ($(RELEASE), Y)
 	CFLAGS += -DNDEBUG
 endif
 

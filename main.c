@@ -12,10 +12,16 @@
 #include "UCI.h"
 #include "bench.h"
 #include "chess_search.h"
+#include "transposition_table.h"
+
+static void ProgramTeardown(UciApplicationData_t* uciApplicationData) {
+    TranspositionTable_t* tt = &uciApplicationData->uciSearchInfo.tt;
+    TeardownTT(tt);
+}
 
 int main(int argc, char** argv)
 {
-    setvbuf(stdout, NULL, _IONBF, 0);
+    setvbuf(stdout, NULL, _IONBF, 0); // linux gives me a warning about this for some reason
 
     InitLookupTables();
     GenerateZobristKeys();
@@ -23,9 +29,10 @@ int main(int argc, char** argv)
     bool running = Bench(argc, argv);
 
     UciApplicationData_t uciApplicationData;
-    UciSearchInfoInit(&uciApplicationData.uciSearchInfo);
-    while(running)
-    {
+    UciApplicationDataInit(&uciApplicationData);
+    while(running) {
         running = InterpretUCIInput(&uciApplicationData);
     }
+
+    ProgramTeardown(&uciApplicationData);
 }

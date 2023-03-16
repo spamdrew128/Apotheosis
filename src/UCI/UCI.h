@@ -20,6 +20,8 @@ typedef struct
     UciSearchInfo_t uciSearchInfo;
 } UciApplicationData_t;
 
+void UciApplicationDataInit(UciApplicationData_t* data);
+
 bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo, GameStack_t* gameStack);
 
 bool InterpretUCIInput(UciApplicationData_t* applicationData);
@@ -31,12 +33,13 @@ void InterpretUCIString(
     const char* _input
 );
 
-void SendPvInfo(PvTable_t* pvTable, Depth_t depth);
+void SendPvInfo(PvTable_t* pvTable);
 
-#define SendUciInfoString(formatString, ...) \
+#define SendUciInfoString(formatString, pvTablePtr, ...) \
 do { \
     printf("info "); \
     printf(formatString, __VA_ARGS__); \
+    SendPvInfo((pvTablePtr)); \
     printf("\n"); \
 } while(0)
 

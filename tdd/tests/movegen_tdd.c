@@ -17,21 +17,21 @@ static void TestSetup() {
     InitGameStack(&stack);
 }
 
-static void CompleteMovegenTestWrapper(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
+static void CompleteMovegenTestWrapper(MoveEntryList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
     boardInfo->colorToMove = color;
     CompleteMovegen(moveList, boardInfo, stack);
 }
 
-static void CapturesMovegenTestWrapper(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
+static void CapturesMovegenTestWrapper(MoveEntryList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack, Color_t color) {
     boardInfo->colorToMove = color;
     CompleteMovegen(moveList, boardInfo, stack);
     moveList->maxIndex = moveList->maxCapturesIndex;
 }
 
-static int CountPieceMoves(Piece_t piece, MoveList_t moveList, BoardInfo_t* info) {
+static int CountPieceMoves(Piece_t piece, MoveEntryList_t moveList, BoardInfo_t* info) {
     int count = 0;
     for(int i = 0; i <= moveList.maxIndex; i++) {
-        Square_t fromSquare = ReadFromSquare(moveList.moves[i]);
+        Square_t fromSquare = ReadFromSquare(moveList.moves[i].move);
         if(PieceOnSquare(info, fromSquare) == piece) {
             count++;
         }
@@ -73,7 +73,7 @@ static void ShouldCorrectlyEvaluateCapturesInPosWithPins() {
     int expectedNumKnightsCaptures = 0;
     int expectedNumQueenCaptures = 1;
 
-    MoveList_t moveList;
+    MoveEntryList_t moveList;
     CapturesMovegenTestWrapper(&moveList, &info, &stack, white);
 
     bool success = 
@@ -100,7 +100,7 @@ static void ShouldCorrectlyEvaluateInPosWithPins() {
     int expectedNumKnightsMoves = 8;
     int expectedNumQueenMoves = 2;
 
-    MoveList_t moveList;
+    MoveEntryList_t moveList;
     CompleteMovegenTestWrapper(&moveList, &info, &stack, white);
 
     int expectedMaxIndex = (

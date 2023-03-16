@@ -5,10 +5,7 @@
 
 #include "move.h"
 #include "chess_search.h"
-
-enum {
-    PLY_MAX = 128
-};
+#include "engine_types.h"
 
 typedef uint8_t PvLength_t;
 

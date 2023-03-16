@@ -11,17 +11,17 @@
         } \
     } while(0)
 
-static Move_t* CurrentMove(MoveList_t* moveList) {
-    return &(moveList->moves[moveList->maxIndex]);
+static Move_t* CurrentMove(MoveEntryList_t* moveList) {
+    return &(moveList->moves[moveList->maxIndex].move);
 }
 
-static void InitializeNewMove(MoveList_t* moveList) {
+static void InitializeNewMove(MoveEntryList_t* moveList) {
     (moveList->maxIndex)++;
     InitMove(CurrentMove(moveList));
 }
 
 static void SerializeNormalMoves(
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     Square_t pieceSquare,
     Bitboard_t moves
 ) 
@@ -38,7 +38,7 @@ static void SerializeNormalMoves(
 }
 
 static void SerializePawnMoves(
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     Bitboard_t moves,
     SpecialFlag_t flag,
     DirectionCallback_t ShiftToPawnPos
@@ -58,7 +58,7 @@ static void SerializePawnMoves(
     }
 }
 
-static void _SerializePawnPromotionsHelper(MoveList_t* moveList, Piece_t promotionType, Square_t to, Square_t from) {
+static void _SerializePawnPromotionsHelper(MoveEntryList_t* moveList, Piece_t promotionType, Square_t to, Square_t from) {
     InitializeNewMove(moveList);
     Move_t* current = CurrentMove(moveList);
 
@@ -69,7 +69,7 @@ static void _SerializePawnPromotionsHelper(MoveList_t* moveList, Piece_t promoti
 }
 
 static void SerializePawnPromotions(
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     Bitboard_t moves,
     DirectionCallback_t ShiftToPawnPos
 )
@@ -90,7 +90,7 @@ static void SerializePawnPromotions(
 }
 
 static void AddKingMoves(
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     Bitboard_t kingSquare,
     Bitboard_t kingPsuedolegals,
     Bitboard_t unsafeSquares,
@@ -102,7 +102,7 @@ static void AddKingMoves(
     SerializeNormalMoves(moveList, kingSquare, kingLegalMoves);
 }
 
-static void _AddCastlingMovesHelper(MoveList_t* moveList, Square_t kingSquare, Square_t castleSquare) {
+static void _AddCastlingMovesHelper(MoveEntryList_t* moveList, Square_t kingSquare, Square_t castleSquare) {
     InitializeNewMove(moveList);
     Move_t* current = CurrentMove(moveList);
 
@@ -112,7 +112,7 @@ static void _AddCastlingMovesHelper(MoveList_t* moveList, Square_t kingSquare, S
 }
 
 static void AddCastlingMoves(
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     BoardInfo_t* boardInfo,
     GameStack_t* stack,
     Bitboard_t unsafeSquares,
@@ -130,7 +130,7 @@ static void AddCastlingMoves(
 }
 
 static void AddKnightMoves(
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     Bitboard_t knights,
     Bitboard_t filter,
     PinmaskContainer_t pinmasks
@@ -146,7 +146,7 @@ static void AddKnightMoves(
 }
 
 static void AddD12SliderMoves(
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     Bitboard_t d12Sliders,
     Bitboard_t filter,
     Bitboard_t empty,
@@ -170,7 +170,7 @@ static void AddD12SliderMoves(
 }
 
 static void AddHvSliderMoves(
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     Bitboard_t hvSliders,
     Bitboard_t filter,
     Bitboard_t empty,
@@ -217,7 +217,7 @@ bool EnPassantIsLegal(BoardInfo_t* boardInfo, Bitboard_t toBB, Bitboard_t fromBB
 }
 
 static void AddEnPassantMove(
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     BoardInfo_t* boardInfo,
     Bitboard_t toBB,
     Bitboard_t fromBB
@@ -232,7 +232,7 @@ static void AddEnPassantMove(
 }
 
 static void AddWhitePawnCaptures(
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     BoardInfo_t* boardInfo,
     Bitboard_t freePawns,
     Bitboard_t d12PinnedPawns,
@@ -271,7 +271,7 @@ static void AddWhitePawnCaptures(
 };
 
 static void AddBlackPawnCaptures(
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     BoardInfo_t* boardInfo,
     Bitboard_t freePawns,
     Bitboard_t d12PinnedPawns,
@@ -310,7 +310,7 @@ static void AddBlackPawnCaptures(
 };
 
 static void AddWhitePawnMoves(
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     BoardInfo_t* boardInfo,
     Bitboard_t freePawns,
     Bitboard_t hvPinnedPawns,
@@ -340,7 +340,7 @@ static void AddWhitePawnMoves(
 };
 
 static void AddBlackPawnMoves(
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     BoardInfo_t* boardInfo,
     Bitboard_t freePawns,
     Bitboard_t hvPinnedPawns,
@@ -370,7 +370,7 @@ static void AddBlackPawnMoves(
 };
 
 static void AddKnightAndSliderMoves(
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     BoardInfo_t* boardInfo,
     Bitboard_t checkmask,
     Bitboard_t filter,
@@ -403,7 +403,7 @@ static void AddKnightAndSliderMoves(
 }
 
 static void AddAllCaptures(
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     BoardInfo_t* boardInfo,
     Bitboard_t checkmask,
     GameStack_t* gameStack,
@@ -448,7 +448,7 @@ static void AddAllCaptures(
 }
 
 static void AddAllQuietMoves(
-    MoveList_t* moveList,
+    MoveEntryList_t* moveList,
     BoardInfo_t* boardInfo,
     Bitboard_t checkmask,
     PinmaskContainer_t pinmasks,
@@ -488,7 +488,7 @@ static void AddAllQuietMoves(
     );
 }
 
-void CompleteMovegen(MoveList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack) {
+void CompleteMovegen(MoveEntryList_t* moveList, BoardInfo_t* boardInfo, GameStack_t* stack) {
     moveList->maxIndex = movelist_empty;
 
     Color_t color = boardInfo->colorToMove;

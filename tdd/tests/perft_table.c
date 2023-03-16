@@ -7,6 +7,9 @@
 #include "movegen.h"
 #include "make_and_unmake.h"
 #include "zobrist.h"
+#include "move_ordering.h"
+#include "killers.h"
+#include "history.h"
 
 static GameStack_t gameStack;
 static ZobristStack_t zobristStack;
@@ -16,12 +19,19 @@ static void TestSetup() {
 }
 
 static void PERFT(BoardInfo_t* boardInfo, int depth, PerftCount_t* count) {
-    MoveList_t moveList;
+    MoveEntryList_t moveList;
     CompleteMovegen(&moveList, boardInfo, &gameStack);
+
+    MovePicker_t movePicker;
+    Killers_t dummyKillers;
+    History_t dummyHistory;
+    InitKillers(&dummyKillers);
+    InitHistory(&dummyHistory);
+    InitAllMovePicker(&movePicker, &moveList, boardInfo, NullMove(), &dummyKillers, &dummyHistory, 0);
 
     if(depth > 1) {
         for(int i = 0; i <= moveList.maxIndex; i++) {
-            Move_t move = moveList.moves[i];
+            Move_t move = PickMove(&movePicker);
             MakeMove(boardInfo, &gameStack, move);
             assert(BoardIsValid(boardInfo, &gameStack));
 

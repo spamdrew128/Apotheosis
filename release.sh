@@ -1,1 +1,3 @@
-make EXE=ApotheosisV1.0.1 RELEASE=y
+# for some reason I cant put the full version number here or else it breaks, 
+# just rename the EXE yourself I apologize.
+make EXE=ApotheosisV2 RELEASE=Y

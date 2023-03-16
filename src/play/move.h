@@ -18,6 +18,8 @@ enum specialFlags {
 
 void InitMove(Move_t* move);
 
+Move_t NullMove();
+
 Square_t ReadToSquare(Move_t move);
 Square_t ReadFromSquare(Move_t move);
 Square_t ReadPromotionPiece(Move_t move);
@@ -27,5 +29,7 @@ void WriteToSquare(Move_t* move, Square_t square);
 void WriteFromSquare(Move_t* move, Square_t square);
 void WritePromotionPiece(Move_t* move, Piece_t piece);
 void WriteSpecialFlag(Move_t* move, SpecialFlag_t flag);
+
+bool CompareMoves(Move_t m1, Move_t m2);
 
 #endif
