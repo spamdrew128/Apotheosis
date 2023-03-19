@@ -9,10 +9,10 @@ typedef struct { uint64_t state;  uint64_t inc; } pcg32_random_t;
 
 typedef struct {
     pcg32_random_t seed;
-} RandomNumberGenerator_t;
+} Generator_t;
 
-void InitRNG(RandomNumberGenerator_t* rng, bool deterministic);
+void InitRNG(Generator_t* rng, bool deterministic);
 
-uint64_t RandUnsigned64(RandomNumberGenerator_t* generator);
+uint64_t RandUnsigned64(Generator_t* generator);
 
 #endif

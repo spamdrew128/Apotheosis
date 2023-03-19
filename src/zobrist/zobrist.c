@@ -18,13 +18,13 @@ static ZobristKey_t castlingKeys[16];
 static ZobristKey_t enPassantFileKeys[8];
 static ZobristKey_t sideToMoveIsBlackKey;
 
-static void FillKeysrandomList(ZobristKey_t* list, int num_entries, RandomNumberGenerator_t* generator) {
+static void FillKeysrandomList(ZobristKey_t* list, int num_entries, Generator_t* generator) {
     for(int i = 0; i < num_entries; i++) {
         list[i] = RandUnsigned64(generator);
     }
 }
 
-void GenerateZobristKeys(RandomNumberGenerator_t* generator) {
+void GenerateZobristKeys(Generator_t* generator) {
     FillKeysrandomList(whitePieceKeys, NUM_ARRAY_ELEMENTS(whitePieceKeys), generator);
     FillKeysrandomList(blackPieceKeys, NUM_ARRAY_ELEMENTS(blackPieceKeys), generator);
     FillKeysrandomList(castlingKeys, NUM_ARRAY_ELEMENTS(castlingKeys), generator);

@@ -18,7 +18,7 @@ uint32_t pcg32_random_r(pcg32_random_t* rng)
     return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
 }
 
-void InitRNG(RandomNumberGenerator_t* rng, bool deterministic) {
+void InitRNG(Generator_t* rng, bool deterministic) {
     if(deterministic) {
         rng->seed = defaultRng;
     } else {
@@ -27,7 +27,7 @@ void InitRNG(RandomNumberGenerator_t* rng, bool deterministic) {
     }
 }
 
-uint64_t RandUnsigned64(RandomNumberGenerator_t* generator) {
+uint64_t RandUnsigned64(Generator_t* generator) {
     uint64_t r1 = pcg32_random_r(&generator->seed);
     uint64_t r2 = pcg32_random_r(&generator->seed);
     return (r1 << 32) | r2;

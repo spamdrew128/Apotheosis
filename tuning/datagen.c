@@ -3,6 +3,7 @@
 
 #include "datagen.h"
 #include "uci.h"
+#include "RNG.h"
 #include "endings.h"
 
 enum {
@@ -10,8 +11,8 @@ enum {
     TIME_PER_MOVE = 100,
 };
 
-static void GameLoop(UciSearchInfo_t* searchInfo) {
-    
+static void GameLoop(UciSearchInfo_t* searchInfo, Generator_t* generator) {
+
 }
 
 static void RandomMoves(UciSearchInfo_t* searchInfo) {
@@ -26,6 +27,9 @@ void GenerateData(const char* filename) {
     GameStack_t gameStack;
     ZobristStack_t zobristStack;
 
+    Generator_t generator;
+    InitRNG(&generator, false);
+
     for(int i = 0; i < NUM_GAMES; i++) {
         UciSearchInfoInit(&searchInfo);
         searchInfo.overhead = 0;
@@ -33,7 +37,7 @@ void GenerateData(const char* filename) {
 
         RandomMoves(&searchInfo);
 
-        GameLoop(&searchInfo);
+        GameLoop(&searchInfo, &generator);
 
         TeardownTT(&searchInfo.tt);
     }

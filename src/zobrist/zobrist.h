@@ -20,7 +20,7 @@ typedef struct {
     int maxIndex;
 } ZobristStack_t;
 
-void GenerateZobristKeys(RandomNumberGenerator_t* generator);
+void GenerateZobristKeys(Generator_t* generator);
 
 void InitZobristStack(ZobristStack_t* zobristStack);
 
