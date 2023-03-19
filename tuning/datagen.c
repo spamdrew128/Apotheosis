@@ -10,6 +10,8 @@
 #include "FEN.h"
 #include "movegen.h"
 #include "make_and_unmake.h"
+#include "chess_search.h"
+#include "debug.h"
 
 enum {
     NUM_GAMES = 10000,
@@ -18,13 +20,29 @@ enum {
 };
 
 static void GameLoop(UciApplicationData_t* data) {
-    MoveEntryList_t moveList;
-    CompleteMovegen(&moveList, &data->boardInfo, &data->gameStack);
-    MoveIndex_t maxIndex = moveList.maxIndex;
+    bool running = true;
+    GameEndStatus_t gameEndStatus;
 
-    while(CurrentGameEndStatus(&data->boardInfo, &data->gameStack, &data->zobristStack, maxIndex) == ongoing) {
-        
-    }
+    while(running) {
+        MoveEntryList_t moveList;
+        CompleteMovegen(&moveList, &data->boardInfo, &data->gameStack);
+        MoveIndex_t maxIndex = moveList.maxIndex;
+
+        SearchResults_t searchResults = Search(
+            &data->uciSearchInfo,
+            &data->boardInfo,
+            &data->gameStack,
+            &data->zobristStack,
+            false
+        );
+
+        MakeMove(&data->boardInfo, &data->gameStack, searchResults.bestMove);
+
+        gameEndStatus = 
+            CurrentGameEndStatus(&data->boardInfo, &data->gameStack, &data->zobristStack, maxIndex);
+
+        running = gameEndStatus == ongoing;
+    } 
 }
 
 static bool RandomMoves(UciApplicationData_t* data, Generator_t* generator) {
@@ -42,6 +60,8 @@ static bool RandomMoves(UciApplicationData_t* data, Generator_t* generator) {
             return false;
         }
     }
+
+    return true;
 }
 
 void GenerateData(const char* filename) {
