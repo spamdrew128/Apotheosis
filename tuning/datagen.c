@@ -59,13 +59,17 @@ static void WriteContainerToFile(
         break;
     case draw: 
         datagenResult = DATAGEN_DRAW;
-    default:
         break;
+    default:
+        printf("INVALID CONTAINER WRITE");
+        return;
     }
 
     for(int i = 0; i < container->numPositions; i++) {
         PositionDataEntry_t* entry = &container->positionData[i];
         entry->datagenResult = datagenResult;
+
+        fwrite(entry, sizeof(PositionDataEntry_t), 1, fp);
     }
 }
 
