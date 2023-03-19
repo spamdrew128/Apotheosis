@@ -70,7 +70,8 @@ $(MOVEGEN)/pieces.c \
 $(UCI)/UCI.c \
 $(ZOBRIST)/zobrist.c \
 \
-$(TUNING)/tuner.c
+$(TUNING)/tuner.c \
+$(TUNING)/datagen.c
 
 COMMON_OBJECTS=$(COMMON_CFILES:%.c=%.o)
 
