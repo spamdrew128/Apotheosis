@@ -45,10 +45,27 @@ static void UpdateContainer(PositionDataContainer_t* container, UciApplicationDa
     }
 }
 
-static void WriteContainerToFile(PositionDataContainer_t* container, GameEndStatus_t result, FILE* fp) {
+static void WriteContainerToFile(
+    PositionDataContainer_t* container,
+    GameEndStatus_t status,
+    Color_t victim,
+    FILE* fp
+)
+{
+    DatagenResult_t datagenResult;
+    switch (status) {
+    case checkmate:
+        datagenResult = (victim == black) ? DATAGEN_WIN : DATAGEN_LOSS;
+        break;
+    case draw: 
+        datagenResult = DATAGEN_DRAW;
+    default:
+        break;
+    }
+
     for(int i = 0; i < container->numPositions; i++) {
         PositionDataEntry_t* entry = &container->positionData[i];
-        entry->result = result;
+        entry->datagenResult = datagenResult;
     }
 }
 
@@ -65,7 +82,7 @@ static void GameLoop(UciApplicationData_t* data, FILE* fp) {
             CurrentGameEndStatus(&data->boardInfo, &data->gameStack, &data->zobristStack, maxIndex);
 
         if(gameEndStatus != ongoing) {
-            WriteContainerToFile(&container, gameEndStatus, fp);
+            WriteContainerToFile(&container, gameEndStatus, data->boardInfo.colorToMove, fp);
             return;
         }
 
@@ -76,6 +93,20 @@ static void GameLoop(UciApplicationData_t* data, FILE* fp) {
             &data->zobristStack,
             false
         );
+
+        if(searchResults.score >= MATE_THRESHOLD) {
+            // opponent is victim
+            Color_t victim = !data->boardInfo.colorToMove;
+            WriteContainerToFile(&container, checkmate, victim, fp);
+            return;
+        } else if(searchResults.score <= -MATE_THRESHOLD) {
+            // we are victim
+            Color_t victim = data->boardInfo.colorToMove;
+            WriteContainerToFile(&container, checkmate, victim, fp);
+            return;
+        }
+
+        UpdateContainer(&container, data);
 
         MakeMove(&data->boardInfo, &data->gameStack, searchResults.bestMove);
     }
