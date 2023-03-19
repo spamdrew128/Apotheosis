@@ -438,7 +438,7 @@ static bool RespondToSignal(
         GetSearchResults(&applicationData->uciSearchInfo, applicationData);
         break;   
     case signal_setoption:
-        SetOption(input, i, &applicationData);
+        SetOption(input, i, applicationData);
         break;  
     default:
         break;
