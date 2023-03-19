@@ -18,19 +18,29 @@ enum {
 };
 
 static void GameLoop(UciApplicationData_t* data) {
+    MoveEntryList_t moveList;
+    CompleteMovegen(&moveList, &data->boardInfo, &data->gameStack);
+    MoveIndex_t maxIndex = moveList.maxIndex;
 
+    while(CurrentGameEndStatus(&data->boardInfo, &data->gameStack, &data->zobristStack, maxIndex) == ongoing) {
+        
+    }
 }
 
-static void RandomMoves(UciApplicationData_t* data, Generator_t* generator) {
+static bool RandomMoves(UciApplicationData_t* data, Generator_t* generator) {
     for(int i = 0; i < RAND_PLY_COUNT; i++) {
         MoveEntryList_t moveList;
         CompleteMovegen(&moveList, &data->boardInfo, &data->gameStack);
 
-        assert(moveList.maxIndex != movelist_empty);
-        int index = RandUnsigned64(generator) % (moveList.maxIndex + 1);
+        MoveIndex_t index = RandUnsigned64(generator) % (moveList.maxIndex + 1);
 
         Move_t move = moveList.moves[index].move;
         MakeMove(&data->boardInfo, &data->gameStack, move);
+
+        if(moveList.maxIndex == movelist_empty) {
+            printf("RandMate");
+            return false;
+        }
     }
 }
 
@@ -43,13 +53,18 @@ void GenerateData(const char* filename) {
     InitRNG(&generator, false);
 
     for(int i = 0; i < NUM_GAMES; i++) {
-        UciApplicationDataInit(&data);
+        UciSearchInfo_t* searchInfo;
 
-        UciSearchInfo_t* searchInfo = &data.uciSearchInfo;
-        searchInfo->overhead = 0;
-        searchInfo->forceTime = TIME_PER_MOVE;
+        bool usablePosition = false;
+        while(!usablePosition) {
+            UciApplicationDataInit(&data);
 
-        RandomMoves(&data, &generator);
+            searchInfo = &data.uciSearchInfo;
+            searchInfo->overhead = 0;
+            searchInfo->forceTime = TIME_PER_MOVE;
+
+            usablePosition = RandomMoves(&data, &generator); // returns false if we hit a mate
+        }
 
         GameLoop(&data);
 
