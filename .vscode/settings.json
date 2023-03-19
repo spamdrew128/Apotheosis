@@ -54,7 +54,8 @@
         "history.h": "c",
         "uci.h": "c",
         "time.h": "c",
-        "timer.h": "c"
+        "timer.h": "c",
+        "datagen.h": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",
