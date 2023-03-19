@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "rng.h"
 #include "lookup.h"
 #include "board_constants.h"
 #include "lookup_tdd.h"
@@ -34,8 +35,11 @@ int main(int argc, char** argv)
 {
     setvbuf(stdout, NULL, _IONBF, 0);
 
+    RandomNumberGenerator_t mainRNG;
+    InitRNG(&mainRNG, true);
+
     InitLookupTables();
-    GenerateZobristKeys();
+    GenerateZobristKeys(&mainRNG);
 
     LookupTDDRunner();
     BitboardsTDDRunner();

@@ -11,7 +11,7 @@ enum {
 };
 
 static void GameLoop(UciSearchInfo_t* searchInfo) {
-
+    
 }
 
 static void RandomMoves(UciSearchInfo_t* searchInfo) {

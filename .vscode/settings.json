@@ -52,7 +52,9 @@
         "move_ordering_tdd.h": "c",
         "move_ordering.h": "c",
         "history.h": "c",
-        "uci.h": "c"
+        "uci.h": "c",
+        "time.h": "c",
+        "timer.h": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",

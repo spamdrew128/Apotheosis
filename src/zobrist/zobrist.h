@@ -5,6 +5,7 @@
 #include "board_constants.h"
 #include "game_state.h"
 #include "board_info.h"
+#include "RNG.h"
 
 #define ZOBRIST_STACK_MAX 1024
 
@@ -19,7 +20,7 @@ typedef struct {
     int maxIndex;
 } ZobristStack_t;
 
-void GenerateZobristKeys();
+void GenerateZobristKeys(RandomNumberGenerator_t* generator);
 
 void InitZobristStack(ZobristStack_t* zobristStack);
 

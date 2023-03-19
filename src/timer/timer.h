@@ -20,6 +20,8 @@ typedef struct {
     Milliseconds_t startTime;
 } Stopwatch_t;
 
+Milliseconds_t ClockRead();
+
 void TimerInit(Timer_t* timer, Milliseconds_t duration);
 
 bool TimerExpired(Timer_t* timer);
