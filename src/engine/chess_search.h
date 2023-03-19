@@ -61,4 +61,12 @@ void UciSearchInfoTimeInfoReset(UciSearchInfo_t* uciSearchInfo);
 
 void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo);
 
+EvalScore_t SimpleQsearch(
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    EvalScore_t alpha,
+    EvalScore_t beta
+);
+
 #endif

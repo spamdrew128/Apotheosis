@@ -438,3 +438,59 @@ void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {
 
     TranspositionTableInit(&uciSearchInfo->tt, hash_default_mb);
 }
+
+EvalScore_t SimpleQsearch(
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    EvalScore_t alpha,
+    EvalScore_t beta
+)
+{
+    MoveEntryList_t moveList;
+    CompleteMovegen(&moveList, boardInfo, gameStack);
+
+    GameEndStatus_t gameEndStatus = CheckForMates(boardInfo, moveList.maxIndex);
+    switch (gameEndStatus) {
+        case checkmate:
+            return -EVAL_MAX;
+        case draw:
+            return 0;
+    }
+
+    EvalScore_t standPat = ScoreOfPosition(boardInfo);
+    if(standPat >= beta) {
+        return standPat;
+    }
+
+    if(standPat > alpha) {
+        alpha = standPat;
+    }
+
+    MovePicker_t movePicker;
+    InitCaptureMovePicker(&movePicker, &moveList, boardInfo);
+
+    EvalScore_t bestScore = standPat;
+    for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
+        Move_t move = PickMove(&movePicker);
+        MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
+
+        EvalScore_t score = -SimpleQsearch(boardInfo, gameStack, zobristStack, -beta, -alpha);
+
+        UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
+
+        if(score > bestScore) {
+            bestScore = score;
+
+            if(score >= beta) {
+                break;
+            }
+            
+            if(score > alpha) {
+                alpha = score;
+            }
+        }
+    }
+
+    return bestScore;
+}
