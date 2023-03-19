@@ -11,7 +11,6 @@
 #include "movegen.h"
 #include "make_and_unmake.h"
 #include "chess_search.h"
-#include "debug.h"
 
 enum {
     NUM_GAMES = 10000,
