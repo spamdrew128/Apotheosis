@@ -12,8 +12,9 @@
 #include "PV_table.h"
 #include "chess_search.h"
 
-typedef struct
-{
+typedef struct {
+    bool datagenMode;
+
     BoardInfo_t boardInfo;
     GameStack_t gameStack;
     ZobristStack_t zobristStack;

@@ -21,6 +21,7 @@
 // UCI Options
 #define OVERHEAD "Overhead"
 #define HASH "Hash"
+#define TEXEL_DATAGEN "Texel_Datagen"
 
 #define BESTMOVE "bestmove"
 
@@ -61,6 +62,7 @@ static int NumCharToInt(char numChar) {
 void UciApplicationDataInit(UciApplicationData_t* data) {
     InterpretFEN(START_FEN, &data->boardInfo, &data->gameStack, &data->zobristStack);
     UciSearchInfoInit(&data->uciSearchInfo);
+    data->datagenMode = false;
 }
 
 bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo, GameStack_t* gameStack) {
@@ -363,10 +365,11 @@ static void UciSignalResponse() {
     printf(ENGINE_ID);
     SendUciOption(OVERHEAD, "spin", "default %d min %d max %d", overhead_default_msec, overhead_min_msec, overhead_max_msec);
     SendUciOption(HASH, "spin", "default %d min %d max %d", hash_default_mb, hash_min_mb, hash_max_mb);
+    SendUciOption(TEXEL_DATAGEN, "check", "default %s", "false");
     printf(UCI_OK);
 }
 
-static void SetOption(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* searchInfo) {
+static void SetOption(char input[BUFFER_SIZE], int* i, UciApplicationData_t* data) {
     char nextWord[BUFFER_SIZE];
     GetNextWord(input, nextWord, i);
 
@@ -375,6 +378,7 @@ static void SetOption(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* searchIn
     }
     GetNextWord(input, nextWord, i);
 
+    UciSearchInfo_t* searchInfo = &data->uciSearchInfo;
     if(StringsMatch(nextWord, OVERHEAD)) {
         SkipNextWord(input, i);
 
@@ -389,6 +393,15 @@ static void SetOption(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* searchIn
         CLAMP_TO_RANGE(hashSize, overhead_min_msec, overhead_max_msec);
         TeardownTT(&searchInfo->tt);
         TranspositionTableInit(&searchInfo->tt, hashSize);
+    } else if (StringsMatch(nextWord, TEXEL_DATAGEN)) {
+        SkipNextWord(input, i);
+
+        GetNextWord(input, nextWord, i);
+        if(StringsMatch(nextWord, "true")) {
+            data->datagenMode = true;
+        } else {
+            data->datagenMode = false;
+        }
     }
 }
 
@@ -425,7 +438,7 @@ static bool RespondToSignal(
         GetSearchResults(&applicationData->uciSearchInfo, applicationData);
         break;   
     case signal_setoption:
-        SetOption(input, i, &applicationData->uciSearchInfo);
+        SetOption(input, i, &applicationData);
         break;  
     default:
         break;
