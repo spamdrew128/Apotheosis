@@ -38,6 +38,7 @@ enum {
     signal_position,
     signal_go,
     signal_setoption,
+    signal_begin_datagen,
     signal_begin_tuning,
 };
 
@@ -200,7 +201,9 @@ static UciSignal_t InterpretWord(const char* word) {
         return signal_go;
     } else if (StringsMatch(word, "setoption")) {
         return signal_setoption;
-    } else if (StringsMatch(word, "begin tuning")) {
+    } else if (StringsMatch(word, "datagen")) {
+        return signal_begin_datagen;
+    } else if (StringsMatch(word, "tuning")) {
         return signal_begin_tuning;
     }
 
@@ -432,8 +435,10 @@ static bool RespondToSignal(
     case signal_setoption:
         SetOption(input, i, &applicationData->uciSearchInfo);
         break;
-    case signal_begin_tuning:
-        GenerateData();
+    case signal_begin_datagen:
+        char filename[BUFFER_SIZE];
+        GetNextWord(input, filename, i);
+        GenerateData(filename);
         break;
     default:
         break;

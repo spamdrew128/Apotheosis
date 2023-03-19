@@ -1,6 +1,6 @@
 #ifndef __DATAGEN_H__
 #define __DATAGEN_H__
 
-void GenerateData();
+void GenerateData(const char* filename);
 
 #endif
