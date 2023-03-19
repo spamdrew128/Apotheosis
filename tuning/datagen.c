@@ -11,6 +11,7 @@
 #include "movegen.h"
 #include "make_and_unmake.h"
 #include "chess_search.h"
+#include "evaluation.h"
 
 enum {
     NUM_GAMES = 10000,
@@ -28,24 +29,45 @@ static void ContainerInit(PositionDataContainer_t* container) {
     container->numPositions = 0;
 }
 
-static void UpdateContainer(PositionDataContainer_t* container, BoardInfo_t* boardInfo) {
-    container->positionData[container->numPositions].boardInfo = *boardInfo;
-    container->numPositions++;
+static void UpdateContainer(PositionDataContainer_t* container, UciApplicationData_t* data) {
+    EvalScore_t staticEval = ScoreOfPosition(&data->boardInfo);
+    EvalScore_t qsearchEval = SimpleQsearch(
+        &data->boardInfo,
+        &data->gameStack,
+        &data->zobristStack,
+        -INFINITY,
+        INFINITY
+    );
+
+    if(staticEval == qsearchEval) {
+        container->positionData[container->numPositions].boardInfo = data->boardInfo;
+        container->numPositions++;
+    }
 }
 
-static void WriteContainerToFile(PositionDataContainer_t* container, FILE* fp) {
-
+static void WriteContainerToFile(PositionDataContainer_t* container, GameEndStatus_t result, FILE* fp) {
+    for(int i = 0; i < container->numPositions; i++) {
+        PositionDataEntry_t* entry = &container->positionData[i];
+        entry->result = result;
+    }
 }
 
 static void GameLoop(UciApplicationData_t* data, FILE* fp) {
-    GameEndStatus_t gameEndStatus = ongoing;
     PositionDataContainer_t container;
     ContainerInit(&container);
 
-    while(gameEndStatus == ongoing) {
+    while(true) {
         MoveEntryList_t moveList;
         CompleteMovegen(&moveList, &data->boardInfo, &data->gameStack);
         MoveIndex_t maxIndex = moveList.maxIndex;
+
+        GameEndStatus_t gameEndStatus = 
+            CurrentGameEndStatus(&data->boardInfo, &data->gameStack, &data->zobristStack, maxIndex);
+
+        if(gameEndStatus != ongoing) {
+            WriteContainerToFile(&container, gameEndStatus, fp);
+            return;
+        }
 
         SearchResults_t searchResults = Search(
             &data->uciSearchInfo,
@@ -56,9 +78,6 @@ static void GameLoop(UciApplicationData_t* data, FILE* fp) {
         );
 
         MakeMove(&data->boardInfo, &data->gameStack, searchResults.bestMove);
-
-        gameEndStatus = 
-            CurrentGameEndStatus(&data->boardInfo, &data->gameStack, &data->zobristStack, maxIndex);
     }
 }
 
