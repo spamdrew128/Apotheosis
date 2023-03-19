@@ -18,9 +18,26 @@ enum {
     RAND_PLY_COUNT = 8,
 };
 
-static void GameLoop(UciApplicationData_t* data) {
+typedef struct {
+    PositionDataEntry_t positionData[2048];
+    int numPositions;
+} PositionDataContainer_t;
+
+
+static void ContainerInit(PositionDataContainer_t* container) {
+    container->numPositions = 0;
+}
+
+static void UpdateContainer(PositionDataContainer_t* container, BoardInfo_t* boardInfo) {
+    container->positionData[container->numPositions].boardInfo = *boardInfo;
+    container->numPositions++;
+}
+
+static void GameLoop(UciApplicationData_t* data, FILE* fp) {
     bool running = true;
     GameEndStatus_t gameEndStatus;
+    PositionDataContainer_t container;
+    ContainerInit(&container);
 
     while(running) {
         MoveEntryList_t moveList;
@@ -41,7 +58,7 @@ static void GameLoop(UciApplicationData_t* data) {
             CurrentGameEndStatus(&data->boardInfo, &data->gameStack, &data->zobristStack, maxIndex);
 
         running = gameEndStatus == ongoing;
-    } 
+    }
 }
 
 static bool RandomMoves(UciApplicationData_t* data, Generator_t* generator) {
@@ -85,7 +102,7 @@ void GenerateData(const char* filename) {
             usablePosition = RandomMoves(&data, &generator); // returns false if we hit a mate
         }
 
-        GameLoop(&data);
+        GameLoop(&data, fp);
 
         TeardownTT(&searchInfo->tt);
     }
