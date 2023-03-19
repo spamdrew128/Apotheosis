@@ -15,7 +15,7 @@
 #include "evaluation.h"
 
 enum {
-    NUM_GAMES = 10000,
+    NUM_GAMES = 100,
     TIME_PER_MOVE = 100,
     RAND_PLY_COUNT = 8,
 };
@@ -144,6 +144,7 @@ void GenerateData(const char* filename) {
     Generator_t generator;
     InitRNG(&generator, false);
 
+    int percentComplete = 0;
     for(int i = 0; i < NUM_GAMES; i++) {
         UciSearchInfo_t* searchInfo;
 
@@ -161,6 +162,11 @@ void GenerateData(const char* filename) {
         GameLoop(&data, fp);
 
         TeardownTT(&searchInfo->tt);
+
+        if((i+1)*100 / NUM_GAMES > percentComplete) {
+            percentComplete = (i+1)*100 / NUM_GAMES;
+            printf("%d %% complete\n", percentComplete);
+        }
     }
 
     fclose(fp);
