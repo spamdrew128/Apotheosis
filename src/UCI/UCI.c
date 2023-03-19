@@ -11,6 +11,8 @@
 #include "make_and_unmake.h"
 #include "time_constants.h"
 #include "util_macros.h"
+#include "tuner.h"
+#include "datagen.h"
 
 #define BUFFER_SIZE 50000
 
@@ -35,7 +37,8 @@ enum {
     signal_new_game,
     signal_position,
     signal_go,
-    signal_setoption
+    signal_setoption,
+    signal_begin_tuning,
 };
 
 static char RowToNumberChar(int row) {
@@ -197,6 +200,8 @@ static UciSignal_t InterpretWord(const char* word) {
         return signal_go;
     } else if (StringsMatch(word, "setoption")) {
         return signal_setoption;
+    } else if (StringsMatch(word, "begin tuning")) {
+        return signal_begin_tuning;
     }
 
     return signal_invalid;
@@ -426,7 +431,10 @@ static bool RespondToSignal(
         break;   
     case signal_setoption:
         SetOption(input, i, &applicationData->uciSearchInfo);
-        break;  
+        break;
+    case signal_begin_tuning:
+        GenerateData();
+        break;
     default:
         break;
     }
