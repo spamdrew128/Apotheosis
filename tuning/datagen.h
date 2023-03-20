@@ -3,15 +3,27 @@
 
 #include "board_info.h"
 
-typedef double DatagenResult_t;
-#define DATAGEN_WIN (DatagenResult_t) 1
-#define DATAGEN_DRAW (DatagenResult_t) 0.5
-#define DATAGEN_LOSS (DatagenResult_t) 0
+typedef double PositionResult_t;
+#define POSITION_WIN (PositionResult_t) 1
+#define POSITION_DRAW (PositionResult_t) 0.5
+#define POSITION_LOSS (PositionResult_t) 0
 
 typedef struct {
-    BoardInfo_t boardInfo;
-    DatagenResult_t datagenResult;
-} PositionDataEntry_t;
+    int pieceCount[2][NUM_PIECES];
+    Piece_t all[2];
+    Bitboard_t knights;
+    Bitboard_t bishops;
+    Bitboard_t rooks;
+    Bitboard_t pawns;
+    Bitboard_t queens;
+    Bitboard_t kings;
+    PositionResult_t positionResult;
+} TEntry_t;
+
+typedef struct {
+    TEntry_t entryList[2048];
+    int numPositions;
+} TuningDatagenContainer_t;
 
 void GenerateData(const char* filename);
 

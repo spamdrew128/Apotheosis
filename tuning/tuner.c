@@ -2,19 +2,10 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "board_constants.h"
 #include "tuner.h"
-
-typedef struct {
-    int pieceCount[NUM_PIECES];
-    Piece_t all[2];
-    Bitboard_t knights;
-    Bitboard_t bishops;
-    Bitboard_t rooks;
-    Bitboard_t pawns;
-    Bitboard_t queens;
-    Bitboard_t kings;
-} TEntry_t;
+#include "board_constants.h"
+#include "datagen.h"
+#include "bitboards.h"
 
 typedef struct {
     TEntry_t* entryList;

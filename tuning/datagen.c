@@ -20,17 +20,43 @@ enum {
     RAND_PLY_COUNT = 8,
 };
 
-typedef struct {
-    PositionDataEntry_t positionData[2048];
-    int numPositions;
-} PositionDataContainer_t;
+// data for my curious mind
+static int winCount = 0;
+static int lossCount = 0;
+static int drawCount = 0;
+static int highestPly = 0;
 
-
-static void ContainerInit(PositionDataContainer_t* container) {
+static void ContainerInit(TuningDatagenContainer_t* container) {
     container->numPositions = 0;
 }
 
-static void UpdateContainer(PositionDataContainer_t* container, UciApplicationData_t* data) {
+static void FillTEntry(TEntry_t* tEntry, UciApplicationData_t* data) {
+        tEntry->knights = empty_set;
+        tEntry->bishops = empty_set;
+        tEntry->rooks = empty_set;
+        tEntry->pawns = empty_set;
+        tEntry->queens = empty_set;
+        tEntry->kings = empty_set;
+
+        for(int c = 0; c < 2; c++) {
+            tEntry->all[c] = data->boardInfo.allPieces[c];
+            tEntry->knights |= data->boardInfo.knights[c];
+            tEntry->bishops |= data->boardInfo.bishops[c];
+            tEntry->rooks |= data->boardInfo.rooks[c];
+            tEntry->pawns |= data->boardInfo.pawns[c];
+            tEntry->queens |= data->boardInfo.queens[c];
+            tEntry->kings |= data->boardInfo.kings[c];
+
+            tEntry->pieceCount[c][knight] = PopCount(data->boardInfo.knights[c]);
+            tEntry->pieceCount[c][bishop] = PopCount(data->boardInfo.bishops[c]);
+            tEntry->pieceCount[c][rook] = PopCount(data->boardInfo.rooks[c]);
+            tEntry->pieceCount[c][pawn] = PopCount(data->boardInfo.pawns[c]);
+            tEntry->pieceCount[c][queen] = PopCount(data->boardInfo.queens[c]);
+            tEntry->pieceCount[c][king] = PopCount(data->boardInfo.kings[c]);
+        }
+}
+
+static void UpdateContainer(TuningDatagenContainer_t* container, UciApplicationData_t* data) {
     EvalScore_t staticEval = ScoreOfPosition(&data->boardInfo);
     EvalScore_t qsearchEval = SimpleQsearch(
         &data->boardInfo,
@@ -41,25 +67,25 @@ static void UpdateContainer(PositionDataContainer_t* container, UciApplicationDa
     );
 
     if(staticEval == qsearchEval) {
-        container->positionData[container->numPositions].boardInfo = data->boardInfo;
+        FillTEntry(&container->entryList[container->numPositions], data);
         container->numPositions++;
     }
 }
 
 static void WriteContainerToFile(
-    PositionDataContainer_t* container,
+    TuningDatagenContainer_t* container,
     GameEndStatus_t status,
     Color_t victim,
     FILE* fp
 )
 {
-    DatagenResult_t datagenResult;
+    PositionResult_t positionResult;
     switch (status) {
     case checkmate:
-        datagenResult = (victim == black) ? DATAGEN_WIN : DATAGEN_LOSS;
+        positionResult = (victim == black) ? POSITION_WIN : POSITION_LOSS;
         break;
     case draw: 
-        datagenResult = DATAGEN_DRAW;
+        positionResult = POSITION_DRAW;
         break;
     default:
         printf("INVALID CONTAINER WRITE");
@@ -67,15 +93,25 @@ static void WriteContainerToFile(
     }
 
     for(int i = 0; i < container->numPositions; i++) {
-        PositionDataEntry_t* entry = &container->positionData[i];
-        entry->datagenResult = datagenResult;
+        TEntry_t* entry = &container->entryList[i];
+        entry->positionResult = positionResult;
 
-        fwrite(entry, sizeof(PositionDataEntry_t), 1, fp);
+        fwrite(entry, sizeof(*entry), 1, fp);
     }
+
+    if(positionResult == POSITION_WIN) {
+        winCount++;
+    } else if(positionResult == POSITION_LOSS) {
+        lossCount++;
+    } else {
+        drawCount++;
+    }
+
+    highestPly = MAX(container->numPositions, highestPly);
 }
 
 static void GameLoop(UciApplicationData_t* data, FILE* fp) {
-    PositionDataContainer_t container;
+    TuningDatagenContainer_t container;
     ContainerInit(&container);
 
     while(true) {
@@ -165,7 +201,10 @@ void GenerateData(const char* filename) {
 
         if((i+1)*100 / NUM_GAMES > percentComplete) {
             percentComplete = (i+1)*100 / NUM_GAMES;
-            printf("%d %% complete\n", percentComplete);
+
+            printf("%d%% complete\n", percentComplete);
+            printf("W: %d L: %d D: %d\n", winCount, lossCount, drawCount);
+            printf("Longest game: %d moves\n\n", highestPly+8);
         }
     }
 
