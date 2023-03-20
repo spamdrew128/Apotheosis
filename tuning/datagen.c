@@ -25,7 +25,8 @@ static int winCount = 0;
 static int lossCount = 0;
 static int drawCount = 0;
 static int highestPly = 0;
-static long long gameCount = 0;
+static int gameCount = 0;
+static long long storedPositions = 0;
 
 static void ContainerInit(TuningDatagenContainer_t* container) {
     container->numPositions = 0;
@@ -70,6 +71,7 @@ static void UpdateContainer(TuningDatagenContainer_t* container, UciApplicationD
     if(staticEval == qsearchEval) {
         FillTEntry(&container->entryList[container->numPositions], data);
         container->numPositions++;
+        storedPositions++;
     }
 }
 
@@ -208,7 +210,8 @@ void GenerateData(const char* filename) {
 
             printf("%d%% complete\n", percentComplete);
             printf("W: %d L: %d D: %d\n", winCount, lossCount, drawCount);
-            printf("Game Count: %lld\n", gameCount);
+            printf("Game Count: %d\n", gameCount);
+            printf("Stored Positions: %lld\n", storedPositions);
             printf("Longest game: %d moves\n\n", highestPly+8);
         }
     }
