@@ -16,8 +16,8 @@
 
 enum {
     NUM_GAMES = 10000,
-    TIME_PER_MOVE = 75,
-    RAND_PLY_COUNT = 8,
+    TIME_PER_MOVE = 50,
+    RAND_PLY_BASE = 7,
 };
 
 // data for my curious mind
@@ -25,6 +25,7 @@ static int winCount = 0;
 static int lossCount = 0;
 static int drawCount = 0;
 static int highestPly = 0;
+static long long gameCount = 0;
 
 static void ContainerInit(TuningDatagenContainer_t* container) {
     container->numPositions = 0;
@@ -108,6 +109,7 @@ static void WriteContainerToFile(
     }
 
     highestPly = MAX(container->numPositions, highestPly);
+    gameCount++;
 }
 
 static void GameLoop(UciApplicationData_t* data, FILE* fp) {
@@ -153,13 +155,13 @@ static void GameLoop(UciApplicationData_t* data, FILE* fp) {
     }
 }
 
-static bool RandomMoves(UciApplicationData_t* data, Generator_t* generator) {
-    for(int i = 0; i < RAND_PLY_COUNT; i++) {
+static bool RandomMoves(UciApplicationData_t* data, Generator_t* generator, Ply_t randPlyCount) {
+    for(int i = 0; i < randPlyCount; i++) {
         MoveEntryList_t moveList;
         CompleteMovegen(&moveList, &data->boardInfo, &data->gameStack);
 
         if(moveList.maxIndex == movelist_empty) {
-            printf("RandMate");
+            printf("RandMate\n");
             return false;
         }
 
@@ -180,9 +182,11 @@ void GenerateData(const char* filename) {
     Generator_t generator;
     InitRNG(&generator, false);
 
-    int percentComplete = 0;
+    int percentComplete = -1;
     for(int i = 0; i < NUM_GAMES; i++) {
         UciSearchInfo_t* searchInfo;
+
+        Ply_t randPlyCount = RAND_PLY_BASE + (i%2);
 
         bool usablePosition = false;
         while(!usablePosition) {
@@ -192,7 +196,7 @@ void GenerateData(const char* filename) {
             searchInfo->overhead = 0;
             searchInfo->forceTime = TIME_PER_MOVE;
 
-            usablePosition = RandomMoves(&data, &generator); // returns false if we hit a mate
+            usablePosition = RandomMoves(&data, &generator, randPlyCount); // returns false if we hit a mate
         }
 
         GameLoop(&data, fp);
@@ -204,6 +208,7 @@ void GenerateData(const char* filename) {
 
             printf("%d%% complete\n", percentComplete);
             printf("W: %d L: %d D: %d\n", winCount, lossCount, drawCount);
+            printf("Game Count: %lld\n", gameCount);
             printf("Longest game: %d moves\n\n", highestPly+8);
         }
     }

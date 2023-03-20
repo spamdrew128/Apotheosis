@@ -10,7 +10,7 @@ typedef double PositionResult_t;
 
 typedef struct {
     int pieceCount[2][NUM_PIECES];
-    Piece_t all[2];
+    Bitboard_t all[2];
     Bitboard_t knights;
     Bitboard_t bishops;
     Bitboard_t rooks;
