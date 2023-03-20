@@ -15,8 +15,8 @@
 #include "evaluation.h"
 
 enum {
-    NUM_GAMES = 100,
-    TIME_PER_MOVE = 100,
+    NUM_GAMES = 10000,
+    TIME_PER_MOVE = 75,
     RAND_PLY_COUNT = 8,
 };
 
