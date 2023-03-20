@@ -436,9 +436,14 @@ static bool RespondToSignal(
         SetOption(input, i, &applicationData->uciSearchInfo);
         break;
     case signal_begin_datagen:
-        char filename[BUFFER_SIZE];
-        GetNextWord(input, filename, i);
-        GenerateData(filename);
+        char outputFile[BUFFER_SIZE];
+        GetNextWord(input, outputFile, i);
+        GenerateData(outputFile);
+        break;
+    case signal_begin_tuning:
+        char inputFile[BUFFER_SIZE];
+        GetNextWord(input, inputFile, i);
+        TuneParameters(inputFile);
         break;
     default:
         break;

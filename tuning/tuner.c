@@ -1,5 +1,7 @@
+#include <stdio.h>
+
 #include "tuner.h"
 
-void TuneParameters() {
-
+void TuneParameters(const char* filename) {
+    printf(filename);
 }

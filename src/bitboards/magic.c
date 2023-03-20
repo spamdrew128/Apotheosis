@@ -34,7 +34,7 @@ static int DistinctBlockers(int n) {
     return (int)(C64(1) << n);
 }
 
-Hash_t MagicHash(Bitboard_t blockers, MagicBB_t magic, uint8_t shift) { return (blockers * magic) >> shift; }
+static Hash_t MagicHash(Bitboard_t blockers, MagicBB_t magic, uint8_t shift) { return (blockers * magic) >> shift; }
 
 static void InitHashTable(Bitboard_t* hashTable, int tableEntries) {
     for(int i = 0; i < tableEntries; i++) {
