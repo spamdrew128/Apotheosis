@@ -3,11 +3,11 @@
 
 #include <stdint.h>
 
+#include "eval_constants.h"
+
 // inspired by https://www.chessprogramming.org/Simplified_Evaluation_Function
 // also inspired by PeSTO's eval 
 // all values are from black's perspective, becuase my scheme is flipped
-
-typedef uint8_t Phase_t;
 
 // indexed by piece: knight, bishop, rook, queen, pawn, king
 #define GAMEPHASE_VALUES { \

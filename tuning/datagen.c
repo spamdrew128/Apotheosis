@@ -14,7 +14,7 @@
 #include "chess_search.h"
 
 enum {
-    NUM_GAMES = 10000,
+    NUM_GAMES = 25,
     TIME_PER_MOVE = 50,
     RAND_PLY_BASE = 7,
 };
@@ -51,7 +51,7 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
 
     for(Piece_t p = 0; p < NUM_PIECES; p++) {
         for(int c = 0; c < 2; c++) {
-            tEntry->pieceCount[c][p] = PopCount(tEntry->pieceCount[p]);
+            tEntry->pieceCount[c][p] = PopCount(tEntry->pieceCount[c][p]);
         }
     }
 

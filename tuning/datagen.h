@@ -3,7 +3,7 @@
 
 #include "board_info.h"
 #include "PST.h"
-#include "evaluation.h"
+#include "eval_constants.h"
 
 typedef double PositionResult_t;
 #define POSITION_WIN (PositionResult_t) 1
