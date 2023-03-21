@@ -3,6 +3,7 @@
 
 #include "board_info.h"
 #include "PST.h"
+#include "evaluation.h"
 
 typedef double PositionResult_t;
 #define POSITION_WIN (PositionResult_t) 1
@@ -10,7 +11,7 @@ typedef double PositionResult_t;
 #define POSITION_LOSS (PositionResult_t) 0
 
 typedef struct {
-    Phase_t phase[NUM_PHASES];
+    Phase_t phase;
 
     int pieceCount[NUM_PIECES];
     Bitboard_t all[2];

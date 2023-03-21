@@ -8,6 +8,7 @@
 #include "bitboards.h"
 #include "evaluation.h"
 #include "PST.h"
+#include "util_macros.h"
 
 typedef double Weight_t;
 Weight_t PSTWeights[NUM_PHASES][NUM_PIECES][NUM_SQUARES] = { // PST from black perspective, mirror if white

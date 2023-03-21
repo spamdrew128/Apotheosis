@@ -12,10 +12,9 @@
 #include "movegen.h"
 #include "make_and_unmake.h"
 #include "chess_search.h"
-#include "evaluation.h"
 
 enum {
-    NUM_GAMES = 10000,
+    NUM_GAMES = 10,
     TIME_PER_MOVE = 50,
     RAND_PLY_BASE = 7,
 };
@@ -60,8 +59,7 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
         tEntry->pieceCount[rook]*ROOK_PHASE_VALUE +
         tEntry->pieceCount[queen]*QUEEN_PHASE_VALUE;
 
-    tEntry->phase[mg_phase] = MIN(midgame_phase, PHASE_MAX);
-    tEntry->phase[eg_phase] = PHASE_MAX - midgame_phase;
+    tEntry->phase = MIN(midgame_phase, PHASE_MAX);
 }
 
 static void UpdateContainer(TuningDatagenContainer_t* container, UciApplicationData_t* data) {
