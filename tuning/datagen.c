@@ -32,30 +32,39 @@ static void ContainerInit(TuningDatagenContainer_t* container) {
     container->numPositions = 0;
 }
 
-static void FillTEntry(TEntry_t* tEntry, UciApplicationData_t* data) {
-        tEntry->knights = empty_set;
-        tEntry->bishops = empty_set;
-        tEntry->rooks = empty_set;
-        tEntry->pawns = empty_set;
-        tEntry->queens = empty_set;
-        tEntry->kings = empty_set;
+void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
+    tEntry->knights = empty_set;
+    tEntry->bishops = empty_set;
+    tEntry->rooks = empty_set;
+    tEntry->pawns = empty_set;
+    tEntry->queens = empty_set;
+    tEntry->kings = empty_set;
 
-        for(int c = 0; c < 2; c++) {
-            tEntry->all[c] = data->boardInfo.allPieces[c];
-            tEntry->knights |= data->boardInfo.knights[c];
-            tEntry->bishops |= data->boardInfo.bishops[c];
-            tEntry->rooks |= data->boardInfo.rooks[c];
-            tEntry->pawns |= data->boardInfo.pawns[c];
-            tEntry->queens |= data->boardInfo.queens[c];
-            tEntry->kings |= data->boardInfo.kings[c];
+    for(int c = 0; c < 2; c++) {
+        tEntry->all[c] = boardInfo->allPieces[c];
+        tEntry->knights |= boardInfo->knights[c];
+        tEntry->bishops |= boardInfo->bishops[c];
+        tEntry->rooks |= boardInfo->rooks[c];
+        tEntry->pawns |= boardInfo->pawns[c];
+        tEntry->queens |= boardInfo->queens[c];
+        tEntry->kings |= boardInfo->kings[c];
+    }
 
-            tEntry->pieceCount[c][knight] = PopCount(data->boardInfo.knights[c]);
-            tEntry->pieceCount[c][bishop] = PopCount(data->boardInfo.bishops[c]);
-            tEntry->pieceCount[c][rook] = PopCount(data->boardInfo.rooks[c]);
-            tEntry->pieceCount[c][pawn] = PopCount(data->boardInfo.pawns[c]);
-            tEntry->pieceCount[c][queen] = PopCount(data->boardInfo.queens[c]);
-            tEntry->pieceCount[c][king] = PopCount(data->boardInfo.kings[c]);
-        }
+    tEntry->pieceCount[knight] = PopCount(tEntry->knights);
+    tEntry->pieceCount[bishop] = PopCount(tEntry->bishops);
+    tEntry->pieceCount[rook] = PopCount(tEntry->rooks);
+    tEntry->pieceCount[pawn] = PopCount(tEntry->pawns);
+    tEntry->pieceCount[queen] = PopCount(tEntry->queens);
+    tEntry->pieceCount[king] = PopCount(tEntry->kings);
+
+    Phase_t midgame_phase = 
+        tEntry->pieceCount[knight]*KNIGHT_PHASE_VALUE +
+        tEntry->pieceCount[bishop]*BISHOP_PHASE_VALUE +
+        tEntry->pieceCount[rook]*ROOK_PHASE_VALUE +
+        tEntry->pieceCount[queen]*QUEEN_PHASE_VALUE;
+
+    tEntry->phase[mg_phase] = MIN(midgame_phase, PHASE_MAX);
+    tEntry->phase[eg_phase] = PHASE_MAX - midgame_phase;
 }
 
 static void UpdateContainer(TuningDatagenContainer_t* container, UciApplicationData_t* data) {
@@ -69,7 +78,7 @@ static void UpdateContainer(TuningDatagenContainer_t* container, UciApplicationD
     );
 
     if(staticEval == qsearchEval) {
-        FillTEntry(&container->entryList[container->numPositions], data);
+        FillTEntry(&container->entryList[container->numPositions], &data->boardInfo);
         container->numPositions++;
         storedPositions++;
     }

@@ -8,7 +8,6 @@ typedef uint64_t Bitboard_t; // supported by MSC 13.00+ and C99
 
 #define MOVELIST_MAX 256
 #define GAMESTATES_MAX 1024
-#define NUM_PIECES 6
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 #include <stdbool.h>
@@ -43,6 +42,7 @@ enum pieceTypes {
   queen,
   pawn,
   king,
+  NUM_PIECES,
   none_type
 };
 

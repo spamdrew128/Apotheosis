@@ -56,7 +56,8 @@
         "time.h": "c",
         "timer.h": "c",
         "datagen.h": "c",
-        "tuner.h": "c"
+        "tuner.h": "c",
+        "pst.h": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",

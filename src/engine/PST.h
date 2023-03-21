@@ -12,11 +12,20 @@ enum {
     mg_phase,
     eg_phase,
     NUM_PHASES,
-    PHASE_MAX = 24
+    PHASE_MAX = 24,
+
+    KNIGHT_PHASE_VALUE = 1,
+    BISHOP_PHASE_VALUE = 1,
+    ROOK_PHASE_VALUE = 2,
+    QUEEN_PHASE_VALUE = 4,
+    PAWN_PHASE_VALUE = 0,
+    KING_PHASE_VALUE = 0,
 };
 
 // indexed by piece: knight, bishop, rook, queen, pawn, king
-#define GAMEPHASE_VALUES { 1, 1, 2, 4, 0, 0}
+#define GAMEPHASE_VALUES { \
+    KNIGHT_PHASE_VALUE, BISHOP_PHASE_VALUE, ROOK_PHASE_VALUE, QUEEN_PHASE_VALUE, PAWN_PHASE_VALUE, KING_PHASE_VALUE \
+} 
 
 #define PAWN_MG_PST { \
     0,  0,  0,  0,  0,  0,  0,  0, \

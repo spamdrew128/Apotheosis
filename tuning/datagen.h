@@ -2,6 +2,7 @@
 #define __DATAGEN_H__
 
 #include "board_info.h"
+#include "PST.h"
 
 typedef double PositionResult_t;
 #define POSITION_WIN (PositionResult_t) 1
@@ -9,7 +10,9 @@ typedef double PositionResult_t;
 #define POSITION_LOSS (PositionResult_t) 0
 
 typedef struct {
-    int pieceCount[2][NUM_PIECES];
+    Phase_t phase[NUM_PHASES];
+
+    int pieceCount[NUM_PIECES];
     Bitboard_t all[2];
     Bitboard_t knights;
     Bitboard_t bishops;
