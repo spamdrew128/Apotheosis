@@ -154,6 +154,7 @@ static void GameLoop(UciApplicationData_t* data, FILE* fp) {
         UpdateContainer(&container, data);
 
         MakeMove(&data->boardInfo, &data->gameStack, searchResults.bestMove);
+        AddZobristHashToStack(&data->zobristStack, HashPosition(&data->boardInfo, &data->gameStack));
     }
 }
 
