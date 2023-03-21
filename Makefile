@@ -1,8 +1,8 @@
 CC=gcc
 
-DEBUGFLAGS=-g
+DEBUGFLAGS=-g -fsanitize=address
 OPTFLAGS=-O3 -flto
-CFLAGS=-Wall -std=c17 -march=native $(OPTFLAGS)
+CFLAGS=-Wall -std=c17 -march=native $(DEBUGFLAGS)
 CPPFLAGS=$(INCDIRS)
 
 RELEASE=false
