@@ -30,4 +30,6 @@ typedef struct {
 
 void GenerateData(const char* filename);
 
+void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo);
+
 #endif
