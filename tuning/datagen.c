@@ -14,7 +14,7 @@
 #include "chess_search.h"
 
 enum {
-    NUM_GAMES = 10,
+    NUM_GAMES = 10000,
     TIME_PER_MOVE = 50,
     RAND_PLY_BASE = 7,
 };

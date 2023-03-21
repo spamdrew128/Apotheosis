@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <math.h>
 
 #include "tuner.h"
 #include "board_constants.h"
@@ -92,26 +93,33 @@ static double Evaluation(TEntry_t entry) {
     return (mgScore * mgPhase + egScore * egPhase) / PHASE_MAX;
 }
 
-static double Sigmoid(double n) {
-    
+static double Sigmoid(double E) {
+    return 1 / (1 + exp(-K * E));
 }
 
 static double Cost(TuningData_t* tuningData) {
     double totalError = 0;
     for(int i = 0; i < tuningData->numEntries; i++) {
         TEntry_t entry = tuningData->entryList[i];
-        double eval = Evaluation(entry);
+        double E = Evaluation(entry);
 
-        double error = entry.positionResult - Evaluation(entry);
+        double error = entry.positionResult - Sigmoid(E);
         totalError += error * error;
     }
+
+    return totalError;
+}
+
+static double MSE(TuningData_t* tuningData, double cost) {
+    return cost / tuningData->numEntries;
 }
 
 void TuneParameters(const char* filename) {
     TuningData_t tuningData;
     TuningDataInit(&tuningData, filename);
 
-
-
-    printf(filename);
+    double cost = Cost(&tuningData);
+    double meanSquaredError = MSE(&tuningData, cost);
+    printf("Cost %f\n", cost);
+    printf("MSE %f\n", meanSquaredError);
 }
