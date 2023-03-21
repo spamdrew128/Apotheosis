@@ -41,7 +41,7 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
 
     for(int c = 0; c < 2; c++) {
         tEntry->all[c] = boardInfo->allPieces[c];
-        tEntry->pieceBBs[knight]  |= boardInfo->knights[c];
+        tEntry->pieceBBs[knight] |= boardInfo->knights[c];
         tEntry->pieceBBs[bishop] |= boardInfo->bishops[c];
         tEntry->pieceBBs[rook] |= boardInfo->rooks[c];
         tEntry->pieceBBs[pawn] |= boardInfo->pawns[c];
