@@ -75,11 +75,15 @@ static void MaterialAndPSTComponent(
     }
 }
 
-static double Evalutation(TEntry_t entry) {
+static double Evaluation(TEntry_t entry) {
     double mgScore = 0;
     double egScore = 0;
 
     MaterialAndPSTComponent(entry, &mgScore, &egScore);
+
+    Phase_t mgPhase = entry.phase;
+    Phase_t egPhase = PHASE_MAX - mgPhase;
+    return (mgScore * mgPhase + egScore * egPhase) / PHASE_MAX;
 }
 
 void TuneParameters(const char* filename) {
