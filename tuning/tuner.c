@@ -61,11 +61,13 @@ static void MaterialAndPSTComponent(
         Bitboard_t whitePieces = entry.pieceBBs[p] & entry.all[white];
         Bitboard_t blackPieces = entry.pieceBBs[p] & entry.all[black];
 
-        *mgScore += entry.pieceCount[white][p] * MaterialWeights[mg_phase][p];
-        *egScore += entry.pieceCount[white][p] * MaterialWeights[eg_phase][p];
+        int whiteCount = PopCount(whitePieces);
+        *mgScore += whiteCount * MaterialWeights[mg_phase][p];
+        *egScore += whiteCount * MaterialWeights[eg_phase][p];
         
-        *mgScore -= entry.pieceCount[black][p] * MaterialWeights[mg_phase][p];
-        *egScore -= entry.pieceCount[black][p] * MaterialWeights[eg_phase][p];
+        int blackCount = PopCount(blackPieces);
+        *mgScore -= blackCount * MaterialWeights[mg_phase][p];
+        *egScore -= blackCount * MaterialWeights[eg_phase][p];
 
         while(whitePieces) {
             Square_t sq = MIRROR(LSB(whitePieces));

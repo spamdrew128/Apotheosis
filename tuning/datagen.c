@@ -49,12 +49,6 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
         tEntry->pieceBBs[king] |= boardInfo->kings[c];
     }
 
-    for(Piece_t p = 0; p < NUM_PIECES; p++) {
-        for(int c = 0; c < 2; c++) {
-            tEntry->pieceCount[c][p] = PopCount(tEntry->pieceCount[c][p]);
-        }
-    }
-
     Phase_t midgame_phase = 
         PopCount(tEntry->pieceBBs[knight])*KNIGHT_PHASE_VALUE +
         PopCount(tEntry->pieceBBs[bishop])*BISHOP_PHASE_VALUE +
