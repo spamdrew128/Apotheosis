@@ -171,6 +171,7 @@ static bool RandomMoves(UciApplicationData_t* data, Generator_t* generator, Ply_
 
         Move_t move = moveList.moves[index].move;
         MakeMove(&data->boardInfo, &data->gameStack, move);
+        AddZobristHashToStack(&data->zobristStack, HashPosition(&data->boardInfo, &data->gameStack));
     }
 
     return true;
