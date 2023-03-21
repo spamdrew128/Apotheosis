@@ -43,7 +43,7 @@ INCDIRS:= \
 -I $(TDD)/. \
 -I $(ENGINE_TDD)/. \
 \
--I $(TUNING)\.
+-I $(TUNING)/.
 
 COMMON_CFILES= \
 $(BITBOARDS)/bitboards.c \
@@ -116,10 +116,10 @@ test: $(DEBUG_EXE)
 	$(DEBUG_EXE)
 
 $(EXE): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ -lm	
 
 $(DEBUG_EXE): $(D_OBJECTS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $^
