@@ -13,7 +13,7 @@ typedef double PositionResult_t;
 typedef struct {
     Phase_t phase;
 
-    int pieceCount[NUM_PIECES];
+    int pieceCount[2][NUM_PIECES];
     Bitboard_t all[2];
     Bitboard_t pieceBBs[NUM_PIECES];
     PositionResult_t positionResult;

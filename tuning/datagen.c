@@ -32,32 +32,34 @@ static void ContainerInit(TuningDatagenContainer_t* container) {
 }
 
 void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
-    tEntry->pieceCount[knight] = empty_set;
-    tEntry->pieceCount[bishop] = empty_set;
-    tEntry->pieceCount[rook] = empty_set;
-    tEntry->pieceCount[pawn] = empty_set;
-    tEntry->pieceCount[queen] = empty_set;
-    tEntry->pieceCount[king] = empty_set;
+    tEntry->pieceBBs[knight] = empty_set;
+    tEntry->pieceBBs[bishop] = empty_set;
+    tEntry->pieceBBs[rook] = empty_set;
+    tEntry->pieceBBs[pawn] = empty_set;
+    tEntry->pieceBBs[queen] = empty_set;
+    tEntry->pieceBBs[king] = empty_set;
 
     for(int c = 0; c < 2; c++) {
         tEntry->all[c] = boardInfo->allPieces[c];
-        tEntry->pieceCount[knight]  |= boardInfo->knights[c];
-        tEntry->pieceCount[bishop] |= boardInfo->bishops[c];
-        tEntry->pieceCount[rook] |= boardInfo->rooks[c];
-        tEntry->pieceCount[pawn] |= boardInfo->pawns[c];
-        tEntry->pieceCount[queen] |= boardInfo->queens[c];
-        tEntry->pieceCount[king] |= boardInfo->kings[c];
+        tEntry->pieceBBs[knight]  |= boardInfo->knights[c];
+        tEntry->pieceBBs[bishop] |= boardInfo->bishops[c];
+        tEntry->pieceBBs[rook] |= boardInfo->rooks[c];
+        tEntry->pieceBBs[pawn] |= boardInfo->pawns[c];
+        tEntry->pieceBBs[queen] |= boardInfo->queens[c];
+        tEntry->pieceBBs[king] |= boardInfo->kings[c];
     }
 
     for(Piece_t p = 0; p < NUM_PIECES; p++) {
-        tEntry->pieceCount[p] = PopCount(tEntry->pieceCount[p]);
+        for(int c = 0; c < 2; c++) {
+            tEntry->pieceCount[c][p] = PopCount(tEntry->pieceCount[p]);
+        }
     }
 
     Phase_t midgame_phase = 
-        tEntry->pieceCount[knight]*KNIGHT_PHASE_VALUE +
-        tEntry->pieceCount[bishop]*BISHOP_PHASE_VALUE +
-        tEntry->pieceCount[rook]*ROOK_PHASE_VALUE +
-        tEntry->pieceCount[queen]*QUEEN_PHASE_VALUE;
+        PopCount(tEntry->pieceBBs[knight])*KNIGHT_PHASE_VALUE +
+        PopCount(tEntry->pieceBBs[bishop])*BISHOP_PHASE_VALUE +
+        PopCount(tEntry->pieceBBs[rook])*ROOK_PHASE_VALUE +
+        PopCount(tEntry->pieceBBs[queen])*QUEEN_PHASE_VALUE;
 
     tEntry->phase = MIN(midgame_phase, PHASE_MAX);
 }

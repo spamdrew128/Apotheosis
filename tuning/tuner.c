@@ -21,6 +21,8 @@ Weight_t MaterialWeights[NUM_PHASES][NUM_PIECES] = {
     { knight_value, bishop_value, rook_value, queen_value, pawn_value, king_value },
 };
 
+double K = 0.0075;
+
 typedef struct {
     TEntry_t* entryList;
     int numEntries;
@@ -58,8 +60,11 @@ static void MaterialAndPSTComponent(
         Bitboard_t whitePieces = entry.pieceBBs[p] & entry.all[white];
         Bitboard_t blackPieces = entry.pieceBBs[p] & entry.all[black];
 
-        *mgScore += entry.pieceCount[p] * MaterialWeights[mg_phase][p];
-        *egScore += entry.pieceCount[p] * MaterialWeights[eg_phase][p];
+        *mgScore += entry.pieceCount[white][p] * MaterialWeights[mg_phase][p];
+        *egScore += entry.pieceCount[white][p] * MaterialWeights[eg_phase][p];
+        
+        *mgScore -= entry.pieceCount[black][p] * MaterialWeights[mg_phase][p];
+        *egScore -= entry.pieceCount[black][p] * MaterialWeights[eg_phase][p];
 
         while(whitePieces) {
             Square_t sq = MIRROR(LSB(whitePieces));
@@ -85,6 +90,21 @@ static double Evaluation(TEntry_t entry) {
     Phase_t mgPhase = entry.phase;
     Phase_t egPhase = PHASE_MAX - mgPhase;
     return (mgScore * mgPhase + egScore * egPhase) / PHASE_MAX;
+}
+
+static double Sigmoid(double n) {
+    
+}
+
+static double Cost(TuningData_t* tuningData) {
+    double totalError = 0;
+    for(int i = 0; i < tuningData->numEntries; i++) {
+        TEntry_t entry = tuningData->entryList[i];
+        double eval = Evaluation(entry);
+
+        double error = entry.positionResult - Evaluation(entry);
+        totalError += error * error;
+    }
 }
 
 void TuneParameters(const char* filename) {
