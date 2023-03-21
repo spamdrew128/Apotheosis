@@ -10,14 +10,14 @@
 #include "PST.h"
 
 typedef double Weight_t;
-Weight_t PSTWeights[NUM_PHASES][NUM_PIECES][NUM_SQUARES] = { 
+Weight_t PSTWeights[NUM_PHASES][NUM_PIECES][NUM_SQUARES] = { // PST from black perspective, mirror if white
     { KNIGHT_MG_PST, BISHOP_MG_PST, ROOK_MG_PST, QUEEN_MG_PST, PAWN_MG_PST, KING_MG_PST },
     { KNIGHT_EG_PST, BISHOP_EG_PST, ROOK_EG_PST, QUEEN_EG_PST, PAWN_EG_PST, KING_EG_PST },
 };
 
-Weight_t MaterialWeights[NUM_PHASES][NUM_PIECES - 1] = {
-    { knight_value, bishop_value, rook_value, queen_value, pawn_value },
-    { knight_value, bishop_value, rook_value, queen_value, pawn_value },
+Weight_t MaterialWeights[NUM_PHASES][NUM_PIECES] = {
+    { knight_value, bishop_value, rook_value, queen_value, pawn_value, king_value },
+    { knight_value, bishop_value, rook_value, queen_value, pawn_value, king_value },
 };
 
 typedef struct {
@@ -47,8 +47,39 @@ static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
     fclose(fp);
 }
 
-static double Evalutation(TEntry_t entry) {
+static void MaterialAndPSTComponent(
+    TEntry_t entry,
+    double* mgScore,
+    double* egScore
+)
+{
+    for(Piece_t p = 0; p < NUM_PIECES; p++) {
+        Bitboard_t whitePieces = entry.pieceBBs[p] & entry.all[white];
+        Bitboard_t blackPieces = entry.pieceBBs[p] & entry.all[black];
 
+        *mgScore += entry.pieceCount[p] * MaterialWeights[mg_phase][p];
+        *egScore += entry.pieceCount[p] * MaterialWeights[eg_phase][p];
+
+        while(whitePieces) {
+            Square_t sq = MIRROR(LSB(whitePieces));
+            *mgScore += PSTWeights[mg_phase][p][sq];
+            *egScore += PSTWeights[eg_phase][p][sq];
+            ResetLSB(&whitePieces);
+        }
+        while(blackPieces) {
+            Square_t sq = LSB(blackPieces);
+            *mgScore -= PSTWeights[mg_phase][p][sq];
+            *egScore -= PSTWeights[eg_phase][p][sq];
+            ResetLSB(&blackPieces);
+        }
+    }
+}
+
+static double Evalutation(TEntry_t entry) {
+    double mgScore = 0;
+    double egScore = 0;
+
+    MaterialAndPSTComponent(entry, &mgScore, &egScore);
 }
 
 void TuneParameters(const char* filename) {

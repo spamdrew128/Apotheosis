@@ -14,12 +14,7 @@ typedef struct {
 
     int pieceCount[NUM_PIECES];
     Bitboard_t all[2];
-    Bitboard_t knights;
-    Bitboard_t bishops;
-    Bitboard_t rooks;
-    Bitboard_t pawns;
-    Bitboard_t queens;
-    Bitboard_t kings;
+    Bitboard_t pieceBBs[NUM_PIECES];
     PositionResult_t positionResult;
 } TEntry_t;
 

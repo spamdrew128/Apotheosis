@@ -33,29 +33,26 @@ static void ContainerInit(TuningDatagenContainer_t* container) {
 }
 
 void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
-    tEntry->knights = empty_set;
-    tEntry->bishops = empty_set;
-    tEntry->rooks = empty_set;
-    tEntry->pawns = empty_set;
-    tEntry->queens = empty_set;
-    tEntry->kings = empty_set;
+    tEntry->pieceCount[knight] = empty_set;
+    tEntry->pieceCount[bishop] = empty_set;
+    tEntry->pieceCount[rook] = empty_set;
+    tEntry->pieceCount[pawn] = empty_set;
+    tEntry->pieceCount[queen] = empty_set;
+    tEntry->pieceCount[king] = empty_set;
 
     for(int c = 0; c < 2; c++) {
         tEntry->all[c] = boardInfo->allPieces[c];
-        tEntry->knights |= boardInfo->knights[c];
-        tEntry->bishops |= boardInfo->bishops[c];
-        tEntry->rooks |= boardInfo->rooks[c];
-        tEntry->pawns |= boardInfo->pawns[c];
-        tEntry->queens |= boardInfo->queens[c];
-        tEntry->kings |= boardInfo->kings[c];
+        tEntry->pieceCount[knight]  |= boardInfo->knights[c];
+        tEntry->pieceCount[bishop] |= boardInfo->bishops[c];
+        tEntry->pieceCount[rook] |= boardInfo->rooks[c];
+        tEntry->pieceCount[pawn] |= boardInfo->pawns[c];
+        tEntry->pieceCount[queen] |= boardInfo->queens[c];
+        tEntry->pieceCount[king] |= boardInfo->kings[c];
     }
 
-    tEntry->pieceCount[knight] = PopCount(tEntry->knights);
-    tEntry->pieceCount[bishop] = PopCount(tEntry->bishops);
-    tEntry->pieceCount[rook] = PopCount(tEntry->rooks);
-    tEntry->pieceCount[pawn] = PopCount(tEntry->pawns);
-    tEntry->pieceCount[queen] = PopCount(tEntry->queens);
-    tEntry->pieceCount[king] = PopCount(tEntry->kings);
+    for(Piece_t p = 0; p < NUM_PIECES; p++) {
+        tEntry->pieceCount[p] = PopCount(tEntry->pieceCount[p]);
+    }
 
     Phase_t midgame_phase = 
         tEntry->pieceCount[knight]*KNIGHT_PHASE_VALUE +

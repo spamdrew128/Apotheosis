@@ -8,19 +8,6 @@
 // all values are from black's perspective, becuase my scheme is flipped
 
 typedef uint8_t Phase_t;
-enum {
-    mg_phase,
-    eg_phase,
-    NUM_PHASES,
-    PHASE_MAX = 24,
-
-    KNIGHT_PHASE_VALUE = 1,
-    BISHOP_PHASE_VALUE = 1,
-    ROOK_PHASE_VALUE = 2,
-    QUEEN_PHASE_VALUE = 4,
-    PAWN_PHASE_VALUE = 0,
-    KING_PHASE_VALUE = 0,
-};
 
 // indexed by piece: knight, bishop, rook, queen, pawn, king
 #define GAMEPHASE_VALUES { \
