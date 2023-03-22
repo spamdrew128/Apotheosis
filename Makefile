@@ -1,7 +1,8 @@
 CC=gcc
 
-DEBUGFLAGS=-g -fsanitize=address
+DEBUGFLAGS=-g
 OPTFLAGS=-O3 -flto
+SAN=N
 CFLAGS=-Wall -std=c17 -march=native $(DEBUGFLAGS)
 CPPFLAGS=$(INCDIRS)
 
@@ -9,6 +10,10 @@ RELEASE=false
 
 ifeq ($(RELEASE), Y)
 	CFLAGS += -DNDEBUG
+endif
+
+ifeq ($(SAN), Y)
+	CFLAGS += -fsanitize=address
 endif
 
 ifeq ($(OS),Windows_NT)
