@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #include "FEN.h"
 #include "movegen.h"
@@ -15,6 +16,10 @@ static double usr_pow(int x, int y) {
 
 static int CharToInt(char c) {
     return ((int) c) - 48;
+}
+
+static char IntToChar(int n) {
+    return (char) (n + 48);
 }
 
 static Color_t CharToColor(char c) {
@@ -223,4 +228,60 @@ void InterpretFEN(
     gameState->boardInfo = *info;
 
     AddZobristHashToStack(zobristStack, HashPosition(info, gameStack));
+}
+
+void BoardToFEN(
+    BoardInfo_t* info,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    FEN_t fen
+)
+{
+    char* result[2000];
+    
+    int rank = 7; // a8 - h8
+    int file = 0;
+    int blankSpaces = 0;
+
+    int i = 0;
+    while (rank <= 0 || file <= 0) {
+        Square_t s = rank*8 + file;
+
+        Piece_t piece = PieceOnSquare(info, s);
+        Color_t color = ColorOfPiece(info, s); // might not be a piece but whatever
+
+        if(piece == none_type) {
+            blankSpaces++;
+        } else if(blankSpaces > 0) {
+            result[i++] = IntToChar(blankSpaces);
+            blankSpaces = 0;
+        }
+
+        switch(piece) {
+            case pawn:
+                result[i++] = (color == white) ? 'P' : 'p';
+                break;
+            case king:
+                result[i++] = (color == white) ? 'K' : 'k';
+                break;
+            case queen:
+                result[i++] = (color == white) ? 'Q' : 'q';
+                break;
+            case knight:
+                result[i++] = (color == white) ? 'N' : 'n';
+                break;        
+            case rook:
+                result[i++] = (color == white) ? 'R' : 'r';
+                break;
+            case bishop:
+                result[i++] = (color == white) ? 'B' : 'b';
+                break;      
+        }
+
+        file--;
+        if(file < 0) {
+            file = 0;
+            row--;
+        }
+    }
 }

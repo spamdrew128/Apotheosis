@@ -310,7 +310,7 @@ static void PrintUciInformation(
     Stopwatch_t* stopwatch
 )
 {
-    const char* scoreType = NO_MATE;
+    char* scoreType = NO_MATE;
     EvalScore_t scoreValue = searchResults.score;
 
     if(searchResults.score > MATE_THRESHOLD) {

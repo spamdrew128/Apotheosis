@@ -43,4 +43,6 @@ Bitboard_t AllHvSliders(BoardInfo_t* boardInfo, Color_t color);
 
 Bitboard_t AllD12Sliders(BoardInfo_t* boardInfo, Color_t color);
 
+Color_t ColorOfPiece(BoardInfo_t* boardInfo, Square_t square);
+
 #endif
