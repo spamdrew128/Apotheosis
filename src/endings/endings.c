@@ -13,6 +13,10 @@ static bool IsThreefoldRepetition(
     int searchStart = zobristStack->maxIndex - 2;
     int searchEnd = zobristStack->maxIndex - halfmoves;
 
+    if(searchEnd < 0) {
+        return false;
+    }
+
     int hashOccurances = 1; // starts at one because currentPositionHash counts!
     for(int i = searchStart; i >= searchEnd; i -= 2) {
         if(zobristStack->entries[i] == currentPositionHash) {
@@ -77,15 +81,15 @@ GameEndStatus_t CurrentGameEndStatus(
     }
 
     HalfmoveCount_t halfmoves = ReadHalfmoveClock(gameStack);
-    if(halfmoves >= 100) {
-        return draw;
-    }
-
     if(IsThreefoldRepetition(zobristStack, halfmoves)) {
         return draw;
     }
 
     if(IsInsufficientMaterialDraw(boardInfo)) {
+        return draw;
+    }
+
+    if(halfmoves >= 100) {
         return draw;
     }
 
