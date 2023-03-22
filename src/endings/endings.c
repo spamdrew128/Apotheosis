@@ -77,15 +77,15 @@ GameEndStatus_t CurrentGameEndStatus(
     }
 
     HalfmoveCount_t halfmoves = ReadHalfmoveClock(gameStack);
+    if(halfmoves >= 100) {
+        return draw;
+    }
+
     if(IsThreefoldRepetition(zobristStack, halfmoves)) {
         return draw;
     }
 
     if(IsInsufficientMaterialDraw(boardInfo)) {
-        return draw;
-    }
-
-    if(halfmoves >= 100) {
         return draw;
     }
 

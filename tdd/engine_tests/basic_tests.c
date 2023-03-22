@@ -15,7 +15,7 @@ enum {
 };
 
 static void ShouldFindM2() {
-    FEN_t fen = "r7/4n2p/1p4p1/6P1/2k2P2/1q6/7K/8 b - - 25 68";
+    FEN_t fen = "r7/4n2p/1p4p1/6P1/2k2P2/1q6/7K/8 b - - 0 68";
     InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
     
     UciSearchInfo_t uciSearchInfo;
