@@ -42,8 +42,8 @@ enum pieceTypes {
   queen,
   pawn,
   king,
-  NUM_PIECES,
-  none_type
+  none_type,
+  NUM_PIECES = 6,
 };
 
 typedef uint8_t Direction_t;

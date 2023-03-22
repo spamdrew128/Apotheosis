@@ -1,6 +1,7 @@
 #include <assert.h>
 
 #include "evaluation.h"
+#include "eval_constants.h"
 #include "PST.h"
 #include "util_macros.h"
 #include "legals.h"
