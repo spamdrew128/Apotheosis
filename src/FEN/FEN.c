@@ -278,10 +278,35 @@ void BoardToFEN(
                 break;      
         }
 
-        file--;
-        if(file < 0) {
+        file++;
+        if(file > 7) {
             file = 0;
-            row--;
+            rank--;
+            result[i++] = (row >= 0) ? '/' : ' ';
         }
     }
+
+    result[i++] = (info->colorToMove == white) ? 'w' : 'b';
+    result[i++] = ' ';
+
+    Bitboard_t whiteCastle = ReadCastleSquares(gameStack, white); // borgar
+    Bitboard_t blackCastle = ReadCastleSquares(gameStack, black);
+    if(whiteCastle || blackCastle) {
+        if(whiteCastle & white_kingside_castle_bb) {
+            result[i++] = 'K';
+        }
+        if(whiteCastle & white_queenside_castle_bb) {
+            result[i++] = 'Q';
+        }
+        if(blackCastle & black_kingside_castle_bb) {
+            result[i++] = 'k';
+        }
+        if(blackCastle & black_queenside_castle_bb) {
+            result[i++] = 'q';
+        }
+    } else {
+        result[i++] = '-';
+    }
+
+    result[i++] = ' ';
 }

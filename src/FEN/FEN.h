@@ -5,6 +5,7 @@
 #include "board_info.h"
 #include "game_state.h"
 #include "zobrist.h"
+#include "board_constants.h"
 
 typedef const char* FEN_t;
 
