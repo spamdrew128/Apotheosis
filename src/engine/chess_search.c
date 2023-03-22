@@ -372,7 +372,7 @@ SearchResults_t Search(
             0
         );
 
-        if(!searchInfo.outOfTime) {
+        if(!searchInfo.outOfTime || (currentDepth == 1)) {
             searchResults.bestMove = PvTableBestMove(&searchInfo.pvTable);
             searchResults.score = score;
 
