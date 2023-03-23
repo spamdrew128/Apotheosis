@@ -99,43 +99,6 @@ bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo
     return true;
 }
 
-static void MoveStructToUciString(Move_t move, char* moveString, size_t bufferSize) {
-    memset(moveString, '\0', bufferSize* sizeof(char));
-
-    Square_t fromSquare = ReadFromSquare(move);
-    int fromRow = fromSquare / 8;
-    int fromCol = fromSquare % 8;
-
-    Square_t toSquare = ReadToSquare(move);
-    int toRow = toSquare / 8;
-    int toCol = toSquare % 8;
-
-    moveString[0] = ColToLetterChar(fromCol);
-    moveString[1] = RowToNumberChar(fromRow);
-    moveString[2] = ColToLetterChar(toCol);
-    moveString[3] = RowToNumberChar(toRow);
-    
-    if(ReadSpecialFlag(move) == promotion_flag) {
-        switch(ReadPromotionPiece(move))
-        {
-            case knight:
-                moveString[4] = 'n';
-                break;
-            case bishop:
-                moveString[4] = 'b';
-                break;
-            case rook:
-                moveString[4] = 'r';
-                break;
-            case queen:
-                moveString[4] = 'q';
-                break;
-            default:
-                break;
-        }
-    }
-}
-
 static void SkipToNextCharacter(char input[BUFFER_SIZE], int* i) {
     while(input[*i] == ' ' || input[*i] == '\n') {
         (*i)++;

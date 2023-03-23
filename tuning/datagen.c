@@ -141,8 +141,9 @@ static void GameLoop(UciApplicationData_t* data, FILE* fp) {
             &data->boardInfo,
             &data->gameStack,
             &data->zobristStack,
-            false
+            true
         );
+        printf("\n");
 
         if(searchResults.score >= MATE_THRESHOLD) {
             // opponent is victim
