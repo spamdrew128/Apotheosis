@@ -77,7 +77,8 @@ static void WriteContainerToFile(
     }
 
     for(int i = 0; i < container->numPositions; i++) {
-        fprintf(fp, "%s %s\n", container->fenList[i], positionResult);
+        FEN_t fen = container->fenList[i];
+        fprintf(fp, "%s %s\n", fen, positionResult);
     }
 
     if(StringsMatch(positionResult, POSITION_WIN)) {
