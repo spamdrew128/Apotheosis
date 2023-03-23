@@ -114,7 +114,7 @@ static void ToFENWorks() {
         InterpretFEN(fen, &info, &gameStack, &zobristStack);
         char result[2000];
         BoardToFEN(&info, &gameStack, result);
-        
+
         if(!FENsMatch(fen, result)) {
             success = false;
             break;

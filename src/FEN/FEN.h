@@ -22,4 +22,6 @@ void BoardToFEN(
     char result[2000]
 );
 
+void PrintFEN(BoardInfo_t* info, GameStack_t* gameStack);
+
 #endif

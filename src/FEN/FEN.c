@@ -362,3 +362,9 @@ void BoardToFEN(
     result[i++] = '0';
     result[i++] = '\0';
 }
+
+void PrintFEN(BoardInfo_t* info, GameStack_t* gameStack) {
+    char result[2000];
+    BoardToFEN(info, gameStack, result);
+    printf("%s\n", result);
+}
