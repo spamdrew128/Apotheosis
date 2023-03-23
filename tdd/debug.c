@@ -4,6 +4,7 @@
 
 #include "debug.h"
 #include "lookup.h"
+#include "string_utils.h"
 
 static void FillBoardArray(char boardArray[], Bitboard_t b, char fillChar) {
     while(b) {
@@ -109,23 +110,6 @@ Bitboard_t CreateBitboard(int numOccupied, ...) {
     } 
 
     return bitboard;
-}
-
-static char RowToNumber(int row) {
-    return (char)(row + 49);
-}
-
-static char ColToLetter(int col) {
-    return (char)(col + 97);
-}
-
-static void SquareToString(Square_t square, char string[3]) {
-    int row = square / 8;
-    int col = square % 8;
-
-    string[0] = ColToLetter(col);
-    string[1] = RowToNumber(row);
-    string[2] = '\0';
 }
 
 static void PrintSingleTypeMoves(Move_t move, BoardInfo_t* info, Piece_t type, const char* typeText) {

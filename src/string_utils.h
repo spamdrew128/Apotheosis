@@ -7,4 +7,18 @@
 
 bool StringsMatch(const char* s1, const char* s2);
 
+char RowToNumberChar(int row);
+
+char ColToLetterChar(int col);
+
+int RowCharToInt(char row);
+
+int ColCharToInt(char col);
+
+int CharToInt(char c);
+
+char IntToChar(int n);
+
+void SquareToString(Square_t square, char string[3]);
+
 #endif

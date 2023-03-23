@@ -5,6 +5,7 @@
 #include "FEN.h"
 #include "movegen.h"
 #include "util_macros.h"
+#include "string_utils.h"
 
 static double usr_pow(int x, int y) {
     double result = 1;
@@ -13,14 +14,6 @@ static double usr_pow(int x, int y) {
     }
 
     return result;
-}
-
-static int CharToInt(char c) {
-    return ((int) c) - 48;
-}
-
-static char IntToChar(int n) {
-    return (char) (n + 48);
 }
 
 static Color_t CharToColor(char c) {
@@ -59,34 +52,9 @@ static void UpdateCastlingRights(GameState_t* state, char c) {
     }
 }
 
-static char RowCharToNumber(char row) {
-    return (int)row - 49;
-}
-
-static char ColCharToNumber(char col) {
-    return (int)col - 97;
-}
-
-static char RowToNumber(int row) {
-    return (char)(row + 49);
-}
-
-static char ColToLetter(int col) {
-    return (char)(col + 97);
-}
-
-static void SquareToString(Square_t square, char string[3]) {
-    int row = square / 8;
-    int col = square % 8;
-
-    string[0] = ColToLetter(col);
-    string[1] = RowToNumber(row);
-    string[2] = '\0';
-}
-
 static Bitboard_t SquareCharsToBitboard(char col, char row) {
-    int rowNum = RowCharToNumber(row);
-    int ColNum = ColCharToNumber(col);
+    int rowNum = RowCharToInt(row);
+    int ColNum = ColCharToInt(col);
 
     Square_t square = rowNum*8 + ColNum;
     return CalculateSingleBitset(square);

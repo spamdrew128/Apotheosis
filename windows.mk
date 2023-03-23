@@ -46,6 +46,7 @@ INCDIRS:= \
 -I $(TUNING)\.
 
 COMMON_CFILES= \
+$(SRC)\string_utils.c \
 $(BITBOARDS)\bitboards.c \
 $(BITBOARDS)\magic.c \
 $(ENDINGS)\endings.c \

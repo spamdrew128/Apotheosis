@@ -13,6 +13,7 @@
 #include "util_macros.h"
 #include "tuner.h"
 #include "datagen.h"
+#include "string_utils.h"
 
 #define BUFFER_SIZE 50000
 
@@ -41,26 +42,6 @@ enum {
     signal_begin_datagen,
     signal_begin_tuning,
 };
-
-static char RowToNumberChar(int row) {
-    return (char)(row + 49);
-}
-
-static char ColToLetterChar(int col) {
-    return (char)(col + 97);
-}
-
-static int RowCharToInt(char row) {
-    return (int)row - 49;
-}
-
-static int ColCharToInt(char col) {
-    return (int)col - 97;
-}
-
-static int NumCharToInt(char numChar) {
-    return (int)numChar - 48;
-}
  
 void UciApplicationDataInit(UciApplicationData_t* data) {
     InterpretFEN(START_FEN, &data->boardInfo, &data->gameStack, &data->zobristStack);
@@ -182,10 +163,6 @@ static void SkipNextWord(char input[BUFFER_SIZE], int* i) {
     SkipToNextCharacter(input, i);
 }
 
-static bool StringsMatch(const char* s1, const char* s2) {
-    return !strcmp(s1, s2);
-}
-
 static UciSignal_t InterpretWord(const char* word) {
     if (StringsMatch(word, "uci")) {
         return signal_uci;
@@ -291,7 +268,7 @@ uint32_t NumberStringToNumber(const char* numString) {
     Milliseconds_t result = 0;
     int multiplier = 1;
     for(int i = (len-1); i >=0; i--) {
-        result += NumCharToInt(numString[i]) * multiplier;
+        result += CharToInt(numString[i]) * multiplier;
         multiplier *= 10;
     }
 
