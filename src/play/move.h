@@ -2,7 +2,10 @@
 #define __MOVE_H__
 
 #include <stdint.h>
+#include <stdio.h>
+
 #include "board_constants.h"
+#include "string_utils.h"
 
 typedef struct {
     uint16_t data;
@@ -31,5 +34,7 @@ void WritePromotionPiece(Move_t* move, Piece_t piece);
 void WriteSpecialFlag(Move_t* move, SpecialFlag_t flag);
 
 bool CompareMoves(Move_t m1, Move_t m2);
+
+void PrintMove(Move_t move);
 
 #endif

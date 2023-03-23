@@ -21,4 +21,6 @@ char IntToChar(int n);
 
 void SquareToString(Square_t square, char string[3]);
 
+char PieceToChar(Piece_t piece);
+
 #endif

@@ -38,3 +38,23 @@ void SquareToString(Square_t square, char string[3]) {
     string[1] = RowToNumberChar(row);
     string[2] = '\0';
 }
+
+char PieceToChar(Piece_t piece) {
+    switch (piece)
+    {
+        case knight:
+            return 'n';
+        case bishop:
+            return 'b';
+        case king:
+            return 'k';
+        case rook:
+            return 'r';
+        case pawn:
+            return 'p';
+        case queen:
+            return 'q';
+    }
+
+    return ' ';
+}

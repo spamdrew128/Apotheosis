@@ -56,3 +56,17 @@ void WriteSpecialFlag(Move_t* move, SpecialFlag_t flag) {
 bool CompareMoves(Move_t m1, Move_t m2) {
     return m1.data == m2.data;
 }
+
+void PrintMove(Move_t move) {
+    char fromText[3];
+    char toText[3];
+    SquareToString(ReadFromSquare(move), fromText);
+    SquareToString(ReadToSquare(move), toText);
+    printf("%s%s", fromText, toText);
+
+    if(ReadSpecialFlag(move) == promotion_flag) {
+        printf("%c", PieceToChar(ReadPromotionPiece(move)));
+    }
+
+    printf("\n");
+}

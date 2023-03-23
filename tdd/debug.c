@@ -136,27 +136,7 @@ void PrintMoveList(MoveEntryList_t* moveList, BoardInfo_t* info) {
     }
 }
 
-static char PieceToChar(Piece_t piece) {
-    switch (piece)
-    {
-        case knight:
-            return 'n';
-        case bishop:
-            return 'b';
-        case king:
-            return 'k';
-        case rook:
-            return 'r';
-        case pawn:
-            return 'p';
-        case queen:
-            return 'q';
-    }
-
-    return ' ';
-}
-
-void PrintMove(Move_t move, bool hasNewline) {
+void DebugPrintMove(Move_t move, bool hasNewline) {
     char fromText[3];
     char toText[3];
     SquareToString(ReadFromSquare(move), fromText);

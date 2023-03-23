@@ -33,7 +33,7 @@ void PrintChessboard(BoardInfo_t* info);
 
 void PrintMoveList(MoveEntryList_t* moveList, BoardInfo_t* info);
 
-void PrintMove(Move_t move, bool hasNewline);
+void DebugPrintMove(Move_t move, bool hasNewline);
 
 Bitboard_t CreateBitboard(int numOccupied, ...);
 
