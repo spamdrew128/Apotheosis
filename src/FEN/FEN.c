@@ -368,3 +368,19 @@ void PrintFEN(BoardInfo_t* info, GameStack_t* gameStack) {
     BoardToFEN(info, gameStack, result);
     printf("%s\n", result);
 }
+
+bool FENsMatch(FEN_t expected, FEN_t actual) {
+    int len = strlen(expected);
+    int finalIndex = len-1;
+    while(actual[finalIndex] != ' ') {
+        finalIndex--;
+    }
+
+    for(int i = 0; i < finalIndex; i++) {
+        if(actual[i] != expected[i]) {
+            printf("Expected %s, got %s\n", expected, actual);
+            return false;
+        }
+    }
+    return true;
+}

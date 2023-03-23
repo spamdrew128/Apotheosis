@@ -88,22 +88,6 @@ static void ComplexFENInterpretedCorrectly() {
     PrintResults(CompareInfo(&info, &expectedInfo) && CompareState(&expectedState, &gameStack));
 }
 
-static bool FENsMatch(FEN_t expected, FEN_t actual) {
-    int len = strlen(expected);
-    int finalIndex = len-1;
-    while(actual[finalIndex] != ' ') {
-        finalIndex--;
-    }
-
-    for(int i = 0; i < finalIndex; i++) {
-        if(actual[i] != expected[i]) {
-            printf("Expected %s, got %s\n", expected, actual);
-            return false;
-        }
-    }
-    return true;
-}
-
 static void ToFENWorks() {
     FEN_t fenList[] = { PERFT_TEST_TABLE(EXPAND_AS_FEN_ARRAY) };
     BoardInfo_t info;

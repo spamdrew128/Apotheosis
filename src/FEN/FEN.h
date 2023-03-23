@@ -24,4 +24,6 @@ void BoardToFEN(
 
 void PrintFEN(BoardInfo_t* info, GameStack_t* gameStack);
 
+bool FENsMatch(FEN_t expected, FEN_t actual);
+
 #endif
