@@ -31,6 +31,11 @@ static void ContainerInit(TuningDatagenContainer_t* container) {
     container->numPositions = 0;
 }
 
+static void MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, ZobristStack_t* zobristStack) {
+    MakeMove(boardInfo, gameStack, move);
+    AddZobristHashToStack(zobristStack, HashPosition(boardInfo, gameStack));
+}
+
 void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
     tEntry->pieceBBs[knight] = empty_set;
     tEntry->pieceBBs[bishop] = empty_set;
@@ -153,8 +158,7 @@ static void GameLoop(UciApplicationData_t* data, FILE* fp) {
 
         UpdateContainer(&container, data);
 
-        MakeMove(&data->boardInfo, &data->gameStack, searchResults.bestMove);
-        AddZobristHashToStack(&data->zobristStack, HashPosition(&data->boardInfo, &data->gameStack));
+        MakeAndAddHash(&data->boardInfo, &data->gameStack, searchResults.bestMove, &data->zobristStack);
     }
 }
 
@@ -171,8 +175,7 @@ static bool RandomMoves(UciApplicationData_t* data, Generator_t* generator, Ply_
         MoveIndex_t index = RandUnsigned64(generator) % (moveList.maxIndex + 1);
 
         Move_t move = moveList.moves[index].move;
-        MakeMove(&data->boardInfo, &data->gameStack, move);
-        AddZobristHashToStack(&data->zobristStack, HashPosition(&data->boardInfo, &data->gameStack));
+        MakeAndAddHash(&data->boardInfo, &data->gameStack, move, &data->zobristStack);
     }
 
     return true;
