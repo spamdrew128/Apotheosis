@@ -48,9 +48,7 @@ static void UpdateContainer(TuningDatagenContainer_t* container, UciApplicationD
     );
 
     if(staticEval == qsearchEval) {
-        char buffer[2000];
-        BoardToFEN(&data->boardInfo, &data->gameStack, buffer);
-        container->fenList[container->numPositions] = buffer;
+        BoardToFEN(&data->boardInfo, &data->gameStack, container->fenBuffers[container->numPositions]);
         container->numPositions++;
         storedPositions++;
     }
@@ -77,7 +75,8 @@ static void WriteContainerToFile(
     }
 
     for(int i = 0; i < container->numPositions; i++) {
-        FEN_t fen = container->fenList[i];
+        FEN_t fen = container->fenBuffers[i];
+        printf("%s\n", fen);
         fprintf(fp, "%s %s\n", fen, positionResult);
     }
 
@@ -115,9 +114,8 @@ static void GameLoop(UciApplicationData_t* data, FILE* fp) {
             &data->boardInfo,
             &data->gameStack,
             &data->zobristStack,
-            true
+            false
         );
-        printf("\n");
 
         if(searchResults.score >= MATE_THRESHOLD) {
             // opponent is victim
