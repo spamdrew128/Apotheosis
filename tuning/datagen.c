@@ -15,7 +15,7 @@
 
 enum {
     NUM_GAMES = 25,
-    TIME_PER_MOVE = 50,
+    TIME_PER_MOVE = 100,
     RAND_PLY_BASE = 7,
 };
 
