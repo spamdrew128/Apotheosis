@@ -25,9 +25,44 @@ Weight_t MaterialWeights[NUM_PHASES][NUM_PIECES] = {
 double K = 0.0075;
 
 typedef struct {
+    Phase_t phase;
+    
+    Bitboard_t all[2];
+    Bitboard_t pieceBBs[NUM_PIECES];
+    double result;
+} TEntry_t;
+
+typedef struct {
     TEntry_t* entryList;
     int numEntries;
 } TuningData_t;
+
+void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
+    tEntry->pieceBBs[knight] = empty_set;
+    tEntry->pieceBBs[bishop] = empty_set;
+    tEntry->pieceBBs[rook] = empty_set;
+    tEntry->pieceBBs[pawn] = empty_set;
+    tEntry->pieceBBs[queen] = empty_set;
+    tEntry->pieceBBs[king] = empty_set;
+
+    for(int c = 0; c < 2; c++) {
+        tEntry->all[c] = boardInfo->allPieces[c];
+        tEntry->pieceBBs[knight] |= boardInfo->knights[c];
+        tEntry->pieceBBs[bishop] |= boardInfo->bishops[c];
+        tEntry->pieceBBs[rook] |= boardInfo->rooks[c];
+        tEntry->pieceBBs[pawn] |= boardInfo->pawns[c];
+        tEntry->pieceBBs[queen] |= boardInfo->queens[c];
+        tEntry->pieceBBs[king] |= boardInfo->kings[c];
+    }
+
+    Phase_t midgame_phase = 
+        PopCount(tEntry->pieceBBs[knight])*KNIGHT_PHASE_VALUE +
+        PopCount(tEntry->pieceBBs[bishop])*BISHOP_PHASE_VALUE +
+        PopCount(tEntry->pieceBBs[rook])*ROOK_PHASE_VALUE +
+        PopCount(tEntry->pieceBBs[queen])*QUEEN_PHASE_VALUE;
+
+    tEntry->phase = MIN(midgame_phase, PHASE_MAX);
+}
 
 static int EntriesInFile(FILE* fp) {
     fseek(fp, 0L, SEEK_END);
@@ -105,7 +140,7 @@ static double Cost(TuningData_t* tuningData) {
         TEntry_t entry = tuningData->entryList[i];
         double E = Evaluation(entry);
 
-        double error = entry.positionResult - Sigmoid(E);
+        double error = entry.result - Sigmoid(E);
         totalError += error * error;
     }
 

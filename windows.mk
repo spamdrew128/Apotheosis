@@ -126,4 +126,4 @@ $(DEBUG_EXE): $(D_OBJECTS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $^
 
 clean:
-	del /S *.exe *.o *bin && cls
+	del /S *.exe *.o *bin *txt && cls

@@ -126,4 +126,4 @@ $(DEBUG_EXE): $(D_OBJECTS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $^
 
 clean:
-	rm $(EXE) $(DEBUG_EXE) $(OBJECTS) $(D_OBJECTS) *bin
+	rm $(EXE) $(DEBUG_EXE) $(OBJECTS) $(D_OBJECTS) *bin *txt

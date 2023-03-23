@@ -12,6 +12,7 @@
 #include "movegen.h"
 #include "make_and_unmake.h"
 #include "chess_search.h"
+#include "string_utils.h"
 
 enum {
     NUM_GAMES = 25,
@@ -36,33 +37,6 @@ static void MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_
     AddZobristHashToStack(zobristStack, HashPosition(boardInfo, gameStack));
 }
 
-void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
-    tEntry->pieceBBs[knight] = empty_set;
-    tEntry->pieceBBs[bishop] = empty_set;
-    tEntry->pieceBBs[rook] = empty_set;
-    tEntry->pieceBBs[pawn] = empty_set;
-    tEntry->pieceBBs[queen] = empty_set;
-    tEntry->pieceBBs[king] = empty_set;
-
-    for(int c = 0; c < 2; c++) {
-        tEntry->all[c] = boardInfo->allPieces[c];
-        tEntry->pieceBBs[knight] |= boardInfo->knights[c];
-        tEntry->pieceBBs[bishop] |= boardInfo->bishops[c];
-        tEntry->pieceBBs[rook] |= boardInfo->rooks[c];
-        tEntry->pieceBBs[pawn] |= boardInfo->pawns[c];
-        tEntry->pieceBBs[queen] |= boardInfo->queens[c];
-        tEntry->pieceBBs[king] |= boardInfo->kings[c];
-    }
-
-    Phase_t midgame_phase = 
-        PopCount(tEntry->pieceBBs[knight])*KNIGHT_PHASE_VALUE +
-        PopCount(tEntry->pieceBBs[bishop])*BISHOP_PHASE_VALUE +
-        PopCount(tEntry->pieceBBs[rook])*ROOK_PHASE_VALUE +
-        PopCount(tEntry->pieceBBs[queen])*QUEEN_PHASE_VALUE;
-
-    tEntry->phase = MIN(midgame_phase, PHASE_MAX);
-}
-
 static void UpdateContainer(TuningDatagenContainer_t* container, UciApplicationData_t* data) {
     EvalScore_t staticEval = ScoreOfPosition(&data->boardInfo);
     EvalScore_t qsearchEval = SimpleQsearch(
@@ -74,7 +48,9 @@ static void UpdateContainer(TuningDatagenContainer_t* container, UciApplicationD
     );
 
     if(staticEval == qsearchEval) {
-        FillTEntry(&container->entryList[container->numPositions], &data->boardInfo);
+        char buffer[2000];
+        BoardToFEN(&data->boardInfo, &data->gameStack, buffer);
+        container->fenList[container->numPositions] = buffer;
         container->numPositions++;
         storedPositions++;
     }
@@ -87,7 +63,7 @@ static void WriteContainerToFile(
     FILE* fp
 )
 {
-    PositionResult_t positionResult;
+    char* positionResult;
     switch (status) {
     case checkmate:
         positionResult = (victim == black) ? POSITION_WIN : POSITION_LOSS;
@@ -101,15 +77,12 @@ static void WriteContainerToFile(
     }
 
     for(int i = 0; i < container->numPositions; i++) {
-        TEntry_t* entry = &container->entryList[i];
-        entry->positionResult = positionResult;
-
-        // fwrite(entry, sizeof(*entry), 1, fp);
+        fprintf(fp, "%s %s\n", container->fenList[i], positionResult);
     }
 
-    if(positionResult == POSITION_WIN) {
+    if(StringsMatch(positionResult, POSITION_WIN)) {
         winCount++;
-    } else if(positionResult == POSITION_LOSS) {
+    } else if(StringsMatch(positionResult, POSITION_LOSS)) {
         lossCount++;
     } else {
         drawCount++;
