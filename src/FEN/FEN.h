@@ -16,4 +16,10 @@ void InterpretFEN(
     ZobristStack_t* zobristStack
 );
 
+void BoardToFEN(
+    BoardInfo_t* info,
+    GameStack_t* gameStack,
+    char result[2000]
+);
+
 #endif

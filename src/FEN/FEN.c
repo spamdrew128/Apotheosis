@@ -250,8 +250,7 @@ void InterpretFEN(
 void BoardToFEN(
     BoardInfo_t* info,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack,
-    char result[2000];
+    char result[2000]
 )
 {
     int rank = 7; // a8 - h8
