@@ -4,6 +4,7 @@
 
 #include "FEN.h"
 #include "movegen.h"
+#include "util_macros.h"
 
 static double usr_pow(int x, int y) {
     double result = 1;
@@ -258,7 +259,7 @@ void BoardToFEN(
     int blankSpaces = 0;
 
     int i = 0;
-    while (rank <= 0 || file <= 0) {
+    while (true) { // probably bad practice but I'm fed up with life.
         Square_t s = rank*8 + file;
 
         Piece_t piece = PieceOnSquare(info, s);
@@ -296,7 +297,17 @@ void BoardToFEN(
         if(file > 7) {
             file = 0;
             rank--;
-            result[i++] = (rank >= 0) ? '/' : ' ';
+            if(blankSpaces > 0) {
+                result[i++] = IntToChar(blankSpaces);
+                blankSpaces = 0;
+            }
+
+            if(rank >= 0) {
+                result[i++] = '/';
+            } else {
+                result[i++] = ' ';
+                break;
+            }
         }
     }
 
@@ -343,6 +354,7 @@ void BoardToFEN(
     int ind = 0;
     while(halfmoveBuffer[ind] != '\0') {
         result[i++] = halfmoveBuffer[ind];
+        ind++;
     }
 
     result[i++] = ' ';
