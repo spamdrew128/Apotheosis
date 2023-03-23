@@ -104,7 +104,7 @@ static void WriteContainerToFile(
         TEntry_t* entry = &container->entryList[i];
         entry->positionResult = positionResult;
 
-        fwrite(entry, sizeof(*entry), 1, fp);
+        // fwrite(entry, sizeof(*entry), 1, fp);
     }
 
     if(positionResult == POSITION_WIN) {
