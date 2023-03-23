@@ -219,7 +219,7 @@ void InterpretFEN(
 void BoardToFEN(
     BoardInfo_t* info,
     GameStack_t* gameStack,
-    char result[2000]
+    char result[FEN_BUFFER_SIZE]
 )
 {
     int rank = 7; // a8 - h8
@@ -332,7 +332,7 @@ void BoardToFEN(
 }
 
 void PrintFEN(BoardInfo_t* info, GameStack_t* gameStack) {
-    char result[2000];
+    char result[FEN_BUFFER_SIZE];
     BoardToFEN(info, gameStack, result);
     printf("%s\n", result);
 }

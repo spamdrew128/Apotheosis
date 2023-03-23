@@ -96,7 +96,7 @@ static void ToFENWorks() {
     for(int i = 0; i < NUM_PERFT_ENTRIES; i++) {
         FEN_t fen = fenList[i];
         InterpretFEN(fen, &info, &gameStack, &zobristStack);
-        char result[2000];
+        char result[FEN_BUFFER_SIZE];
         BoardToFEN(&info, &gameStack, result);
 
         if(!FENsMatch(fen, result)) {

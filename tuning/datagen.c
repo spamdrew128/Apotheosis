@@ -15,7 +15,7 @@
 #include "string_utils.h"
 
 enum {
-    NUM_GAMES = 5000,
+    NUM_GAMES = 15000,
     TIME_PER_MOVE = 100,
     RAND_PLY_BASE = 7,
 };
@@ -33,6 +33,8 @@ static void ContainerInit(TuningDatagenContainer_t* container) {
 }
 
 static void MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, ZobristStack_t* zobristStack) {
+    PrintMove(move, false);
+    printf(" ");
     MakeMove(boardInfo, gameStack, move);
     AddZobristHashToStack(zobristStack, HashPosition(boardInfo, gameStack));
 }
@@ -74,6 +76,8 @@ static void WriteContainerToFile(
         return;
     }
 
+    printf("\n%s\n\n", positionResult);
+
     for(int i = 0; i < container->numPositions; i++) {
         FEN_t fen = container->fenBuffers[i];
         fprintf(fp, "%s %s\n", fen, positionResult);
@@ -113,7 +117,7 @@ static void GameLoop(UciApplicationData_t* data, FILE* fp) {
             &data->boardInfo,
             &data->gameStack,
             &data->zobristStack,
-            true
+            false
         );
 
         if(searchResults.score >= MATE_THRESHOLD) {
@@ -149,7 +153,7 @@ static bool RandomMoves(UciApplicationData_t* data, Generator_t* generator, Ply_
         Move_t move = moveList.moves[index].move;
         MakeAndAddHash(&data->boardInfo, &data->gameStack, move, &data->zobristStack);
     }
-
+    printf("\n");
     return true;
 }
 
@@ -159,7 +163,7 @@ void GenerateData(const char* filename) {
     UciApplicationData_t data;
 
     Generator_t generator;
-    InitRNG(&generator, false);
+    InitRNG(&generator, true);
 
     int percentComplete = -1;
     for(int i = 0; i < NUM_GAMES; i++) {

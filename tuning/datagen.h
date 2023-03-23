@@ -11,7 +11,7 @@
 #define POSITION_LOSS "\"0-1\";"
 
 typedef struct {
-    char fenBuffers[2048][2000];
+    char fenBuffers[2048][FEN_BUFFER_SIZE];
     int numPositions;
 } TuningDatagenContainer_t;
 

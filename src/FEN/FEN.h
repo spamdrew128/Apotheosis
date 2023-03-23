@@ -8,6 +8,7 @@
 #include "board_constants.h"
 
 typedef const char* FEN_t;
+#define FEN_BUFFER_SIZE 100
 
 void InterpretFEN(
     FEN_t fen,
@@ -19,7 +20,7 @@ void InterpretFEN(
 void BoardToFEN(
     BoardInfo_t* info,
     GameStack_t* gameStack,
-    char result[2000]
+    char result[FEN_BUFFER_SIZE]
 );
 
 void PrintFEN(BoardInfo_t* info, GameStack_t* gameStack);
