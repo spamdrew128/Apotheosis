@@ -35,6 +35,6 @@ void WriteSpecialFlag(Move_t* move, SpecialFlag_t flag);
 
 bool CompareMoves(Move_t m1, Move_t m2);
 
-void PrintMove(Move_t move);
+void PrintMove(Move_t move, bool hasNewline);
 
 #endif

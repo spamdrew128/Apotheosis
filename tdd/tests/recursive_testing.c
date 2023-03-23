@@ -53,7 +53,7 @@ static void UnmakeTest(BoardInfo_t* boardInfo, int depth) {
 
         if(!UnmakeSuccess(boardInfo, &initialInfo, &initalState)) {
             PrintChessboard(&initialInfo);
-            DebugPrintMove(move, true);
+            PrintMove(move, true);
             PrintChessboard(boardInfo);
             printf("test number %lld\n", tests);
             assert(false);
@@ -91,7 +91,7 @@ static void _SplitPERFTHelper(BoardInfo_t* boardInfo, int depth, PerftCount_t* c
 }
 
 static void PrintSplitPerftResults(Move_t move, PerftCount_t count) {
-    DebugPrintMove(move, false);
+    PrintMove(move, false);
     printf(" - %lld\n", count);
 }
 

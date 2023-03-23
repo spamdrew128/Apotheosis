@@ -57,7 +57,7 @@ bool CompareMoves(Move_t m1, Move_t m2) {
     return m1.data == m2.data;
 }
 
-void PrintMove(Move_t move) {
+void PrintMove(Move_t move, bool hasNewline) {
     char fromText[3];
     char toText[3];
     SquareToString(ReadFromSquare(move), fromText);
@@ -67,6 +67,7 @@ void PrintMove(Move_t move) {
     if(ReadSpecialFlag(move) == promotion_flag) {
         printf("%c", PieceToChar(ReadPromotionPiece(move)));
     }
-
-    printf("\n");
+    if(hasNewline) {
+        printf("\n");
+    }
 }

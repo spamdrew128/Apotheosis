@@ -136,21 +136,6 @@ void PrintMoveList(MoveEntryList_t* moveList, BoardInfo_t* info) {
     }
 }
 
-void DebugPrintMove(Move_t move, bool hasNewline) {
-    char fromText[3];
-    char toText[3];
-    SquareToString(ReadFromSquare(move), fromText);
-    SquareToString(ReadToSquare(move), toText);
-    printf("%s%s", fromText, toText);
-
-    if(ReadSpecialFlag(move) == promotion_flag) {
-        printf("%c", PieceToChar(ReadPromotionPiece(move)));
-    }
-    if(hasNewline) {
-        printf("\n");
-    }
-}
-
 void AddGameStateToStack(GameState_t stateToAdd, GameStack_t* stack) {
     GameState_t* gameState = GetEmptyNextGameState(stack);
     *gameState = stateToAdd;

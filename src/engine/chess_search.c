@@ -383,6 +383,11 @@ SearchResults_t Search(
 
     } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
 
+    if(printUciInfo) {
+        printf("bestmove ");
+        PrintMove(searchResults.bestMove, true);
+    }
+
     return searchResults;
 }
 

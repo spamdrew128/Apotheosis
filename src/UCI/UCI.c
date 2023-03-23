@@ -277,20 +277,13 @@ uint32_t NumberStringToNumber(const char* numString) {
 
 static void GetSearchResults(UciSearchInfo_t* uciSearchInfo, UciApplicationData_t* applicationData)
 {
-    SearchResults_t searchResults = 
-        Search(
-            uciSearchInfo,
-            &applicationData->boardInfo,
-            &applicationData->gameStack,
-            &applicationData->zobristStack,
-            true
-        );
-        
-    char moveString[BUFFER_SIZE];
-    MoveStructToUciString(searchResults.bestMove, moveString, BUFFER_SIZE);
-
-    printf(BESTMOVE);
-    printf(" %s\n", moveString);
+    Search(
+        uciSearchInfo,
+        &applicationData->boardInfo,
+        &applicationData->gameStack,
+        &applicationData->zobristStack,
+        true
+    );
 }
 
 void InterpretGoArguments(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* searchInfo) {
@@ -498,10 +491,9 @@ void SendPvInfo(PvTable_t* pvTable) {
     PvLength_t variationLength = pvTable->pvLength[0];
     printf(" pv");
 
-    char moveString[6];
     for(int i = 0; i < variationLength; i++) {
         Move_t move = pvTable->moveMatrix[0][i];
-        MoveStructToUciString(move, moveString, 6);
-        printf(" %s", moveString);
+        printf(" ");
+        PrintMove(move, false);
     }
 }
