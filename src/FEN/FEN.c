@@ -66,6 +66,23 @@ static char ColCharToNumber(char col) {
     return (int)col - 97;
 }
 
+static char RowToNumber(int row) {
+    return (char)(row + 49);
+}
+
+static char ColToLetter(int col) {
+    return (char)(col + 97);
+}
+
+static void SquareToString(Square_t square, char string[3]) {
+    int row = square / 8;
+    int col = square % 8;
+
+    string[0] = ColToLetter(col);
+    string[1] = RowToNumber(row);
+    string[2] = '\0';
+}
+
 static Bitboard_t SquareCharsToBitboard(char col, char row) {
     int rowNum = RowCharToNumber(row);
     int ColNum = ColCharToNumber(col);
@@ -234,11 +251,9 @@ void BoardToFEN(
     BoardInfo_t* info,
     GameStack_t* gameStack,
     ZobristStack_t* zobristStack,
-    FEN_t fen
+    char result[2000];
 )
 {
-    char* result[2000];
-    
     int rank = 7; // a8 - h8
     int file = 0;
     int blankSpaces = 0;
@@ -282,7 +297,7 @@ void BoardToFEN(
         if(file > 7) {
             file = 0;
             rank--;
-            result[i++] = (row >= 0) ? '/' : ' ';
+            result[i++] = (rank >= 0) ? '/' : ' ';
         }
     }
 
@@ -309,4 +324,30 @@ void BoardToFEN(
     }
 
     result[i++] = ' ';
+
+    if(ReadEnPassant(gameStack)) {
+        Square_t epSquare = LSB(ReadEnPassant(gameStack));
+        char epString[3];
+        SquareToString(epSquare, epString);
+
+        result[i++] = epString[0];
+        result[i++] = epString[1];
+    } else {
+        result[i++] = '-';
+    }
+
+    result[i++] = ' ';
+
+    HalfmoveCount_t halfmoves = ReadHalfmoveClock(gameStack);
+    char halfmoveBuffer[100];
+    sprintf(halfmoveBuffer, "%d", halfmoves);
+    int ind = 0;
+    while(halfmoveBuffer[ind] != '\0') {
+        result[i++] = halfmoveBuffer[ind];
+    }
+
+    result[i++] = ' ';
+
+    result[i++] = '0';
+    result[i++] = '\0';
 }
