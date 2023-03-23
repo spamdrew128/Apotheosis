@@ -15,7 +15,7 @@
 #include "string_utils.h"
 
 enum {
-    NUM_GAMES = 25,
+    NUM_GAMES = 5000,
     TIME_PER_MOVE = 100,
     RAND_PLY_BASE = 7,
 };
@@ -76,7 +76,6 @@ static void WriteContainerToFile(
 
     for(int i = 0; i < container->numPositions; i++) {
         FEN_t fen = container->fenBuffers[i];
-        printf("%s\n", fen);
         fprintf(fp, "%s %s\n", fen, positionResult);
     }
 
@@ -114,7 +113,7 @@ static void GameLoop(UciApplicationData_t* data, FILE* fp) {
             &data->boardInfo,
             &data->gameStack,
             &data->zobristStack,
-            false
+            true
         );
 
         if(searchResults.score >= MATE_THRESHOLD) {
