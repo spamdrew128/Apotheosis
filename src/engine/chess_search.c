@@ -20,6 +20,7 @@ enum {
     time_fraction = 25,
     timer_check_freq = 1024,
 
+    MIN_TIME_PER_MOVE = 5,
     DEPTH_MAX = PLY_MAX
 };
 
@@ -300,7 +301,9 @@ static void SetupGlobalTimer(UciSearchInfo_t* uciSearchInfo, BoardInfo_t* boardI
         timeToUse = (totalTime + increment/2) / time_fraction;
     }
 
-    TimerInit(&globalTimer, timeToUse - uciSearchInfo->overhead);
+    timeToUse = MAX(timeToUse - uciSearchInfo->overhead, MIN_TIME_PER_MOVE);
+
+    TimerInit(&globalTimer, timeToUse);
 }
 
 static void PrintUciInformation(
