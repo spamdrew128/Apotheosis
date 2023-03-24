@@ -398,7 +398,7 @@ bool InterpretUCIInput(UciApplicationData_t* applicationData)
 {
     char input[BUFFER_SIZE];
     memset(input, '\0', BUFFER_SIZE* sizeof(char));
-    if(fgets(input, BUFFER_SIZE, stdin) == NULL) {
+    if(fgets(input, BUFFER_SIZE-1, stdin) == NULL) {
         return true;
     }
 
