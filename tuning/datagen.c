@@ -163,7 +163,7 @@ void GenerateData(const char* filename) {
     UciApplicationData_t data;
 
     Generator_t generator;
-    InitRNG(&generator, true);
+    InitRNG(&generator, false);
 
     int percentComplete = -1;
     for(int i = 0; i < NUM_GAMES; i++) {
