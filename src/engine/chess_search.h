@@ -15,7 +15,7 @@
 #include "transposition_table.h"
 
 enum UciSearchInfoOptions {
-    overhead_default_msec = 50,
+    overhead_default_msec = 25,
     overhead_min_msec = 1,
     overhead_max_msec = 128,
 
