@@ -13,15 +13,6 @@
 #include "zobrist.h"
 #include "engine_types.h"
 
-enum {
-  knight_value = 310,
-  bishop_value = 330,
-  rook_value = 500,
-  queen_value = 900,
-  pawn_value = 100,
-  king_value = 0,
-};
-
 Centipawns_t ValueOfPiece(Piece_t piece);
 
 EvalScore_t ScoreOfPosition(BoardInfo_t* boardInfo);

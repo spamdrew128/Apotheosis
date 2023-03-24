@@ -23,8 +23,11 @@ int main(int argc, char** argv)
 {
     setvbuf(stdout, NULL, _IONBF, 0); // linux gives me a warning about this for some reason
 
+    Generator_t mainRNG;
+    InitRNG(&mainRNG, true);
+
     InitLookupTables();
-    GenerateZobristKeys();
+    GenerateZobristKeys(&mainRNG);
 
     bool running = Bench(argc, argv);
 

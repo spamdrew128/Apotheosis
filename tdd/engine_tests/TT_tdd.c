@@ -100,6 +100,8 @@ static void ShouldAdjustMateScores() {
     TTEntry_t entry = GetTTEntry(&table, index);
     EvalScore_t newScore = ScoreFromTT(entry.bestScore, some_ply + 3);
     PrintResults(newScore == m4_score - 3)
+
+    TeardownTT(&table);
 }
 
 void TranspositionTableTDDRunner() {

@@ -1,6 +1,7 @@
 #include <assert.h>
 
 #include "evaluation.h"
+#include "eval_constants.h"
 #include "PST.h"
 #include "util_macros.h"
 #include "legals.h"
@@ -72,7 +73,7 @@ static Centipawns_t MaterialBalanceAndPSTBonus(BoardInfo_t* boardInfo) {
     MaterialAndPST(boardInfo->pawns, pawn, pawn_value, &gamePhase, &mgScore, &egScore);
     AddKingPSTBonus(boardInfo, &mgScore, &egScore);
 
-    Phase_t mgPhase = (gamePhase < PHASE_MAX) ? gamePhase : PHASE_MAX;
+    Phase_t mgPhase = MIN(gamePhase, PHASE_MAX);
     Phase_t egPhase = PHASE_MAX - mgPhase;
     return (mgScore * mgPhase + egScore * egPhase) / PHASE_MAX; // weighted average
 }

@@ -18,6 +18,8 @@ ZOBRIST=$(SRC)\zobrist
 TDD=$(TDD_ROOT)\tests
 ENGINE_TDD=$(TDD_ROOT)\engine_tests
 
+TUNING=tuning
+
 MAIN=main
 TDD_MAIN=$(TDD_ROOT)\main_tdd
 
@@ -39,9 +41,12 @@ INCDIRS:= \
 \
 -I $(TDD_ROOT)\. \
 -I $(TDD)\. \
--I $(ENGINE_TDD)\. 
+-I $(ENGINE_TDD)\. \
+\
+-I $(TUNING)\.
 
 COMMON_CFILES= \
+$(SRC)\string_utils.c \
 $(BITBOARDS)\bitboards.c \
 $(BITBOARDS)\magic.c \
 $(ENDINGS)\endings.c \
@@ -64,7 +69,10 @@ $(MOVEGEN)\legals.c \
 $(MOVEGEN)\movegen.c \
 $(MOVEGEN)\pieces.c \
 $(UCI)\UCI.c \
-$(ZOBRIST)\zobrist.c
+$(ZOBRIST)\zobrist.c \
+\
+$(TUNING)\tuner.c \
+$(TUNING)\datagen.c
 
 COMMON_OBJECTS=$(COMMON_CFILES:%.c=%.o)
 
@@ -118,4 +126,4 @@ $(DEBUG_EXE): $(D_OBJECTS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $^
 
 clean:
-	del /S *.exe *.o && cls
+	del /S *.exe *.o *bin *txt && cls

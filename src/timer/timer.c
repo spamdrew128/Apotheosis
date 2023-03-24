@@ -1,7 +1,7 @@
 #include "timer.h"
 
 // shamelessly stolen from https://github.com/mhouppin/stash-bot
-static Milliseconds_t ClockRead() {
+Milliseconds_t ClockRead() {
 #if defined(_WIN32) || defined(_WIN64)
     struct timeb tp;
 

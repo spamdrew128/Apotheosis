@@ -15,11 +15,13 @@
 #include "killers.h"
 #include "history.h"
 #include "util_macros.h"
+#include "FEN.h"
 
 enum {
     time_fraction = 25,
     timer_check_freq = 1024,
 
+    MIN_TIME_PER_MOVE = 5,
     DEPTH_MAX = PLY_MAX
 };
 
@@ -180,6 +182,7 @@ static EvalScore_t Negamax(
     Ply_t ply
 )
 {
+    searchInfo->nodeCount++;
     PvLengthInit(&searchInfo->pvTable, ply);
 
     if(depth == 0) {
@@ -252,8 +255,6 @@ static EvalScore_t Negamax(
 
         UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
 
-        searchInfo->nodeCount++;
-
         if(searchInfo->outOfTime) {
             return 0;
         }
@@ -300,7 +301,9 @@ static void SetupGlobalTimer(UciSearchInfo_t* uciSearchInfo, BoardInfo_t* boardI
         timeToUse = (totalTime + increment/2) / time_fraction;
     }
 
-    TimerInit(&globalTimer, timeToUse - uciSearchInfo->overhead);
+    timeToUse = MAX(timeToUse - uciSearchInfo->overhead, MIN_TIME_PER_MOVE);
+
+    TimerInit(&globalTimer, timeToUse);
 }
 
 static void PrintUciInformation(
@@ -310,7 +313,7 @@ static void PrintUciInformation(
     Stopwatch_t* stopwatch
 )
 {
-    const char* scoreType = NO_MATE;
+    char* scoreType = NO_MATE;
     EvalScore_t scoreValue = searchResults.score;
 
     if(searchResults.score > MATE_THRESHOLD) {
@@ -340,6 +343,12 @@ static void PrintUciInformation(
     );
 }
 
+Move_t FirstLegalMove(BoardInfo_t* boardinfo, GameStack_t* gameStack) {
+    MoveEntryList_t list;
+    CompleteMovegen(&list, boardinfo, gameStack);
+    return list.moves[0].move;
+}
+
 SearchResults_t Search(
     UciSearchInfo_t* uciSearchInfo,
     BoardInfo_t* boardInfo,
@@ -356,6 +365,8 @@ SearchResults_t Search(
     InitSearchInfo(&searchInfo, uciSearchInfo);
 
     SearchResults_t searchResults;
+     // so if we time out during depth 1 search we have something to return
+    searchResults.bestMove = FirstLegalMove(boardInfo, gameStack);
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
@@ -382,6 +393,11 @@ SearchResults_t Search(
         }
 
     } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
+
+    if(printUciInfo) {
+        printf("bestmove ");
+        PrintMove(searchResults.bestMove, true);
+    }
 
     return searchResults;
 }
@@ -437,4 +453,60 @@ void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {
     uciSearchInfo->depthLimit = 0;
 
     TranspositionTableInit(&uciSearchInfo->tt, hash_default_mb);
+}
+
+EvalScore_t SimpleQsearch(
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    EvalScore_t alpha,
+    EvalScore_t beta
+)
+{
+    MoveEntryList_t moveList;
+    CompleteMovegen(&moveList, boardInfo, gameStack);
+
+    GameEndStatus_t gameEndStatus = CheckForMates(boardInfo, moveList.maxIndex);
+    switch (gameEndStatus) {
+        case checkmate:
+            return -EVAL_MAX;
+        case draw:
+            return 0;
+    }
+
+    EvalScore_t standPat = ScoreOfPosition(boardInfo);
+    if(standPat >= beta) {
+        return standPat;
+    }
+
+    if(standPat > alpha) {
+        alpha = standPat;
+    }
+
+    MovePicker_t movePicker;
+    InitCaptureMovePicker(&movePicker, &moveList, boardInfo);
+
+    EvalScore_t bestScore = standPat;
+    for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
+        Move_t move = PickMove(&movePicker);
+        MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
+
+        EvalScore_t score = -SimpleQsearch(boardInfo, gameStack, zobristStack, -beta, -alpha);
+
+        UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
+
+        if(score > bestScore) {
+            bestScore = score;
+
+            if(score >= beta) {
+                break;
+            }
+            
+            if(score > alpha) {
+                alpha = score;
+            }
+        }
+    }
+
+    return bestScore;
 }

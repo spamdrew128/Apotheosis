@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "board_info.h"
 #include "bitboards.h"
 
@@ -96,4 +98,44 @@ Bitboard_t AllHvSliders(BoardInfo_t* boardInfo, Color_t color) {
 
 Bitboard_t AllD12Sliders(BoardInfo_t* boardInfo, Color_t color) {
     return boardInfo->bishops[color] | boardInfo->queens[color];
+}
+
+Color_t ColorOfPiece(BoardInfo_t* boardInfo, Square_t square) {
+    Color_t color = (boardInfo->allPieces[white] & (C64(1) << square)) ? white : black;
+    return color;
+}
+
+static void FillBoardArray(char boardArray[], Bitboard_t b, char fillChar) {
+    while(b) {
+        Square_t square = LSB(b);
+        boardArray[square] = fillChar;
+        ResetLSB(&b);
+    }
+}
+
+void PrintChessboard(BoardInfo_t* info) {
+    char boardArray[64] = {0};
+    FillBoardArray(boardArray, full_set, '.');
+
+    FillBoardArray(boardArray, info->rooks[white], 'R');
+    FillBoardArray(boardArray, info->knights[white], 'N');
+    FillBoardArray(boardArray, info->bishops[white], 'B');
+    FillBoardArray(boardArray, info->queens[white], 'Q');
+    FillBoardArray(boardArray, info->kings[white], 'K');
+    FillBoardArray(boardArray, info->pawns[white], 'P');
+
+    FillBoardArray(boardArray, info->rooks[black], 'r');
+    FillBoardArray(boardArray, info->knights[black], 'n');
+    FillBoardArray(boardArray, info->bishops[black], 'b');
+    FillBoardArray(boardArray, info->queens[black], 'q');
+    FillBoardArray(boardArray, info->kings[black], 'k');
+    FillBoardArray(boardArray, info->pawns[black], 'p');
+
+    printf("\n");
+    for(int i = 7; i >= 0; i--) {
+        for(int j = 0; j < 8; j++) {
+            printf("%c ", boardArray[i*8 + j]);
+        }    
+        printf("\n");
+    }
 }

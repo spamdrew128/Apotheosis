@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #include "FEN.h"
 #include "movegen.h"
+#include "util_macros.h"
+#include "string_utils.h"
 
 static double usr_pow(int x, int y) {
     double result = 1;
@@ -11,10 +14,6 @@ static double usr_pow(int x, int y) {
     }
 
     return result;
-}
-
-static int CharToInt(char c) {
-    return ((int) c) - 48;
 }
 
 static Color_t CharToColor(char c) {
@@ -53,17 +52,9 @@ static void UpdateCastlingRights(GameState_t* state, char c) {
     }
 }
 
-static char RowCharToNumber(char row) {
-    return (int)row - 49;
-}
-
-static char ColCharToNumber(char col) {
-    return (int)col - 97;
-}
-
 static Bitboard_t SquareCharsToBitboard(char col, char row) {
-    int rowNum = RowCharToNumber(row);
-    int ColNum = ColCharToNumber(col);
+    int rowNum = RowCharToInt(row);
+    int ColNum = ColCharToInt(col);
 
     Square_t square = rowNum*8 + ColNum;
     return CalculateSingleBitset(square);
@@ -223,4 +214,141 @@ void InterpretFEN(
     gameState->boardInfo = *info;
 
     AddZobristHashToStack(zobristStack, HashPosition(info, gameStack));
+}
+
+void BoardToFEN(
+    BoardInfo_t* info,
+    GameStack_t* gameStack,
+    char result[FEN_BUFFER_SIZE]
+)
+{
+    int rank = 7; // a8 - h8
+    int file = 0;
+    int blankSpaces = 0;
+
+    int i = 0;
+    while (true) { // probably bad practice but I'm fed up with life.
+        Square_t s = rank*8 + file;
+
+        Piece_t piece = PieceOnSquare(info, s);
+        Color_t color = ColorOfPiece(info, s); // might not be a piece but whatever
+
+        if(piece == none_type) {
+            blankSpaces++;
+        } else if(blankSpaces > 0) {
+            result[i++] = IntToChar(blankSpaces);
+            blankSpaces = 0;
+        }
+
+        switch(piece) {
+            case pawn:
+                result[i++] = (color == white) ? 'P' : 'p';
+                break;
+            case king:
+                result[i++] = (color == white) ? 'K' : 'k';
+                break;
+            case queen:
+                result[i++] = (color == white) ? 'Q' : 'q';
+                break;
+            case knight:
+                result[i++] = (color == white) ? 'N' : 'n';
+                break;        
+            case rook:
+                result[i++] = (color == white) ? 'R' : 'r';
+                break;
+            case bishop:
+                result[i++] = (color == white) ? 'B' : 'b';
+                break;      
+        }
+
+        file++;
+        if(file > 7) {
+            file = 0;
+            rank--;
+            if(blankSpaces > 0) {
+                result[i++] = IntToChar(blankSpaces);
+                blankSpaces = 0;
+            }
+
+            if(rank >= 0) {
+                result[i++] = '/';
+            } else {
+                result[i++] = ' ';
+                break;
+            }
+        }
+    }
+
+    result[i++] = (info->colorToMove == white) ? 'w' : 'b';
+    result[i++] = ' ';
+
+    Bitboard_t whiteCastle = ReadCastleSquares(gameStack, white); // borgar
+    Bitboard_t blackCastle = ReadCastleSquares(gameStack, black);
+    if(whiteCastle || blackCastle) {
+        if(whiteCastle & white_kingside_castle_bb) {
+            result[i++] = 'K';
+        }
+        if(whiteCastle & white_queenside_castle_bb) {
+            result[i++] = 'Q';
+        }
+        if(blackCastle & black_kingside_castle_bb) {
+            result[i++] = 'k';
+        }
+        if(blackCastle & black_queenside_castle_bb) {
+            result[i++] = 'q';
+        }
+    } else {
+        result[i++] = '-';
+    }
+
+    result[i++] = ' ';
+
+    if(ReadEnPassant(gameStack)) {
+        Square_t epSquare = LSB(ReadEnPassant(gameStack));
+        char epString[3];
+        SquareToString(epSquare, epString);
+
+        result[i++] = epString[0];
+        result[i++] = epString[1];
+    } else {
+        result[i++] = '-';
+    }
+
+    result[i++] = ' ';
+
+    HalfmoveCount_t halfmoves = ReadHalfmoveClock(gameStack);
+    char halfmoveBuffer[100];
+    sprintf(halfmoveBuffer, "%d", halfmoves);
+    int ind = 0;
+    while(halfmoveBuffer[ind] != '\0') {
+        result[i++] = halfmoveBuffer[ind];
+        ind++;
+    }
+
+    result[i++] = ' ';
+
+    result[i++] = '0';
+    result[i++] = '\0';
+}
+
+void PrintFEN(BoardInfo_t* info, GameStack_t* gameStack) {
+    char result[FEN_BUFFER_SIZE];
+    BoardToFEN(info, gameStack, result);
+    printf("%s\n", result);
+}
+
+bool FENsMatch(FEN_t expected, FEN_t actual) {
+    int len = strlen(expected);
+    int finalIndex = len-1;
+    while(actual[finalIndex] != ' ') {
+        finalIndex--;
+    }
+
+    for(int i = 0; i < finalIndex; i++) {
+        if(actual[i] != expected[i]) {
+            printf("Expected %s, got %s\n", expected, actual);
+            return false;
+        }
+    }
+    return true;
 }

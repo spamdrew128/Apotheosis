@@ -15,7 +15,7 @@
 #include "transposition_table.h"
 
 enum UciSearchInfoOptions {
-    overhead_default_msec = 50,
+    overhead_default_msec = 25,
     overhead_min_msec = 1,
     overhead_max_msec = 128,
 
@@ -60,5 +60,13 @@ NodeCount_t BenchSearch(
 void UciSearchInfoTimeInfoReset(UciSearchInfo_t* uciSearchInfo);
 
 void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo);
+
+EvalScore_t SimpleQsearch(
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    EvalScore_t alpha,
+    EvalScore_t beta
+);
 
 #endif
