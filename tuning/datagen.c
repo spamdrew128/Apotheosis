@@ -15,8 +15,8 @@
 #include "string_utils.h"
 
 enum {
-    NUM_GAMES = 15000,
-    TIME_PER_MOVE = 100,
+    NUM_GAMES = 10000,
+    TIME_PER_MOVE = 50,
     RAND_PLY_BASE = 7,
 };
 
@@ -33,8 +33,6 @@ static void ContainerInit(TuningDatagenContainer_t* container) {
 }
 
 static void MakeAndAddHash(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move, ZobristStack_t* zobristStack) {
-    PrintMove(move, false);
-    printf(" ");
     MakeMove(boardInfo, gameStack, move);
     AddZobristHashToStack(zobristStack, HashPosition(boardInfo, gameStack));
 }
@@ -75,8 +73,6 @@ static void WriteContainerToFile(
         printf("INVALID CONTAINER WRITE");
         return;
     }
-
-    printf("\n%s\n\n", positionResult);
 
     for(int i = 0; i < container->numPositions; i++) {
         FEN_t fen = container->fenBuffers[i];
@@ -153,7 +149,6 @@ static bool RandomMoves(UciApplicationData_t* data, Generator_t* generator, Ply_
         Move_t move = moveList.moves[index].move;
         MakeAndAddHash(&data->boardInfo, &data->gameStack, move, &data->zobristStack);
     }
-    printf("\n");
     return true;
 }
 

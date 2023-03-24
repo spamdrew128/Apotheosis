@@ -15,6 +15,7 @@
 #include "killers.h"
 #include "history.h"
 #include "util_macros.h"
+#include "FEN.h"
 
 enum {
     time_fraction = 25,
@@ -381,6 +382,12 @@ SearchResults_t Search(
             currentDepth,
             0
         );
+
+        if(currentDepth == 1 && searchInfo.seldepth > 22) {
+            printf("UNICORN SPOTTED\n");
+            PrintFEN(boardInfo, gameStack);
+            PrintChessboard(boardInfo);
+        }
 
         if(!searchInfo.outOfTime) {
             searchResults.bestMove = PvTableBestMove(&searchInfo.pvTable);
