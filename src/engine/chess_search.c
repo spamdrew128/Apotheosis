@@ -383,12 +383,6 @@ SearchResults_t Search(
             0
         );
 
-        if(currentDepth == 1 && searchInfo.seldepth > 22) {
-            printf("UNICORN SPOTTED\n");
-            PrintFEN(boardInfo, gameStack);
-            PrintChessboard(boardInfo);
-        }
-
         if(!searchInfo.outOfTime) {
             searchResults.bestMove = PvTableBestMove(&searchInfo.pvTable);
             searchResults.score = score;
