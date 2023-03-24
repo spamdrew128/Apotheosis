@@ -181,6 +181,7 @@ static EvalScore_t Negamax(
     Ply_t ply
 )
 {
+    searchInfo->nodeCount++;
     PvLengthInit(&searchInfo->pvTable, ply);
 
     if(depth == 0) {
@@ -252,8 +253,6 @@ static EvalScore_t Negamax(
         }
 
         UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
-
-        searchInfo->nodeCount++;
 
         if(searchInfo->outOfTime) {
             return 0;
@@ -343,6 +342,12 @@ static void PrintUciInformation(
     );
 }
 
+Move_t FirstLegalMove(BoardInfo_t* boardinfo, GameStack_t* gameStack) {
+    MoveEntryList_t list;
+    CompleteMovegen(&list, boardinfo, gameStack);
+    return list.moves[0].move;
+}
+
 SearchResults_t Search(
     UciSearchInfo_t* uciSearchInfo,
     BoardInfo_t* boardInfo,
@@ -359,6 +364,8 @@ SearchResults_t Search(
     InitSearchInfo(&searchInfo, uciSearchInfo);
 
     SearchResults_t searchResults;
+     // so if we time out during depth 1 search we have something to return
+    searchResults.bestMove = FirstLegalMove(boardInfo, gameStack);
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
@@ -375,7 +382,7 @@ SearchResults_t Search(
             0
         );
 
-        if(!searchInfo.outOfTime || (currentDepth == 1)) {
+        if(!searchInfo.outOfTime) {
             searchResults.bestMove = PvTableBestMove(&searchInfo.pvTable);
             searchResults.score = score;
 
