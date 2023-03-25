@@ -200,5 +200,5 @@ void TuneParameters(const char* filename) {
     // printf("Cost %f\n", cost);
     // printf("MSE %f\n", meanSquaredError);
 
-
+    free(tuningData.entryList);
 }
