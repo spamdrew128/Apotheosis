@@ -20,12 +20,12 @@ enum {
 
 typedef double Gradient_t;
 typedef double Weight_t;
-Weight_t PSTWeights[NUM_PHASES][NUM_PIECES][NUM_SQUARES] = { // PST from black perspective, mirror if white
+Weight_t pstWeights[NUM_PHASES][NUM_PIECES][NUM_SQUARES] = { // PST from black perspective, mirror if white
     { KNIGHT_MG_PST, BISHOP_MG_PST, ROOK_MG_PST, QUEEN_MG_PST, PAWN_MG_PST, KING_MG_PST },
     { KNIGHT_EG_PST, BISHOP_EG_PST, ROOK_EG_PST, QUEEN_EG_PST, PAWN_EG_PST, KING_EG_PST },
 };
 
-Weight_t MaterialWeights[NUM_PHASES][NUM_PIECES] = {
+Weight_t materialWeights[NUM_PHASES][NUM_PIECES] = {
     { knight_value, bishop_value, rook_value, queen_value, pawn_value, king_value },
     { knight_value, bishop_value, rook_value, queen_value, pawn_value, king_value },
 };
@@ -140,19 +140,19 @@ static void MaterialAndPSTComponent(
         Bitboard_t blackPieces = entry.pieceBBs[p] & entry.all[black];
 
         int materialBalance = PopCount(whitePieces) - PopCount(blackPieces);
-        *mgScore += materialBalance * MaterialWeights[mg_phase][p];
-        *egScore += materialBalance * MaterialWeights[eg_phase][p];
+        *mgScore += materialBalance * materialWeights[mg_phase][p];
+        *egScore += materialBalance * materialWeights[eg_phase][p];
 
         while(whitePieces) {
             Square_t sq = MIRROR(LSB(whitePieces));
-            *mgScore += PSTWeights[mg_phase][p][sq];
-            *egScore += PSTWeights[eg_phase][p][sq];
+            *mgScore += pstWeights[mg_phase][p][sq];
+            *egScore += pstWeights[eg_phase][p][sq];
             ResetLSB(&whitePieces);
         }
         while(blackPieces) {
             Square_t sq = LSB(blackPieces);
-            *mgScore -= PSTWeights[mg_phase][p][sq];
-            *egScore -= PSTWeights[eg_phase][p][sq];
+            *mgScore -= pstWeights[mg_phase][p][sq];
+            *egScore -= pstWeights[eg_phase][p][sq];
             ResetLSB(&blackPieces);
         }
     }
@@ -276,6 +276,26 @@ static void UpdateGradient(
     UpdateGradMaterialComponent(entry, coeffs, materialGrad);
 }
 
+static void UpdateWeights(
+    TuningData_t* tuningData,
+    double learnRate,
+    Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES],
+    Gradient_t materialGrad[NUM_PHASES][NUM_PIECES]
+)
+{
+    double coeff = (2 / tuningData->numEntries) * learnRate;
+
+    for(Piece_t piece = 0; piece < NUM_PIECES; piece++) {
+        materialWeights[mg_phase][piece] += coeff * materialGrad[mg_phase][piece];
+        materialWeights[eg_phase][piece] += coeff * materialGrad[eg_phase][piece];
+
+        for(Square_t s = 0; s < NUM_SQUARES; s++) {
+            pstWeights[mg_phase][piece][s] += coeff * pstGrad[mg_phase][piece][s];
+            pstWeights[eg_phase][piece][s] += coeff * pstGrad[eg_phase][piece][s];
+        }
+    }
+}
+
 static void InitializeGradient(
     Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES],
     Gradient_t materialGrad[NUM_PHASES][NUM_PIECES]
@@ -284,6 +304,7 @@ static void InitializeGradient(
     for(Piece_t piece = 0; piece < NUM_PIECES; piece++) {
         materialGrad[mg_phase][piece] = 0;
         materialGrad[eg_phase][piece] = 0;
+
         for(Square_t s = 0; s < NUM_SQUARES; s++) {
             pstGrad[mg_phase][piece][s] = 0;
             pstGrad[eg_phase][piece][s] = 0;
@@ -301,19 +322,25 @@ void TuneParameters(const char* filename) {
     Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES];
     Gradient_t materialGrad[NUM_PHASES][NUM_PIECES];
 
+    double prevCost = Cost(&tuningData, K);
+
     for(int epoch = 0; epoch < MAX_EPOCHS; epoch++) {
-        InitializeGradient(pstGrad, PSTWeights);
+        InitializeGradient(pstGrad, pstWeights);
 
         for(int i = 0; i < tuningData.numEntries; i++) {
             TEntry_t entry = tuningData.entryList[i];
             UpdateGradient(entry, K, pstGrad, materialGrad);
         }
-    }
 
-    double cost = Cost(&tuningData, K);
-    double mse = MSE(&tuningData, cost);
-    printf("Cost %f\n", cost);
-    printf("MSE %f\n", mse);
+        UpdateWeights(&tuningData, learnRate, pstGrad, materialGrad);
+
+        double cost = Cost(&tuningData, K);
+        double mse = MSE(&tuningData, cost);
+        printf("Epoch: %d Cost: %f MSE: %f\n", cost, mse);
+        printf("Cost change: %f\n\n", cost - prevCost);
+
+        prevCost = cost;
+    }
 
     free(tuningData.entryList);
 }
