@@ -65,8 +65,10 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
         PopCount(tEntry->pieceBBs[rook])*ROOK_PHASE_VALUE +
         PopCount(tEntry->pieceBBs[queen])*QUEEN_PHASE_VALUE;
 
-    tEntry->phaseConstant[mg_phase] = MIN(midgame_phase, PHASE_MAX) / PHASE_MAX;
-    tEntry->phaseConstant[eg_phase] = 1 - midgame_phase;
+    midgame_phase = MIN(midgame_phase, PHASE_MAX);
+
+    tEntry->phaseConstant[mg_phase] = (double)midgame_phase / PHASE_MAX;
+    tEntry->phaseConstant[eg_phase] = 1 - tEntry->phaseConstant[mg_phase];
 }
 
 static int EntriesInFile(FILE* fp) {
