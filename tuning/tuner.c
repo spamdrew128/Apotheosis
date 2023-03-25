@@ -139,13 +139,9 @@ static void MaterialAndPSTComponent(
         Bitboard_t whitePieces = entry.pieceBBs[p] & entry.all[white];
         Bitboard_t blackPieces = entry.pieceBBs[p] & entry.all[black];
 
-        int whiteCount = PopCount(whitePieces);
-        *mgScore += whiteCount * MaterialWeights[mg_phase][p];
-        *egScore += whiteCount * MaterialWeights[eg_phase][p];
-        
-        int blackCount = PopCount(blackPieces);
-        *mgScore -= blackCount * MaterialWeights[mg_phase][p];
-        *egScore -= blackCount * MaterialWeights[eg_phase][p];
+        int materialBalance = PopCount(whitePieces) - PopCount(blackPieces);
+        *mgScore += materialBalance * MaterialWeights[mg_phase][p];
+        *egScore += materialBalance * MaterialWeights[eg_phase][p];
 
         while(whitePieces) {
             Square_t sq = MIRROR(LSB(whitePieces));
@@ -221,18 +217,44 @@ static double ComputeK(TuningData_t* tuningData) {
     return bestK;
 }
 
-static void InitializeGradient(
-    Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES],
+static void UpdateGradPSTComponent(
+    TEntry_t entry,
+    double coeffs[NUM_PHASES],
+    Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES]
+)
+{
+    for(Piece_t p = 0; p < NUM_PIECES; p++) {
+        Bitboard_t whitePieces = entry.pieceBBs[p] & entry.all[white];
+        Bitboard_t blackPieces = entry.pieceBBs[p] & entry.all[black];
+
+        while(whitePieces) {
+            Square_t sq = MIRROR(LSB(whitePieces));
+            pstGrad[mg_phase][p][sq] += coeffs[mg_phase];
+            pstGrad[eg_phase][p][sq] += coeffs[eg_phase];
+            ResetLSB(&whitePieces);
+        }
+        while(blackPieces) {
+            Square_t sq = LSB(blackPieces);
+            pstGrad[mg_phase][p][sq] -= coeffs[mg_phase];
+            pstGrad[eg_phase][p][sq] -= coeffs[eg_phase];
+            ResetLSB(&blackPieces);
+        }
+    }
+}
+
+static void UpdateGradMaterialComponent(
+    TEntry_t entry,
+    double coeffs[NUM_PHASES],
     Gradient_t materialGrad[NUM_PHASES][NUM_PIECES]
 )
 {
-    for(Piece_t piece = 0; piece < NUM_PIECES; piece++) {
-        materialGrad[mg_phase][piece] = 0;
-        materialGrad[eg_phase][piece] = 0;
-        for(Square_t s = 0; s < NUM_SQUARES; s++) {
-            pstGrad[mg_phase][piece][s] = 0;
-            pstGrad[eg_phase][piece][s] = 0;
-        }
+    for(Piece_t p = 0; p < NUM_PIECES; p++) {
+        Bitboard_t whitePieces = entry.pieceBBs[p] & entry.all[white];
+        Bitboard_t blackPieces = entry.pieceBBs[p] & entry.all[black];
+        
+        int materialBalance = PopCount(whitePieces) - PopCount(blackPieces);
+        materialGrad[mg_phase][p] += coeffs[mg_phase] * materialBalance;
+        materialGrad[eg_phase][p] += coeffs[eg_phase] * materialBalance;
     }
 }
 
@@ -250,7 +272,23 @@ static void UpdateGradient(
     coeffs[mg_phase] = coeffBase * entry.phaseConstant[mg_phase];
     coeffs[eg_phase] = coeffBase * entry.phaseConstant[eg_phase];
 
-    
+    UpdateGradPSTComponent(entry, coeffs, pstGrad);
+    UpdateGradMaterialComponent(entry, coeffs, materialGrad);
+}
+
+static void InitializeGradient(
+    Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES],
+    Gradient_t materialGrad[NUM_PHASES][NUM_PIECES]
+)
+{
+    for(Piece_t piece = 0; piece < NUM_PIECES; piece++) {
+        materialGrad[mg_phase][piece] = 0;
+        materialGrad[eg_phase][piece] = 0;
+        for(Square_t s = 0; s < NUM_SQUARES; s++) {
+            pstGrad[mg_phase][piece][s] = 0;
+            pstGrad[eg_phase][piece][s] = 0;
+        }
+    }
 }
 
 void TuneParameters(const char* filename) {
@@ -258,6 +296,7 @@ void TuneParameters(const char* filename) {
     TuningDataInit(&tuningData, filename);
 
     double K = 0.006634;
+    double learnRate = 0.01;
 
     Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES];
     Gradient_t materialGrad[NUM_PHASES][NUM_PIECES];
@@ -267,6 +306,7 @@ void TuneParameters(const char* filename) {
 
         for(int i = 0; i < tuningData.numEntries; i++) {
             TEntry_t entry = tuningData.entryList[i];
+            UpdateGradient(entry, K, pstGrad, materialGrad);
         }
     }
 
