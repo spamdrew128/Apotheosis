@@ -182,7 +182,6 @@ static EvalScore_t Negamax(
     Ply_t ply
 )
 {
-    searchInfo->nodeCount++;
     PvLengthInit(&searchInfo->pvTable, ply);
 
     if(depth == 0) {
@@ -254,6 +253,8 @@ static EvalScore_t Negamax(
         }
 
         UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
+
+        searchInfo->nodeCount++;
 
         if(searchInfo->outOfTime) {
             return 0;
