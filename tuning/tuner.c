@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 #include <math.h>
 
 #include "tuner.h"
@@ -10,6 +11,8 @@
 #include "eval_constants.h"
 #include "PST.h"
 #include "util_macros.h"
+
+#define LINE_BUFFER 500
 
 typedef double Weight_t;
 Weight_t PSTWeights[NUM_PHASES][NUM_PIECES][NUM_SQUARES] = { // PST from black perspective, mirror if white
@@ -66,14 +69,16 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
 }
 
 static int EntriesInFile(FILE* fp) {
-    fseek(fp, 0L, SEEK_END);
-    size_t bytesInFile = ftell(fp);
+    uint64_t lines = 0;
+
+    char buffer[LINE_BUFFER];
+    while(fgets(buffer, LINE_BUFFER, fp)) {
+        lines++;
+    }
+
     rewind(fp);
 
-    size_t entrySize = sizeof(TEntry_t);
-    assert(bytesInFile % entrySize == 0);
-
-    return bytesInFile / entrySize;
+    return lines;
 }
 
 static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
@@ -82,7 +87,39 @@ static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
     tuningData->numEntries = EntriesInFile(fp);
     tuningData->entryList = malloc(tuningData->numEntries * sizeof(TEntry_t));
 
-    fread(tuningData->entryList, sizeof(TEntry_t), tuningData->numEntries, fp);
+    char buffer[LINE_BUFFER];
+    for(uint64_t i = 0; i < tuningData->numEntries; i++) {
+        fgets(buffer, LINE_BUFFER, fp);
+
+        int lineIndex = 0;
+        while(buffer[lineIndex] != '"') {
+            lineIndex++; 
+        }
+
+
+        char fenBuffer[FEN_BUFFER_SIZE];
+        memset(fenBuffer, '\0', FEN_BUFFER_SIZE);
+        memcpy(fenBuffer, buffer, lineIndex * sizeof(char));
+
+        BoardInfo_t boardInfo;
+        GameStack_t gameStack;
+        ZobristStack_t zobristStack;
+        InterpretFEN(fenBuffer, &boardInfo, &gameStack, &zobristStack);
+
+        FillTEntry(&tuningData->entryList[i], &boardInfo);
+
+        lineIndex++; 
+        if(buffer[lineIndex] == '1') {
+            if(buffer[lineIndex + 1] == '-') {
+                tuningData->entryList[i].result = 1;
+            } else {
+                tuningData->entryList[i].result = 0.5;
+            }
+        } else {
+            assert(buffer[lineIndex] == '0');
+            tuningData->entryList[i].result = 0;
+        }
+    }
 
     fclose(fp);
 }
@@ -158,8 +195,10 @@ void TuneParameters(const char* filename) {
     TuningData_t tuningData;
     TuningDataInit(&tuningData, filename);
 
-    double cost = Cost(&tuningData);
-    double meanSquaredError = MSE(&tuningData, cost);
-    printf("Cost %f\n", cost);
-    printf("MSE %f\n", meanSquaredError);
+    // double cost = Cost(&tuningData);
+    // double meanSquaredError = MSE(&tuningData, cost);
+    // printf("Cost %f\n", cost);
+    // printf("MSE %f\n", meanSquaredError);
+
+
 }
