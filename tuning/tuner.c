@@ -26,11 +26,6 @@ Weight_t pstWeights[NUM_PHASES][NUM_PIECES][NUM_SQUARES] = { // PST from black p
     { KNIGHT_EG_PST, BISHOP_EG_PST, ROOK_EG_PST, QUEEN_EG_PST, PAWN_EG_PST, KING_EG_PST },
 };
 
-Weight_t materialWeights[NUM_PHASES][NUM_PIECES] = {
-    { knight_value, bishop_value, rook_value, queen_value, pawn_value, king_value },
-    { knight_value, bishop_value, rook_value, queen_value, pawn_value, king_value },
-};
-
 typedef struct {
     double phaseConstant[NUM_PHASES];
     double result;
@@ -130,7 +125,7 @@ static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
     fclose(fp);
 }
 
-static void MaterialAndPSTComponent(
+static void PSTComponent(
     TEntry_t entry,
     double* mgScore,
     double* egScore
@@ -139,10 +134,6 @@ static void MaterialAndPSTComponent(
     for(Piece_t p = 0; p < NUM_PIECES; p++) {
         Bitboard_t whitePieces = entry.pieceBBs[p] & entry.all[white];
         Bitboard_t blackPieces = entry.pieceBBs[p] & entry.all[black];
-
-        int materialBalance = PopCount(whitePieces) - PopCount(blackPieces);
-        *mgScore += materialBalance * materialWeights[mg_phase][p];
-        *egScore += materialBalance * materialWeights[eg_phase][p];
 
         while(whitePieces) {
             Square_t sq = MIRROR(LSB(whitePieces));
@@ -163,7 +154,7 @@ static double Evaluation(TEntry_t entry) {
     double mgScore = 0;
     double egScore = 0;
 
-    MaterialAndPSTComponent(entry, &mgScore, &egScore);
+    PSTComponent(entry, &mgScore, &egScore);
 
     return (mgScore * entry.phaseConstant[mg_phase] + egScore * entry.phaseConstant[eg_phase]);
 }
@@ -243,27 +234,10 @@ static void UpdateGradPSTComponent(
     }
 }
 
-static void UpdateGradMaterialComponent(
-    TEntry_t entry,
-    double coeffs[NUM_PHASES],
-    Gradient_t materialGrad[NUM_PHASES][NUM_PIECES]
-)
-{
-    for(Piece_t p = 0; p < NUM_PIECES; p++) {
-        Bitboard_t whitePieces = entry.pieceBBs[p] & entry.all[white];
-        Bitboard_t blackPieces = entry.pieceBBs[p] & entry.all[black];
-        
-        int materialBalance = PopCount(whitePieces) - PopCount(blackPieces);
-        materialGrad[mg_phase][p] += coeffs[mg_phase] * materialBalance;
-        materialGrad[eg_phase][p] += coeffs[eg_phase] * materialBalance;
-    }
-}
-
 static void UpdateGradient(
     TEntry_t entry,
     double K,
-    Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES],
-    Gradient_t materialGrad[NUM_PHASES][NUM_PIECES]
+    Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES]
 )
 {
     double R = entry.result;
@@ -275,21 +249,16 @@ static void UpdateGradient(
     coeffs[eg_phase] = (R - sigmoid) * sigmoidPrime * entry.phaseConstant[eg_phase];
 
     UpdateGradPSTComponent(entry, coeffs, pstGrad);
-    UpdateGradMaterialComponent(entry, coeffs, materialGrad);
 }
 
 static void UpdateWeights(
     TuningData_t* tuningData,
-    Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES],
-    Gradient_t materialGrad[NUM_PHASES][NUM_PIECES]
+    Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES]
 )
 {
     double coeff = ((double)2 / tuningData->numEntries) * LEARN_RATE;
 
     for(Piece_t piece = 0; piece < NUM_PIECES; piece++) {
-        materialWeights[mg_phase][piece] += coeff * materialGrad[mg_phase][piece];
-        materialWeights[eg_phase][piece] += coeff * materialGrad[eg_phase][piece];
-
         for(Square_t s = 0; s < NUM_SQUARES; s++) {
             pstWeights[mg_phase][piece][s] += coeff * pstGrad[mg_phase][piece][s];
             pstWeights[eg_phase][piece][s] += coeff * pstGrad[eg_phase][piece][s];
@@ -298,20 +267,18 @@ static void UpdateWeights(
 }
 
 static void InitializeGradient(
-    Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES],
-    Gradient_t materialGrad[NUM_PHASES][NUM_PIECES]
+    Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES]
 )
 {
     for(Piece_t piece = 0; piece < NUM_PIECES; piece++) {
-        materialGrad[mg_phase][piece] = 0;
-        materialGrad[eg_phase][piece] = 0;
-
         for(Square_t s = 0; s < NUM_SQUARES; s++) {
             pstGrad[mg_phase][piece][s] = 0;
             pstGrad[eg_phase][piece][s] = 0;
         }
     }
 }
+
+static void CreateOutputFile();
 
 void TuneParameters(const char* filename) {
     TuningData_t tuningData;
@@ -320,19 +287,17 @@ void TuneParameters(const char* filename) {
     double K = 0.006634;
 
     Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES];
-    Gradient_t materialGrad[NUM_PHASES][NUM_PIECES];
 
     double prevCost = Cost(&tuningData, K);
-
     for(int epoch = 0; epoch < MAX_EPOCHS; epoch++) {
-        InitializeGradient(pstGrad, materialGrad);
+        InitializeGradient(pstGrad);
 
         for(int i = 0; i < tuningData.numEntries; i++) {
             TEntry_t entry = tuningData.entryList[i];
-            UpdateGradient(entry, K, pstGrad, materialGrad);
+            UpdateGradient(entry, K, pstGrad);
         }
 
-        UpdateWeights(&tuningData, pstGrad, materialGrad);
+        UpdateWeights(&tuningData, pstGrad);
 
         double cost = Cost(&tuningData, K);
         double mse = MSE(&tuningData, cost);
@@ -340,7 +305,52 @@ void TuneParameters(const char* filename) {
         printf("Cost change: %f\n\n", cost - prevCost);
 
         prevCost = cost;
+        
+        CreateOutputFile();
     }
 
     free(tuningData.entryList);
+}
+
+// FILE PRINTING BELOW
+static void FilePrintPST(const char* tableName, Phase_t phase, Piece_t piece, FILE* fp) {
+    fprintf(fp, "#define %s { \\\n", tableName);
+
+    for(Square_t s = 0; s < NUM_SQUARES; s++) {
+        if(s % 8 == 0) { // first row
+            fprintf(fp, "   ");
+        }
+
+        fprintf(fp, "%d, ", (int)pstWeights[phase][piece][s]);
+
+        if(s % 8 == 7) { // first row
+            fprintf(fp, "\\\n");
+        }
+    }
+
+    fprintf(fp, "}\n\n");
+}
+
+static void CreateOutputFile() {
+    FILE* fp = fopen("tuning_output.txt", "w");
+
+    FilePrintPST("PAWN_MG_PST", mg_phase, pawn, fp);
+    FilePrintPST("PAWN_EG_PST", eg_phase, pawn, fp);
+
+    FilePrintPST("KNIGHT_MG_PST", mg_phase, knight, fp);
+    FilePrintPST("KNIGHT_EG_PST", eg_phase, knight, fp);
+
+    FilePrintPST("BISHOP_MG_PST", mg_phase, bishop, fp);
+    FilePrintPST("BISHOP_EG_PST", eg_phase, bishop, fp);
+
+    FilePrintPST("ROOK_MG_PST", mg_phase, rook, fp);
+    FilePrintPST("ROOK_EG_PST", eg_phase, rook, fp);
+
+    FilePrintPST("QUEEN_MG_PST", mg_phase, queen, fp);
+    FilePrintPST("QUEEN_EG_PST", eg_phase, queen, fp);
+    
+    FilePrintPST("KING_MG_PST", mg_phase, king, fp);
+    FilePrintPST("KING_EG_PST", eg_phase, king, fp);
+
+    fclose(fp);
 }
