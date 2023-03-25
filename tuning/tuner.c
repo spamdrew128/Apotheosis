@@ -268,11 +268,11 @@ static void UpdateGradient(
 )
 {
     double sigmoid = Sigmoid(Evaluation(entry), K);
-    double coeffBase = (entry.result - sigmoid) * (K*sigmoid * (1 - sigmoid));
+    double R = entry.result;
 
     double coeffs[NUM_PHASES];
-    coeffs[mg_phase] = coeffBase * entry.phaseConstant[mg_phase];
-    coeffs[eg_phase] = coeffBase * entry.phaseConstant[eg_phase];
+    coeffs[mg_phase] = (R - sigmoid) * (K*sigmoid * (1 - sigmoid)) * entry.phaseConstant[mg_phase];
+    coeffs[eg_phase] = (R - sigmoid) * (K*sigmoid * (1 - sigmoid)) * entry.phaseConstant[eg_phase];
 
     UpdateGradPSTComponent(entry, coeffs, pstGrad);
     UpdateGradMaterialComponent(entry, coeffs, materialGrad);
