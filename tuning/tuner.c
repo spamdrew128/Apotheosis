@@ -18,7 +18,7 @@ enum {
     MAX_EPOCHS = 10000,
 };
 
-#define LEARN_RATE 0.01
+#define LEARN_RATE 1
 
 typedef double Gradient_t;
 typedef double Weight_t;
@@ -285,7 +285,7 @@ static void UpdateWeights(
     Gradient_t materialGrad[NUM_PHASES][NUM_PIECES]
 )
 {
-    double coeff = (2 / tuningData->numEntries) * LEARN_RATE;
+    double coeff = ((double)2 / tuningData->numEntries) * LEARN_RATE;
 
     for(Piece_t piece = 0; piece < NUM_PIECES; piece++) {
         materialWeights[mg_phase][piece] += coeff * materialGrad[mg_phase][piece];
