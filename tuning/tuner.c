@@ -25,11 +25,11 @@ Weight_t MaterialWeights[NUM_PHASES][NUM_PIECES] = {
 double K = 0.0075;
 
 typedef struct {
-    Phase_t phase;
-    
+    double phaseConstant[NUM_PHASES];
+    double result;
+
     Bitboard_t all[2];
     Bitboard_t pieceBBs[NUM_PIECES];
-    double result;
 } TEntry_t;
 
 typedef struct {
@@ -61,7 +61,8 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
         PopCount(tEntry->pieceBBs[rook])*ROOK_PHASE_VALUE +
         PopCount(tEntry->pieceBBs[queen])*QUEEN_PHASE_VALUE;
 
-    tEntry->phase = MIN(midgame_phase, PHASE_MAX);
+    tEntry->phaseConstant[mg_phase] = MIN(midgame_phase, PHASE_MAX) / PHASE_MAX;
+    tEntry->phaseConstant[eg_phase] = 1 - midgame_phase;
 }
 
 static int EntriesInFile(FILE* fp) {
@@ -125,13 +126,15 @@ static double Evaluation(TEntry_t entry) {
 
     MaterialAndPSTComponent(entry, &mgScore, &egScore);
 
-    Phase_t mgPhase = entry.phase;
-    Phase_t egPhase = PHASE_MAX - mgPhase;
-    return (mgScore * mgPhase + egScore * egPhase) / PHASE_MAX;
+    return (mgScore * entry.phaseConstant[mg_phase] + egScore * entry.phaseConstant[eg_phase]);
 }
 
 static double Sigmoid(double E) {
     return 1 / (1 + exp(-K * E));
+}
+
+static double SigmoidPrime(double sigmoid) {
+    return K * sigmoid * (1 - sigmoid);
 }
 
 static double Cost(TuningData_t* tuningData) {
