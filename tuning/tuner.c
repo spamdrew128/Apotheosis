@@ -18,6 +18,8 @@ enum {
     MAX_EPOCHS = 10000,
 };
 
+#define LEARN_RATE 0.01
+
 typedef double Gradient_t;
 typedef double Weight_t;
 Weight_t pstWeights[NUM_PHASES][NUM_PIECES][NUM_SQUARES] = { // PST from black perspective, mirror if white
@@ -278,12 +280,11 @@ static void UpdateGradient(
 
 static void UpdateWeights(
     TuningData_t* tuningData,
-    double learnRate,
     Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES],
     Gradient_t materialGrad[NUM_PHASES][NUM_PIECES]
 )
 {
-    double coeff = (2 / tuningData->numEntries) * learnRate;
+    double coeff = (2 / tuningData->numEntries) * LEARN_RATE;
 
     for(Piece_t piece = 0; piece < NUM_PIECES; piece++) {
         materialWeights[mg_phase][piece] += coeff * materialGrad[mg_phase][piece];
@@ -317,7 +318,6 @@ void TuneParameters(const char* filename) {
     TuningDataInit(&tuningData, filename);
 
     double K = 0.006634;
-    double learnRate = 0.01;
 
     Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES];
     Gradient_t materialGrad[NUM_PHASES][NUM_PIECES];
@@ -332,7 +332,7 @@ void TuneParameters(const char* filename) {
             UpdateGradient(entry, K, pstGrad, materialGrad);
         }
 
-        UpdateWeights(&tuningData, learnRate, pstGrad, materialGrad);
+        UpdateWeights(&tuningData, pstGrad, materialGrad);
 
         double cost = Cost(&tuningData, K);
         double mse = MSE(&tuningData, cost);
