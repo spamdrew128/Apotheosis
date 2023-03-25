@@ -236,6 +236,23 @@ static void InitializeGradient(
     }
 }
 
+static void UpdateGradient(
+    TEntry_t entry,
+    double K,
+    Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES],
+    Gradient_t materialGrad[NUM_PHASES][NUM_PIECES]
+)
+{
+    double sigmoid = Sigmoid(Evaluation(entry), K);
+    double coeffBase = (entry.result - sigmoid) * (K*sigmoid * (1 - sigmoid));
+
+    double coeffs[NUM_PHASES];
+    coeffs[mg_phase] = coeffBase * entry.phaseConstant[mg_phase];
+    coeffs[eg_phase] = coeffBase * entry.phaseConstant[eg_phase];
+
+    
+}
+
 void TuneParameters(const char* filename) {
     TuningData_t tuningData;
     TuningDataInit(&tuningData, filename);
@@ -247,7 +264,10 @@ void TuneParameters(const char* filename) {
 
     for(int epoch = 0; epoch < MAX_EPOCHS; epoch++) {
         InitializeGradient(pstGrad, PSTWeights);
-        
+
+        for(int i = 0; i < tuningData.numEntries; i++) {
+            TEntry_t entry = tuningData.entryList[i];
+        }
     }
 
     double cost = Cost(&tuningData, K);
