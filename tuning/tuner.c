@@ -18,7 +18,7 @@ enum {
     MAX_EPOCHS = 10000,
 };
 
-#define LEARN_RATE 1
+#define LEARN_RATE 100
 
 typedef double Gradient_t;
 typedef double Weight_t;
