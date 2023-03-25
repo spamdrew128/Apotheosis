@@ -267,12 +267,13 @@ static void UpdateGradient(
     Gradient_t materialGrad[NUM_PHASES][NUM_PIECES]
 )
 {
-    double sigmoid = Sigmoid(Evaluation(entry), K);
     double R = entry.result;
+    double sigmoid = Sigmoid(Evaluation(entry), K);
+    double sigmoidPrime = SigmoidPrime(sigmoid, K);
 
     double coeffs[NUM_PHASES];
-    coeffs[mg_phase] = (R - sigmoid) * (K*sigmoid * (1 - sigmoid)) * entry.phaseConstant[mg_phase];
-    coeffs[eg_phase] = (R - sigmoid) * (K*sigmoid * (1 - sigmoid)) * entry.phaseConstant[eg_phase];
+    coeffs[mg_phase] = (R - sigmoid) * sigmoidPrime * entry.phaseConstant[mg_phase];
+    coeffs[eg_phase] = (R - sigmoid) * sigmoidPrime * entry.phaseConstant[eg_phase];
 
     UpdateGradPSTComponent(entry, coeffs, pstGrad);
     UpdateGradMaterialComponent(entry, coeffs, materialGrad);
@@ -325,7 +326,7 @@ void TuneParameters(const char* filename) {
     double prevCost = Cost(&tuningData, K);
 
     for(int epoch = 0; epoch < MAX_EPOCHS; epoch++) {
-        InitializeGradient(pstGrad, pstWeights);
+        InitializeGradient(pstGrad, materialGrad);
 
         for(int i = 0; i < tuningData.numEntries; i++) {
             TEntry_t entry = tuningData.entryList[i];
@@ -336,7 +337,7 @@ void TuneParameters(const char* filename) {
 
         double cost = Cost(&tuningData, K);
         double mse = MSE(&tuningData, cost);
-        printf("Epoch: %d Cost: %f MSE: %f\n", cost, mse);
+        printf("Epoch: %d Cost: %f MSE: %f\n", epoch, cost, mse);
         printf("Cost change: %f\n\n", cost - prevCost);
 
         prevCost = cost;
