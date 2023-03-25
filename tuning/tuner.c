@@ -13,8 +13,12 @@
 #include "PST.h"
 #include "util_macros.h"
 
-#define LINE_BUFFER 500
+enum {
+    LINE_BUFFER = 500,
+    MAX_EPOCHS = 10000,
+};
 
+typedef double Gradient_t;
 typedef double Weight_t;
 Weight_t PSTWeights[NUM_PHASES][NUM_PIECES][NUM_SQUARES] = { // PST from black perspective, mirror if white
     { KNIGHT_MG_PST, BISHOP_MG_PST, ROOK_MG_PST, QUEEN_MG_PST, PAWN_MG_PST, KING_MG_PST },
@@ -217,11 +221,34 @@ static double ComputeK(TuningData_t* tuningData) {
     return bestK;
 }
 
+static void InitializeGradient(
+    Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES],
+    Gradient_t materialGrad[NUM_PHASES][NUM_PIECES]
+)
+{
+    for(Piece_t piece = 0; piece < NUM_PIECES; piece++) {
+        materialGrad[mg_phase][piece] = 0;
+        materialGrad[eg_phase][piece] = 0;
+        for(Square_t s = 0; s < NUM_SQUARES; s++) {
+            pstGrad[mg_phase][piece][s] = 0;
+            pstGrad[eg_phase][piece][s] = 0;
+        }
+    }
+}
+
 void TuneParameters(const char* filename) {
     TuningData_t tuningData;
     TuningDataInit(&tuningData, filename);
 
     double K = 0.006634;
+
+    Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES];
+    Gradient_t materialGrad[NUM_PHASES][NUM_PIECES];
+
+    for(int epoch = 0; epoch < MAX_EPOCHS; epoch++) {
+        InitializeGradient(pstGrad, PSTWeights);
+        
+    }
 
     double cost = Cost(&tuningData, K);
     double mse = MSE(&tuningData, cost);
