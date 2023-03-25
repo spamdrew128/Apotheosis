@@ -2,7 +2,6 @@
 
 #include "evaluation.h"
 #include "eval_constants.h"
-#include "PST.h"
 #include "util_macros.h"
 #include "legals.h"
 
@@ -16,7 +15,7 @@ static Centipawns_t pieceValues[7] = { knight_value, bishop_value, rook_value, q
 
 static Centipawns_t midgamePST[6][NUM_SQUARES] = { KNIGHT_MG_PST, BISHOP_MG_PST, ROOK_MG_PST, QUEEN_MG_PST, PAWN_MG_PST, KING_MG_PST };
 static Centipawns_t endgamePST[6][NUM_SQUARES] = { KNIGHT_EG_PST, BISHOP_EG_PST, ROOK_EG_PST, QUEEN_EG_PST, PAWN_EG_PST, KING_EG_PST };
-static Phase_t gamePhaseLookup[6] = GAMEPHASE_VALUES;
+static Phase_t gamePhaseLookup[6] = { KNIGHT_PHASE_VALUE, BISHOP_PHASE_VALUE, ROOK_PHASE_VALUE, QUEEN_PHASE_VALUE, PAWN_PHASE_VALUE, KING_PHASE_VALUE };
 
 Centipawns_t ValueOfPiece(Piece_t piece) {
     return pieceValues[piece];

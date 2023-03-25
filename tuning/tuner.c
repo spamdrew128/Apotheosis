@@ -10,7 +10,6 @@
 #include "datagen.h"
 #include "bitboards.h"
 #include "eval_constants.h"
-#include "PST.h"
 #include "util_macros.h"
 
 enum {
