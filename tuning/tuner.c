@@ -26,8 +26,6 @@ Weight_t MaterialWeights[NUM_PHASES][NUM_PIECES] = {
     { knight_value, bishop_value, rook_value, queen_value, pawn_value, king_value },
 };
 
-double K = 0.0075;
-
 typedef struct {
     double phaseConstant[NUM_PHASES];
     double result;
@@ -169,39 +167,66 @@ static double Evaluation(TEntry_t entry) {
     return (mgScore * entry.phaseConstant[mg_phase] + egScore * entry.phaseConstant[eg_phase]);
 }
 
-static double Sigmoid(double E) {
+static double Sigmoid(double E, double K) {
     return 1 / (1 + exp(-K * E));
 }
 
-static double SigmoidPrime(double sigmoid) {
+static double SigmoidPrime(double sigmoid, double K) {
     return K * sigmoid * (1 - sigmoid);
 }
 
-static double Cost(TuningData_t* tuningData) {
+static double Cost(TuningData_t* tuningData, double K) {
     double totalError = 0;
     for(int i = 0; i < tuningData->numEntries; i++) {
         TEntry_t entry = tuningData->entryList[i];
         double E = Evaluation(entry);
 
-        double error = entry.result - Sigmoid(E);
+        double error = entry.result - Sigmoid(E, K);
         totalError += error * error;
     }
 
     return totalError;
 }
 
-static double AverageError(TuningData_t* tuningData, double cost) {
-    return sqrt(cost / tuningData->numEntries);
+static double MSE(TuningData_t* tuningData, double cost) {
+    return cost / tuningData->numEntries;
+}
+
+static double ComputeK(TuningData_t* tuningData) {
+    double start = 0.001;
+    double end = 0.01;
+    double step = (end - start) / 1000;
+    double currentK = start;
+
+    int iter = 0;
+
+    double bestK;
+    double lowestCost = 10000000;
+    while(currentK <= end) {
+        double cost = Cost(tuningData, currentK);
+        if(cost <= lowestCost) {
+            lowestCost = cost;
+            bestK = currentK;
+        }
+        currentK += step;
+        printf("iteration %d\n", iter++);
+    }
+    
+    printf("K = %f gives MSE of %f\n", bestK, MSE(tuningData, lowestCost));
+
+    return bestK;
 }
 
 void TuneParameters(const char* filename) {
     TuningData_t tuningData;
     TuningDataInit(&tuningData, filename);
 
-    double cost = Cost(&tuningData);
-    double averageError = AverageError(&tuningData, cost);
+    double K = 0.006634;
+
+    double cost = Cost(&tuningData, K);
+    double mse = MSE(&tuningData, cost);
     printf("Cost %f\n", cost);
-    printf("AverageError %f\n", averageError);
+    printf("MSE %f\n", mse);
 
     free(tuningData.entryList);
 }
