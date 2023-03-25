@@ -19,6 +19,8 @@ int CharToInt(char c);
 
 char IntToChar(int n);
 
+bool CharIsNumber(char c);
+
 void SquareToString(Square_t square, char string[3]);
 
 char PieceToChar(Piece_t piece);

@@ -190,18 +190,18 @@ static double Cost(TuningData_t* tuningData) {
     return totalError;
 }
 
-static double MSE(TuningData_t* tuningData, double cost) {
-    return cost / tuningData->numEntries;
+static double AverageError(TuningData_t* tuningData, double cost) {
+    return sqrt(cost / tuningData->numEntries);
 }
 
 void TuneParameters(const char* filename) {
     TuningData_t tuningData;
     TuningDataInit(&tuningData, filename);
 
-    // double cost = Cost(&tuningData);
-    // double meanSquaredError = MSE(&tuningData, cost);
-    // printf("Cost %f\n", cost);
-    // printf("MSE %f\n", meanSquaredError);
+    double cost = Cost(&tuningData);
+    double averageError = AverageError(&tuningData, cost);
+    printf("Cost %f\n", cost);
+    printf("AverageError %f\n", averageError);
 
     free(tuningData.entryList);
 }

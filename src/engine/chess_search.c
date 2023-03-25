@@ -22,7 +22,7 @@ enum {
     timer_check_freq = 1024,
 
     MIN_TIME_PER_MOVE = 5,
-    DEPTH_MAX = PLY_MAX
+    DEPTH_MAX = PLY_MAX - 30, // leaving room for qsearch to expand
 };
 
 #define MATING "mate "

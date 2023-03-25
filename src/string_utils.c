@@ -30,6 +30,10 @@ char IntToChar(int n) {
     return (char) (n + 48);
 }
 
+bool CharIsNumber(char c) {
+    return c >= 48 && c <= 57;
+}
+
 void SquareToString(Square_t square, char string[3]) {
     int row = square / 8;
     int col = square % 8;
