@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include <string.h>
 #include <math.h>
@@ -88,14 +89,14 @@ static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
     tuningData->entryList = malloc(tuningData->numEntries * sizeof(TEntry_t));
 
     char buffer[LINE_BUFFER];
-    for(uint64_t i = 0; i < tuningData->numEntries; i++) {
+    for(int i = 0; i < tuningData->numEntries; i++) {
         fgets(buffer, LINE_BUFFER, fp);
 
+        assert(strlen(buffer) > 2);
         int lineIndex = 0;
         while(buffer[lineIndex] != '"') {
             lineIndex++; 
         }
-
 
         char fenBuffer[FEN_BUFFER_SIZE];
         memset(fenBuffer, '\0', FEN_BUFFER_SIZE);
