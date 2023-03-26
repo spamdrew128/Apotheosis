@@ -13,6 +13,14 @@
 #include "util_macros.h"
 
 enum {
+    pst_offset = 0,
+    NUM_FEATURES,
+
+    PST_FEATURE_COUNT = NUM_PIECES * NUM_SQUARES,
+};
+
+enum {
+    VECTOR_LENGTH = PST_FEATURE_COUNT,
     LINE_BUFFER = 500,
     MAX_EPOCHS = 10000,
 };
@@ -21,9 +29,9 @@ enum {
 
 typedef double Gradient_t;
 typedef double Weight_t;
-Weight_t pstWeights[NUM_PHASES][NUM_PIECES][NUM_SQUARES] = { // PST from black perspective, mirror if white
-    { KNIGHT_MG_PST, BISHOP_MG_PST, ROOK_MG_PST, QUEEN_MG_PST, PAWN_MG_PST, KING_MG_PST },
-    { KNIGHT_EG_PST, BISHOP_EG_PST, ROOK_EG_PST, QUEEN_EG_PST, PAWN_EG_PST, KING_EG_PST },
+Weight_t weights[NUM_PHASES][VECTOR_LENGTH] = {
+    { KNIGHT_MG_PST BISHOP_MG_PST ROOK_MG_PST QUEEN_MG_PST PAWN_MG_PST KING_MG_PST },
+    { KNIGHT_EG_PST BISHOP_EG_PST ROOK_EG_PST QUEEN_EG_PST PAWN_EG_PST KING_EG_PST },
 };
 
 typedef struct {
@@ -125,7 +133,7 @@ static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
     fclose(fp);
 }
 
-static void PSTComponent(
+static void PSTEval(
     TEntry_t entry,
     double* mgScore,
     double* egScore
@@ -137,14 +145,14 @@ static void PSTComponent(
 
         while(whitePieces) {
             Square_t sq = MIRROR(LSB(whitePieces));
-            *mgScore += pstWeights[mg_phase][p][sq];
-            *egScore += pstWeights[eg_phase][p][sq];
+            *mgScore += weights[mg_phase][pst_offset + NUM_SQUARES*p + sq];
+            *egScore += weights[eg_phase][pst_offset + NUM_SQUARES*p + sq];
             ResetLSB(&whitePieces);
         }
         while(blackPieces) {
             Square_t sq = LSB(blackPieces);
-            *mgScore -= pstWeights[mg_phase][p][sq];
-            *egScore -= pstWeights[eg_phase][p][sq];
+            *mgScore -= weights[mg_phase][pst_offset + NUM_SQUARES*p + sq];
+            *egScore -= weights[eg_phase][pst_offset + NUM_SQUARES*p + sq];
             ResetLSB(&blackPieces);
         }
     }
@@ -154,7 +162,7 @@ static double Evaluation(TEntry_t entry) {
     double mgScore = 0;
     double egScore = 0;
 
-    PSTComponent(entry, &mgScore, &egScore);
+    PSTEval(entry, &mgScore, &egScore);
 
     return (mgScore * entry.phaseConstant[mg_phase] + egScore * entry.phaseConstant[eg_phase]);
 }
@@ -163,8 +171,9 @@ static double Sigmoid(double E, double K) {
     return 1 / (1 + exp(-K * E));
 }
 
-static double SigmoidPrime(double sigmoid, double K) {
-    return K * sigmoid * (1 - sigmoid);
+static double SigmoidPrime(double sigmoid) {
+    // K is omitted for now but will be added later
+    return sigmoid * (1 - sigmoid);
 }
 
 static double Cost(TuningData_t* tuningData, double K) {
@@ -212,7 +221,7 @@ static double ComputeK(TuningData_t* tuningData) {
 static void UpdateGradPSTComponent(
     TEntry_t entry,
     double coeffs[NUM_PHASES],
-    Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES]
+    Gradient_t gradient[NUM_PHASES][VECTOR_LENGTH]
 )
 {
     for(Piece_t p = 0; p < NUM_PIECES; p++) {
@@ -221,14 +230,14 @@ static void UpdateGradPSTComponent(
 
         while(whitePieces) {
             Square_t sq = MIRROR(LSB(whitePieces));
-            pstGrad[mg_phase][p][sq] += coeffs[mg_phase];
-            pstGrad[eg_phase][p][sq] += coeffs[eg_phase];
+            gradient[mg_phase][pst_offset + NUM_SQUARES*p + sq] += coeffs[mg_phase];
+            gradient[eg_phase][pst_offset + NUM_SQUARES*p + sq] += coeffs[eg_phase];
             ResetLSB(&whitePieces);
         }
         while(blackPieces) {
             Square_t sq = LSB(blackPieces);
-            pstGrad[mg_phase][p][sq] -= coeffs[mg_phase];
-            pstGrad[eg_phase][p][sq] -= coeffs[eg_phase];
+            gradient[mg_phase][pst_offset + NUM_SQUARES*p + sq] -= coeffs[mg_phase];
+            gradient[eg_phase][pst_offset + NUM_SQUARES*p + sq] -= coeffs[eg_phase];
             ResetLSB(&blackPieces);
         }
     }
@@ -237,44 +246,31 @@ static void UpdateGradPSTComponent(
 static void UpdateGradient(
     TEntry_t entry,
     double K,
-    Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES]
+    Gradient_t gradient[NUM_PHASES][VECTOR_LENGTH]
 )
 {
     double R = entry.result;
     double sigmoid = Sigmoid(Evaluation(entry), K);
-    double sigmoidPrime = SigmoidPrime(sigmoid, K);
+    double sigmoidPrime = SigmoidPrime(sigmoid);
 
     double coeffs[NUM_PHASES];
     coeffs[mg_phase] = (R - sigmoid) * sigmoidPrime * entry.phaseConstant[mg_phase];
     coeffs[eg_phase] = (R - sigmoid) * sigmoidPrime * entry.phaseConstant[eg_phase];
 
-    UpdateGradPSTComponent(entry, coeffs, pstGrad);
+    UpdateGradPSTComponent(entry, coeffs, gradient);
 }
 
 static void UpdateWeights(
     TuningData_t* tuningData,
-    Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES]
+    double K,
+    Gradient_t gradient[NUM_PHASES][VECTOR_LENGTH]
 )
 {
-    double coeff = ((double)2 / tuningData->numEntries) * LEARN_RATE;
+    double coeff = K * ((double)2 / tuningData->numEntries) * LEARN_RATE;
 
-    for(Piece_t piece = 0; piece < NUM_PIECES; piece++) {
-        for(Square_t s = 0; s < NUM_SQUARES; s++) {
-            pstWeights[mg_phase][piece][s] += coeff * pstGrad[mg_phase][piece][s];
-            pstWeights[eg_phase][piece][s] += coeff * pstGrad[eg_phase][piece][s];
-        }
-    }
-}
-
-static void InitializeGradient(
-    Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES]
-)
-{
-    for(Piece_t piece = 0; piece < NUM_PIECES; piece++) {
-        for(Square_t s = 0; s < NUM_SQUARES; s++) {
-            pstGrad[mg_phase][piece][s] = 0;
-            pstGrad[eg_phase][piece][s] = 0;
-        }
+    for(int i = 0; i < VECTOR_LENGTH; i++) {
+        weights[mg_phase][i] += coeff * gradient[mg_phase][i];
+        weights[eg_phase][i] += coeff * gradient[eg_phase][i];
     }
 }
 
@@ -286,19 +282,19 @@ void TuneParameters(const char* filename) {
 
     double K = 0.006634;
 
-    Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES];
+    Gradient_t gradient[NUM_PHASES][VECTOR_LENGTH];
 
     double prevCost = Cost(&tuningData, K);
     double startMSE = MSE(&tuningData, prevCost);
     for(int epoch = 0; epoch < MAX_EPOCHS; epoch++) {
-        InitializeGradient(pstGrad);
+        memset(gradient, 0, sizeof(gradient));
 
         for(int i = 0; i < tuningData.numEntries; i++) {
             TEntry_t entry = tuningData.entryList[i];
-            UpdateGradient(entry, K, pstGrad);
+            UpdateGradient(entry, K, gradient);
         }
 
-        UpdateWeights(&tuningData, pstGrad);
+        UpdateWeights(&tuningData, K, gradient);
 
         double cost = Cost(&tuningData, K);
         double mse = MSE(&tuningData, cost);
@@ -319,21 +315,21 @@ void TuneParameters(const char* filename) {
 
 // FILE PRINTING BELOW
 static void FilePrintPST(const char* tableName, Phase_t phase, Piece_t piece, FILE* fp) {
-    fprintf(fp, "#define %s { \\\n", tableName);
+    fprintf(fp, "#define %s \\\n", tableName);
 
-    for(Square_t s = 0; s < NUM_SQUARES; s++) {
-        if(s % 8 == 0) { // first row
+    for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
+        if(sq % 8 == 0) { // first row
             fprintf(fp, "   ");
         }
 
-        fprintf(fp, "%d, ", (int)pstWeights[phase][piece][s]);
+        fprintf(fp, "%d, ", (int)weights[phase][pst_offset + NUM_SQUARES*piece + sq]);
 
-        if(s % 8 == 7) { // first row
+        if(sq % 8 == 7) { // first row
             fprintf(fp, "\\\n");
         }
     }
 
-    fprintf(fp, "}\n\n");
+    fprintf(fp, "\n");
 }
 
 static void AddPieceValComment(FILE* fp) {
@@ -345,9 +341,9 @@ static void AddPieceValComment(FILE* fp) {
     for(Piece_t p = 0; p < NUM_PIECES - 1; p++) {
         double mgSum = 0;
         double egSum = 0;
-        for(Square_t s = 0; s < NUM_SQUARES; s++) {
-            mgSum += pstWeights[mg_phase][p][s];
-            egSum += pstWeights[eg_phase][p][s];
+        for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
+            mgSum += weights[mg_phase][pst_offset + NUM_SQUARES*p + sq];
+            egSum += weights[eg_phase][pst_offset + NUM_SQUARES*p + sq];
         }
 
         int mgValue = mgSum / NUM_SQUARES;
