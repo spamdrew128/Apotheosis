@@ -17,7 +17,7 @@ enum {
     MAX_EPOCHS = 10000,
 };
 
-#define LEARN_RATE 1000
+#define LEARN_RATE 5000
 
 typedef double Gradient_t;
 typedef double Weight_t;
@@ -289,6 +289,7 @@ void TuneParameters(const char* filename) {
     Gradient_t pstGrad[NUM_PHASES][NUM_PIECES][NUM_SQUARES];
 
     double prevCost = Cost(&tuningData, K);
+    double startMSE = MSE(&tuningData, prevCost);
     for(int epoch = 0; epoch < MAX_EPOCHS; epoch++) {
         InitializeGradient(pstGrad);
 
@@ -302,6 +303,7 @@ void TuneParameters(const char* filename) {
         double cost = Cost(&tuningData, K);
         double mse = MSE(&tuningData, cost);
         printf("Epoch: %d Cost: %f MSE: %f\n", epoch, cost, mse);
+        printf("MSE change since epoch 0: %f\n", mse - startMSE);
         printf("Cost change: %f\n\n", cost - prevCost);
 
         prevCost = cost;
