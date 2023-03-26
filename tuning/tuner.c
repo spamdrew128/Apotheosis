@@ -303,8 +303,8 @@ void TuneParameters(const char* filename) {
         double cost = Cost(&tuningData, K);
         double mse = MSE(&tuningData, cost);
         printf("Epoch: %d Cost: %f MSE: %f\n", epoch, cost, mse);
-        printf("MSE change since epoch 0: %f\n", mse - startMSE);
-        printf("Cost change: %f\n\n", cost - prevCost);
+        printf("Cost change since previous epoch: %f\n", cost - prevCost);
+        printf("MSE change since epoch 0: %f\n\n", mse - startMSE);
 
         prevCost = cost;
         
