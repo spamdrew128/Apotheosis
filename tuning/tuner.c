@@ -17,7 +17,7 @@ enum {
     MAX_EPOCHS = 10000,
 };
 
-#define LEARN_RATE 100
+#define LEARN_RATE 1000
 
 typedef double Gradient_t;
 typedef double Weight_t;
@@ -306,9 +306,12 @@ void TuneParameters(const char* filename) {
 
         prevCost = cost;
         
-        CreateOutputFile();
+        if(epoch % 10 == 0) {
+            CreateOutputFile();
+        }
     }
 
+    CreateOutputFile();
     free(tuningData.entryList);
 }
 
@@ -331,8 +334,33 @@ static void FilePrintPST(const char* tableName, Phase_t phase, Piece_t piece, FI
     fprintf(fp, "}\n\n");
 }
 
+static void AddPieceValComment(FILE* fp) {
+    const char* names[NUM_PIECES - 1] = { "Knight", "Bishop", "Rook", "Queen", "Pawn" };
+
+    fprintf(fp, "/*\n");
+    fprintf(fp, "Average PST values for MG, EG:\n");
+
+    for(Piece_t p = 0; p < NUM_PIECES - 1; p++) {
+        double mgSum = 0;
+        double egSum = 0;
+        for(Square_t s = 0; s < NUM_SQUARES; s++) {
+            mgSum += pstWeights[mg_phase][p][s];
+            egSum += pstWeights[eg_phase][p][s];
+        }
+
+        int mgValue = mgSum / NUM_SQUARES;
+        int egValue = egSum / NUM_SQUARES;
+
+        fprintf(fp, "%s Values: %d %d\n", names[p], mgValue, egValue);
+    }
+
+    fprintf(fp, "*/\n\n");
+}
+
 static void CreateOutputFile() {
     FILE* fp = fopen("tuning_output.txt", "w");
+
+    AddPieceValComment(fp);
 
     FilePrintPST("PAWN_MG_PST", mg_phase, pawn, fp);
     FilePrintPST("PAWN_EG_PST", eg_phase, pawn, fp);
