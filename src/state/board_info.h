@@ -9,11 +9,11 @@ typedef struct {
     Bitboard_t allPieces[2];
     Bitboard_t empty;
 
-    Bitboard_t pawns[2];
     Bitboard_t knights[2];
     Bitboard_t bishops[2];
     Bitboard_t rooks[2];
     Bitboard_t queens[2];
+    Bitboard_t pawns[2];
     Bitboard_t kings[2];
 
     Piece_t mailbox[NUM_SQUARES];
