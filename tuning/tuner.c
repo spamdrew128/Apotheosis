@@ -318,13 +318,13 @@ static void FilePrintPST(const char* tableName, Phase_t phase, Piece_t piece, FI
     fprintf(fp, "#define %s \\\n", tableName);
 
     for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
-        if(sq % 8 == 0) { // first row
+        if(sq % 8 == 0) { // first row entry
             fprintf(fp, "   ");
         }
 
         fprintf(fp, "%d, ", (int)weights[phase][pst_offset + NUM_SQUARES*piece + sq]);
 
-        if(sq % 8 == 7) { // first row
+        if(sq % 8 == 7) { // last row entry
             fprintf(fp, "\\\n");
         }
     }
