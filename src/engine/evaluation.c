@@ -50,7 +50,7 @@ static Centipawns_t MaterialBalanceAndPSTBonus(BoardInfo_t* boardInfo) {
     PSTEval(boardInfo->rooks, rook, &gamePhase, &mgScore, &egScore);
     PSTEval(boardInfo->queens, queen, &gamePhase, &mgScore, &egScore);
     PSTEval(boardInfo->pawns, pawn, &gamePhase, &mgScore, &egScore);
-    PSTEval(boardInfo->pawns, king, &gamePhase, &mgScore, &egScore);
+    PSTEval(boardInfo->kings, king, &gamePhase, &mgScore, &egScore);
 
     Phase_t mgPhase = MIN(gamePhase, PHASE_MAX);
     Phase_t egPhase = PHASE_MAX - mgPhase;
