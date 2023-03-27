@@ -289,6 +289,8 @@ static void UpdateWeights(
 static void CreateOutputFile();
 
 void TuneParameters(const char* filename) {
+    CreateOutputFile();
+    return;
     TuningData_t tuningData;
     TuningDataInit(&tuningData, filename);
 
@@ -351,6 +353,8 @@ static void AddPieceValComment(FILE* fp) {
     fprintf(fp, "Average PST values for MG, EG:\n");
 
     for(Piece_t p = 0; p < NUM_PIECES - 1; p++) {
+        int squareCount = (p == pawn) ? NUM_SQUARES - 16 : NUM_SQUARES;
+
         double mgSum = 0;
         double egSum = 0;
         for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
@@ -358,8 +362,8 @@ static void AddPieceValComment(FILE* fp) {
             egSum += weights[eg_phase][pst_offset + NUM_SQUARES*p + sq];
         }
 
-        int mgValue = mgSum / NUM_SQUARES;
-        int egValue = egSum / NUM_SQUARES;
+        int mgValue = mgSum / squareCount;
+        int egValue = egSum / squareCount;
 
         fprintf(fp, "%s Values: %d %d\n", names[p], mgValue, egValue);
     }
