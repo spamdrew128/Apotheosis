@@ -391,9 +391,6 @@ static void CreateOutputFile() {
 
     AddPieceValComment(fp);
 
-    FilePrintPST("PAWN_MG_PST", mg_phase, pawn, fp);
-    FilePrintPST("PAWN_EG_PST", eg_phase, pawn, fp);
-
     FilePrintPST("KNIGHT_MG_PST", mg_phase, knight, fp);
     FilePrintPST("KNIGHT_EG_PST", eg_phase, knight, fp);
 
@@ -405,6 +402,9 @@ static void CreateOutputFile() {
 
     FilePrintPST("QUEEN_MG_PST", mg_phase, queen, fp);
     FilePrintPST("QUEEN_EG_PST", eg_phase, queen, fp);
+
+    FilePrintPST("PAWN_MG_PST", mg_phase, pawn, fp);
+    FilePrintPST("PAWN_EG_PST", eg_phase, pawn, fp);
     
     FilePrintPST("KING_MG_PST", mg_phase, king, fp);
     FilePrintPST("KING_EG_PST", eg_phase, king, fp);
