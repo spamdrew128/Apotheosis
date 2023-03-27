@@ -54,29 +54,38 @@ typedef struct {
 } TuningData_t;
 
 static void FillPSTFeatures(
-    uint16_t allValues[VECTOR_LENGTH],
+    int16_t allValues[VECTOR_LENGTH],
     BoardInfo_t* boardInfo
 )
 {
-    for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
-        Square_t whiteSq = MIRROR(sq);
-        Square_t blackSq = sq;
+    Bitboard_t* pieces[NUM_PIECES] = {
+        boardInfo->knights,
+        boardInfo->bishops,
+        boardInfo->rooks,
+        boardInfo->queens,
+        boardInfo->pawns,
+        boardInfo->kings,
+    };
 
-        Piece_t whitePiece = PieceOnSquare(boardInfo, whiteSq);
-        Piece_t blackPiece = PieceOnSquare(boardInfo, blackSq);
+    for(Piece_t piece = 0; piece < NUM_PIECES; piece++) {
+        Bitboard_t whitePieces = pieces[piece][white];
+        Bitboard_t blackPieces = pieces[piece][white];
 
-        if(whitePiece != none_type) {
-            allValues[pst_offset + NUM_SQUARES*whitePiece + sq]++;
+        while(whitePieces) {
+            Square_t sq = MIRROR(LSB(whitePieces));
+            allValues[pst_offset + NUM_SQUARES*piece + sq]++;
+            ResetLSB(&whitePieces);
         }
-
-        if(blackPiece != none_type) {
-            allValues[pst_offset + NUM_SQUARES*blackPiece + sq]--;
+        while(blackPieces) {
+            Square_t sq = LSB(blackPieces);
+            allValues[pst_offset + NUM_SQUARES*piece + sq]--;
+            ResetLSB(&blackPieces);
         }
     }
 }
 
 void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
-    uint16_t allValues[VECTOR_LENGTH] = {0};
+    int16_t allValues[VECTOR_LENGTH] = {0};
 
     FillPSTFeatures(allValues, boardInfo);
 
@@ -280,6 +289,18 @@ static void UpdateWeights(
 static void CreateOutputFile();
 
 void TuneParameters(const char* filename) {
+    FEN_t testFEN = "r1b2k1r/ppppq1pp/5b2/3Q4/1n2NR2/8/PBP2PPP/R5K1 w - - 7 15";
+    BoardInfo_t boardInfo;
+    GameStack_t gameStack;
+    ZobristStack_t zobristStack;
+    InterpretFEN(testFEN, &boardInfo, &gameStack, &zobristStack);
+    TEntry_t entry;
+    FillTEntry(&entry, &boardInfo);
+
+    printf("Eval: %f\n", Evaluation(entry));
+
+    return;
+
     TuningData_t tuningData;
     TuningDataInit(&tuningData, filename);
 
