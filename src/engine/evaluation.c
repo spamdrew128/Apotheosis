@@ -68,7 +68,7 @@ static Centipawns_t MobilityEval(BoardInfo_t* boardInfo) {
 EvalScore_t ScoreOfPosition(BoardInfo_t* boardInfo) {
     EvalScore_t eval = 0;
     eval += MaterialBalanceAndPSTBonus(boardInfo);
-    eval += MobilityEval(boardInfo);
+    // eval += MobilityEval(boardInfo);
 
     return boardInfo->colorToMove == white ? eval : -eval;
 }
