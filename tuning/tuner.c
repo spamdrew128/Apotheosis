@@ -69,7 +69,7 @@ static void FillPSTFeatures(
 
     for(Piece_t piece = 0; piece < NUM_PIECES; piece++) {
         Bitboard_t whitePieces = pieces[piece][white];
-        Bitboard_t blackPieces = pieces[piece][white];
+        Bitboard_t blackPieces = pieces[piece][black];
 
         while(whitePieces) {
             Square_t sq = MIRROR(LSB(whitePieces));
