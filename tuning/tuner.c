@@ -30,10 +30,15 @@ enum {
 
 typedef double Gradient_t;
 typedef double Weight_t;
-Weight_t weights[NUM_PHASES][VECTOR_LENGTH] = {
-    { KNIGHT_MG_PST BISHOP_MG_PST ROOK_MG_PST QUEEN_MG_PST PAWN_MG_PST KING_MG_PST },
-    { KNIGHT_EG_PST BISHOP_EG_PST ROOK_EG_PST QUEEN_EG_PST PAWN_EG_PST KING_EG_PST },
-};
+typedef double Velocity_t;
+typedef double Momentum_t;
+// Weight_t weights[NUM_PHASES][VECTOR_LENGTH] = {
+//     { KNIGHT_MG_PST BISHOP_MG_PST ROOK_MG_PST QUEEN_MG_PST PAWN_MG_PST KING_MG_PST },
+//     { KNIGHT_EG_PST BISHOP_EG_PST ROOK_EG_PST QUEEN_EG_PST PAWN_EG_PST KING_EG_PST },
+// };
+Weight_t weights[NUM_PHASES][VECTOR_LENGTH] = {0};
+Velocity_t velocity[NUM_PHASES][VECTOR_LENGTH] = {0};
+Momentum_t momentum[NUM_PHASES][VECTOR_LENGTH] = {0};
 
 typedef struct {
     int16_t value;
@@ -278,19 +283,24 @@ static void UpdateWeights(
     Gradient_t gradient[NUM_PHASES][VECTOR_LENGTH]
 )
 {
-    double coeff = K * ((double)2 / tuningData->numEntries) * LEARN_RATE;
+    const double beta1 = .9;
+    const double beta2 = .999;
+    const double epsilon = 1e-8;
 
     for(int i = 0; i < VECTOR_LENGTH; i++) {
-        weights[mg_phase][i] += coeff * gradient[mg_phase][i];
-        weights[eg_phase][i] += coeff * gradient[eg_phase][i];
+        for(Phase_t phase = 0; phase < NUM_PHASES; phase++) {
+            Gradient_t grad = -K * gradient[phase][i] / tuningData->numEntries;
+            momentum[phase][i] = beta1 * momentum[phase][i] + (1 - beta1) * grad;
+            velocity[phase][i] = beta2 * velocity[phase][i] + (1 - beta2) * pow(grad, 2);
+
+            weights[phase][i] -= momentum[phase][i] / (epsilon + sqrt(velocity[phase][i]));
+        }
     }
 }
 
 static void CreateOutputFile();
 
 void TuneParameters(const char* filename) {
-    CreateOutputFile();
-    return;
     TuningData_t tuningData;
     TuningDataInit(&tuningData, filename);
 
