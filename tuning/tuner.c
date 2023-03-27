@@ -289,18 +289,6 @@ static void UpdateWeights(
 static void CreateOutputFile();
 
 void TuneParameters(const char* filename) {
-    FEN_t testFEN = "r1b2k1r/ppppq1pp/5b2/3Q4/1n2NR2/8/PBP2PPP/R5K1 w - - 7 15";
-    BoardInfo_t boardInfo;
-    GameStack_t gameStack;
-    ZobristStack_t zobristStack;
-    InterpretFEN(testFEN, &boardInfo, &gameStack, &zobristStack);
-    TEntry_t entry;
-    FillTEntry(&entry, &boardInfo);
-
-    printf("Eval: %f\n", Evaluation(entry));
-
-    return;
-
     TuningData_t tuningData;
     TuningDataInit(&tuningData, filename);
 
