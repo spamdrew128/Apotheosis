@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <assert.h>
 #include <string.h>
@@ -35,11 +36,16 @@ Weight_t weights[NUM_PHASES][VECTOR_LENGTH] = {
 };
 
 typedef struct {
+    int16_t value;
+    int16_t index;
+} Feature_t;
+
+typedef struct {
+    Feature_t* features;
+    uint16_t numFeatures;
+
     double phaseConstant[NUM_PHASES];
     double result;
-
-    Bitboard_t all[2];
-    Bitboard_t pieceBBs[NUM_PIECES];
 } TEntry_t;
 
 typedef struct {
@@ -47,29 +53,67 @@ typedef struct {
     int numEntries;
 } TuningData_t;
 
-void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
-    tEntry->pieceBBs[knight] = empty_set;
-    tEntry->pieceBBs[bishop] = empty_set;
-    tEntry->pieceBBs[rook] = empty_set;
-    tEntry->pieceBBs[pawn] = empty_set;
-    tEntry->pieceBBs[queen] = empty_set;
-    tEntry->pieceBBs[king] = empty_set;
+static void FillPSTFeatures(
+    int16_t allValues[VECTOR_LENGTH],
+    BoardInfo_t* boardInfo
+)
+{
+    Bitboard_t* pieces[NUM_PIECES] = {
+        boardInfo->knights,
+        boardInfo->bishops,
+        boardInfo->rooks,
+        boardInfo->queens,
+        boardInfo->pawns,
+        boardInfo->kings,
+    };
 
-    for(int c = 0; c < 2; c++) {
-        tEntry->all[c] = boardInfo->allPieces[c];
-        tEntry->pieceBBs[knight] |= boardInfo->knights[c];
-        tEntry->pieceBBs[bishop] |= boardInfo->bishops[c];
-        tEntry->pieceBBs[rook] |= boardInfo->rooks[c];
-        tEntry->pieceBBs[pawn] |= boardInfo->pawns[c];
-        tEntry->pieceBBs[queen] |= boardInfo->queens[c];
-        tEntry->pieceBBs[king] |= boardInfo->kings[c];
+    for(Piece_t piece = 0; piece < NUM_PIECES; piece++) {
+        Bitboard_t whitePieces = pieces[piece][white];
+        Bitboard_t blackPieces = pieces[piece][black];
+
+        while(whitePieces) {
+            Square_t sq = MIRROR(LSB(whitePieces));
+            allValues[pst_offset + NUM_SQUARES*piece + sq]++;
+            ResetLSB(&whitePieces);
+        }
+        while(blackPieces) {
+            Square_t sq = LSB(blackPieces);
+            allValues[pst_offset + NUM_SQUARES*piece + sq]--;
+            ResetLSB(&blackPieces);
+        }
+    }
+}
+
+void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
+    int16_t allValues[VECTOR_LENGTH] = {0};
+
+    FillPSTFeatures(allValues, boardInfo);
+
+    tEntry->numFeatures = 0;
+    for(uint16_t i = 0; i < VECTOR_LENGTH; i++) {
+        if(allValues[i] != 0) {
+            tEntry->numFeatures++;
+        }
     }
 
+    tEntry->features = malloc(sizeof(Feature_t) * tEntry->numFeatures);
+    assert(tEntry->features != NULL);
+    
+    uint16_t featureIndex = 0;
+    for(uint16_t i = 0; i < VECTOR_LENGTH; i++) {
+        if(allValues[i] != 0) {
+            tEntry->features[featureIndex].value = allValues[i];
+            tEntry->features[featureIndex].index = i;
+            featureIndex++;
+        }
+    }
+
+    // phase calcuation
     Phase_t midgame_phase = 
-        PopCount(tEntry->pieceBBs[knight])*KNIGHT_PHASE_VALUE +
-        PopCount(tEntry->pieceBBs[bishop])*BISHOP_PHASE_VALUE +
-        PopCount(tEntry->pieceBBs[rook])*ROOK_PHASE_VALUE +
-        PopCount(tEntry->pieceBBs[queen])*QUEEN_PHASE_VALUE;
+        PopCount(boardInfo->knights[white] | boardInfo->knights[black])*KNIGHT_PHASE_VALUE +
+        PopCount(boardInfo->bishops[white] | boardInfo->bishops[black])*BISHOP_PHASE_VALUE +
+        PopCount(boardInfo->rooks[white] | boardInfo->rooks[black])*ROOK_PHASE_VALUE +
+        PopCount(boardInfo->queens[white] | boardInfo->queens[black])*QUEEN_PHASE_VALUE;
 
     midgame_phase = MIN(midgame_phase, PHASE_MAX);
 
@@ -101,14 +145,14 @@ static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
         fgets(buffer, LINE_BUFFER, fp);
 
         assert(strlen(buffer) > 2);
-        int lineIndex = 0;
-        while(buffer[lineIndex] != '"') {
-            lineIndex++; 
+        int resultIndex = 0;
+        while(buffer[resultIndex] != '"') {
+            resultIndex++; 
         }
 
         char fenBuffer[FEN_BUFFER_SIZE];
         memset(fenBuffer, '\0', FEN_BUFFER_SIZE);
-        memcpy(fenBuffer, buffer, lineIndex * sizeof(char));
+        memcpy(fenBuffer, buffer, resultIndex * sizeof(char));
 
         BoardInfo_t boardInfo;
         GameStack_t gameStack;
@@ -117,15 +161,15 @@ static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
 
         FillTEntry(&tuningData->entryList[i], &boardInfo);
 
-        lineIndex++; 
-        if(buffer[lineIndex] == '1') {
-            if(buffer[lineIndex + 1] == '-') {
+        resultIndex++; 
+        if(buffer[resultIndex] == '1') {
+            if(buffer[resultIndex + 1] == '-') {
                 tuningData->entryList[i].result = 1;
             } else {
                 tuningData->entryList[i].result = 0.5;
             }
         } else {
-            assert(buffer[lineIndex] == '0');
+            assert(buffer[resultIndex] == '0');
             tuningData->entryList[i].result = 0;
         }
     }
@@ -133,36 +177,24 @@ static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
     fclose(fp);
 }
 
-static void PSTEval(
-    TEntry_t entry,
-    double* mgScore,
-    double* egScore
-)
-{
-    for(Piece_t p = 0; p < NUM_PIECES; p++) {
-        Bitboard_t whitePieces = entry.pieceBBs[p] & entry.all[white];
-        Bitboard_t blackPieces = entry.pieceBBs[p] & entry.all[black];
-
-        while(whitePieces) {
-            Square_t sq = MIRROR(LSB(whitePieces));
-            *mgScore += weights[mg_phase][pst_offset + NUM_SQUARES*p + sq];
-            *egScore += weights[eg_phase][pst_offset + NUM_SQUARES*p + sq];
-            ResetLSB(&whitePieces);
-        }
-        while(blackPieces) {
-            Square_t sq = LSB(blackPieces);
-            *mgScore -= weights[mg_phase][pst_offset + NUM_SQUARES*p + sq];
-            *egScore -= weights[eg_phase][pst_offset + NUM_SQUARES*p + sq];
-            ResetLSB(&blackPieces);
-        }
+static void TuningDataTeardown(TuningData_t* tuningData) {
+    for(int i = 0; i < tuningData->numEntries; i++) {
+        TEntry_t entry = tuningData->entryList[i];
+        free(entry.features);
     }
+    free(tuningData->entryList);
 }
 
 static double Evaluation(TEntry_t entry) {
     double mgScore = 0;
     double egScore = 0;
 
-    PSTEval(entry, &mgScore, &egScore);
+    for(int i = 0; i < entry.numFeatures; i++) {
+        Feature_t feature = entry.features[i];
+
+        mgScore += feature.value * weights[mg_phase][feature.index];
+        egScore += feature.value * weights[eg_phase][feature.index];
+    }
 
     return (mgScore * entry.phaseConstant[mg_phase] + egScore * entry.phaseConstant[eg_phase]);
 }
@@ -218,31 +250,6 @@ static double ComputeK(TuningData_t* tuningData) {
     return bestK;
 }
 
-static void UpdateGradPSTComponent(
-    TEntry_t entry,
-    double coeffs[NUM_PHASES],
-    Gradient_t gradient[NUM_PHASES][VECTOR_LENGTH]
-)
-{
-    for(Piece_t p = 0; p < NUM_PIECES; p++) {
-        Bitboard_t whitePieces = entry.pieceBBs[p] & entry.all[white];
-        Bitboard_t blackPieces = entry.pieceBBs[p] & entry.all[black];
-
-        while(whitePieces) {
-            Square_t sq = MIRROR(LSB(whitePieces));
-            gradient[mg_phase][pst_offset + NUM_SQUARES*p + sq] += coeffs[mg_phase];
-            gradient[eg_phase][pst_offset + NUM_SQUARES*p + sq] += coeffs[eg_phase];
-            ResetLSB(&whitePieces);
-        }
-        while(blackPieces) {
-            Square_t sq = LSB(blackPieces);
-            gradient[mg_phase][pst_offset + NUM_SQUARES*p + sq] -= coeffs[mg_phase];
-            gradient[eg_phase][pst_offset + NUM_SQUARES*p + sq] -= coeffs[eg_phase];
-            ResetLSB(&blackPieces);
-        }
-    }
-}
-
 static void UpdateGradient(
     TEntry_t entry,
     double K,
@@ -257,7 +264,12 @@ static void UpdateGradient(
     coeffs[mg_phase] = (R - sigmoid) * sigmoidPrime * entry.phaseConstant[mg_phase];
     coeffs[eg_phase] = (R - sigmoid) * sigmoidPrime * entry.phaseConstant[eg_phase];
 
-    UpdateGradPSTComponent(entry, coeffs, gradient);
+    for(int i = 0; i < entry.numFeatures; i++) {
+        Feature_t feature = entry.features[i];
+
+        gradient[mg_phase][feature.index] += coeffs[mg_phase] * feature.value;
+        gradient[eg_phase][feature.index] += coeffs[eg_phase] * feature.value;
+    }
 }
 
 static void UpdateWeights(
@@ -310,7 +322,7 @@ void TuneParameters(const char* filename) {
     }
 
     CreateOutputFile();
-    free(tuningData.entryList);
+    TuningDataTeardown(&tuningData);
 }
 
 // FILE PRINTING BELOW
