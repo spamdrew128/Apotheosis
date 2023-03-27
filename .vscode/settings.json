@@ -58,7 +58,9 @@
         "datagen.h": "c",
         "tuner.h": "c",
         "pst.h": "c",
-        "eval_constants.h": "c"
+        "eval_constants.h": "c",
+        "string_utils.h": "c",
+        "stdlib.h": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",

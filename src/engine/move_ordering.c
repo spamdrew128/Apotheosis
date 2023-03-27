@@ -3,6 +3,18 @@
 #include "move_ordering.h"
 #include "evaluation.h"
 
+enum {
+  knight_value = 310,
+  bishop_value = 330,
+  rook_value = 500,
+  queen_value = 900,
+  pawn_value = 100,
+  king_value = 0,
+};
+
+// I made none_type worth as much as a pawn so I don't need a special case for en_passant. Kind of hacky but it works lol.
+static EvalScore_t mvvPieceValues[7] = { knight_value, bishop_value, rook_value, queen_value, pawn_value, king_value, pawn_value };
+
 static EvalScore_t MVVScore(BoardInfo_t* boardInfo, Move_t capture) {
     Square_t toSquare = ReadToSquare(capture);
     Square_t fromSquare = ReadFromSquare(capture);
@@ -12,7 +24,7 @@ static EvalScore_t MVVScore(BoardInfo_t* boardInfo, Move_t capture) {
     
     assert(victim != none_type || ReadSpecialFlag(capture) == en_passant_flag);
 
-    return ValueOfPiece(victim) - ValueOfPiece(attacker);
+    return mvvPieceValues[victim] - mvvPieceValues[attacker];
 }
 
 void InitAllMovePicker(

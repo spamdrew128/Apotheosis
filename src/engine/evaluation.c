@@ -2,7 +2,6 @@
 
 #include "evaluation.h"
 #include "eval_constants.h"
-#include "PST.h"
 #include "util_macros.h"
 #include "legals.h"
 
@@ -10,22 +9,13 @@ enum {
     mobility_weight = 5
 };
 
-// eventually I'll have different piece values for midgame and endgame.
-// also I needed to make none_type worth as much as a pawn so I don't need an edge case for en_passant. Really hacky but it works lol.
-static Centipawns_t pieceValues[7] = { knight_value, bishop_value, rook_value, queen_value, pawn_value, king_value, pawn_value };
+static Centipawns_t midgamePST[6][NUM_SQUARES] = { {KNIGHT_MG_PST}, {BISHOP_MG_PST}, {ROOK_MG_PST}, {QUEEN_MG_PST}, {PAWN_MG_PST}, {KING_MG_PST} };
+static Centipawns_t endgamePST[6][NUM_SQUARES] = { {KNIGHT_EG_PST}, {BISHOP_EG_PST}, {ROOK_EG_PST}, {QUEEN_EG_PST}, {PAWN_EG_PST}, {KING_EG_PST} };
+static Phase_t gamePhaseLookup[6] = { KNIGHT_PHASE_VALUE, BISHOP_PHASE_VALUE, ROOK_PHASE_VALUE, QUEEN_PHASE_VALUE, PAWN_PHASE_VALUE, KING_PHASE_VALUE };
 
-static Centipawns_t midgamePST[6][NUM_SQUARES] = { KNIGHT_MG_PST, BISHOP_MG_PST, ROOK_MG_PST, QUEEN_MG_PST, PAWN_MG_PST, KING_MG_PST };
-static Centipawns_t endgamePST[6][NUM_SQUARES] = { KNIGHT_EG_PST, BISHOP_EG_PST, ROOK_EG_PST, QUEEN_EG_PST, PAWN_EG_PST, KING_EG_PST };
-static Phase_t gamePhaseLookup[6] = GAMEPHASE_VALUES;
-
-Centipawns_t ValueOfPiece(Piece_t piece) {
-    return pieceValues[piece];
-}
-
-static void MaterialAndPST(
+static void PSTEval(
     Bitboard_t infoField[2],
     Piece_t piece,
-    Centipawns_t value,
     Phase_t* gamePhase,
     Centipawns_t* mgScore,
     Centipawns_t* egScore
@@ -36,29 +26,18 @@ static void MaterialAndPST(
 
     while(whitePieces) {
         Square_t sq = MIRROR(LSB(whitePieces));
-        *mgScore += value + midgamePST[piece][sq];
-        *egScore += value + endgamePST[piece][sq];
+        *mgScore += midgamePST[piece][sq];
+        *egScore += endgamePST[piece][sq];
         *gamePhase += gamePhaseLookup[piece];
         ResetLSB(&whitePieces);
     }
     while(blackPieces) {
         Square_t sq = LSB(blackPieces);
-        *mgScore -= value + midgamePST[piece][sq];
-        *egScore -= value + endgamePST[piece][sq];
+        *mgScore -= midgamePST[piece][sq];
+        *egScore -= endgamePST[piece][sq];
         *gamePhase += gamePhaseLookup[piece];
         ResetLSB(&blackPieces);
     }
-}
-
-static void AddKingPSTBonus(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* egScore) {
-    Square_t whiteKing = MIRROR(KingSquare(boardInfo, white));
-    Square_t blackKing = KingSquare(boardInfo, black);
-
-    *mgScore += midgamePST[king][whiteKing];
-    *egScore += endgamePST[king][whiteKing];
-
-    *mgScore -= midgamePST[king][blackKing];
-    *egScore -= endgamePST[king][blackKing];
 }
 
 static Centipawns_t MaterialBalanceAndPSTBonus(BoardInfo_t* boardInfo) {
@@ -66,12 +45,12 @@ static Centipawns_t MaterialBalanceAndPSTBonus(BoardInfo_t* boardInfo) {
     Centipawns_t egScore = 0;
     Phase_t gamePhase = 0;
 
-    MaterialAndPST(boardInfo->knights, knight, knight_value, &gamePhase, &mgScore, &egScore);
-    MaterialAndPST(boardInfo->bishops, bishop, bishop_value, &gamePhase, &mgScore, &egScore);
-    MaterialAndPST(boardInfo->rooks, rook, rook_value, &gamePhase, &mgScore, &egScore);
-    MaterialAndPST(boardInfo->queens, queen, queen_value, &gamePhase, &mgScore, &egScore);
-    MaterialAndPST(boardInfo->pawns, pawn, pawn_value, &gamePhase, &mgScore, &egScore);
-    AddKingPSTBonus(boardInfo, &mgScore, &egScore);
+    PSTEval(boardInfo->knights, knight, &gamePhase, &mgScore, &egScore);
+    PSTEval(boardInfo->bishops, bishop, &gamePhase, &mgScore, &egScore);
+    PSTEval(boardInfo->rooks, rook, &gamePhase, &mgScore, &egScore);
+    PSTEval(boardInfo->queens, queen, &gamePhase, &mgScore, &egScore);
+    PSTEval(boardInfo->pawns, pawn, &gamePhase, &mgScore, &egScore);
+    PSTEval(boardInfo->kings, king, &gamePhase, &mgScore, &egScore);
 
     Phase_t mgPhase = MIN(gamePhase, PHASE_MAX);
     Phase_t egPhase = PHASE_MAX - mgPhase;
@@ -89,7 +68,7 @@ static Centipawns_t MobilityEval(BoardInfo_t* boardInfo) {
 EvalScore_t ScoreOfPosition(BoardInfo_t* boardInfo) {
     EvalScore_t eval = 0;
     eval += MaterialBalanceAndPSTBonus(boardInfo);
-    eval += MobilityEval(boardInfo);
+    // eval += MobilityEval(boardInfo);
 
     return boardInfo->colorToMove == white ? eval : -eval;
 }

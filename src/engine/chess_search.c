@@ -22,7 +22,7 @@ enum {
     timer_check_freq = 1024,
 
     MIN_TIME_PER_MOVE = 5,
-    DEPTH_MAX = PLY_MAX
+    DEPTH_MAX = PLY_MAX - 30, // leaving room for qsearch to expand
 };
 
 #define MATING "mate "
@@ -182,7 +182,6 @@ static EvalScore_t Negamax(
     Ply_t ply
 )
 {
-    searchInfo->nodeCount++;
     PvLengthInit(&searchInfo->pvTable, ply);
 
     if(depth == 0) {
@@ -254,6 +253,8 @@ static EvalScore_t Negamax(
         }
 
         UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
+
+        searchInfo->nodeCount++;
 
         if(searchInfo->outOfTime) {
             return 0;

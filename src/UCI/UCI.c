@@ -41,6 +41,7 @@ enum {
     signal_setoption,
 
     signal_print_board,
+    signal_print_static_eval,
     signal_begin_datagen,
     signal_begin_tuning,
 };
@@ -142,7 +143,11 @@ static UciSignal_t InterpretWord(const char* word) {
     } else if(StringsMatch(word, "go")) {
         return signal_go;
     } else if (StringsMatch(word, "setoption")) {
-        return signal_setoption;
+        return signal_setoption; 
+
+    // my options below this point
+    } else if(StringsMatch(word, "evaluate")) {
+        return signal_print_static_eval;
     } else if(StringsMatch(word, "board")) {
         return signal_print_board;
     } else if (StringsMatch(word, "datagen")) {
@@ -372,6 +377,10 @@ static bool RespondToSignal(
     case signal_setoption:
         SetOption(input, i, &applicationData->uciSearchInfo);
         break;
+
+    case signal_print_static_eval:
+        printf("%d cp\n", ScoreOfPosition(&applicationData->boardInfo));
+        break;    
     case signal_print_board:
         PrintChessboard(&applicationData->boardInfo);
         printf("\n");

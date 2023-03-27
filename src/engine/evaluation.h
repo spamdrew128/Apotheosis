@@ -13,8 +13,6 @@
 #include "zobrist.h"
 #include "engine_types.h"
 
-Centipawns_t ValueOfPiece(Piece_t piece);
-
 EvalScore_t ScoreOfPosition(BoardInfo_t* boardInfo);
 
 #endif

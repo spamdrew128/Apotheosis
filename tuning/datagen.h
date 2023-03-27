@@ -2,7 +2,6 @@
 #define __DATAGEN_H__
 
 #include "board_info.h"
-#include "PST.h"
 #include "eval_constants.h"
 #include "FEN.h"
 

@@ -78,6 +78,10 @@ static void UpdateEnPassant(FEN_t fen, BoardInfo_t* info,  int* i, GameState_t* 
 }
 
 static void UpdateHalfmoveClock(FEN_t fen, int i, GameState_t* state) {
+    if(!CharIsNumber(fen[i])) {
+        state->halfmoveClock = 0;
+        return;
+    }
     HalfmoveCount_t halfmoves = 0;
 
     int numDigits = 0;
@@ -196,8 +200,7 @@ void InterpretFEN(
     i += 2;
     GameState_t* gameState = GetEmptyNextGameState(gameStack);
     if(fen[i] != '-') {
-        while (fen[i] != ' ')
-        {
+        while (fen[i] != ' ') {   
             UpdateCastlingRights(gameState, fen[i]);
             i++;
         }   

@@ -17,6 +17,18 @@ enum {
     some_depth = 5,
 };
 
+enum {
+  knight_value = 310,
+  bishop_value = 330,
+  rook_value = 500,
+  queen_value = 900,
+  pawn_value = 100,
+  king_value = 0,
+};
+
+// I made none_type worth as much as a pawn so I don't need a special case for en_passant. Kind of hacky but it works lol.
+static EvalScore_t mvvPieceValues[7] = { knight_value, bishop_value, rook_value, queen_value, pawn_value, king_value, pawn_value };
+
 bool IsCapture(Move_t move) {
     Piece_t victim = PieceOnSquare(&boardInfo, ReadToSquare(move));
     return victim != none_type || ReadSpecialFlag(move) == en_passant_flag;
@@ -29,7 +41,7 @@ static EvalScore_t MVVScore(Move_t capture) {
     Piece_t victim = PieceOnSquare(&boardInfo, toSquare);
     Piece_t attacker = PieceOnSquare(&boardInfo, fromSquare);
 
-    return ValueOfPiece(victim) - ValueOfPiece(attacker);
+    return mvvPieceValues[victim] - mvvPieceValues[attacker];
 }
 
 static MoveScore_t AssignTestScore(Move_t move, Move_t ttMove, Killers_t* killers, History_t* history, Ply_t ply) {
