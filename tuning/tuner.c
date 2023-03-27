@@ -309,7 +309,7 @@ void TuneParameters(const char* filename) {
     Gradient_t gradient[NUM_PHASES][VECTOR_LENGTH];
 
     double prevCost = Cost(&tuningData, K);
-    double startMSE = MSE(&tuningData, prevCost);
+    double prevMSE = MSE(&tuningData, prevCost);
     for(int epoch = 0; epoch < MAX_EPOCHS; epoch++) {
         memset(gradient, 0, sizeof(gradient));
 
@@ -320,15 +320,20 @@ void TuneParameters(const char* filename) {
 
         UpdateWeights(&tuningData, K, gradient);
 
-        double cost = Cost(&tuningData, K);
-        double mse = MSE(&tuningData, cost);
-        printf("Epoch: %d Cost: %f MSE: %f\n", epoch, cost, mse);
-        printf("Cost change since previous epoch: %f\n", cost - prevCost);
-        printf("MSE change since epoch 0: %f\n\n", mse - startMSE);
 
-        prevCost = cost;
-        
-        if(epoch % 10 == 0) {
+        if(epoch % 25 == 0) {
+            double cost = Cost(&tuningData, K);
+            double mse = MSE(&tuningData, cost);
+            printf("Epoch: %d Cost: %f MSE: %f\n", epoch, cost, mse);
+            printf("Cost change since previous: %f\n", cost - prevCost);
+            printf("MSE change since previous: %f\n\n", mse - prevMSE);
+
+            if(mse - prevMSE >= 0) {
+                break;
+            }
+
+            prevCost = cost;
+            prevMSE = mse;
             CreateOutputFile();
         }
     }
