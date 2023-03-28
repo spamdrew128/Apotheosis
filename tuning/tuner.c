@@ -105,6 +105,7 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
     int16_t allValues[VECTOR_LENGTH] = {0};
 
     FillPSTFeatures(allValues, boardInfo);
+    FillBonuse(allValues, boardInfo);
 
     tEntry->numFeatures = 0;
     for(uint16_t i = 0; i < VECTOR_LENGTH; i++) {
@@ -400,8 +401,8 @@ static void AddPieceValComment(FILE* fp) {
 
 static void PrintBonuses(FILE* fp) {
     fprintf(fp, "#define BISHOP_PAIR_BONUS \\n  %d, %d\n", 
-        weights[mg_phase][bishop_pair_offset],
-        weights[eg_phase][bishop_pair_offset]
+        (int)weights[mg_phase][bishop_pair_offset],
+        (int)weights[eg_phase][bishop_pair_offset]
     );
 }
 
@@ -427,6 +428,8 @@ static void CreateOutputFile() {
     
     FilePrintPST("KING_MG_PST", mg_phase, king, fp);
     FilePrintPST("KING_EG_PST", eg_phase, king, fp);
+
+    PrintBonuses(fp);
 
     fclose(fp);
 }
