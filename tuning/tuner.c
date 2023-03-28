@@ -105,7 +105,7 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
     int16_t allValues[VECTOR_LENGTH] = {0};
 
     FillPSTFeatures(allValues, boardInfo);
-    FillBonuse(allValues, boardInfo);
+    FillBonuses(allValues, boardInfo);
 
     tEntry->numFeatures = 0;
     for(uint16_t i = 0; i < VECTOR_LENGTH; i++) {
