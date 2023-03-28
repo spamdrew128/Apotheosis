@@ -400,7 +400,7 @@ static void AddPieceValComment(FILE* fp) {
 }
 
 static void PrintBonuses(FILE* fp) {
-    fprintf(fp, "#define BISHOP_PAIR_BONUS \\n  %d, %d\n", 
+    fprintf(fp, "#define BISHOP_PAIR_BONUS \\\n   %d, %d\n",
         (int)weights[mg_phase][bishop_pair_offset],
         (int)weights[eg_phase][bishop_pair_offset]
     );
