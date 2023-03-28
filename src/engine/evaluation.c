@@ -48,11 +48,11 @@ static void MaterialBalanceAndPSTBonus(BoardInfo_t* boardInfo, Phase_t* phase, C
 }
 
 static void BishopPairBonus(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* egScore) {
-    if(PopCount(boardInfo->bishops[white] >= 2)) {
+    if(PopCount(boardInfo->bishops[white]) >= 2) {
         *mgScore += bishopPairBonus[mg_phase];
         *egScore += bishopPairBonus[eg_phase];
     }
-    if(PopCount(boardInfo->bishops[black] >= 2)) {
+    if(PopCount(boardInfo->bishops[black]) >= 2) {
         *mgScore -= bishopPairBonus[mg_phase];
         *egScore -= bishopPairBonus[eg_phase];
     }
