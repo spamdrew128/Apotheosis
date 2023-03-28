@@ -14,14 +14,16 @@
 #include "util_macros.h"
 
 enum {
-    pst_offset = 0,
-    NUM_FEATURES,
-
     PST_FEATURE_COUNT = NUM_PIECES * NUM_SQUARES,
+    BISHOP_PAIR_FEATURE_COUNT = 1,
+
+    pst_offset = 0,
+    bishop_pair_offset = PST_FEATURE_COUNT,
+
+    VECTOR_LENGTH,
 };
 
 enum {
-    VECTOR_LENGTH = PST_FEATURE_COUNT,
     LINE_BUFFER = 500,
     MAX_EPOCHS = 10000,
 };
@@ -89,10 +91,21 @@ static void FillPSTFeatures(
     }
 }
 
+static void FillBonuses(
+    int16_t allValues[VECTOR_LENGTH],
+    BoardInfo_t* boardInfo
+)
+{
+    allValues[bishop_pair_offset] += 
+        (int)(PopCount(boardInfo->bishops[white]) >= 2) - 
+        (int)(PopCount(boardInfo->bishops[black]) >= 2);
+}
+
 void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
     int16_t allValues[VECTOR_LENGTH] = {0};
 
     FillPSTFeatures(allValues, boardInfo);
+    FillBonuses(allValues, boardInfo);
 
     tEntry->numFeatures = 0;
     for(uint16_t i = 0; i < VECTOR_LENGTH; i++) {
@@ -328,7 +341,8 @@ void TuneParameters(const char* filename) {
             printf("Cost change since previous: %f\n", cost - prevCost);
             printf("MSE change since previous: %f\n\n", mse - prevMSE);
 
-            if(mse - prevMSE >= 0) {
+            if(prevMSE - mse < 1e-7) {
+                printf("CONVERGED!\n");
                 break;
             }
 
@@ -386,6 +400,13 @@ static void AddPieceValComment(FILE* fp) {
     fprintf(fp, "*/\n\n");
 }
 
+static void PrintBonuses(FILE* fp) {
+    fprintf(fp, "#define BISHOP_PAIR_BONUS \\\n   %d, %d\n",
+        (int)weights[mg_phase][bishop_pair_offset],
+        (int)weights[eg_phase][bishop_pair_offset]
+    );
+}
+
 static void CreateOutputFile() {
     FILE* fp = fopen("tuning_output.txt", "w");
 
@@ -408,6 +429,8 @@ static void CreateOutputFile() {
     
     FilePrintPST("KING_MG_PST", mg_phase, king, fp);
     FilePrintPST("KING_EG_PST", eg_phase, king, fp);
+
+    PrintBonuses(fp);
 
     fclose(fp);
 }
