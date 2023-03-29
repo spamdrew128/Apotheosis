@@ -441,6 +441,7 @@ void UciSearchInfoTimeInfoReset(UciSearchInfo_t* uciSearchInfo) {
     uciSearchInfo->wInc = 0;
     uciSearchInfo->bInc = 0;
     uciSearchInfo->forceTime = 0;
+    uciSearchInfo->depthLimit = 0;
 }
 
 void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {
