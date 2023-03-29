@@ -19,7 +19,11 @@ void UpdateHistory(History_t* history, BoardInfo_t* boardInfo, Move_t move, Dept
     Piece_t piece = PieceOnSquare(boardInfo, ReadFromSquare(move));
     Square_t toSquare = ReadToSquare(move);
 
-    history->scores[piece][toSquare] += MIN(history->scores[piece][toSquare] + depth * depth, bonus_max);
+    history->scores[piece][toSquare] += MIN(depth * depth, bonus_max);
+
+    if(history->scores[piece][toSquare] > history_max) {
+        history->scores[piece][toSquare] = history_max;
+    }
 }
 
 MoveScore_t HistoryScore(History_t* history, BoardInfo_t* boardInfo, Move_t move) {
