@@ -165,7 +165,7 @@ static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
 
         assert(strlen(buffer) > 2);
         int resultIndex = 0;
-        while(buffer[resultIndex] != '"') {
+        while(buffer[resultIndex + 1] != '.') {
             resultIndex++; 
         }
 
@@ -180,16 +180,15 @@ static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
 
         FillTEntry(&tuningData->entryList[i], &boardInfo);
 
-        resultIndex++; 
-        if(buffer[resultIndex] == '1') {
-            if(buffer[resultIndex + 1] == '-') {
-                tuningData->entryList[i].result = 1;
+        if(buffer[resultIndex] == '0') {
+            if(buffer[resultIndex + 2] == '0') {
+                tuningData->entryList[i].result = 0;
             } else {
                 tuningData->entryList[i].result = 0.5;
             }
         } else {
-            assert(buffer[resultIndex] == '0');
-            tuningData->entryList[i].result = 0;
+            assert(buffer[resultIndex] == '1');
+            tuningData->entryList[i].result = 1;
         }
 
         if(percentComplete < (100*i / tuningData->numEntries)) {
