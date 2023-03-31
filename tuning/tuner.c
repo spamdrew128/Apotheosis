@@ -44,7 +44,7 @@ Momentum_t momentum[NUM_PHASES][VECTOR_LENGTH] = {0};
 
 typedef struct {
     int16_t value;
-    int16_t index;
+    int32_t index;
 } Feature_t;
 
 typedef struct {
@@ -159,6 +159,7 @@ static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
     tuningData->entryList = malloc(tuningData->numEntries * sizeof(TEntry_t));
 
     char buffer[LINE_BUFFER];
+    int percentComplete = -1;
     for(int i = 0; i < tuningData->numEntries; i++) {
         fgets(buffer, LINE_BUFFER, fp);
 
@@ -189,6 +190,11 @@ static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
         } else {
             assert(buffer[resultIndex] == '0');
             tuningData->entryList[i].result = 0;
+        }
+
+        if(percentComplete < (100*i / tuningData->numEntries)) {
+            percentComplete = (100*i / tuningData->numEntries);
+            printf("Data %d%% loaded\n", percentComplete);
         }
     }
 
@@ -401,7 +407,7 @@ static void AddPieceValComment(FILE* fp) {
 }
 
 static void PrintBonuses(FILE* fp) {
-    fprintf(fp, "#define BISHOP_PAIR_BONUS \\\n   %d, %d\n",
+    fprintf(fp, "#define BISHOP_PAIR_BONUS \\\n   %d, %d\n\n",
         (int)weights[mg_phase][bishop_pair_offset],
         (int)weights[eg_phase][bishop_pair_offset]
     );
@@ -409,6 +415,8 @@ static void PrintBonuses(FILE* fp) {
 
 static void CreateOutputFile() {
     FILE* fp = fopen("tuning_output.txt", "w");
+
+    PrintBonuses(fp);
 
     AddPieceValComment(fp);
 
@@ -429,8 +437,6 @@ static void CreateOutputFile() {
     
     FilePrintPST("KING_MG_PST", mg_phase, king, fp);
     FilePrintPST("KING_EG_PST", eg_phase, king, fp);
-
-    PrintBonuses(fp);
 
     fclose(fp);
 }
