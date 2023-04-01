@@ -467,10 +467,15 @@ EvalScore_t SimpleQsearch(
     MoveEntryList_t moveList;
     CompleteMovegen(&moveList, boardInfo, gameStack);
 
+    EvalScore_t standPat = ScoreOfPosition(boardInfo);
+    if(standPat > alpha) {
+        alpha = standPat;
+    }
+
     MovePicker_t movePicker;
     InitCaptureMovePicker(&movePicker, &moveList, boardInfo);
 
-    EvalScore_t bestScore = -INF;
+    EvalScore_t bestScore = standPat;
     for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
         Move_t move = PickMove(&movePicker);
         MakeMove(boardInfo, gameStack, move);

@@ -393,10 +393,12 @@ void FilterNonQuiets(const char* filename) {
             writes++;
         }
 
-        if(reads % 1000000 == 0) {
-            printf("%lld reads\n%lld saved\n", (long long)reads, (long long) writes);
+        if(reads % 100000 == 0) {
+            printf("%lld reads\n%lld saved\n\n", (long long)reads, (long long) writes);
         }
     }
+
+    printf("%lld reads\n%lld saved\n\n", (long long)reads, (long long) writes);
 
     fclose(rFP);
     fclose(wFP);
