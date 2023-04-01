@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     InitLookupTables();
     GenerateZobristKeys(&mainRNG);
 
-    FilterNonQuiets("test.txt");
+    FilterNonQuiets("nnue_data_v19.txt");
 
     bool running = Bench(argc, argv);
 
