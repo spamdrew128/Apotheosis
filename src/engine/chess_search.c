@@ -378,8 +378,8 @@ SearchResults_t Search(
             gameStack,
             zobristStack,
             &searchInfo,
-            -INFINITY,
-            INFINITY,
+            -INF,
+            INF,
             currentDepth,
             0
         );
@@ -425,8 +425,8 @@ NodeCount_t BenchSearch(
             gameStack,
             zobristStack,
             &searchInfo,
-            -INFINITY,
-            INFINITY,
+            -INF,
+            INF,
             currentDepth,
             0
         );

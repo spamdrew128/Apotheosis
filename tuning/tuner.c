@@ -153,7 +153,7 @@ static int EntriesInFile(FILE* fp) {
 }
 
 static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
-    FILE* fp = fopen(filename, "rb");
+    FILE* fp = fopen(filename, "r");
     
     tuningData->numEntries = EntriesInFile(fp);
     tuningData->entryList = malloc(tuningData->numEntries * sizeof(TEntry_t));

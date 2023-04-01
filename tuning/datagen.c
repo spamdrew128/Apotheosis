@@ -43,8 +43,8 @@ static void UpdateContainer(TuningDatagenContainer_t* container, UciApplicationD
         &data->boardInfo,
         &data->gameStack,
         &data->zobristStack,
-        -INFINITY,
-        INFINITY
+        -INF,
+        INF
     );
 
     if(staticEval == qsearchEval) {
