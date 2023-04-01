@@ -13,6 +13,9 @@
 #include "eval_constants.h"
 #include "util_macros.h"
 
+#include "chess_search.h"
+#include "engine_types.h"
+
 enum {
     PST_FEATURE_COUNT = NUM_PIECES * NUM_SQUARES,
     BISHOP_PAIR_FEATURE_COUNT = 1,
@@ -359,6 +362,45 @@ void TuneParameters(const char* filename) {
 
     CreateOutputFile();
     TuningDataTeardown(&tuningData);
+}
+
+void FilterNonQuiets(const char* filename) {
+    FILE* rFP = fopen(filename, "r");
+    FILE* wFP = fopen("resolved.txt", "w");
+
+    uint64_t writes = 0;
+    uint64_t reads = 0;
+
+    char buffer[LINE_BUFFER];
+    while(fgets(buffer, LINE_BUFFER, rFP)) {
+        reads++;
+        printf("%s", buffer);
+        BoardInfo_t boardInfo;
+        GameStack_t gameStack;
+        ZobristStack_t zobristStack;
+        InterpretFEN(buffer, &boardInfo, &gameStack, &zobristStack);
+        PrintChessboard(&boardInfo);
+
+        EvalScore_t staticEval = ScoreOfPosition(&boardInfo);
+        EvalScore_t qsearchEval = SimpleQsearch(
+            &boardInfo,
+            &gameStack,
+            -INF,
+            INF
+        );
+
+        if(staticEval == qsearchEval) {
+            fprintf(wFP, "%s", buffer);
+            writes++;
+        }
+
+        if(reads % 1000000 == 0) {
+            printf("%lld reads\n%lld saved\n", (long long)reads, (long long) writes);
+        }
+    }
+
+    fclose(rFP);
+    fclose(wFP);
 }
 
 // FILE PRINTING BELOW

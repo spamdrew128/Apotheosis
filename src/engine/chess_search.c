@@ -460,7 +460,6 @@ void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {
 EvalScore_t SimpleQsearch(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
-    ZobristStack_t* zobristStack,
     EvalScore_t alpha,
     EvalScore_t beta
 )
@@ -468,34 +467,17 @@ EvalScore_t SimpleQsearch(
     MoveEntryList_t moveList;
     CompleteMovegen(&moveList, boardInfo, gameStack);
 
-    GameEndStatus_t gameEndStatus = CheckForMates(boardInfo, moveList.maxIndex);
-    switch (gameEndStatus) {
-        case checkmate:
-            return -EVAL_MAX;
-        case draw:
-            return 0;
-    }
-
-    EvalScore_t standPat = ScoreOfPosition(boardInfo);
-    if(standPat >= beta) {
-        return standPat;
-    }
-
-    if(standPat > alpha) {
-        alpha = standPat;
-    }
-
     MovePicker_t movePicker;
     InitCaptureMovePicker(&movePicker, &moveList, boardInfo);
 
-    EvalScore_t bestScore = standPat;
+    EvalScore_t bestScore = -INF;
     for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
         Move_t move = PickMove(&movePicker);
-        MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
+        MakeMove(boardInfo, gameStack, move);
 
-        EvalScore_t score = -SimpleQsearch(boardInfo, gameStack, zobristStack, -beta, -alpha);
+        EvalScore_t score = -SimpleQsearch(boardInfo, gameStack, -beta, -alpha);
 
-        UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
+        UnmakeMove(boardInfo, gameStack);
 
         if(score > bestScore) {
             bestScore = score;

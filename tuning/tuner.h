@@ -3,4 +3,6 @@
 
 void TuneParameters();
 
+void FilterNonQuiets(const char* filename);
+
 #endif
