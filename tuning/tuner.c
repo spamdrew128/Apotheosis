@@ -374,12 +374,11 @@ void FilterNonQuiets(const char* filename) {
     char buffer[LINE_BUFFER];
     while(fgets(buffer, LINE_BUFFER, rFP)) {
         reads++;
-        printf("%s", buffer);
+
         BoardInfo_t boardInfo;
         GameStack_t gameStack;
         ZobristStack_t zobristStack;
         InterpretFEN(buffer, &boardInfo, &gameStack, &zobristStack);
-        PrintChessboard(&boardInfo);
 
         EvalScore_t staticEval = ScoreOfPosition(&boardInfo);
         EvalScore_t qsearchEval = SimpleQsearch(
