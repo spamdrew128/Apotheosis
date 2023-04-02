@@ -17,7 +17,7 @@
 #include "engine_types.h"
 
 enum {
-    PST_FEATURE_COUNT = NUM_PIECES * NUM_SQUARES,
+    PST_FEATURE_COUNT = NUM_SQUARES * NUM_SQUARES * 2 * NUM_PIECES,
     BISHOP_PAIR_FEATURE_COUNT = 1,
 
     pst_offset = 0,
@@ -37,10 +37,7 @@ typedef double Gradient_t;
 typedef double Weight_t;
 typedef double Velocity_t;
 typedef double Momentum_t;
-// Weight_t weights[NUM_PHASES][VECTOR_LENGTH] = {
-//     { KNIGHT_MG_PST BISHOP_MG_PST ROOK_MG_PST QUEEN_MG_PST PAWN_MG_PST KING_MG_PST },
-//     { KNIGHT_EG_PST BISHOP_EG_PST ROOK_EG_PST QUEEN_EG_PST PAWN_EG_PST KING_EG_PST },
-// };
+
 Weight_t weights[NUM_PHASES][VECTOR_LENGTH] = {0};
 Velocity_t velocity[NUM_PHASES][VECTOR_LENGTH] = {0};
 Momentum_t momentum[NUM_PHASES][VECTOR_LENGTH] = {0};
@@ -54,6 +51,7 @@ typedef struct {
     Feature_t* features;
     uint16_t numFeatures;
 
+    Color_t colorToMove;
     double phaseConstant[NUM_PHASES];
     double result;
 } TEntry_t;
@@ -62,6 +60,17 @@ typedef struct {
     TEntry_t* entryList;
     int numEntries;
 } TuningData_t;
+
+static void InitWeights() {
+    Weight_t tempPST[NUM_PHASES][384] = {
+        { KNIGHT_MG_PST BISHOP_MG_PST ROOK_MG_PST QUEEN_MG_PST PAWN_MG_PST KING_MG_PST },
+        { KNIGHT_EG_PST BISHOP_EG_PST ROOK_EG_PST QUEEN_EG_PST PAWN_EG_PST KING_EG_PST },
+    };
+    Weight_t tempPair = { BISHOP_PAIR_BONUS };
+
+    
+
+}
 
 static void FillPSTFeatures(
     int16_t allValues[VECTOR_LENGTH],
@@ -109,6 +118,7 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
 
     FillPSTFeatures(allValues, boardInfo);
     FillBonuses(allValues, boardInfo);
+    tEntry->colorToMove = boardInfo->colorToMove;
 
     tEntry->numFeatures = 0;
     for(uint16_t i = 0; i < VECTOR_LENGTH; i++) {
