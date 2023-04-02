@@ -17,7 +17,7 @@
 #include "engine_types.h"
 
 enum {
-    PST_FEATURE_COUNT = NUM_SQUARES * NUM_SQUARES * 2 * NUM_PIECES,
+    PST_FEATURE_COUNT = 8 * 8 * 2 * NUM_PIECES * NUM_SQUARES,
     BISHOP_PAIR_FEATURE_COUNT = 1,
 
     pst_offset = 0,
@@ -51,7 +51,6 @@ typedef struct {
     Feature_t* features;
     uint16_t numFeatures;
 
-    Color_t colorToMove;
     double phaseConstant[NUM_PHASES];
     double result;
 } TEntry_t;
@@ -61,15 +60,34 @@ typedef struct {
     int numEntries;
 } TuningData_t;
 
+static int FlatPSTIndex(Square_t w, Square_t b, Color_t c, Piece_t p, Square_t sq) {
+    return (8*2*6*64)*w + (2*6*64)*b + (6*64)*c + (64)*p + 64;
+}
+
 static void InitWeights() {
     Weight_t tempPST[NUM_PHASES][384] = {
         { KNIGHT_MG_PST BISHOP_MG_PST ROOK_MG_PST QUEEN_MG_PST PAWN_MG_PST KING_MG_PST },
         { KNIGHT_EG_PST BISHOP_EG_PST ROOK_EG_PST QUEEN_EG_PST PAWN_EG_PST KING_EG_PST },
     };
-    Weight_t tempPair = { BISHOP_PAIR_BONUS };
+    Weight_t tempPair[] = { BISHOP_PAIR_BONUS };
 
-    
+    for(int w = 0; w < 8; w++) {
+        for(int b = 0; b < 8; b++) {
+            for(int c = 0; c < 2; c++) {
+                for(int p = 0; p < NUM_PIECES; p++) {
+                    for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
+                        for(Phase_t phase = 0; phase < 2; phase++) {
+                            Square_t pstSq = (c == black) ? sq : MIRROR(sq);
+                            weights[phase][FlatPSTIndex(w, b, c, p, sq)] = tempPST[phase][NUM_SQUARES*p + sq];
+                        }
+                    }
+                }
+            }
+        }
+    }
 
+    weights[bishop_pair_offset][mg_phase] = tempPair[mg_phase];
+    weights[bishop_pair_offset][eg_phase] = tempPair[eg_phase];
 }
 
 static void FillPSTFeatures(
@@ -118,7 +136,6 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
 
     FillPSTFeatures(allValues, boardInfo);
     FillBonuses(allValues, boardInfo);
-    tEntry->colorToMove = boardInfo->colorToMove;
 
     tEntry->numFeatures = 0;
     for(uint16_t i = 0; i < VECTOR_LENGTH; i++) {
