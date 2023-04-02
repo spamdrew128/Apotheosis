@@ -42,9 +42,8 @@ static void UpdateContainer(TuningDatagenContainer_t* container, UciApplicationD
     EvalScore_t qsearchEval = SimpleQsearch(
         &data->boardInfo,
         &data->gameStack,
-        &data->zobristStack,
-        -INFINITY,
-        INFINITY
+        -INF,
+        INF
     );
 
     if(staticEval == qsearchEval) {

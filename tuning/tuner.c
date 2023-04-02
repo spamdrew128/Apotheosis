@@ -13,6 +13,9 @@
 #include "eval_constants.h"
 #include "util_macros.h"
 
+#include "chess_search.h"
+#include "engine_types.h"
+
 enum {
     PST_FEATURE_COUNT = NUM_PIECES * NUM_SQUARES,
     BISHOP_PAIR_FEATURE_COUNT = 1,
@@ -44,7 +47,7 @@ Momentum_t momentum[NUM_PHASES][VECTOR_LENGTH] = {0};
 
 typedef struct {
     int16_t value;
-    int16_t index;
+    int32_t index;
 } Feature_t;
 
 typedef struct {
@@ -144,6 +147,9 @@ static int EntriesInFile(FILE* fp) {
 
     char buffer[LINE_BUFFER];
     while(fgets(buffer, LINE_BUFFER, fp)) {
+        if(strlen(buffer) <= 2) {
+            break;
+        }
         lines++;
     }
 
@@ -153,16 +159,16 @@ static int EntriesInFile(FILE* fp) {
 }
 
 static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
-    FILE* fp = fopen(filename, "rb");
+    FILE* fp = fopen(filename, "r");
     
     tuningData->numEntries = EntriesInFile(fp);
     tuningData->entryList = malloc(tuningData->numEntries * sizeof(TEntry_t));
 
     char buffer[LINE_BUFFER];
+    int percentComplete = -1;
     for(int i = 0; i < tuningData->numEntries; i++) {
         fgets(buffer, LINE_BUFFER, fp);
 
-        assert(strlen(buffer) > 2);
         int resultIndex = 0;
         while(buffer[resultIndex] != '"') {
             resultIndex++; 
@@ -189,6 +195,11 @@ static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
         } else {
             assert(buffer[resultIndex] == '0');
             tuningData->entryList[i].result = 0;
+        }
+
+        if(percentComplete < (100*i / tuningData->numEntries)) {
+            percentComplete = (100*i / tuningData->numEntries);
+            printf("Data %d%% loaded\n", percentComplete);
         }
     }
 
@@ -356,6 +367,46 @@ void TuneParameters(const char* filename) {
     TuningDataTeardown(&tuningData);
 }
 
+void FilterNonQuiets(const char* filename) {
+    FILE* rFP = fopen(filename, "r");
+    FILE* wFP = fopen("resolved.txt", "w");
+
+    uint64_t writes = 0;
+    uint64_t reads = 0;
+
+    char buffer[LINE_BUFFER];
+    while(fgets(buffer, LINE_BUFFER, rFP)) {
+        reads++;
+
+        BoardInfo_t boardInfo;
+        GameStack_t gameStack;
+        ZobristStack_t zobristStack;
+        InterpretFEN(buffer, &boardInfo, &gameStack, &zobristStack);
+
+        EvalScore_t staticEval = ScoreOfPosition(&boardInfo);
+        EvalScore_t qsearchEval = SimpleQsearch(
+            &boardInfo,
+            &gameStack,
+            -INF,
+            INF
+        );
+
+        if(staticEval == qsearchEval) {
+            fprintf(wFP, "%s", buffer);
+            writes++;
+        }
+
+        if(reads % 100000 == 0) {
+            printf("%lld reads\n%lld saved\n\n", (long long)reads, (long long) writes);
+        }
+    }
+
+    printf("%lld reads\n%lld saved\n\n", (long long)reads, (long long) writes);
+
+    fclose(rFP);
+    fclose(wFP);
+}
+
 // FILE PRINTING BELOW
 static void FilePrintPST(const char* tableName, Phase_t phase, Piece_t piece, FILE* fp) {
     fprintf(fp, "#define %s \\\n", tableName);
@@ -401,7 +452,7 @@ static void AddPieceValComment(FILE* fp) {
 }
 
 static void PrintBonuses(FILE* fp) {
-    fprintf(fp, "#define BISHOP_PAIR_BONUS \\\n   %d, %d\n",
+    fprintf(fp, "#define BISHOP_PAIR_BONUS \\\n   %d, %d\n\n",
         (int)weights[mg_phase][bishop_pair_offset],
         (int)weights[eg_phase][bishop_pair_offset]
     );
@@ -409,6 +460,8 @@ static void PrintBonuses(FILE* fp) {
 
 static void CreateOutputFile() {
     FILE* fp = fopen("tuning_output.txt", "w");
+
+    PrintBonuses(fp);
 
     AddPieceValComment(fp);
 
@@ -429,8 +482,6 @@ static void CreateOutputFile() {
     
     FilePrintPST("KING_MG_PST", mg_phase, king, fp);
     FilePrintPST("KING_EG_PST", eg_phase, king, fp);
-
-    PrintBonuses(fp);
 
     fclose(fp);
 }
