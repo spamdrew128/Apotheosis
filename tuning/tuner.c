@@ -147,6 +147,9 @@ static int EntriesInFile(FILE* fp) {
 
     char buffer[LINE_BUFFER];
     while(fgets(buffer, LINE_BUFFER, fp)) {
+        if(strlen(buffer) <= 2) {
+            break;
+        }
         lines++;
     }
 
@@ -166,7 +169,6 @@ static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
     for(int i = 0; i < tuningData->numEntries; i++) {
         fgets(buffer, LINE_BUFFER, fp);
 
-        assert(strlen(buffer) > 2);
         int resultIndex = 0;
         while(buffer[resultIndex + 1] != '.') {
             resultIndex++; 
