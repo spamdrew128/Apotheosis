@@ -30,8 +30,6 @@ int main(int argc, char** argv)
     InitLookupTables();
     GenerateZobristKeys(&mainRNG);
 
-    FilterNonQuiets("nnue_data_v19.txt");
-
     bool running = Bench(argc, argv);
 
     UciApplicationData_t uciApplicationData;
