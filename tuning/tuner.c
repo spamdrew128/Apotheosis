@@ -29,7 +29,7 @@ enum {
 enum {
     LINE_BUFFER = 500,
     MAX_EPOCHS = 10000,
-    ENTRY_MAX = 10000,
+    ENTRY_MAX = 10000000,
 };
 
 #define LEARN_RATE 5000
