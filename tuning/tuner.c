@@ -10,7 +10,7 @@
 #include "board_constants.h"
 #include "datagen.h"
 #include "bitboards.h"
-#include "eval_constants.h"
+#include "eval_constants_old.h"
 #include "util_macros.h"
 
 #include "chess_search.h"
@@ -80,7 +80,7 @@ static void InitWeights() {
                     for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
                         for(Phase_t phase = 0; phase < 2; phase++) {
                             Square_t pstSq = (c == black) ? sq : MIRROR(sq);
-                            weights[phase][FlatPSTIndex(w, b, c, p, sq)] = tempPST[phase][NUM_SQUARES*p + sq];
+                            weights[phase][FlatPSTIndex(w, b, c, p, pstSq)] = tempPST[phase][NUM_SQUARES*p + pstSq];
                         }
                     }
                 }
@@ -441,19 +441,17 @@ void FilterNonQuiets(const char* filename) {
 }
 
 // FILE PRINTING BELOW
-static void FilePrintPST(const char* tableName, Phase_t phase, Piece_t piece, FILE* fp) {
-    fprintf(fp, "#define %s \\\n", tableName);
+static void FilePrintPST(FILE* fp) {
+    fprintf(fp, "#define SUPER_PST_MG \\\n");
 
-    for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
-        if(sq % 8 == 0) { // first row entry
-            fprintf(fp, "   ");
-        }
+    for(int i = 0; i < PST_FEATURE_COUNT; i++) {
+        fprintf(fp, "%d\n", (int)weights[mg_phase][i]);
+    }
 
-        fprintf(fp, "%d, ", (int)weights[phase][pst_offset + NUM_SQUARES*piece + sq]);
+    fprintf(fp, "\n#define SUPER_PST_MG \\\n");
 
-        if(sq % 8 == 7) { // last row entry
-            fprintf(fp, "\\\n");
-        }
+    for(int i = 0; i < PST_FEATURE_COUNT; i++) {
+        fprintf(fp, "%d\n", (int)weights[eg_phase][i]);
     }
 
     fprintf(fp, "\n");
@@ -471,25 +469,7 @@ static void CreateOutputFile() {
 
     PrintBonuses(fp);
 
-    AddPieceValComment(fp);
-
-    FilePrintPST("KNIGHT_MG_PST", mg_phase, knight, fp);
-    FilePrintPST("KNIGHT_EG_PST", eg_phase, knight, fp);
-
-    FilePrintPST("BISHOP_MG_PST", mg_phase, bishop, fp);
-    FilePrintPST("BISHOP_EG_PST", eg_phase, bishop, fp);
-
-    FilePrintPST("ROOK_MG_PST", mg_phase, rook, fp);
-    FilePrintPST("ROOK_EG_PST", eg_phase, rook, fp);
-
-    FilePrintPST("QUEEN_MG_PST", mg_phase, queen, fp);
-    FilePrintPST("QUEEN_EG_PST", eg_phase, queen, fp);
-
-    FilePrintPST("PAWN_MG_PST", mg_phase, pawn, fp);
-    FilePrintPST("PAWN_EG_PST", eg_phase, pawn, fp);
-    
-    FilePrintPST("KING_MG_PST", mg_phase, king, fp);
-    FilePrintPST("KING_EG_PST", eg_phase, king, fp);
+    FilePrintPST(fp);
 
     fclose(fp);
 }
