@@ -195,7 +195,6 @@ static void TuningDataInit(TuningData_t* tuningData, FILE* fp, int numEntries) {
     tuningData->entryList = malloc(tuningData->numEntries * sizeof(TEntry_t));
 
     char buffer[LINE_BUFFER];
-    int percentComplete = -1;
     for(int i = 0; i < tuningData->numEntries; i++) {
         fgets(buffer, LINE_BUFFER, fp);
 
@@ -225,12 +224,9 @@ static void TuningDataInit(TuningData_t* tuningData, FILE* fp, int numEntries) {
             assert(buffer[resultIndex + 2] == '1');
             tuningData->entryList[i].result = 1;
         }
-
-        if(percentComplete < (100*i / tuningData->numEntries + 25)) {
-            percentComplete = (100*i / tuningData->numEntries);
-            printf("Data %d%% loaded\n", percentComplete);
-        }
     }
+
+    printf("%d Entries Loaded\n", numEntries);
 }
 
 static void TuningDataTeardown(TuningData_t* tuningData) {
@@ -277,33 +273,8 @@ static double Cost(TuningData_t* tuningData, double K) {
     return totalError;
 }
 
-static double MSE(TuningData_t* tuningData, double cost) {
-    return cost / tuningData->numEntries;
-}
-
-static double ComputeK(TuningData_t* tuningData) {
-    double start = 0.001;
-    double end = 0.01;
-    double step = (end - start) / 1000;
-    double currentK = start;
-
-    int iter = 0;
-
-    double bestK;
-    double lowestCost = 10000000;
-    while(currentK <= end) {
-        double cost = Cost(tuningData, currentK);
-        if(cost <= lowestCost) {
-            lowestCost = cost;
-            bestK = currentK;
-        }
-        currentK += step;
-        printf("iteration %d\n", iter++);
-    }
-    
-    printf("K = %f gives MSE of %f\n", bestK, MSE(tuningData, lowestCost));
-
-    return bestK;
+static double MSE(uint64_t numEntries, double cost) {
+    return cost / numEntries;
 }
 
 static void UpdateGradient(
@@ -329,7 +300,7 @@ static void UpdateGradient(
 }
 
 static void UpdateWeights(
-    TuningData_t* tuningData,
+    uint64_t numEntries,
     double K,
     Gradient_t gradient[NUM_PHASES][VECTOR_LENGTH]
 )
@@ -340,7 +311,7 @@ static void UpdateWeights(
 
     for(int i = 0; i < VECTOR_LENGTH; i++) {
         for(Phase_t phase = 0; phase < NUM_PHASES; phase++) {
-            Gradient_t grad = -K * gradient[phase][i] / tuningData->numEntries;
+            Gradient_t grad = -K * gradient[phase][i] / numEntries;
             momentum[phase][i] = beta1 * momentum[phase][i] + (1 - beta1) * grad;
             velocity[phase][i] = beta2 * velocity[phase][i] + (1 - beta2) * pow(grad, 2);
 
@@ -355,48 +326,52 @@ void TuneParameters(const char* filename) {
     FILE* fp = fopen(filename, "r");
 
     InitWeights();
-    uint64 totalEntries = EntriesInFile(fp);
+    uint64_t totalEntries = EntriesInFile(fp);
 
     TuningData_t tuningData;
-    TuningDataInit(&tuningData, fp);
 
     double K = 0.006634;
 
     Gradient_t gradient[NUM_PHASES][VECTOR_LENGTH];
 
-    double prevCost = Cost(&tuningData, K);
-    double prevMSE = MSE(&tuningData, prevCost);
+    double prevCost = 10000000000;
+    double prevMSE = 10000000000;
     for(int epoch = 0; epoch < MAX_EPOCHS; epoch++) {
         memset(gradient, 0, sizeof(gradient));
+        uint64_t remainingEntries = totalEntries;
+        double cost = 0;
 
-        for(int i = 0; i < tuningData.numEntries; i++) {
-            TEntry_t entry = tuningData.entryList[i];
-            UpdateGradient(entry, K, gradient);
-        }
+        while(remainingEntries) {
+            int using = MIN(ENTRY_MAX, remainingEntries);
+            remainingEntries -= using;
+            TuningDataInit(&tuningData, fp, using);
 
-        UpdateWeights(&tuningData, K, gradient);
-
-
-        if(epoch % 25 == 0) {
-            double cost = Cost(&tuningData, K);
-            double mse = MSE(&tuningData, cost);
-            printf("Epoch: %d Cost: %f MSE: %f\n", epoch, cost, mse);
-            printf("Cost change since previous: %f\n", cost - prevCost);
-            printf("MSE change since previous: %f\n\n", mse - prevMSE);
-
-            if(prevMSE - mse < 1e-7) {
-                printf("CONVERGED!\n");
-                break;
+            for(int i = 0; i < tuningData.numEntries; i++) {
+                TEntry_t entry = tuningData.entryList[i];
+                UpdateGradient(entry, K, gradient);
             }
 
-            prevCost = cost;
-            prevMSE = mse;
-            CreateOutputFile();
-        }
-    }
+            cost += Cost(&tuningData, K);
 
-    CreateOutputFile();
-    TuningDataTeardown(&tuningData);
+            TuningDataTeardown(&tuningData);
+        }
+
+        UpdateWeights(totalEntries, K, gradient);
+
+        double mse = MSE(totalEntries, cost);
+        printf("Epoch: %d Cost: %f MSE: %f\n", epoch, cost, mse);
+        printf("Cost change since previous: %f\n", cost - prevCost);
+        printf("MSE change since previous: %f\n\n", mse - prevMSE);
+
+        if(prevMSE - mse < 1e-7) {
+            printf("CONVERGED!\n");
+            break;
+        }
+
+        prevCost = cost;
+        prevMSE = mse;
+        CreateOutputFile();
+    }
 
     fclose(fp);
 }
