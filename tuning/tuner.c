@@ -72,7 +72,7 @@ static void InitWeights() {
         { KNIGHT_MG_PST BISHOP_MG_PST ROOK_MG_PST QUEEN_MG_PST PAWN_MG_PST KING_MG_PST },
         { KNIGHT_EG_PST BISHOP_EG_PST ROOK_EG_PST QUEEN_EG_PST PAWN_EG_PST KING_EG_PST },
     };
-    Weight_t tempPair[] = { BISHOP_PAIR_BONUS };
+    Weight_t tempPair[] = { BISHOP_PAIR_BONUSS };
 
     for(Bucket_t w = 0; w < 8; w++) {
         for(Bucket_t b = 0; b < 8; b++) {
@@ -373,7 +373,7 @@ void TuneParameters(const char* filename) {
         }
 
         printf("Epoch: %d\n", epoch);
-        
+
         CreateOutputFile();
     }
 
