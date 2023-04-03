@@ -49,8 +49,8 @@ static void PSTEval(
 }
 
 static void MaterialBalanceAndPSTBonus(BoardInfo_t* boardInfo, Phase_t* phase, Centipawns_t* mgScore, Centipawns_t* egScore) {
-    Bucket_t wKing = KingSquare(boardInfo, white);
-    Bucket_t bKing = KingSquare(boardInfo, black);
+    Bucket_t wKing = KingSquare(boardInfo, white) / 8;
+    Bucket_t bKing = KingSquare(boardInfo, black) / 8;
 
     PSTEval(boardInfo->knights, wKing, bKing, knight, phase, mgScore, egScore);
     PSTEval(boardInfo->bishops, wKing, bKing, bishop, phase, mgScore, egScore);
