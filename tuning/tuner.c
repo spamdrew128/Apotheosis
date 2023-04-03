@@ -221,7 +221,7 @@ static void TuningDataInit(TuningData_t* tuningData, FILE* fp, int numEntries) {
                 tuningData->entryList[i].result = 0.5;
             }
         } else {
-            assert(buffer[resultIndex + 2] == '1');
+            assert(buffer[resultIndex] == '1');
             tuningData->entryList[i].result = 1;
         }
     }
@@ -326,7 +326,9 @@ void TuneParameters(const char* filename) {
     FILE* fp = fopen(filename, "r");
 
     InitWeights();
+    printf("Finding file length\n");
     uint64_t totalEntries = EntriesInFile(fp);
+    printf("File length: %lld\n", (long long)totalEntries);
 
     TuningData_t tuningData;
 
