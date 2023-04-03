@@ -336,6 +336,7 @@ void TuneParameters(const char* filename) {
 
     Gradient_t gradient[NUM_PHASES][VECTOR_LENGTH];
 
+    double mse;
     double prevMSE = 10000000000;
     for(int epoch = 0; epoch < MAX_EPOCHS; epoch++) {
         uint64_t remainingEntries = totalEntries;
