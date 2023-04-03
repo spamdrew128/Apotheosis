@@ -80,7 +80,7 @@ static void InitWeights() {
                     for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
                         for(Phase_t phase = 0; phase < 2; phase++) {
                             Square_t pstSq = (c == black) ? sq : MIRROR(sq);
-                            weights[phase][FlatPSTIndex(w, b, c, p, pstSq)] = tempPST[phase][NUM_SQUARES*p + pstSq];
+                            weights[phase][FlatPSTIndex(w, b, c, p, pstSq)] = tempPST[phase][NUM_SQUARES*p + sq];
                         }
                     }
                 }
@@ -450,7 +450,7 @@ static void FilePrintPST(FILE* fp) {
         fprintf(fp, "%d, ", (int)weights[mg_phase][i]);
     }
 
-    fprintf(fp, "\n\n\n#define SUPER_PST_EG \\\n");
+    fprintf(fp, "\n\n#define SUPER_PST_EG \\\n");
 
     for(int i = 0; i < PST_FEATURE_COUNT; i++) {
         fprintf(fp, "%d, ", (int)weights[eg_phase][i]);
