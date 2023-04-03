@@ -5,6 +5,7 @@ TDD_ROOT=tdd
 BITBOARDS=$(SRC)/bitboards
 ENDINGS=$(SRC)/endings
 ENGINE=$(SRC)/engine
+EVAL=$(ENGINE)/evaluation
 FEN=$(SRC)/FEN
 LOOKUP=$(SRC)/lookup
 MOVEGEN=$(SRC)/movegen
@@ -29,6 +30,7 @@ INCDIRS:= \
 -I $(BITBOARDS)/. \
 -I $(ENDINGS)/. \
 -I $(ENGINE)/. \
+-I $(EVAL)/. \
 -I $(FEN)/. \
 -I $(LOOKUP)/. \
 -I $(MOVEGEN)/. \
@@ -51,12 +53,13 @@ $(BITBOARDS)/bitboards.c \
 $(BITBOARDS)/magic.c \
 $(ENDINGS)/endings.c \
 $(ENGINE)/chess_search.c \
-$(ENGINE)/evaluation.c \
 $(ENGINE)/killers.c \
 $(ENGINE)/PV_table.c \
 $(ENGINE)/move_ordering.c \
 $(ENGINE)/transposition_table.c \
 $(ENGINE)/history.c \
+$(EVAL)/evaluation.c \
+$(EVAL)/pawn_structure.c \
 $(FEN)/FEN.c \
 $(LOOKUP)/lookup.c \
 $(PLAY)/move.c \
