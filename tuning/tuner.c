@@ -336,7 +336,7 @@ void TuneParameters(const char* filename) {
 
     double mse;
     double prevMSE = 10000000000;
-    for(int epoch = 0; epoch < MAX_EPOCHS; epoch++) {
+    for(int epoch = 0; epoch < 100; epoch++) {
         uint64_t remainingEntries = totalEntries;
 
         int i = 0;
@@ -359,7 +359,7 @@ void TuneParameters(const char* filename) {
                 printf("Iteration: %d\n", i);
                 printf("MSE: %f\n\n", mse);
 
-                if(prevMSE - mse <= 0) {
+                if(prevMSE - mse <= 0 && epoch > 0) {
                     printf("CONVERGED!\n");
                     break;
                 }
@@ -373,11 +373,7 @@ void TuneParameters(const char* filename) {
         }
 
         printf("Epoch: %d\n", epoch);
-        printf("MSE change since previous: %f\n\n", mse - prevMSE);
-
- 
-
-        prevMSE = mse;
+        
         CreateOutputFile();
     }
 
