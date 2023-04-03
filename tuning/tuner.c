@@ -63,7 +63,7 @@ typedef struct {
 } TuningData_t;
 
 static int FlatPSTIndex(Bucket_t w, Bucket_t b, Color_t c, Piece_t p, Square_t sq) {
-    return (8*2*6*64)*w + (2*6*64)*b + (6*64)*c + (64)*p + 64;
+    return (8*2*6*64)*w + (2*6*64)*b + (6*64)*c + (64)*p + sq;
 }
 
 static void InitWeights() {
@@ -88,8 +88,8 @@ static void InitWeights() {
         }
     }
 
-    weights[bishop_pair_offset][mg_phase] = tempPair[mg_phase];
-    weights[bishop_pair_offset][eg_phase] = tempPair[eg_phase];
+    weights[mg_phase][bishop_pair_offset] = tempPair[mg_phase];
+    weights[eg_phase][bishop_pair_offset] = tempPair[eg_phase];
 }
 
 static void FillPSTFeatures(
@@ -357,6 +357,8 @@ static void CreateOutputFile();
 
 void TuneParameters(const char* filename) {
     InitWeights();
+    CreateOutputFile();
+    return;
 
     TuningData_t tuningData;
     TuningDataInit(&tuningData, filename);
