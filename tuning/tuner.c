@@ -51,8 +51,6 @@ typedef struct {
     Feature_t* features;
     uint16_t numFeatures;
 
-    uint8_t wKing;
-    uint8_t bKing;
     double phaseConstant[NUM_PHASES];
     double result;
 } TEntry_t;
@@ -93,7 +91,8 @@ static void InitWeights() {
 }
 
 static void FillPSTFeatures(
-    TEntry_t* tEntry,
+    Square_t wKing,
+    Square_t bKing,
     int16_t allValues[VECTOR_LENGTH],
     BoardInfo_t* boardInfo
 )
@@ -113,12 +112,12 @@ static void FillPSTFeatures(
 
         while(whitePieces) {
             Square_t sq = LSB(whitePieces);
-            allValues[FlatPSTIndex(tEntry->wKing, tEntry->bKing, white, piece, sq)]++;
+            allValues[FlatPSTIndex(wKing/8, bKing/8, white, piece, sq)]++;
             ResetLSB(&whitePieces);
         }
         while(blackPieces) {
             Square_t sq = LSB(blackPieces);
-            allValues[FlatPSTIndex(tEntry->wKing, tEntry->bKing, black, piece, sq)]--;
+            allValues[FlatPSTIndex(wKing/8, bKing/8, black, piece, sq)]--;
             ResetLSB(&blackPieces);
         }
     }
@@ -137,10 +136,7 @@ static void FillBonuses(
 void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
     int16_t allValues[VECTOR_LENGTH] = {0};
 
-    tEntry->wKing = KingSquare(boardInfo, white);
-    tEntry->bKing = KingSquare(boardInfo, black);
-
-    FillPSTFeatures(tEntry, allValues, boardInfo);
+    FillPSTFeatures(KingSquare(boardInfo, white), KingSquare(boardInfo, black), allValues, boardInfo);
     FillBonuses(allValues, boardInfo);
 
     tEntry->numFeatures = 0;
@@ -358,6 +354,8 @@ static void UpdateWeights(
 static void CreateOutputFile();
 
 void TuneParameters(const char* filename) {
+    InitWeights();
+
     TuningData_t tuningData;
     TuningDataInit(&tuningData, filename);
 
