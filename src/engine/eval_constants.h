@@ -19,9 +19,6 @@ enum {
 };
 
 #define BISHOP_PAIR_BONUS \
-   36, 66
-
-#define BISHOP_PAIR_BONUS \
    15, 62
 
 #define SUPER_PST_MG \
