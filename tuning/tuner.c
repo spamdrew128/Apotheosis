@@ -447,13 +447,13 @@ static void FilePrintPST(FILE* fp) {
     fprintf(fp, "#define SUPER_PST_MG \\\n");
 
     for(int i = 0; i < PST_FEATURE_COUNT; i++) {
-        fprintf(fp, "%d\n", (int)weights[mg_phase][i]);
+        fprintf(fp, "%d, ", (int)weights[mg_phase][i]);
     }
 
-    fprintf(fp, "\n#define SUPER_PST_MG \\\n");
+    fprintf(fp, "\n\n\n#define SUPER_PST_EG \\\n");
 
     for(int i = 0; i < PST_FEATURE_COUNT; i++) {
-        fprintf(fp, "%d\n", (int)weights[eg_phase][i]);
+        fprintf(fp, "%d, ", (int)weights[eg_phase][i]);
     }
 
     fprintf(fp, "\n");
