@@ -10,6 +10,7 @@
 #include "move.h"
 #include "board_info.h"
 #include "engine_types.h"
+#include "eval_constants.h"
 
 void PassedPawns(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* egScore);
 
