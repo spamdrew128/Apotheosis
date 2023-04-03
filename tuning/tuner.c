@@ -225,8 +225,6 @@ static void TuningDataInit(TuningData_t* tuningData, FILE* fp, int numEntries) {
             tuningData->entryList[i].result = 1;
         }
     }
-
-    printf("%d Entries Loaded\n", numEntries);
 }
 
 static void TuningDataTeardown(TuningData_t* tuningData) {
@@ -341,6 +339,7 @@ void TuneParameters(const char* filename) {
     for(int epoch = 0; epoch < MAX_EPOCHS; epoch++) {
         uint64_t remainingEntries = totalEntries;
 
+        int i = 0;
         while(remainingEntries) {
             memset(gradient, 0, sizeof(gradient));
 
@@ -355,13 +354,20 @@ void TuneParameters(const char* filename) {
             
             UpdateWeights(using, K, gradient);
 
-            mse = Cost(&tuningData, K) / using;
-            if(prevMSE - mse < 0) {
-                printf("CONVERGED!\n");
-                remainingEntries = 0;
-            } else {
+            if(i % 25 == 0) {
+                mse = Cost(&tuningData, K) / using;
+                printf("Iteration: %d\n", i);
+                printf("MSE: %f\n", mse);
+                CreateOutputFile();
+
+                if(prevMSE - mse <= 0) {
+                    printf("CONVERGED!\n");
+                    break;
+                }
+
                 prevMSE = mse;
             }
+            i++;
 
             TuningDataTeardown(&tuningData);
         }
@@ -369,10 +375,7 @@ void TuneParameters(const char* filename) {
         printf("Epoch: %d\n", epoch);
         printf("MSE change since previous: %f\n\n", mse - prevMSE);
 
-        if(prevMSE - mse <= 0) {
-            printf("CONVERGED!\n");
-            break;
-        }
+ 
 
         prevMSE = mse;
         CreateOutputFile();
