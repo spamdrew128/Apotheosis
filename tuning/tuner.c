@@ -29,6 +29,7 @@ enum {
 enum {
     LINE_BUFFER = 500,
     MAX_EPOCHS = 10000,
+    ENTRY_MAX = 10000,
 };
 
 #define LEARN_RATE 5000
@@ -189,10 +190,8 @@ static int EntriesInFile(FILE* fp) {
     return lines;
 }
 
-static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
-    FILE* fp = fopen(filename, "r");
-    
-    tuningData->numEntries = EntriesInFile(fp);
+static void TuningDataInit(TuningData_t* tuningData, FILE* fp, int numEntries) {
+    tuningData->numEntries = numEntries;
     tuningData->entryList = malloc(tuningData->numEntries * sizeof(TEntry_t));
 
     char buffer[LINE_BUFFER];
@@ -201,7 +200,7 @@ static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
         fgets(buffer, LINE_BUFFER, fp);
 
         int resultIndex = 0;
-        while(buffer[resultIndex] != '"') {
+        while(buffer[resultIndex + 1] != '.') {
             resultIndex++; 
         }
 
@@ -216,16 +215,15 @@ static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
 
         FillTEntry(&tuningData->entryList[i], &boardInfo);
 
-        resultIndex++; 
-        if(buffer[resultIndex] == '1') {
-            if(buffer[resultIndex + 1] == '-') {
-                tuningData->entryList[i].result = 1;
+        if(buffer[resultIndex] == '0') {
+            if(buffer[resultIndex + 2] == '0') {
+                tuningData->entryList[i].result = 0;
             } else {
                 tuningData->entryList[i].result = 0.5;
             }
         } else {
-            assert(buffer[resultIndex] == '0');
-            tuningData->entryList[i].result = 0;
+            assert(buffer[resultIndex + 2] == '1');
+            tuningData->entryList[i].result = 1;
         }
 
         if(percentComplete < (100*i / tuningData->numEntries + 25)) {
@@ -233,8 +231,6 @@ static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
             printf("Data %d%% loaded\n", percentComplete);
         }
     }
-
-    fclose(fp);
 }
 
 static void TuningDataTeardown(TuningData_t* tuningData) {
@@ -356,12 +352,13 @@ static void UpdateWeights(
 static void CreateOutputFile();
 
 void TuneParameters(const char* filename) {
+    FILE* fp = fopen(filename, "r");
+
     InitWeights();
-    CreateOutputFile();
-    return;
+    uint64 totalEntries = EntriesInFile(fp);
 
     TuningData_t tuningData;
-    TuningDataInit(&tuningData, filename);
+    TuningDataInit(&tuningData, fp);
 
     double K = 0.006634;
 
@@ -400,6 +397,8 @@ void TuneParameters(const char* filename) {
 
     CreateOutputFile();
     TuningDataTeardown(&tuningData);
+
+    fclose(fp);
 }
 
 void FilterNonQuiets(const char* filename) {
