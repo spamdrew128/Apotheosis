@@ -29,7 +29,7 @@ enum {
 enum {
     LINE_BUFFER = 500,
     MAX_EPOCHS = 10000,
-    ENTRY_MAX = 10000000,
+    ENTRY_MAX = 100000,
 };
 
 #define LEARN_RATE 5000
@@ -336,44 +336,48 @@ void TuneParameters(const char* filename) {
 
     Gradient_t gradient[NUM_PHASES][VECTOR_LENGTH];
 
-    double prevCost = 10000000000;
     double prevMSE = 10000000000;
     for(int epoch = 0; epoch < MAX_EPOCHS; epoch++) {
-        memset(gradient, 0, sizeof(gradient));
         uint64_t remainingEntries = totalEntries;
-        double cost = 0;
 
         while(remainingEntries) {
+            memset(gradient, 0, sizeof(gradient));
+
             int using = MIN(ENTRY_MAX, remainingEntries);
             remainingEntries -= using;
             TuningDataInit(&tuningData, fp, using);
 
-            for(int i = 0; i < tuningData.numEntries; i++) {
+            for(int i = 0; i < using; i++) {
                 TEntry_t entry = tuningData.entryList[i];
                 UpdateGradient(entry, K, gradient);
             }
+            
+            UpdateWeights(using, K, gradient);
 
-            cost += Cost(&tuningData, K);
+            mse = Cost(&tuningData, K) / using;
+            if(prevMSE - mse < 0) {
+                printf("CONVERGED!\n");
+                remainingEntries = 0;
+            } else {
+                prevMSE = mse;
+            }
 
             TuningDataTeardown(&tuningData);
         }
 
-        UpdateWeights(totalEntries, K, gradient);
-
-        double mse = MSE(totalEntries, cost);
-        printf("Epoch: %d Cost: %f MSE: %f\n", epoch, cost, mse);
-        printf("Cost change since previous: %f\n", cost - prevCost);
+        printf("Epoch: %d\n", epoch);
         printf("MSE change since previous: %f\n\n", mse - prevMSE);
 
-        if(prevMSE - mse < 1e-7) {
+        if(prevMSE - mse <= 0) {
             printf("CONVERGED!\n");
             break;
         }
 
-        prevCost = cost;
         prevMSE = mse;
         CreateOutputFile();
     }
+
+    CreateOutputFile();
 
     fclose(fp);
 }
