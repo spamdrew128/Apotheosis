@@ -357,14 +357,14 @@ void TuneParameters(const char* filename) {
             if(i % 25 == 0) {
                 mse = Cost(&tuningData, K) / using;
                 printf("Iteration: %d\n", i);
-                printf("MSE: %f\n", mse);
-                CreateOutputFile();
+                printf("MSE: %f\n\n", mse);
 
                 if(prevMSE - mse <= 0) {
                     printf("CONVERGED!\n");
                     break;
                 }
 
+                CreateOutputFile();
                 prevMSE = mse;
             }
             i++;
