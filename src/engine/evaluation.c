@@ -1,18 +1,26 @@
 #include <assert.h>
+#include <stdint.h>
 
 #include "evaluation.h"
 #include "eval_constants.h"
 #include "util_macros.h"
 #include "legals.h"
 
-static Centipawns_t midgamePST[6][NUM_SQUARES] = { {KNIGHT_MG_PST}, {BISHOP_MG_PST}, {ROOK_MG_PST}, {QUEEN_MG_PST}, {PAWN_MG_PST}, {KING_MG_PST} };
-static Centipawns_t endgamePST[6][NUM_SQUARES] = { {KNIGHT_EG_PST}, {BISHOP_EG_PST}, {ROOK_EG_PST}, {QUEEN_EG_PST}, {PAWN_EG_PST}, {KING_EG_PST} };
+static Centipawns_t midgamePST[] = { SUPER_PST_MG };
+static Centipawns_t endgamePST[] = { SUPER_PST_EG };
 static Phase_t gamePhaseLookup[6] = { KNIGHT_PHASE_VALUE, BISHOP_PHASE_VALUE, ROOK_PHASE_VALUE, QUEEN_PHASE_VALUE, PAWN_PHASE_VALUE, KING_PHASE_VALUE };
 
 static Centipawns_t bishopPairBonus[NUM_PHASES] = { BISHOP_PAIR_BONUS };
 
+typedef uint8_t Bucket_t;
+static int FlatPSTIndex(Bucket_t w, Bucket_t b, Color_t c, Piece_t p, Square_t sq) {
+    return (8*2*6*64)*w + (2*6*64)*b + (6*64)*c + (64)*p + sq;
+}
+
 static void PSTEval(
     Bitboard_t infoField[2],
+    const Bucket_t wKing,
+    const Bucket_t bKing,
     Piece_t piece,
     Phase_t* gamePhase,
     Centipawns_t* mgScore,
@@ -23,28 +31,33 @@ static void PSTEval(
     Bitboard_t blackPieces = infoField[black];
 
     while(whitePieces) {
-        Square_t sq = MIRROR(LSB(whitePieces));
-        *mgScore += midgamePST[piece][sq];
-        *egScore += endgamePST[piece][sq];
+        int index = FlatPSTIndex(wKing, bKing, white, piece, LSB(whitePieces));
+
+        *mgScore += midgamePST[index];
+        *egScore += endgamePST[index];
         *gamePhase += gamePhaseLookup[piece];
         ResetLSB(&whitePieces);
     }
     while(blackPieces) {
-        Square_t sq = LSB(blackPieces);
-        *mgScore -= midgamePST[piece][sq];
-        *egScore -= endgamePST[piece][sq];
+        int index = FlatPSTIndex(wKing, bKing, black, piece, LSB(blackPieces));
+
+        *mgScore -= midgamePST[index];
+        *egScore -= endgamePST[index];
         *gamePhase += gamePhaseLookup[piece];
         ResetLSB(&blackPieces);
     }
 }
 
 static void MaterialBalanceAndPSTBonus(BoardInfo_t* boardInfo, Phase_t* phase, Centipawns_t* mgScore, Centipawns_t* egScore) {
-    PSTEval(boardInfo->knights, knight, phase, mgScore, egScore);
-    PSTEval(boardInfo->bishops, bishop, phase, mgScore, egScore);
-    PSTEval(boardInfo->rooks, rook, phase, mgScore, egScore);
-    PSTEval(boardInfo->queens, queen, phase, mgScore, egScore);
-    PSTEval(boardInfo->pawns, pawn, phase, mgScore, egScore);
-    PSTEval(boardInfo->kings, king, phase, mgScore, egScore);
+    Bucket_t wKing = KingSquare(boardInfo, white);
+    Bucket_t bKing = KingSquare(boardInfo, black);
+
+    PSTEval(boardInfo->knights, wKing, bKing, knight, phase, mgScore, egScore);
+    PSTEval(boardInfo->bishops, wKing, bKing, bishop, phase, mgScore, egScore);
+    PSTEval(boardInfo->rooks, wKing, bKing, rook, phase, mgScore, egScore);
+    PSTEval(boardInfo->queens, wKing, bKing, queen, phase, mgScore, egScore);
+    PSTEval(boardInfo->pawns, wKing, bKing, pawn, phase, mgScore, egScore);
+    PSTEval(boardInfo->kings, wKing, bKing, king, phase, mgScore, egScore);
 }
 
 static void BishopPairBonus(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* egScore) {
