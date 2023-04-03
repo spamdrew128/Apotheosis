@@ -38,6 +38,8 @@ typedef double Weight_t;
 typedef double Velocity_t;
 typedef double Momentum_t;
 
+typedef uint8_t Bucket_t;
+
 Weight_t weights[NUM_PHASES][VECTOR_LENGTH] = {0};
 Velocity_t velocity[NUM_PHASES][VECTOR_LENGTH] = {0};
 Momentum_t momentum[NUM_PHASES][VECTOR_LENGTH] = {0};
@@ -60,7 +62,7 @@ typedef struct {
     int numEntries;
 } TuningData_t;
 
-static int FlatPSTIndex(Square_t w, Square_t b, Color_t c, Piece_t p, Square_t sq) {
+static int FlatPSTIndex(Bucket_t w, Bucket_t b, Color_t c, Piece_t p, Square_t sq) {
     return (8*2*6*64)*w + (2*6*64)*b + (6*64)*c + (64)*p + 64;
 }
 
@@ -71,8 +73,8 @@ static void InitWeights() {
     };
     Weight_t tempPair[] = { BISHOP_PAIR_BONUS };
 
-    for(int w = 0; w < 8; w++) {
-        for(int b = 0; b < 8; b++) {
+    for(Bucket_t w = 0; w < 8; w++) {
+        for(Bucket_t b = 0; b < 8; b++) {
             for(int c = 0; c < 2; c++) {
                 for(int p = 0; p < NUM_PIECES; p++) {
                     for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
@@ -226,7 +228,7 @@ static void TuningDataInit(TuningData_t* tuningData, const char* filename) {
             tuningData->entryList[i].result = 0;
         }
 
-        if(percentComplete < (100*i / tuningData->numEntries)) {
+        if(percentComplete < (100*i / tuningData->numEntries + 25)) {
             percentComplete = (100*i / tuningData->numEntries);
             printf("Data %d%% loaded\n", percentComplete);
         }
@@ -455,31 +457,6 @@ static void FilePrintPST(const char* tableName, Phase_t phase, Piece_t piece, FI
     }
 
     fprintf(fp, "\n");
-}
-
-static void AddPieceValComment(FILE* fp) {
-    const char* names[NUM_PIECES - 1] = { "Knight", "Bishop", "Rook", "Queen", "Pawn" };
-
-    fprintf(fp, "/*\n");
-    fprintf(fp, "Average PST values for MG, EG:\n");
-
-    for(Piece_t p = 0; p < NUM_PIECES - 1; p++) {
-        int squareCount = (p == pawn) ? NUM_SQUARES - 16 : NUM_SQUARES;
-
-        double mgSum = 0;
-        double egSum = 0;
-        for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
-            mgSum += weights[mg_phase][pst_offset + NUM_SQUARES*p + sq];
-            egSum += weights[eg_phase][pst_offset + NUM_SQUARES*p + sq];
-        }
-
-        int mgValue = mgSum / squareCount;
-        int egValue = egSum / squareCount;
-
-        fprintf(fp, "%s Values: %d %d\n", names[p], mgValue, egValue);
-    }
-
-    fprintf(fp, "*/\n\n");
 }
 
 static void PrintBonuses(FILE* fp) {
