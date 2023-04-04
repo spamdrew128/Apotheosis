@@ -58,6 +58,7 @@ $(ENGINE)/PV_table.c \
 $(ENGINE)/move_ordering.c \
 $(ENGINE)/transposition_table.c \
 $(ENGINE)/history.c \
+$(EVAL)/eval_helpers.c \
 $(EVAL)/evaluation.c \
 $(EVAL)/pawn_structure.c \
 $(FEN)/FEN.c \
@@ -108,7 +109,7 @@ $(ENGINE_TDD)/move_ordering_tdd.c \
 $(ENGINE_TDD)/TT_tdd.c \
 $(ENGINE_TDD)/killers_tdd.c \
 $(ENGINE_TDD)/history_tdd.c \
-$(ENGINE_TDD)\pawn_structure_tdd.c
+$(ENGINE_TDD)/pawn_structure_tdd.c
 
 D_OBJECTS=$(D_CFILES:%.c=%.o)
 
