@@ -174,4 +174,7 @@ Pawn Values: 108 230
 #define BISHOP_PAIR_BONUS \
    36, 66
 
+#define PASSED_PAWN_BONUS \
+   50, 50
+
 #endif
