@@ -7,9 +7,9 @@
 static Centipawns_t passerBonus[2] = { PASSED_PAWN_BONUS }; 
 
 static Bitboard_t WhiteFill(Bitboard_t b) {
-    b |= GenShiftSouth(b, 1);
-    b |= GenShiftSouth(b, 2);
-    b |= GenShiftSouth(b, 4);
+    b |= GenShiftNorth(b, 1);
+    b |= GenShiftNorth(b, 2);
+    b |= GenShiftNorth(b, 4);
     return b;
 }
 
@@ -38,7 +38,7 @@ void PassedPawns(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* eg
     const Bitboard_t wPassers = boardInfo->pawns[white] & ~bPawnBlocks;
     const Bitboard_t bPassers = boardInfo->pawns[black] & ~wPawnBlocks;
 
-    const uint8_t passerCount = PopCount(wPassers) - PopCount(bPassers);
+    const int8_t passerCount = PopCount(wPassers) - PopCount(bPassers);
 
     *mgScore += passerCount * passerBonus[mg_phase];
     *egScore += passerCount * passerBonus[eg_phase];
