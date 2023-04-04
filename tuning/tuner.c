@@ -12,16 +12,16 @@
 #include "bitboards.h"
 #include "eval_constants.h"
 #include "util_macros.h"
-
 #include "chess_search.h"
 #include "engine_types.h"
+#include "eval_helpers.h"
 
 enum {
     PST_FEATURE_COUNT = NUM_PIECES * NUM_SQUARES,
-    BISHOP_PAIR_FEATURE_COUNT = 1,
 
     pst_offset = 0,
-    bishop_pair_offset = PST_FEATURE_COUNT,
+    bishop_pair_index = PST_FEATURE_COUNT,
+    passed_pawn_index = bishop_pair_index + 1,
 
     VECTOR_LENGTH,
 };
@@ -37,10 +37,7 @@ typedef double Gradient_t;
 typedef double Weight_t;
 typedef double Velocity_t;
 typedef double Momentum_t;
-// Weight_t weights[NUM_PHASES][VECTOR_LENGTH] = {
-//     { KNIGHT_MG_PST BISHOP_MG_PST ROOK_MG_PST QUEEN_MG_PST PAWN_MG_PST KING_MG_PST },
-//     { KNIGHT_EG_PST BISHOP_EG_PST ROOK_EG_PST QUEEN_EG_PST PAWN_EG_PST KING_EG_PST },
-// };
+
 Weight_t weights[NUM_PHASES][VECTOR_LENGTH] = {0};
 Velocity_t velocity[NUM_PHASES][VECTOR_LENGTH] = {0};
 Momentum_t momentum[NUM_PHASES][VECTOR_LENGTH] = {0};
@@ -99,9 +96,22 @@ static void FillBonuses(
     BoardInfo_t* boardInfo
 )
 {
-    allValues[bishop_pair_offset] += 
+    // BISHOP PAIR
+    allValues[bishop_pair_index] += 
         (int)(PopCount(boardInfo->bishops[white]) >= 2) - 
         (int)(PopCount(boardInfo->bishops[black]) >= 2);
+
+    // PASSED PAWN
+    const Bitboard_t wFrontSpan = WhiteForwardFill(boardInfo->pawns[white]);
+    const Bitboard_t bFrontSpan = BlackForwardFill(boardInfo->pawns[black]);
+
+    const Bitboard_t wPawnBlocks = wFrontSpan | EastOne(wFrontSpan) | WestOne(wFrontSpan);
+    const Bitboard_t bPawnBlocks = bFrontSpan | EastOne(bFrontSpan) | WestOne(bFrontSpan);
+
+    const Bitboard_t wPassers = boardInfo->pawns[white] & ~bPawnBlocks;
+    const Bitboard_t bPassers = boardInfo->pawns[black] & ~wPawnBlocks;
+
+    allValues[passed_pawn_index] += PopCount(wPassers) - PopCount(bPassers);
 }
 
 void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
@@ -453,8 +463,13 @@ static void AddPieceValComment(FILE* fp) {
 
 static void PrintBonuses(FILE* fp) {
     fprintf(fp, "#define BISHOP_PAIR_BONUS \\\n   %d, %d\n\n",
-        (int)weights[mg_phase][bishop_pair_offset],
-        (int)weights[eg_phase][bishop_pair_offset]
+        (int)weights[mg_phase][bishop_pair_index],
+        (int)weights[eg_phase][bishop_pair_index]
+    );
+
+    fprintf(fp, "#define PASSED_PAWN_BONUS \\\n   %d, %d\n\n",
+        (int)weights[mg_phase][passed_pawn_index],
+        (int)weights[eg_phase][passed_pawn_index]
     );
 }
 
