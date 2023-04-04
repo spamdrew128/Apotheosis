@@ -4,6 +4,7 @@
 #include "eval_constants.h"
 #include "util_macros.h"
 #include "legals.h"
+#include "pawn_structure.h"
 
 static Centipawns_t midgamePST[6][NUM_SQUARES] = { {KNIGHT_MG_PST}, {BISHOP_MG_PST}, {ROOK_MG_PST}, {QUEEN_MG_PST}, {PAWN_MG_PST}, {KING_MG_PST} };
 static Centipawns_t endgamePST[6][NUM_SQUARES] = { {KNIGHT_EG_PST}, {BISHOP_EG_PST}, {ROOK_EG_PST}, {QUEEN_EG_PST}, {PAWN_EG_PST}, {KING_EG_PST} };
@@ -65,6 +66,7 @@ EvalScore_t ScoreOfPosition(BoardInfo_t* boardInfo) {
 
     MaterialBalanceAndPSTBonus(boardInfo, &phase, &mgScore, &egScore);
     BishopPairBonus(boardInfo, &mgScore, &egScore);
+    PassedPawns(boardInfo, &mgScore, &egScore);
 
     EvalScore_t eval = (mgScore*phase + egScore*(PHASE_MAX - phase)) / PHASE_MAX;
 
