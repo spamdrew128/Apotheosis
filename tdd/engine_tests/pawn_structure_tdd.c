@@ -1,6 +1,7 @@
 #include "pawn_structure_tdd.h"
 #include "debug.h"
 #include "FEN.h"
+#include "util_macros.h"
 
 static void ShouldCorrectlyEvaluatePassedPawns() {
     Centipawns_t mgScore = 0;
@@ -12,14 +13,15 @@ static void ShouldCorrectlyEvaluatePassedPawns() {
     ZobristStack_t zobristStack;
     InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
 
-    Centipawns_t bonus[] = { PASSED_PAWN_BONUS };
+    Centipawns_t passerBonus[NUM_PHASES][NUM_SQUARES] = { { PASSED_PAWN_MG_PST }, { PASSED_PAWN_EG_PST } }; 
     PassedPawns(&boardInfo, &mgScore, &egScore);
 
-    int expected = -1; // white has 1 passer, black has 2
+    Centipawns_t expectedMgBonus = passerBonus[mg_phase][MIRROR(f2)] - (passerBonus[mg_phase][e2] + passerBonus[mg_phase][h6]);
+    Centipawns_t expectedEgBonus = passerBonus[eg_phase][MIRROR(f2)] - (passerBonus[eg_phase][e2] + passerBonus[eg_phase][h6]);
 
     PrintResults(
-        mgScore == bonus[mg_phase]*expected &&
-        egScore == bonus[eg_phase]*expected
+        mgScore == expectedMgBonus &&
+        egScore == expectedEgBonus
     );
 }
 

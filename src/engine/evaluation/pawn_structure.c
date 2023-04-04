@@ -2,8 +2,9 @@
 #include "eval_constants.h"
 #include "bitboards.h"
 #include "eval_helpers.h"
+#include "util_macros.h"
 
-static Centipawns_t passerBonus[2] = { PASSED_PAWN_BONUS }; 
+static Centipawns_t passerBonus[NUM_PHASES][NUM_SQUARES] = { { PASSED_PAWN_MG_PST }, { PASSED_PAWN_EG_PST } }; 
 
 void PassedPawns(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* egScore) {
     const Bitboard_t wFrontSpan = WhiteForwardFill(boardInfo->pawns[white]);
@@ -12,11 +13,19 @@ void PassedPawns(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* eg
     const Bitboard_t wPawnBlocks = wFrontSpan | EastOne(wFrontSpan) | WestOne(wFrontSpan);
     const Bitboard_t bPawnBlocks = bFrontSpan | EastOne(bFrontSpan) | WestOne(bFrontSpan);
 
-    const Bitboard_t wPassers = boardInfo->pawns[white] & ~bPawnBlocks;
-    const Bitboard_t bPassers = boardInfo->pawns[black] & ~wPawnBlocks;
+    Bitboard_t wPassers = boardInfo->pawns[white] & ~bPawnBlocks;
+    Bitboard_t bPassers = boardInfo->pawns[black] & ~wPawnBlocks;
 
-    const int8_t passerCount = PopCount(wPassers) - PopCount(bPassers);
-
-    *mgScore += passerCount * passerBonus[mg_phase];
-    *egScore += passerCount * passerBonus[eg_phase];
+    while(wPassers) {
+        Square_t sq = MIRROR(LSB(wPassers));
+        *mgScore += passerBonus[mg_phase][sq];
+        *egScore += passerBonus[eg_phase][sq];
+        ResetLSB(&wPassers);
+    }
+    while(bPassers) {
+        Square_t sq = LSB(bPassers);
+        *mgScore -= passerBonus[mg_phase][sq];
+        *egScore -= passerBonus[eg_phase][sq];
+        ResetLSB(&bPassers);
+    }
 }
