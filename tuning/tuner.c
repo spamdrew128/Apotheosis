@@ -18,12 +18,16 @@
 
 enum {
     PST_FEATURE_COUNT = NUM_PIECES * NUM_SQUARES,
+    BISHOP_PAIR_FEATURE_COUNT = 1,
+    PASSED_PAWN_FEATURE_COUNT = NUM_SQUARES,
+    BLOCKED_PASSER_FEATURE_COUNT = 8,
 
     pst_offset = 0,
-    bishop_pair_index = PST_FEATURE_COUNT,
-    passed_pawn_offset = bishop_pair_index + 1,
+    bishop_pair_offset = pst_offset + PST_FEATURE_COUNT,
+    passed_pawn_offset = bishop_pair_offset + BISHOP_PAIR_FEATURE_COUNT,
+    blocked_passer_offset = passed_pawn_offset + PASSED_PAWN_FEATURE_COUNT,
 
-    VECTOR_LENGTH = 449,
+    VECTOR_LENGTH = blocked_passer_offset + BLOCKED_PASSER_FEATURE_COUNT,
 };
 
 enum {
@@ -95,7 +99,7 @@ static void FillBonuses(
 )
 {
     // BISHOP PAIR
-    allValues[bishop_pair_index] += 
+    allValues[bishop_pair_offset] += 
         (int)(PopCount(boardInfo->bishops[white]) >= 2) - 
         (int)(PopCount(boardInfo->bishops[black]) >= 2);
 
@@ -109,6 +113,9 @@ static void FillBonuses(
     Bitboard_t wPassers = boardInfo->pawns[white] & ~bPawnBlocks;
     Bitboard_t bPassers = boardInfo->pawns[black] & ~wPawnBlocks;
 
+    Bitboard_t piecesBlockingWhite = NortOne(wPassers) & boardInfo->allPieces[black];
+    Bitboard_t piecesBlockingBlack = SoutOne(bPassers) & boardInfo->allPieces[white];
+
     while(wPassers) {
         Square_t sq = MIRROR(LSB(wPassers));
         allValues[passed_pawn_offset + sq]++;
@@ -118,6 +125,18 @@ static void FillBonuses(
         Square_t sq = LSB(bPassers);
         allValues[passed_pawn_offset + sq]--;
         ResetLSB(&bPassers);
+    }
+
+    // BLOCKED PASSER
+    while(piecesBlockingWhite) {
+        Rank_t rank = (MIRROR(LSB(piecesBlockingWhite))) / 8;
+        allValues[blocked_passer_offset + rank]++;
+        ResetLSB(&piecesBlockingWhite);
+    }
+    while(piecesBlockingBlack) {
+        Rank_t rank = LSB(piecesBlockingBlack) / 8;
+        allValues[blocked_passer_offset + rank]--;
+        ResetLSB(&piecesBlockingBlack);
     }
 }
 
@@ -470,12 +489,24 @@ static void AddPieceValComment(FILE* fp) {
 
 static void PrintBonuses(FILE* fp) {
     fprintf(fp, "#define BISHOP_PAIR_BONUS \\\n   %d, %d\n\n",
-        (int)weights[mg_phase][bishop_pair_index],
-        (int)weights[eg_phase][bishop_pair_index]
+        (int)weights[mg_phase][bishop_pair_offset],
+        (int)weights[eg_phase][bishop_pair_offset]
     );
 
     FilePrintPST("PASSED_PAWN_MG_PST", mg_phase, 0, fp, passed_pawn_offset);
     FilePrintPST("PASSED_PAWN_EG_PST", eg_phase, 0, fp, passed_pawn_offset);
+
+    fprintf(fp, "#define BLOCKED_PASSERS_MG \\\n   ");
+    for(int i = 0; i < 8; i++) { 
+        fprintf(fp, "%d, ", (int)weights[mg_phase][blocked_passer_offset + i]);
+    }
+    fprintf(fp, "\n\n");
+
+    fprintf(fp, "#define BLOCKED_PASSERS_EG \\\n   ");
+    for(int i = 0; i < 8; i++) { 
+        fprintf(fp, "%d, ", (int)weights[eg_phase][blocked_passer_offset + i]);
+    }
+    fprintf(fp, "\n\n");
 }
 
 static void CreateOutputFile() {
