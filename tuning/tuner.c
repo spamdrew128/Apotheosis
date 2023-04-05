@@ -12,18 +12,18 @@
 #include "bitboards.h"
 #include "eval_constants.h"
 #include "util_macros.h"
-
 #include "chess_search.h"
 #include "engine_types.h"
+#include "eval_helpers.h"
 
 enum {
     PST_FEATURE_COUNT = NUM_PIECES * NUM_SQUARES,
-    BISHOP_PAIR_FEATURE_COUNT = 1,
 
     pst_offset = 0,
-    bishop_pair_offset = PST_FEATURE_COUNT,
+    bishop_pair_index = PST_FEATURE_COUNT,
+    passed_pawn_offset = bishop_pair_index + 1,
 
-    VECTOR_LENGTH,
+    VECTOR_LENGTH = 449,
 };
 
 enum {
@@ -37,10 +37,7 @@ typedef double Gradient_t;
 typedef double Weight_t;
 typedef double Velocity_t;
 typedef double Momentum_t;
-// Weight_t weights[NUM_PHASES][VECTOR_LENGTH] = {
-//     { KNIGHT_MG_PST BISHOP_MG_PST ROOK_MG_PST QUEEN_MG_PST PAWN_MG_PST KING_MG_PST },
-//     { KNIGHT_EG_PST BISHOP_EG_PST ROOK_EG_PST QUEEN_EG_PST PAWN_EG_PST KING_EG_PST },
-// };
+
 Weight_t weights[NUM_PHASES][VECTOR_LENGTH] = {0};
 Velocity_t velocity[NUM_PHASES][VECTOR_LENGTH] = {0};
 Momentum_t momentum[NUM_PHASES][VECTOR_LENGTH] = {0};
@@ -99,9 +96,31 @@ static void FillBonuses(
     BoardInfo_t* boardInfo
 )
 {
-    allValues[bishop_pair_offset] += 
+    // BISHOP PAIR
+    allValues[bishop_pair_index] += 
         (int)(PopCount(boardInfo->bishops[white]) >= 2) - 
         (int)(PopCount(boardInfo->bishops[black]) >= 2);
+
+    // PASSED PAWN
+    const Bitboard_t wFrontSpan = WhiteForwardFill(boardInfo->pawns[white]);
+    const Bitboard_t bFrontSpan = BlackForwardFill(boardInfo->pawns[black]);
+
+    const Bitboard_t wPawnBlocks = wFrontSpan | EastOne(wFrontSpan) | WestOne(wFrontSpan);
+    const Bitboard_t bPawnBlocks = bFrontSpan | EastOne(bFrontSpan) | WestOne(bFrontSpan);
+
+    Bitboard_t wPassers = boardInfo->pawns[white] & ~bPawnBlocks;
+    Bitboard_t bPassers = boardInfo->pawns[black] & ~wPawnBlocks;
+
+    while(wPassers) {
+        Square_t sq = MIRROR(LSB(wPassers));
+        allValues[passed_pawn_offset + sq]++;
+        ResetLSB(&wPassers);
+    }
+    while(bPassers) {
+        Square_t sq = LSB(bPassers);
+        allValues[passed_pawn_offset + sq]--;
+        ResetLSB(&bPassers);
+    }
 }
 
 void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
@@ -348,7 +367,7 @@ void TuneParameters(const char* filename) {
         if(epoch % 25 == 0) {
             double cost = Cost(&tuningData, K);
             double mse = MSE(&tuningData, cost);
-            printf("Epoch: %d Cost: %f MSE: %f\n", epoch, cost, mse);
+            printf("Epoch: %d Cost: %f MSE: %.7f\n", epoch, cost, mse);
             printf("Cost change since previous: %f\n", cost - prevCost);
             printf("MSE change since previous: %f\n\n", mse - prevMSE);
 
@@ -408,7 +427,7 @@ void FilterNonQuiets(const char* filename) {
 }
 
 // FILE PRINTING BELOW
-static void FilePrintPST(const char* tableName, Phase_t phase, Piece_t piece, FILE* fp) {
+static void FilePrintPST(const char* tableName, Phase_t phase, Piece_t piece, FILE* fp, int offset) {
     fprintf(fp, "#define %s \\\n", tableName);
 
     for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
@@ -416,7 +435,7 @@ static void FilePrintPST(const char* tableName, Phase_t phase, Piece_t piece, FI
             fprintf(fp, "   ");
         }
 
-        fprintf(fp, "%d, ", (int)weights[phase][pst_offset + NUM_SQUARES*piece + sq]);
+        fprintf(fp, "%d, ", (int)weights[phase][offset + NUM_SQUARES*piece + sq]);
 
         if(sq % 8 == 7) { // last row entry
             fprintf(fp, "\\\n");
@@ -453,9 +472,12 @@ static void AddPieceValComment(FILE* fp) {
 
 static void PrintBonuses(FILE* fp) {
     fprintf(fp, "#define BISHOP_PAIR_BONUS \\\n   %d, %d\n\n",
-        (int)weights[mg_phase][bishop_pair_offset],
-        (int)weights[eg_phase][bishop_pair_offset]
+        (int)weights[mg_phase][bishop_pair_index],
+        (int)weights[eg_phase][bishop_pair_index]
     );
+
+    FilePrintPST("PASSED_PAWN_MG_PST", mg_phase, 0, fp, passed_pawn_offset);
+    FilePrintPST("PASSED_PAWN_EG_PST", eg_phase, 0, fp, passed_pawn_offset);
 }
 
 static void CreateOutputFile() {
@@ -465,23 +487,23 @@ static void CreateOutputFile() {
 
     AddPieceValComment(fp);
 
-    FilePrintPST("KNIGHT_MG_PST", mg_phase, knight, fp);
-    FilePrintPST("KNIGHT_EG_PST", eg_phase, knight, fp);
+    FilePrintPST("KNIGHT_MG_PST", mg_phase, knight, fp, pst_offset);
+    FilePrintPST("KNIGHT_EG_PST", eg_phase, knight, fp, pst_offset);
 
-    FilePrintPST("BISHOP_MG_PST", mg_phase, bishop, fp);
-    FilePrintPST("BISHOP_EG_PST", eg_phase, bishop, fp);
+    FilePrintPST("BISHOP_MG_PST", mg_phase, bishop, fp, pst_offset);
+    FilePrintPST("BISHOP_EG_PST", eg_phase, bishop, fp, pst_offset);
 
-    FilePrintPST("ROOK_MG_PST", mg_phase, rook, fp);
-    FilePrintPST("ROOK_EG_PST", eg_phase, rook, fp);
+    FilePrintPST("ROOK_MG_PST", mg_phase, rook, fp, pst_offset);
+    FilePrintPST("ROOK_EG_PST", eg_phase, rook, fp, pst_offset);
 
-    FilePrintPST("QUEEN_MG_PST", mg_phase, queen, fp);
-    FilePrintPST("QUEEN_EG_PST", eg_phase, queen, fp);
+    FilePrintPST("QUEEN_MG_PST", mg_phase, queen, fp, pst_offset);
+    FilePrintPST("QUEEN_EG_PST", eg_phase, queen, fp, pst_offset);
 
-    FilePrintPST("PAWN_MG_PST", mg_phase, pawn, fp);
-    FilePrintPST("PAWN_EG_PST", eg_phase, pawn, fp);
+    FilePrintPST("PAWN_MG_PST", mg_phase, pawn, fp, pst_offset);
+    FilePrintPST("PAWN_EG_PST", eg_phase, pawn, fp, pst_offset);
     
-    FilePrintPST("KING_MG_PST", mg_phase, king, fp);
-    FilePrintPST("KING_EG_PST", eg_phase, king, fp);
+    FilePrintPST("KING_MG_PST", mg_phase, king, fp, pst_offset);
+    FilePrintPST("KING_EG_PST", eg_phase, king, fp, pst_offset);
 
     fclose(fp);
 }
