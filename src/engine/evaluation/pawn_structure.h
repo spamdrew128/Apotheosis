@@ -10,6 +10,6 @@
 #include "engine_types.h"
 #include "eval_constants.h"
 
-void PassedPawns(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* egScore);
+void PawnStuff(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* egScore);
 
 #endif
