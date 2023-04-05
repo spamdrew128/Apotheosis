@@ -5,7 +5,7 @@
 #include "util_macros.h"
 
 static Centipawns_t passerBonus[NUM_PHASES][NUM_SQUARES] = { { PASSED_PAWN_MG_PST }, { PASSED_PAWN_EG_PST } };
-static Centipawns_t passerBlockPenalty[NUM_PHASES][8] = { { BLOCKED_PASSERS_MG }, { BLOCKED_PASSERS_EG } };
+static Centipawns_t blockedPasserPenalty[NUM_PHASES][8] = { { BLOCKED_PASSERS_MG }, { BLOCKED_PASSERS_EG } };
 
 void PassedPawns(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* egScore) {
     const Bitboard_t wFrontSpan = WhiteForwardFill(boardInfo->pawns[white]);
@@ -35,14 +35,14 @@ void PassedPawns(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* eg
 
     while(piecesBlockingWhite) {
         Rank_t rank = (MIRROR(LSB(piecesBlockingWhite))) / 8;
-        *mgScore += passerBonus[mg_phase][rank];
-        *egScore += passerBonus[eg_phase][rank];
+        *mgScore += blockedPasserPenalty[mg_phase][rank];
+        *egScore += blockedPasserPenalty[eg_phase][rank];
         ResetLSB(&piecesBlockingWhite);
     }
     while(piecesBlockingBlack) {
         Rank_t rank = LSB(piecesBlockingBlack) / 8;
-        *mgScore -= passerBonus[mg_phase][rank];
-        *egScore -= passerBonus[eg_phase][rank];
+        *mgScore -= blockedPasserPenalty[mg_phase][rank];
+        *egScore -= blockedPasserPenalty[eg_phase][rank];
         ResetLSB(&piecesBlockingBlack);
     }
 }

@@ -38,10 +38,10 @@ static void ShouldApplyBlockerPenalties() {
     PassedPawns(&boardInfo, &mgScore, &egScore);
 
     Centipawns_t expectedMg = (passerBonus[mg_phase][MIRROR(d4)] - passerBonus[mg_phase][b3]) + 
-        (blockerPenalty[mg_phase][MIRROR(d5)] - blockerPenalty[mg_phase][b2]);
+        (blockerPenalty[mg_phase][MIRROR(d5) / 8] - blockerPenalty[mg_phase][b2 / 8]);
 
     Centipawns_t expectedEg = (passerBonus[eg_phase][MIRROR(d4)] - passerBonus[eg_phase][b3]) +
-        (blockerPenalty[eg_phase][MIRROR(d5)] - blockerPenalty[eg_phase][b2]);
+        (blockerPenalty[eg_phase][MIRROR(d5) / 8] - blockerPenalty[eg_phase][b2 / 8]);
 
     PrintResults(
         mgScore == expectedMg &&
