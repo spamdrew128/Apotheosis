@@ -113,6 +113,9 @@ static void FillBonuses(
     Bitboard_t wPassers = boardInfo->pawns[white] & ~bPawnBlocks;
     Bitboard_t bPassers = boardInfo->pawns[black] & ~wPawnBlocks;
 
+    Bitboard_t piecesBlockingWhite = NortOne(wPassers) & boardInfo->allPieces[black];
+    Bitboard_t piecesBlockingBlack = SoutOne(bPassers) & boardInfo->allPieces[white];
+
     while(wPassers) {
         Square_t sq = MIRROR(LSB(wPassers));
         allValues[passed_pawn_offset + sq]++;
@@ -122,6 +125,18 @@ static void FillBonuses(
         Square_t sq = LSB(bPassers);
         allValues[passed_pawn_offset + sq]--;
         ResetLSB(&bPassers);
+    }
+
+    // BLOCKED PASSER
+    while(piecesBlockingWhite) {
+        Rank_t rank = (MIRROR(LSB(piecesBlockingWhite))) / 8;
+        allValues[blocked_passer_offset + rank]++;
+        ResetLSB(&piecesBlockingWhite);
+    }
+    while(piecesBlockingBlack) {
+        Rank_t rank = LSB(piecesBlockingBlack) / 8;
+        allValues[blocked_passer_offset + rank]--;
+        ResetLSB(&piecesBlockingBlack);
     }
 }
 
@@ -480,6 +495,16 @@ static void PrintBonuses(FILE* fp) {
 
     FilePrintPST("PASSED_PAWN_MG_PST", mg_phase, 0, fp, passed_pawn_offset);
     FilePrintPST("PASSED_PAWN_EG_PST", eg_phase, 0, fp, passed_pawn_offset);
+
+    fprintf(fp, "#define BLOCKED_PASSERS_MG \\\n   ");
+    for(int i = 0; i < 8; i++) { 
+        fprintf(fp, "%d, ", (int)weights[mg_phase][blocked_passer_offset + i]);
+    }
+
+    fprintf(fp, "#define BLOCKED_PASSERS_EG \\\n   ");
+    for(int i = 0; i < 8; i++) { 
+        fprintf(fp, "%d, ", (int)weights[eg_phase][blocked_passer_offset + i]);
+    }
 }
 
 static void CreateOutputFile() {
