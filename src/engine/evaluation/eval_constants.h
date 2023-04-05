@@ -194,4 +194,10 @@ Pawn Values: 107 155
    -6, -1, -7, 7, -9, -15, -4, 2, \
    0, 0, 0, 0, 0, 0, 0, 0, \
 
+#define BLOCKED_PASSERS_MG \
+   1, 25, 0, -2, -5, 5, -35, -34, 
+
+#define BLOCKED_PASSERS_EG \
+   -1, -25, -35, -39, 0, -2, -5, 5,
+
 #endif

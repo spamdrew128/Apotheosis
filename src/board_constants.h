@@ -20,6 +20,8 @@ enum color {
   black
 };
 
+typedef uint8_t Rank_t;
+typedef uint8_t File_t;
 typedef uint8_t Square_t;
 enum squareLabels {
   a1, b1, c1, d1, e1, f1, g1, h1,
