@@ -500,11 +500,13 @@ static void PrintBonuses(FILE* fp) {
     for(int i = 0; i < 8; i++) { 
         fprintf(fp, "%d, ", (int)weights[mg_phase][blocked_passer_offset + i]);
     }
+    fprintf(fp, "\n\n");
 
     fprintf(fp, "#define BLOCKED_PASSERS_EG \\\n   ");
     for(int i = 0; i < 8; i++) { 
         fprintf(fp, "%d, ", (int)weights[eg_phase][blocked_passer_offset + i]);
     }
+    fprintf(fp, "\n\n");
 }
 
 static void CreateOutputFile() {
