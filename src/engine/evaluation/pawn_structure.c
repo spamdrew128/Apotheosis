@@ -56,7 +56,7 @@ static void RookOpenFile(
     SerializeByFile(whiteSemiOpenRooks, blackSemiOpenRooks, mgScore, egScore, rookSemiOpenBonus);
 }
 
-void PawnStuff(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* egScore) {
+void PawnStructureEval(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* egScore) {
     PassedPawns(boardInfo, mgScore, egScore);
     RookOpenFile(boardInfo, mgScore, egScore); // it involves pawns to define open files, sue me.
 }
