@@ -58,4 +58,5 @@ static void RookOpenFile(
 
 void PawnStuff(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* egScore) {
     PassedPawns(boardInfo, mgScore, egScore);
+    RookOpenFile(boardInfo, mgScore, egScore); // it involves pawns to define open files, sue me.
 }

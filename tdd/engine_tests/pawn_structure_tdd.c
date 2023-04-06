@@ -10,6 +10,9 @@ static ZobristStack_t zobristStack;
 static Centipawns_t passerBonus[NUM_PHASES][NUM_SQUARES] = { { PASSED_PAWN_MG_PST }, { PASSED_PAWN_EG_PST } }; 
 static Centipawns_t blockerPenalty[NUM_PHASES][8] = { { BLOCKED_PASSERS_MG }, { BLOCKED_PASSERS_EG } };
 
+static Centipawns_t rookOpenBonus[NUM_PHASES][NUM_FILES] = { { ROOK_OPEN_FILE_MG }, { ROOK_OPEN_FILE_EG } };
+static Centipawns_t rookSemiOpenBonus[NUM_PHASES][NUM_FILES] = { { ROOK_SEMI_OPEN_FILE_MG }, { ROOK_SEMI_OPEN_FILE_EG } };
+
 static void ShouldCorrectlyEvaluatePassedPawns() {
     Centipawns_t mgScore = 0;
     Centipawns_t egScore = 0;
@@ -49,7 +52,26 @@ static void ShouldApplyBlockerPenalties() {
     );
 }
 
+static void ShouldGiveRookOpenFileBonus() {
+    Centipawns_t mgScore = 0;
+    Centipawns_t egScore = 0;
+
+    FEN_t fen = "8/4ppr1/1k6/8/8/1K1P2P1/8/R7 w - - 0 1";
+    InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
+
+    PawnStuff(&boardInfo, &mgScore, &egScore);
+
+    Centipawns_t expectedMg = rookOpenBonus[mg_phase][0] - rookSemiOpenBonus[mg_phase][6];
+    Centipawns_t expectedEg = rookOpenBonus[eg_phase][0] - rookSemiOpenBonus[eg_phase][6];
+
+    PrintResults(
+        mgScore == expectedMg &&
+        egScore == expectedEg
+    );
+}
+
 void PawnStructureTDDRunner() {
     ShouldCorrectlyEvaluatePassedPawns();
     ShouldApplyBlockerPenalties();
+    ShouldGiveRookOpenFileBonus();
 }
