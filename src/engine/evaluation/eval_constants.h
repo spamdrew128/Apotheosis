@@ -45,7 +45,13 @@ enum {
    164, 48, 9, 0, 3, -11, 0, 0, 
 
 #define BLOCKED_PASSERS_EG \
-   -447, -160, -68, -31, -8, -8, 0, 0, 
+   -447, -160, -68, -31, -8, -8, 0, 0,
+
+#define ROOK_OPEN_FILE_MG \
+   164, 48, 9, 0, 3, -11, 0, 0, 
+
+#define ROOK_OPEN_FILE_EG \
+   -447, -160, -68, -31, -8, -8, 0, 0,
 
 /*
 Average PST values for MG, EG:

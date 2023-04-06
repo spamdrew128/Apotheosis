@@ -5,14 +5,17 @@
 #include "util_macros.h"
 
 static Centipawns_t passerBonus[NUM_PHASES][NUM_SQUARES] = { { PASSED_PAWN_MG_PST }, { PASSED_PAWN_EG_PST } };
-static Centipawns_t blockedPasserPenalty[NUM_PHASES][8] = { { BLOCKED_PASSERS_MG }, { BLOCKED_PASSERS_EG } };
+static Centipawns_t blockedPasserPenalty[NUM_PHASES][NUM_RANKS] = { { BLOCKED_PASSERS_MG }, { BLOCKED_PASSERS_EG } };
+
+static Centipawns_t passerBonus[NUM_PHASES][NUM_SQUARES] = { { PASSED_PAWN_MG_PST }, { PASSED_PAWN_EG_PST } };
+static Centipawns_t blockedPasserPenalty[NUM_PHASES][NUM_RANKS] = { { BLOCKED_PASSERS_MG }, { BLOCKED_PASSERS_EG } };
 
 static void PassedPawns(
     BoardInfo_t* boardInfo,
     Centipawns_t* mgScore,
     Centipawns_t* egScore,
-    Bitboard_t wFrontSpan,
-    Bitboard_t bFrontSpan
+    const Bitboard_t wFrontSpan,
+    const Bitboard_t bFrontSpan
 )
 {
     const Bitboard_t wPawnBlocks = wFrontSpan | EastOne(wFrontSpan) | WestOne(wFrontSpan);
@@ -49,6 +52,17 @@ static void PassedPawns(
         *egScore -= blockedPasserPenalty[eg_phase][rank];
         ResetLSB(&piecesBlockingBlack);
     }
+}
+
+static void RookOpenFile(
+    BoardInfo_t* boardInfo,
+    Centipawns_t* mgScore,
+    Centipawns_t* egScore,
+    const Bitboard_t wFrontSpan,
+    const Bitboard_t bFrontSpan
+)
+{
+
 }
 
 void PawnStuff(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* egScore) {

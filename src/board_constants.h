@@ -21,7 +21,11 @@ enum color {
 };
 
 typedef uint8_t Rank_t;
+#define NUM_RANKS 8
+
 typedef uint8_t File_t;
+#define NUM_FILES 8
+
 typedef uint8_t Square_t;
 enum squareLabels {
   a1, b1, c1, d1, e1, f1, g1, h1,
