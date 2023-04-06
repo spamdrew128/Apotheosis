@@ -12,6 +12,10 @@ static Centipawns_t blockerPenalty[NUM_PHASES][8] = { { BLOCKED_PASSERS_MG }, { 
 
 static Centipawns_t rookOpenBonus[NUM_PHASES][NUM_FILES] = { { ROOK_OPEN_FILE_MG }, { ROOK_OPEN_FILE_EG } };
 static Centipawns_t rookSemiOpenBonus[NUM_PHASES][NUM_FILES] = { { ROOK_SEMI_OPEN_FILE_MG }, { ROOK_SEMI_OPEN_FILE_EG } };
+static Centipawns_t queenOpenBonus[NUM_PHASES][NUM_FILES] = { { QUEEN_OPEN_FILE_MG }, { QUEEN_OPEN_FILE_EG } };
+static Centipawns_t queenSemiOpenBonus[NUM_PHASES][NUM_FILES] = { { QUEEN_SEMI_OPEN_FILE_MG }, { QUEEN_SEMI_OPEN_FILE_EG } };
+static Centipawns_t kingOpenBonus[NUM_PHASES][NUM_FILES] = { { KING_OPEN_FILE_MG }, { KING_OPEN_FILE_EG } };
+static Centipawns_t kingSemiOpenBonus[NUM_PHASES][NUM_FILES] = { { KING_SEMI_OPEN_FILE_MG }, { KING_SEMI_OPEN_FILE_EG } };
 
 static void ShouldCorrectlyEvaluatePassedPawns() {
     Centipawns_t mgScore = 0;
@@ -56,7 +60,7 @@ static void ShouldGiveRookOpenFileBonus() {
     Centipawns_t mgScore = 0;
     Centipawns_t egScore = 0;
 
-    FEN_t fen = "8/4ppr1/1k6/8/8/1K1P2P1/8/R7 w - - 0 1";
+    FEN_t fen = "5k2/4ppr1/8/8/8/3P2P1/8/R2K4 w - - 0 1";
     InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
 
     OpenFileBonus(&boardInfo, &mgScore, &egScore);
@@ -70,8 +74,46 @@ static void ShouldGiveRookOpenFileBonus() {
     );
 }
 
+static void ShouldGiveQueenOpenFileBonus() {
+    Centipawns_t mgScore = 0;
+    Centipawns_t egScore = 0;
+
+    FEN_t fen = "5k2/4ppq1/8/8/8/3P2P1/8/Q2K4 w - - 0 1";
+    InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
+
+    OpenFileBonus(&boardInfo, &mgScore, &egScore);
+
+    Centipawns_t expectedMg = queenOpenBonus[mg_phase][0] - queenSemiOpenBonus[mg_phase][6];
+    Centipawns_t expectedEg = queenOpenBonus[eg_phase][0] - queenSemiOpenBonus[eg_phase][6];
+
+    PrintResults(
+        mgScore == expectedMg &&
+        egScore == expectedEg
+    );
+}
+
+static void ShouldGiveKingOpenFileBonus() {
+    Centipawns_t mgScore = 0;
+    Centipawns_t egScore = 0;
+
+    FEN_t fen = "8/4ppk1/8/8/8/3P2P1/8/K7 w - - 0 1";
+    InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
+
+    OpenFileBonus(&boardInfo, &mgScore, &egScore);
+
+    Centipawns_t expectedMg = kingOpenBonus[mg_phase][0] - kingSemiOpenBonus[mg_phase][6];
+    Centipawns_t expectedEg = kingOpenBonus[eg_phase][0] - kingSemiOpenBonus[eg_phase][6];
+
+    PrintResults(
+        mgScore == expectedMg &&
+        egScore == expectedEg
+    );
+}
+
 void PawnStructureTDDRunner() {
     ShouldCorrectlyEvaluatePassedPawns();
     ShouldApplyBlockerPenalties();
     ShouldGiveRookOpenFileBonus();
+    ShouldGiveQueenOpenFileBonus();
+    ShouldGiveKingOpenFileBonus();
 }

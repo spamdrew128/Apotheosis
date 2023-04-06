@@ -59,6 +59,30 @@ enum {
 #define ROOK_SEMI_OPEN_FILE_EG \
    52, 20, 9, 5, -7, -12, -15, 32, 
 
+#define QUEEN_OPEN_FILE_MG \
+   6612, 73, 65, 69, 78, 99, 148, 155, 
+
+#define QUEEN_OPEN_FILE_EG \
+   8, 0, 0, 5, 3, -11, -24, -17, 
+
+#define QUEEN_SEMI_OPEN_FILE_MG \
+   4, 29, 26, 31, 39, 40, 72, 34, 
+
+#define QUEEN_SEMI_OPEN_FILE_EG \
+   52, 20, 9, 5, -7, -12, -15, 32, 
+
+#define KING_OPEN_FILE_MG \
+   66, 73, 65, 69, 78, 99, 148, 155, 
+
+#define KING_OPEN_FILE_EG \
+   8, 0, 0, 5, 3, -11, -24, -17, 
+
+#define KING_SEMI_OPEN_FILE_MG \
+   4, 29, 26, 31, 39, 40, 72, 34, 
+
+#define KING_SEMI_OPEN_FILE_EG \
+   52, 20, 9, 5, -7, -12, -15, 32, 
+
 /*
 Average PST values for MG, EG:
 Knight Values: 472 369

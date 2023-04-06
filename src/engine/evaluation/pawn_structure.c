@@ -9,6 +9,10 @@ static Centipawns_t blockedPasserPenalty[NUM_PHASES][NUM_RANKS] = { { BLOCKED_PA
 
 static Centipawns_t rookOpenBonus[NUM_PHASES][NUM_FILES] = { { ROOK_OPEN_FILE_MG }, { ROOK_OPEN_FILE_EG } };
 static Centipawns_t rookSemiOpenBonus[NUM_PHASES][NUM_FILES] = { { ROOK_SEMI_OPEN_FILE_MG }, { ROOK_SEMI_OPEN_FILE_EG } };
+static Centipawns_t queenOpenBonus[NUM_PHASES][NUM_FILES] = { { QUEEN_OPEN_FILE_MG }, { QUEEN_OPEN_FILE_EG } };
+static Centipawns_t queenSemiOpenBonus[NUM_PHASES][NUM_FILES] = { { QUEEN_SEMI_OPEN_FILE_MG }, { QUEEN_SEMI_OPEN_FILE_EG } };
+static Centipawns_t kingOpenBonus[NUM_PHASES][NUM_FILES] = { { KING_OPEN_FILE_MG }, { KING_OPEN_FILE_EG } };
+static Centipawns_t kingSemiOpenBonus[NUM_PHASES][NUM_FILES] = { { KING_SEMI_OPEN_FILE_MG }, { KING_SEMI_OPEN_FILE_EG } };
 
 void PassedPawnBonus(
     BoardInfo_t* boardInfo,
@@ -60,4 +64,16 @@ void OpenFileBonus(
 
     Bitboard_t whiteSemiOpenQueens = boardInfo->queens[white] & blackPawnOnlyFiles;
     Bitboard_t blackSemiOpenQueens = boardInfo->queens[black] & whitePawnOnlyFiles;
+
+    SerializeByFile(whiteOpenQueens, blackOpenQueens, mgScore, egScore, queenOpenBonus);
+    SerializeByFile(whiteSemiOpenQueens, blackSemiOpenQueens, mgScore, egScore, queenSemiOpenBonus);
+
+    Bitboard_t whiteOpenKings = boardInfo->kings[white] & openFiles;
+    Bitboard_t blackOpenKings = boardInfo->kings[black] & openFiles;
+
+    Bitboard_t whiteSemiOpenKings = boardInfo->kings[white] & blackPawnOnlyFiles;
+    Bitboard_t blackSemiOpenKings = boardInfo->kings[black] & whitePawnOnlyFiles;
+
+    SerializeByFile(whiteOpenKings, blackOpenKings, mgScore, egScore, kingOpenBonus);
+    SerializeByFile(whiteSemiOpenKings, blackSemiOpenKings, mgScore, egScore, kingSemiOpenBonus);
 }
