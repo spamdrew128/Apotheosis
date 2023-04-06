@@ -1,4 +1,5 @@
 #include "eval_helpers.h"
+#include "util_macros.h"
 
 Bitboard_t WhiteFill(Bitboard_t b) {
     b |= GenShiftNorth(b, 1);
@@ -14,10 +15,80 @@ Bitboard_t BlackFill(Bitboard_t b) {
     return b;
 }
 
+Bitboard_t FileFill(Bitboard_t b) {
+    return WhiteFill(BlackFill(b));
+}
+
 Bitboard_t WhiteForwardFill(Bitboard_t b) {
     return NortOne(WhiteFill(b));
 }
 
 Bitboard_t BlackForwardFill(Bitboard_t b) {
     return SoutOne(BlackFill(b));
+}
+
+void SerializeBySquare(
+    Bitboard_t whitePieces,
+    Bitboard_t blackPieces,
+    Centipawns_t* mgScore,
+    Centipawns_t* egScore,
+    Centipawns_t bonus[NUM_PHASES][NUM_SQUARES]
+)
+{
+    while(whitePieces) {
+        Square_t sq = MIRROR(LSB(whitePieces));
+        *mgScore += bonus[mg_phase][sq];
+        *egScore += bonus[eg_phase][sq];
+        ResetLSB(&whitePieces);
+    }
+    while(blackPieces) {
+        Square_t sq = LSB(blackPieces);
+        *mgScore -= bonus[mg_phase][sq];
+        *egScore -= bonus[eg_phase][sq];
+        ResetLSB(&blackPieces);
+    }
+}
+
+void SerializeByFile(
+    Bitboard_t whitePieces,
+    Bitboard_t blackPieces,
+    Centipawns_t* mgScore,
+    Centipawns_t* egScore,
+    Centipawns_t bonus[NUM_PHASES][NUM_FILES]
+)
+{
+    while(whitePieces) {
+        File_t file = LSB(whitePieces) % 8;
+        *mgScore += bonus[mg_phase][file];
+        *egScore += bonus[eg_phase][file];
+        ResetLSB(&whitePieces);
+    }
+    while(blackPieces) {
+        File_t file = LSB(blackPieces) % 8;
+        *mgScore -= bonus[mg_phase][file];
+        *egScore -= bonus[eg_phase][file];
+        ResetLSB(&blackPieces);
+    }
+}
+
+void SerializeByRank(
+    Bitboard_t whitePieces,
+    Bitboard_t blackPieces,
+    Centipawns_t* mgScore,
+    Centipawns_t* egScore,
+    Centipawns_t bonus[NUM_PHASES][NUM_RANKS]
+)
+{
+    while(whitePieces) {
+        Rank_t rank = (MIRROR(LSB(whitePieces))) / 8;
+        *mgScore += bonus[mg_phase][rank];
+        *egScore += bonus[eg_phase][rank];
+        ResetLSB(&whitePieces);
+    }
+    while(blackPieces) {
+        Rank_t rank = LSB(blackPieces) / 8;
+        *mgScore -= bonus[mg_phase][rank];
+        *egScore -= bonus[eg_phase][rank];
+        ResetLSB(&blackPieces);
+    }
 }

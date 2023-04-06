@@ -13,11 +13,12 @@ static Centipawns_t rookSemiOpenBonus[NUM_PHASES][NUM_FILES] = { { ROOK_SEMI_OPE
 static void PassedPawns(
     BoardInfo_t* boardInfo,
     Centipawns_t* mgScore,
-    Centipawns_t* egScore,
-    const Bitboard_t wFrontSpan,
-    const Bitboard_t bFrontSpan
+    Centipawns_t* egScore
 )
 {
+    const Bitboard_t wFrontSpan = WhiteForwardFill(boardInfo->pawns[white]);
+    const Bitboard_t bFrontSpan = BlackForwardFill(boardInfo->pawns[black]);
+
     const Bitboard_t wPawnBlocks = wFrontSpan | EastOne(wFrontSpan) | WestOne(wFrontSpan);
     const Bitboard_t bPawnBlocks = bFrontSpan | EastOne(bFrontSpan) | WestOne(bFrontSpan);
 
@@ -27,47 +28,34 @@ static void PassedPawns(
     Bitboard_t piecesBlockingWhite = NortOne(wPassers) & boardInfo->allPieces[black];
     Bitboard_t piecesBlockingBlack = SoutOne(bPassers) & boardInfo->allPieces[white];
 
-    while(wPassers) {
-        Square_t sq = MIRROR(LSB(wPassers));
-        *mgScore += passerBonus[mg_phase][sq];
-        *egScore += passerBonus[eg_phase][sq];
-        ResetLSB(&wPassers);
-    }
-    while(bPassers) {
-        Square_t sq = LSB(bPassers);
-        *mgScore -= passerBonus[mg_phase][sq];
-        *egScore -= passerBonus[eg_phase][sq];
-        ResetLSB(&bPassers);
-    }
+    SerializeBySquare(wPassers, bPassers, mgScore, egScore, passerBonus);
 
-    while(piecesBlockingWhite) {
-        Rank_t rank = (MIRROR(LSB(piecesBlockingWhite))) / 8;
-        *mgScore += blockedPasserPenalty[mg_phase][rank];
-        *egScore += blockedPasserPenalty[eg_phase][rank];
-        ResetLSB(&piecesBlockingWhite);
-    }
-    while(piecesBlockingBlack) {
-        Rank_t rank = LSB(piecesBlockingBlack) / 8;
-        *mgScore -= blockedPasserPenalty[mg_phase][rank];
-        *egScore -= blockedPasserPenalty[eg_phase][rank];
-        ResetLSB(&piecesBlockingBlack);
-    }
+    SerializeByRank(piecesBlockingWhite, piecesBlockingBlack, mgScore, egScore, blockedPasserPenalty);
 }
 
 static void RookOpenFile(
     BoardInfo_t* boardInfo,
     Centipawns_t* mgScore,
-    Centipawns_t* egScore,
-    const Bitboard_t wFrontSpan,
-    const Bitboard_t bFrontSpan
+    Centipawns_t* egScore
 )
 {
+    const Bitboard_t whitePawnFileSpans = FileFill(boardInfo->pawns[white]);
+    const Bitboard_t blackPawnFileSpans = FileFill(boardInfo->pawns[black]);
 
+    const Bitboard_t openFiles = ~(whitePawnFileSpans | blackPawnFileSpans);
+    const Bitboard_t whitePawnOnlyFiles = whitePawnFileSpans & ~blackPawnFileSpans;
+    const Bitboard_t blackPawnOnlyFiles = blackPawnFileSpans & ~whitePawnFileSpans;
+
+    Bitboard_t whiteOpenRooks = boardInfo->rooks[white] & openFiles;
+    Bitboard_t blackOpenRooks = boardInfo->rooks[black] & openFiles;
+
+    Bitboard_t whiteSemiOpenRooks = boardInfo->rooks[white] & blackPawnOnlyFiles;
+    Bitboard_t blackSemiOpenRooks = boardInfo->rooks[black] & whitePawnOnlyFiles;
+
+    SerializeByFile(whiteOpenRooks, blackOpenRooks, mgScore, egScore, rookOpenBonus);
+    SerializeByFile(whiteSemiOpenRooks, blackSemiOpenRooks, mgScore, egScore, rookSemiOpenBonus);
 }
 
 void PawnStuff(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* egScore) {
-    const Bitboard_t wFrontSpan = WhiteForwardFill(boardInfo->pawns[white]);
-    const Bitboard_t bFrontSpan = BlackForwardFill(boardInfo->pawns[black]);
-
-    PassedPawns(boardInfo, mgScore, egScore, wFrontSpan, bFrontSpan);
+    PassedPawns(boardInfo, mgScore, egScore);
 }
