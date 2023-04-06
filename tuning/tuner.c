@@ -517,24 +517,6 @@ void FilterNonQuiets(const char* filename) {
 }
 
 // FILE PRINTING BELOW
-static void FilePrintPST(const char* tableName, Phase_t phase, Piece_t piece, FILE* fp, int offset) {
-    fprintf(fp, "#define %s \\\n", tableName);
-
-    for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
-        if(sq % 8 == 0) { // first row entry
-            fprintf(fp, "   ");
-        }
-
-        fprintf(fp, "%d, ", (int)weights[phase][offset + NUM_SQUARES*piece + sq]);
-
-        if(sq % 8 == 7) { // last row entry
-            fprintf(fp, "\\\n");
-        }
-    }
-
-    fprintf(fp, "\n");
-}
-
 static void AddPieceValComment(FILE* fp) {
     const char* names[NUM_PIECES - 1] = { "Knight", "Bishop", "Rook", "Queen", "Pawn" };
 
@@ -560,18 +542,39 @@ static void AddPieceValComment(FILE* fp) {
     fprintf(fp, "*/\n\n");
 }
 
-static void PrintFileOrRankBonus(const char* name, int feature_offset, FILE* fp) {
-    fprintf(fp, "#define %s_MG \\\n   ", name);
-    for(int i = 0; i < 8; i++) { 
-        fprintf(fp, "%d, ", (int)weights[mg_phase][feature_offset + i]);
-    }
-    fprintf(fp, "\n\n");
+static void FilePrintPST(const char* tableName, Piece_t piece, FILE* fp, int offset) {
+    fprintf(fp, "#define %s {", tableName);
 
-    fprintf(fp, "#define %s_EG \\\n   ", name);
-    for(int i = 0; i < 8; i++) { 
-        fprintf(fp, "%d, ", (int)weights[eg_phase][feature_offset + i]);
+    for(Phase_t phase = 0; phase < NUM_PHASES; phase++) {
+        fprintf(fp, "{ \\\n");
+        for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
+            if(sq % 8 == 0) { // first row entry
+                fprintf(fp, "   ");
+            }
+
+            fprintf(fp, "%d, ", (int)weights[phase][offset + NUM_SQUARES*piece + sq]);
+
+            if(sq % 8 == 7) { // last row entry
+                fprintf(fp, "\\\n");
+            }
+        }
+        fprintf(fp, "}");
     }
-    fprintf(fp, "\n\n");
+
+    fprintf(fp, "}\n\n");
+}
+
+static void PrintFileOrRankBonus(const char* name, int feature_offset, FILE* fp) {
+    fprintf(fp, "#define %s { \\\n", name);
+    for(Phase_t phase = 0; phase < NUM_PHASES; phase++) {
+        fprintf(fp, "   { ");
+        for(int i = 0; i < 8; i++) { 
+            fprintf(fp, "%d, ", (int)weights[phase][feature_offset + i]);
+        }
+        fprintf(fp, "} \\\n");
+    }
+
+    fprintf(fp, "}\n\n");
 }
 
 static void PrintBonuses(FILE* fp) {
@@ -580,8 +583,7 @@ static void PrintBonuses(FILE* fp) {
         (int)weights[eg_phase][bishop_pair_offset]
     );
 
-    FilePrintPST("PASSED_PAWN_MG_PST", mg_phase, 0, fp, passed_pawn_offset);
-    FilePrintPST("PASSED_PAWN_EG_PST", eg_phase, 0, fp, passed_pawn_offset);
+    FilePrintPST("PASSED_PAWN_PST", 0, fp, passed_pawn_offset);
 
     PrintFileOrRankBonus("BLOCKED_PASSERS", blocked_passer_offset, fp);
 
@@ -602,23 +604,12 @@ static void CreateOutputFile() {
 
     AddPieceValComment(fp);
 
-    FilePrintPST("KNIGHT_MG_PST", mg_phase, knight, fp, pst_offset);
-    FilePrintPST("KNIGHT_EG_PST", eg_phase, knight, fp, pst_offset);
-
-    FilePrintPST("BISHOP_MG_PST", mg_phase, bishop, fp, pst_offset);
-    FilePrintPST("BISHOP_EG_PST", eg_phase, bishop, fp, pst_offset);
-
-    FilePrintPST("ROOK_MG_PST", mg_phase, rook, fp, pst_offset);
-    FilePrintPST("ROOK_EG_PST", eg_phase, rook, fp, pst_offset);
-
-    FilePrintPST("QUEEN_MG_PST", mg_phase, queen, fp, pst_offset);
-    FilePrintPST("QUEEN_EG_PST", eg_phase, queen, fp, pst_offset);
-
-    FilePrintPST("PAWN_MG_PST", mg_phase, pawn, fp, pst_offset);
-    FilePrintPST("PAWN_EG_PST", eg_phase, pawn, fp, pst_offset);
-    
-    FilePrintPST("KING_MG_PST", mg_phase, king, fp, pst_offset);
-    FilePrintPST("KING_EG_PST", eg_phase, king, fp, pst_offset);
+    FilePrintPST("KNIGHT_PST", knight, fp, pst_offset);
+    FilePrintPST("BISHOP_PST", bishop, fp, pst_offset);
+    FilePrintPST("ROOK_PST", rook, fp, pst_offset);
+    FilePrintPST("QUEEN_PST", queen, fp, pst_offset);
+    FilePrintPST("PAWN_PST", pawn, fp, pst_offset);
+    FilePrintPST("KING_PST", king, fp, pst_offset);
 
     fclose(fp);
 }
