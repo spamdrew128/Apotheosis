@@ -7,10 +7,14 @@
 static Centipawns_t passerBonus[NUM_PHASES][NUM_SQUARES] = { { PASSED_PAWN_MG_PST }, { PASSED_PAWN_EG_PST } };
 static Centipawns_t blockedPasserPenalty[NUM_PHASES][8] = { { BLOCKED_PASSERS_MG }, { BLOCKED_PASSERS_EG } };
 
-void PawnStuff(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* egScore) {
-    const Bitboard_t wFrontSpan = WhiteForwardFill(boardInfo->pawns[white]);
-    const Bitboard_t bFrontSpan = BlackForwardFill(boardInfo->pawns[black]);
-
+static void PassedPawns(
+    BoardInfo_t* boardInfo,
+    Centipawns_t* mgScore,
+    Centipawns_t* egScore,
+    Bitboard_t wFrontSpan,
+    Bitboard_t bFrontSpan
+)
+{
     const Bitboard_t wPawnBlocks = wFrontSpan | EastOne(wFrontSpan) | WestOne(wFrontSpan);
     const Bitboard_t bPawnBlocks = bFrontSpan | EastOne(bFrontSpan) | WestOne(bFrontSpan);
 
@@ -45,4 +49,11 @@ void PawnStuff(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* egSc
         *egScore -= blockedPasserPenalty[eg_phase][rank];
         ResetLSB(&piecesBlockingBlack);
     }
+}
+
+void PawnStuff(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* egScore) {
+    const Bitboard_t wFrontSpan = WhiteForwardFill(boardInfo->pawns[white]);
+    const Bitboard_t bFrontSpan = BlackForwardFill(boardInfo->pawns[black]);
+
+    PassedPawns(boardInfo, mgScore, egScore, wFrontSpan, bFrontSpan);
 }
