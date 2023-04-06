@@ -539,6 +539,20 @@ static void AddPieceValComment(FILE* fp) {
     fprintf(fp, "*/\n\n");
 }
 
+static void PrintFileOrRankBonus(const char* name, int feature_offset, FILE* fp) {
+    fprintf(fp, "#define %s_MG \\\n   ", name);
+    for(int i = 0; i < 8; i++) { 
+        fprintf(fp, "%d, ", (int)weights[mg_phase][feature_offset + i]);
+    }
+    fprintf(fp, "\n\n");
+
+    fprintf(fp, "#define %s_EG \\\n   ", name);
+    for(int i = 0; i < 8; i++) { 
+        fprintf(fp, "%d, ", (int)weights[eg_phase][feature_offset + i]);
+    }
+    fprintf(fp, "\n\n");
+}
+
 static void PrintBonuses(FILE* fp) {
     fprintf(fp, "#define BISHOP_PAIR_BONUS \\\n   %d, %d\n\n",
         (int)weights[mg_phase][bishop_pair_offset],
@@ -548,41 +562,11 @@ static void PrintBonuses(FILE* fp) {
     FilePrintPST("PASSED_PAWN_MG_PST", mg_phase, 0, fp, passed_pawn_offset);
     FilePrintPST("PASSED_PAWN_EG_PST", eg_phase, 0, fp, passed_pawn_offset);
 
-    fprintf(fp, "#define BLOCKED_PASSERS_MG \\\n   ");
-    for(int i = 0; i < 8; i++) { 
-        fprintf(fp, "%d, ", (int)weights[mg_phase][blocked_passer_offset + i]);
-    }
-    fprintf(fp, "\n\n");
+    PrintFileOrRankBonus("BLOCKED_PASSERS", blocked_passer_offset, fp);
 
-    fprintf(fp, "#define BLOCKED_PASSERS_EG \\\n   ");
-    for(int i = 0; i < 8; i++) { 
-        fprintf(fp, "%d, ", (int)weights[eg_phase][blocked_passer_offset + i]);
-    }
-    fprintf(fp, "\n\n");
+    PrintFileOrRankBonus("ROOK_OPEN_FILE", open_rook_offset, fp);
 
-    fprintf(fp, "#define ROOK_OPEN_FILE_MG \\\n   ");
-    for(int i = 0; i < 8; i++) { 
-        fprintf(fp, "%d, ", (int)weights[mg_phase][open_rook_offset + i]);
-    }
-    fprintf(fp, "\n\n");
-
-    fprintf(fp, "#define ROOK_OPEN_FILE_EG \\\n   ");
-    for(int i = 0; i < 8; i++) { 
-        fprintf(fp, "%d, ", (int)weights[eg_phase][open_rook_offset + i]);
-    }
-    fprintf(fp, "\n\n");
-
-        fprintf(fp, "#define ROOK_SEMI_OPEN_FILE_MG \\\n   ");
-    for(int i = 0; i < 8; i++) { 
-        fprintf(fp, "%d, ", (int)weights[mg_phase][semi_open_rook_offset + i]);
-    }
-    fprintf(fp, "\n\n");
-
-    fprintf(fp, "#define ROOK_SEMI_OPEN_FILE_EG \\\n   ");
-    for(int i = 0; i < 8; i++) { 
-        fprintf(fp, "%d, ", (int)weights[eg_phase][semi_open_rook_offset + i]);
-    }
-    fprintf(fp, "\n\n");
+    PrintFileOrRankBonus("ROOK_SEMI_OPEN_FILE", semi_open_rook_offset, fp);
 }
 
 static void CreateOutputFile() {
