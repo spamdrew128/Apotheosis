@@ -20,14 +20,18 @@ enum {
     PST_FEATURE_COUNT = NUM_PIECES * NUM_SQUARES,
     BISHOP_PAIR_FEATURE_COUNT = 1,
     PASSED_PAWN_FEATURE_COUNT = NUM_SQUARES,
-    BLOCKED_PASSER_FEATURE_COUNT = 8,
+    BLOCKED_PASSER_FEATURE_COUNT = NUM_RANKS,
+    OPEN_ROOK_FEATURE_COUNT = NUM_FILES,
+    SEMI_OPEN_ROOK_FEATURE_COUNT = NUM_FILES,
 
     pst_offset = 0,
     bishop_pair_offset = pst_offset + PST_FEATURE_COUNT,
     passed_pawn_offset = bishop_pair_offset + BISHOP_PAIR_FEATURE_COUNT,
     blocked_passer_offset = passed_pawn_offset + PASSED_PAWN_FEATURE_COUNT,
+    open_rook_offset = blocked_passer_offset + BLOCKED_PASSER_FEATURE_COUNT,
+    semi_open_rook_offset = open_rook_offset + OPEN_ROOK_FEATURE_COUNT,
 
-    VECTOR_LENGTH = blocked_passer_offset + BLOCKED_PASSER_FEATURE_COUNT,
+    VECTOR_LENGTH = semi_open_rook_offset + SEMI_OPEN_ROOK_FEATURE_COUNT,
 };
 
 enum {
@@ -62,6 +66,63 @@ typedef struct {
     int numEntries;
 } TuningData_t;
 
+static void TunerSerializeBySquare(
+    Bitboard_t whitePieces,
+    Bitboard_t blackPieces,
+    int feature_offset,
+    int16_t allValues[VECTOR_LENGTH]
+)
+{
+    while(whitePieces) {
+        Square_t sq = MIRROR(LSB(whitePieces));
+        allValues[feature_offset + sq]++;
+        ResetLSB(&whitePieces);
+    }
+    while(blackPieces) {
+        Square_t sq = LSB(blackPieces);
+        allValues[feature_offset + sq]--;
+        ResetLSB(&blackPieces);
+    }
+}
+
+static void TunerSerializeByFile(
+    Bitboard_t whitePieces,
+    Bitboard_t blackPieces,
+    int feature_offset,
+    int16_t allValues[VECTOR_LENGTH]
+)
+{
+    while(whitePieces) {
+        File_t file = LSB(whitePieces) % 8;
+        allValues[feature_offset + file]++;
+        ResetLSB(&whitePieces);
+    }
+    while(blackPieces) {
+        File_t file = LSB(blackPieces) % 8;
+        allValues[feature_offset + file]--;
+        ResetLSB(&blackPieces);
+    }
+}
+
+static void TunerSerializeByRank(
+    Bitboard_t whitePieces,
+    Bitboard_t blackPieces,
+    int feature_offset,
+    int16_t allValues[VECTOR_LENGTH]
+)
+{
+    while(whitePieces) {
+        Rank_t rank = (MIRROR(LSB(whitePieces))) / 8;
+        allValues[feature_offset + rank]++;
+        ResetLSB(&whitePieces);
+    }
+    while(blackPieces) {
+        Rank_t rank = LSB(blackPieces) / 8;
+        allValues[feature_offset + rank]--;
+        ResetLSB(&blackPieces);
+    }
+}
+
 static void FillPSTFeatures(
     int16_t allValues[VECTOR_LENGTH],
     BoardInfo_t* boardInfo
@@ -79,17 +140,9 @@ static void FillPSTFeatures(
     for(Piece_t piece = 0; piece < NUM_PIECES; piece++) {
         Bitboard_t whitePieces = pieces[piece][white];
         Bitboard_t blackPieces = pieces[piece][black];
+        int offset = pst_offset + NUM_SQUARES*piece;
 
-        while(whitePieces) {
-            Square_t sq = MIRROR(LSB(whitePieces));
-            allValues[pst_offset + NUM_SQUARES*piece + sq]++;
-            ResetLSB(&whitePieces);
-        }
-        while(blackPieces) {
-            Square_t sq = LSB(blackPieces);
-            allValues[pst_offset + NUM_SQUARES*piece + sq]--;
-            ResetLSB(&blackPieces);
-        }
+        TunerSerializeBySquare(whitePieces, blackPieces, offset, allValues);
     }
 }
 
@@ -116,28 +169,27 @@ static void FillBonuses(
     Bitboard_t piecesBlockingWhite = NortOne(wPassers) & boardInfo->allPieces[black];
     Bitboard_t piecesBlockingBlack = SoutOne(bPassers) & boardInfo->allPieces[white];
 
-    while(wPassers) {
-        Square_t sq = MIRROR(LSB(wPassers));
-        allValues[passed_pawn_offset + sq]++;
-        ResetLSB(&wPassers);
-    }
-    while(bPassers) {
-        Square_t sq = LSB(bPassers);
-        allValues[passed_pawn_offset + sq]--;
-        ResetLSB(&bPassers);
-    }
+    TunerSerializeBySquare(wPassers, bPassers, passed_pawn_offset, allValues);
 
     // BLOCKED PASSER
-    while(piecesBlockingWhite) {
-        Rank_t rank = (MIRROR(LSB(piecesBlockingWhite))) / 8;
-        allValues[blocked_passer_offset + rank]++;
-        ResetLSB(&piecesBlockingWhite);
-    }
-    while(piecesBlockingBlack) {
-        Rank_t rank = LSB(piecesBlockingBlack) / 8;
-        allValues[blocked_passer_offset + rank]--;
-        ResetLSB(&piecesBlockingBlack);
-    }
+    TunerSerializeByRank(piecesBlockingWhite, piecesBlockingBlack, blocked_passer_offset, allValues);
+
+    // OPEN AND SEMI OPEN ROOK
+    const Bitboard_t whitePawnFileSpans = FileFill(boardInfo->pawns[white]);
+    const Bitboard_t blackPawnFileSpans = FileFill(boardInfo->pawns[black]);
+
+    const Bitboard_t openFiles = ~(whitePawnFileSpans | blackPawnFileSpans);
+    const Bitboard_t whitePawnOnlyFiles = whitePawnFileSpans & ~blackPawnFileSpans;
+    const Bitboard_t blackPawnOnlyFiles = blackPawnFileSpans & ~whitePawnFileSpans;
+
+    Bitboard_t whiteOpenRooks = boardInfo->rooks[white] & openFiles;
+    Bitboard_t blackOpenRooks = boardInfo->rooks[black] & openFiles;
+
+    Bitboard_t whiteSemiOpenRooks = boardInfo->rooks[white] & blackPawnOnlyFiles;
+    Bitboard_t blackSemiOpenRooks = boardInfo->rooks[black] & whitePawnOnlyFiles;
+
+    TunerSerializeByFile(whiteOpenRooks, blackOpenRooks, open_rook_offset, allValues);
+    TunerSerializeByFile(whiteSemiOpenRooks, blackSemiOpenRooks, semi_open_rook_offset, allValues);
 }
 
 void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
@@ -487,6 +539,20 @@ static void AddPieceValComment(FILE* fp) {
     fprintf(fp, "*/\n\n");
 }
 
+static void PrintFileOrRankBonus(const char* name, int feature_offset, FILE* fp) {
+    fprintf(fp, "#define %s_MG \\\n   ", name);
+    for(int i = 0; i < 8; i++) { 
+        fprintf(fp, "%d, ", (int)weights[mg_phase][feature_offset + i]);
+    }
+    fprintf(fp, "\n\n");
+
+    fprintf(fp, "#define %s_EG \\\n   ", name);
+    for(int i = 0; i < 8; i++) { 
+        fprintf(fp, "%d, ", (int)weights[eg_phase][feature_offset + i]);
+    }
+    fprintf(fp, "\n\n");
+}
+
 static void PrintBonuses(FILE* fp) {
     fprintf(fp, "#define BISHOP_PAIR_BONUS \\\n   %d, %d\n\n",
         (int)weights[mg_phase][bishop_pair_offset],
@@ -496,17 +562,11 @@ static void PrintBonuses(FILE* fp) {
     FilePrintPST("PASSED_PAWN_MG_PST", mg_phase, 0, fp, passed_pawn_offset);
     FilePrintPST("PASSED_PAWN_EG_PST", eg_phase, 0, fp, passed_pawn_offset);
 
-    fprintf(fp, "#define BLOCKED_PASSERS_MG \\\n   ");
-    for(int i = 0; i < 8; i++) { 
-        fprintf(fp, "%d, ", (int)weights[mg_phase][blocked_passer_offset + i]);
-    }
-    fprintf(fp, "\n\n");
+    PrintFileOrRankBonus("BLOCKED_PASSERS", blocked_passer_offset, fp);
 
-    fprintf(fp, "#define BLOCKED_PASSERS_EG \\\n   ");
-    for(int i = 0; i < 8; i++) { 
-        fprintf(fp, "%d, ", (int)weights[eg_phase][blocked_passer_offset + i]);
-    }
-    fprintf(fp, "\n\n");
+    PrintFileOrRankBonus("ROOK_OPEN_FILE", open_rook_offset, fp);
+
+    PrintFileOrRankBonus("ROOK_SEMI_OPEN_FILE", semi_open_rook_offset, fp);
 }
 
 static void CreateOutputFile() {
