@@ -21,17 +21,20 @@ enum {
     BISHOP_PAIR_FEATURE_COUNT = 1,
     PASSED_PAWN_FEATURE_COUNT = NUM_SQUARES,
     BLOCKED_PASSER_FEATURE_COUNT = NUM_RANKS,
-    OPEN_ROOK_FEATURE_COUNT = NUM_FILES,
-    SEMI_OPEN_ROOK_FEATURE_COUNT = NUM_FILES,
+    OPEN_FILE_FEATURE_COUNT = NUM_FILES,
 
     pst_offset = 0,
     bishop_pair_offset = pst_offset + PST_FEATURE_COUNT,
     passed_pawn_offset = bishop_pair_offset + BISHOP_PAIR_FEATURE_COUNT,
     blocked_passer_offset = passed_pawn_offset + PASSED_PAWN_FEATURE_COUNT,
     open_rook_offset = blocked_passer_offset + BLOCKED_PASSER_FEATURE_COUNT,
-    semi_open_rook_offset = open_rook_offset + OPEN_ROOK_FEATURE_COUNT,
+    semi_open_rook_offset = open_rook_offset + OPEN_FILE_FEATURE_COUNT,
+    open_queen_offset = semi_open_rook_offset + OPEN_FILE_FEATURE_COUNT,
+    semi_open_queen_offset = open_queen_offset + OPEN_FILE_FEATURE_COUNT,
+    open_king_offset = semi_open_queen_offset + OPEN_FILE_FEATURE_COUNT,
+    semi_open_king_offset = open_king_offset + OPEN_FILE_FEATURE_COUNT,
 
-    VECTOR_LENGTH = semi_open_rook_offset + SEMI_OPEN_ROOK_FEATURE_COUNT,
+    VECTOR_LENGTH = semi_open_king_offset + OPEN_FILE_FEATURE_COUNT,
 };
 
 enum {
@@ -174,7 +177,7 @@ static void FillBonuses(
     // BLOCKED PASSER
     TunerSerializeByRank(piecesBlockingWhite, piecesBlockingBlack, blocked_passer_offset, allValues);
 
-    // OPEN AND SEMI OPEN ROOK
+    // OPEN AND SEMI OPEN FILES
     const Bitboard_t whitePawnFileSpans = FileFill(boardInfo->pawns[white]);
     const Bitboard_t blackPawnFileSpans = FileFill(boardInfo->pawns[black]);
 
@@ -190,6 +193,24 @@ static void FillBonuses(
 
     TunerSerializeByFile(whiteOpenRooks, blackOpenRooks, open_rook_offset, allValues);
     TunerSerializeByFile(whiteSemiOpenRooks, blackSemiOpenRooks, semi_open_rook_offset, allValues);
+
+    Bitboard_t whiteOpenQueens = boardInfo->queens[white] & openFiles;
+    Bitboard_t blackOpenQueens = boardInfo->queens[black] & openFiles;
+
+    Bitboard_t whiteSemiOpenQueens = boardInfo->queens[white] & blackPawnOnlyFiles;
+    Bitboard_t blackSemiOpenQueens = boardInfo->queens[black] & whitePawnOnlyFiles;
+
+    TunerSerializeByFile(whiteOpenQueens, blackOpenQueens, open_queen_offset, allValues);
+    TunerSerializeByFile(whiteSemiOpenQueens, blackSemiOpenQueens, semi_open_queen_offset, allValues);
+
+    Bitboard_t whiteOpenKings = boardInfo->kings[white] & openFiles;
+    Bitboard_t blackOpenKings = boardInfo->kings[black] & openFiles;
+
+    Bitboard_t whiteSemiOpenKings = boardInfo->kings[white] & blackPawnOnlyFiles;
+    Bitboard_t blackSemiOpenKings = boardInfo->kings[black] & whitePawnOnlyFiles;
+
+    TunerSerializeByFile(whiteOpenKings, blackOpenKings, open_king_offset, allValues);
+    TunerSerializeByFile(whiteSemiOpenKings, blackSemiOpenKings, semi_open_king_offset, allValues);
 }
 
 void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
@@ -565,8 +586,13 @@ static void PrintBonuses(FILE* fp) {
     PrintFileOrRankBonus("BLOCKED_PASSERS", blocked_passer_offset, fp);
 
     PrintFileOrRankBonus("ROOK_OPEN_FILE", open_rook_offset, fp);
-
     PrintFileOrRankBonus("ROOK_SEMI_OPEN_FILE", semi_open_rook_offset, fp);
+
+    PrintFileOrRankBonus("QUEEN_OPEN_FILE", open_queen_offset, fp);
+    PrintFileOrRankBonus("QUEEN_SEMI_OPEN_FILE", semi_open_queen_offset, fp);
+    
+    PrintFileOrRankBonus("KING_OPEN_FILE", open_king_offset, fp);
+    PrintFileOrRankBonus("KING_SEMI_OPEN_FILE", semi_open_king_offset, fp);
 }
 
 static void CreateOutputFile() {
