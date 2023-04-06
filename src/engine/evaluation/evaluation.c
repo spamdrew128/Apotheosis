@@ -66,7 +66,8 @@ EvalScore_t ScoreOfPosition(BoardInfo_t* boardInfo) {
 
     MaterialBalanceAndPSTBonus(boardInfo, &phase, &mgScore, &egScore);
     BishopPairBonus(boardInfo, &mgScore, &egScore);
-    PawnStructureEval(boardInfo, &mgScore, &egScore);
+    PassedPawnBonus(boardInfo, &mgScore, &egScore);
+    OpenFileBonus(boardInfo, &mgScore, &egScore);
 
     EvalScore_t eval = (mgScore*phase + egScore*(PHASE_MAX - phase)) / PHASE_MAX;
 

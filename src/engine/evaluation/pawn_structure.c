@@ -10,7 +10,7 @@ static Centipawns_t blockedPasserPenalty[NUM_PHASES][NUM_RANKS] = { { BLOCKED_PA
 static Centipawns_t rookOpenBonus[NUM_PHASES][NUM_FILES] = { { ROOK_OPEN_FILE_MG }, { ROOK_OPEN_FILE_EG } };
 static Centipawns_t rookSemiOpenBonus[NUM_PHASES][NUM_FILES] = { { ROOK_SEMI_OPEN_FILE_MG }, { ROOK_SEMI_OPEN_FILE_EG } };
 
-static void PassedPawns(
+void PassedPawnBonus(
     BoardInfo_t* boardInfo,
     Centipawns_t* mgScore,
     Centipawns_t* egScore
@@ -33,7 +33,7 @@ static void PassedPawns(
     SerializeByRank(piecesBlockingWhite, piecesBlockingBlack, mgScore, egScore, blockedPasserPenalty);
 }
 
-static void RookOpenFile(
+void OpenFileBonus(
     BoardInfo_t* boardInfo,
     Centipawns_t* mgScore,
     Centipawns_t* egScore
@@ -54,9 +54,10 @@ static void RookOpenFile(
 
     SerializeByFile(whiteOpenRooks, blackOpenRooks, mgScore, egScore, rookOpenBonus);
     SerializeByFile(whiteSemiOpenRooks, blackSemiOpenRooks, mgScore, egScore, rookSemiOpenBonus);
-}
 
-void PawnStructureEval(BoardInfo_t* boardInfo, Centipawns_t* mgScore, Centipawns_t* egScore) {
-    PassedPawns(boardInfo, mgScore, egScore);
-    RookOpenFile(boardInfo, mgScore, egScore); // it involves pawns to define open files, sue me.
+    Bitboard_t whiteOpenQueens = boardInfo->queens[white] & openFiles;
+    Bitboard_t blackOpenQueens = boardInfo->queens[black] & openFiles;
+
+    Bitboard_t whiteSemiOpenQueens = boardInfo->queens[white] & blackPawnOnlyFiles;
+    Bitboard_t blackSemiOpenQueens = boardInfo->queens[black] & whitePawnOnlyFiles;
 }
