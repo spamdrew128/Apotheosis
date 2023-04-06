@@ -53,6 +53,12 @@ enum {
 #define ROOK_OPEN_FILE_EG \
    -447, -160, -68, -31, -8, -8, 0, 0,
 
+#define ROOK_SEMI_OPEN_FILE_MG \
+   1643, 483, 93, 03, 33, -113, 3, 33, 
+
+#define ROOK_SEMI_OPEN_FILE_EG \
+   -47, -10, -6, -3, -3, -3, 3, 8,
+
 /*
 Average PST values for MG, EG:
 Knight Values: 469 368
