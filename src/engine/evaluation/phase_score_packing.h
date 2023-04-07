@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include "engine_types.h"
 
-typedef int32_t Score_t;
-
 #define S(mg, eg) \
 	((Score_t)((uint32_t)eg << 16) + mg)
 

@@ -64,7 +64,8 @@
         "pawn_structure.h": "c",
         "eval_helpers.h": "c",
         "compare": "cpp",
-        "phase_score_packing.h": "c"
+        "phase_score_packing.h": "c",
+        "engine_types.h": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",

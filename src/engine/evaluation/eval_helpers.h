@@ -23,25 +23,22 @@ Bitboard_t FileFill(Bitboard_t b);
 void SerializeBySquare(
     Bitboard_t whitePieces,
     Bitboard_t blackPieces,
-    Centipawns_t* mgScore,
-    Centipawns_t* egScore,
-    Centipawns_t bonus[NUM_PHASES][NUM_SQUARES]
+    Score_t* score,
+    Score_t bonus[NUM_SQUARES]
 );
 
 void SerializeByFile(
     Bitboard_t whitePieces,
     Bitboard_t blackPieces,
-    Centipawns_t* mgScore,
-    Centipawns_t* egScore,
-    Centipawns_t bonus[NUM_PHASES][NUM_FILES]
+    Score_t* score,
+    Score_t bonus[NUM_FILES]
 );
 
 void SerializeByRank(
     Bitboard_t whitePieces,
     Bitboard_t blackPieces,
-    Centipawns_t* mgScore,
-    Centipawns_t* egScore,
-    Centipawns_t bonus[NUM_PHASES][NUM_RANKS]
+    Score_t* score,
+    Score_t bonus[NUM_RANKS]
 );
 
 #endif
