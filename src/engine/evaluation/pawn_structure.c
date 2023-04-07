@@ -4,15 +4,15 @@
 #include "eval_helpers.h"
 #include "util_macros.h"
 
-static Centipawns_t passerBonus[NUM_PHASES][NUM_SQUARES] = { { PASSED_PAWN_MG_PST }, { PASSED_PAWN_EG_PST } };
-static Centipawns_t blockedPasserPenalty[NUM_PHASES][NUM_RANKS] = { { BLOCKED_PASSERS_MG }, { BLOCKED_PASSERS_EG } };
+static Centipawns_t passerBonus[NUM_PHASES][NUM_SQUARES] = PASSED_PAWN_PST;
+static Centipawns_t blockedPasserPenalty[NUM_PHASES][NUM_RANKS] = BLOCKED_PASSERS;
 
-static Centipawns_t rookOpenBonus[NUM_PHASES][NUM_FILES] = { { ROOK_OPEN_FILE_MG }, { ROOK_OPEN_FILE_EG } };
-static Centipawns_t rookSemiOpenBonus[NUM_PHASES][NUM_FILES] = { { ROOK_SEMI_OPEN_FILE_MG }, { ROOK_SEMI_OPEN_FILE_EG } };
-static Centipawns_t queenOpenBonus[NUM_PHASES][NUM_FILES] = { { QUEEN_OPEN_FILE_MG }, { QUEEN_OPEN_FILE_EG } };
-static Centipawns_t queenSemiOpenBonus[NUM_PHASES][NUM_FILES] = { { QUEEN_SEMI_OPEN_FILE_MG }, { QUEEN_SEMI_OPEN_FILE_EG } };
-static Centipawns_t kingOpenBonus[NUM_PHASES][NUM_FILES] = { { KING_OPEN_FILE_MG }, { KING_OPEN_FILE_EG } };
-static Centipawns_t kingSemiOpenBonus[NUM_PHASES][NUM_FILES] = { { KING_SEMI_OPEN_FILE_MG }, { KING_SEMI_OPEN_FILE_EG } };
+static Centipawns_t rookOpenBonus[NUM_PHASES][NUM_FILES] = ROOK_OPEN_FILE;
+static Centipawns_t rookSemiOpenBonus[NUM_PHASES][NUM_FILES] = ROOK_SEMI_OPEN_FILE;
+static Centipawns_t queenOpenBonus[NUM_PHASES][NUM_FILES] = QUEEN_OPEN_FILE;
+static Centipawns_t queenSemiOpenBonus[NUM_PHASES][NUM_FILES] = QUEEN_SEMI_OPEN_FILE;
+static Centipawns_t kingOpenBonus[NUM_PHASES][NUM_FILES] = KING_OPEN_FILE;
+static Centipawns_t kingSemiOpenBonus[NUM_PHASES][NUM_FILES] = KING_SEMI_OPEN_FILE;
 
 void PassedPawnBonus(
     BoardInfo_t* boardInfo,

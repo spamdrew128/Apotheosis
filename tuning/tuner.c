@@ -558,7 +558,7 @@ static void FilePrintPST(const char* tableName, Piece_t piece, FILE* fp, int off
                 fprintf(fp, "\\\n");
             }
         }
-        fprintf(fp, "}");
+        fprintf(fp, "}, ");
     }
 
     fprintf(fp, "}\n\n");
@@ -571,7 +571,7 @@ static void PrintFileOrRankBonus(const char* name, int feature_offset, FILE* fp)
         for(int i = 0; i < 8; i++) { 
             fprintf(fp, "%d, ", (int)weights[phase][feature_offset + i]);
         }
-        fprintf(fp, "} \\\n");
+        fprintf(fp, "}, \\\n");
     }
 
     fprintf(fp, "}\n\n");

@@ -6,8 +6,7 @@
 #include "legals.h"
 #include "pawn_structure.h"
 
-static Centipawns_t midgamePST[6][NUM_SQUARES] = { {KNIGHT_MG_PST}, {BISHOP_MG_PST}, {ROOK_MG_PST}, {QUEEN_MG_PST}, {PAWN_MG_PST}, {KING_MG_PST} };
-static Centipawns_t endgamePST[6][NUM_SQUARES] = { {KNIGHT_EG_PST}, {BISHOP_EG_PST}, {ROOK_EG_PST}, {QUEEN_EG_PST}, {PAWN_EG_PST}, {KING_EG_PST} };
+static Centipawns_t piecePSTs[NUM_PIECES][NUM_PHASES][NUM_SQUARES] = { KNIGHT_PST, BISHOP_PST, ROOK_PST, QUEEN_PST, PAWN_PST, KING_PST };
 static Phase_t gamePhaseLookup[6] = { KNIGHT_PHASE_VALUE, BISHOP_PHASE_VALUE, ROOK_PHASE_VALUE, QUEEN_PHASE_VALUE, PAWN_PHASE_VALUE, KING_PHASE_VALUE };
 
 static Centipawns_t bishopPairBonus[NUM_PHASES] = { BISHOP_PAIR_BONUS };
@@ -25,15 +24,15 @@ static void PSTEval(
 
     while(whitePieces) {
         Square_t sq = MIRROR(LSB(whitePieces));
-        *mgScore += midgamePST[piece][sq];
-        *egScore += endgamePST[piece][sq];
+        *mgScore += piecePSTs[piece][mg_phase][sq];
+        *egScore += piecePSTs[piece][eg_phase][sq];
         *gamePhase += gamePhaseLookup[piece];
         ResetLSB(&whitePieces);
     }
     while(blackPieces) {
         Square_t sq = LSB(blackPieces);
-        *mgScore -= midgamePST[piece][sq];
-        *egScore -= endgamePST[piece][sq];
+        *mgScore -= piecePSTs[piece][mg_phase][sq];
+        *egScore -= piecePSTs[piece][eg_phase][sq];
         *gamePhase += gamePhaseLookup[piece];
         ResetLSB(&blackPieces);
     }
