@@ -543,22 +543,19 @@ static void AddPieceValComment(FILE* fp) {
 }
 
 static void FilePrintPST(const char* tableName, Piece_t piece, FILE* fp, int offset) {
-    fprintf(fp, "#define %s {", tableName);
-
-    for(Phase_t phase = 0; phase < NUM_PHASES; phase++) {
-        fprintf(fp, "{ \\\n");
-        for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
-            if(sq % 8 == 0) { // first row entry
-                fprintf(fp, "   ");
-            }
-
-            fprintf(fp, "%d, ", (int)weights[phase][offset + NUM_SQUARES*piece + sq]);
-
-            if(sq % 8 == 7) { // last row entry
-                fprintf(fp, "\\\n");
-            }
+    fprintf(fp, "#define %s { \\\n", tableName);
+    for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
+        if(sq % 8 == 0) { // first row entry
+            fprintf(fp, "   ");
         }
-        fprintf(fp, "}, ");
+
+        fprintf(fp, "S(%d, %d), ",
+            (int)weights[mg_phase][offset + NUM_SQUARES*piece + sq],
+            (int)weights[eg_phase][offset + NUM_SQUARES*piece + sq]);
+
+        if(sq % 8 == 7) { // last row entry
+            fprintf(fp, "\\\n");
+        }
     }
 
     fprintf(fp, "}\n\n");
@@ -566,19 +563,17 @@ static void FilePrintPST(const char* tableName, Piece_t piece, FILE* fp, int off
 
 static void PrintFileOrRankBonus(const char* name, int feature_offset, FILE* fp) {
     fprintf(fp, "#define %s { \\\n", name);
-    for(Phase_t phase = 0; phase < NUM_PHASES; phase++) {
-        fprintf(fp, "   { ");
-        for(int i = 0; i < 8; i++) { 
-            fprintf(fp, "%d, ", (int)weights[phase][feature_offset + i]);
-        }
-        fprintf(fp, "}, \\\n");
+    for(int i = 0; i < 8; i++) { 
+        fprintf(fp, "S(%d, %d), ",
+            (int)weights[mg_phase][feature_offset + i],
+            (int)weights[eg_phase][feature_offset + i]);
     }
 
     fprintf(fp, "}\n\n");
 }
 
 static void PrintBonuses(FILE* fp) {
-    fprintf(fp, "#define BISHOP_PAIR_BONUS \\\n   %d, %d\n\n",
+    fprintf(fp, "#define BISHOP_PAIR_BONUS \\\n   S(%d, %d)\n\n",
         (int)weights[mg_phase][bishop_pair_offset],
         (int)weights[eg_phase][bishop_pair_offset]
     );

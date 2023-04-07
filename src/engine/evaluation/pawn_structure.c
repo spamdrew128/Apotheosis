@@ -4,20 +4,19 @@
 #include "eval_helpers.h"
 #include "util_macros.h"
 
-static Centipawns_t passerBonus[NUM_PHASES][NUM_SQUARES] = PASSED_PAWN_PST;
-static Centipawns_t blockedPasserPenalty[NUM_PHASES][NUM_RANKS] = BLOCKED_PASSERS;
+static Score_t passerBonus[NUM_SQUARES] = PASSED_PAWN_PST;
+static Score_t blockedPasserPenalty[NUM_RANKS] = BLOCKED_PASSERS;
 
-static Centipawns_t rookOpenBonus[NUM_PHASES][NUM_FILES] = ROOK_OPEN_FILE;
-static Centipawns_t rookSemiOpenBonus[NUM_PHASES][NUM_FILES] = ROOK_SEMI_OPEN_FILE;
-static Centipawns_t queenOpenBonus[NUM_PHASES][NUM_FILES] = QUEEN_OPEN_FILE;
-static Centipawns_t queenSemiOpenBonus[NUM_PHASES][NUM_FILES] = QUEEN_SEMI_OPEN_FILE;
-static Centipawns_t kingOpenBonus[NUM_PHASES][NUM_FILES] = KING_OPEN_FILE;
-static Centipawns_t kingSemiOpenBonus[NUM_PHASES][NUM_FILES] = KING_SEMI_OPEN_FILE;
+static Score_t rookOpenBonus[NUM_FILES] = ROOK_OPEN_FILE;
+static Score_t rookSemiOpenBonus[NUM_FILES] = ROOK_SEMI_OPEN_FILE;
+static Score_t queenOpenBonus[NUM_FILES] = QUEEN_OPEN_FILE;
+static Score_t queenSemiOpenBonus[NUM_FILES] = QUEEN_SEMI_OPEN_FILE;
+static Score_t kingOpenBonus[NUM_FILES] = KING_OPEN_FILE;
+static Score_t kingSemiOpenBonus[NUM_FILES] = KING_SEMI_OPEN_FILE;
 
 void PassedPawnBonus(
     BoardInfo_t* boardInfo,
-    Centipawns_t* mgScore,
-    Centipawns_t* egScore
+    Score_t* score
 )
 {
     const Bitboard_t wFrontSpan = WhiteForwardFill(boardInfo->pawns[white]);
@@ -32,15 +31,14 @@ void PassedPawnBonus(
     Bitboard_t piecesBlockingWhite = NortOne(wPassers) & boardInfo->allPieces[black];
     Bitboard_t piecesBlockingBlack = SoutOne(bPassers) & boardInfo->allPieces[white];
 
-    SerializeBySquare(wPassers, bPassers, mgScore, egScore, passerBonus);
+    SerializeBySquare(wPassers, bPassers, score, passerBonus);
 
-    SerializeByRank(piecesBlockingWhite, piecesBlockingBlack, mgScore, egScore, blockedPasserPenalty);
+    SerializeByRank(piecesBlockingWhite, piecesBlockingBlack, score, blockedPasserPenalty);
 }
 
 void OpenFileBonus(
     BoardInfo_t* boardInfo,
-    Centipawns_t* mgScore,
-    Centipawns_t* egScore
+    Score_t* score
 )
 {
     const Bitboard_t whitePawnFileSpans = FileFill(boardInfo->pawns[white]);
@@ -56,8 +54,8 @@ void OpenFileBonus(
     Bitboard_t whiteSemiOpenRooks = boardInfo->rooks[white] & blackPawnOnlyFiles;
     Bitboard_t blackSemiOpenRooks = boardInfo->rooks[black] & whitePawnOnlyFiles;
 
-    SerializeByFile(whiteOpenRooks, blackOpenRooks, mgScore, egScore, rookOpenBonus);
-    SerializeByFile(whiteSemiOpenRooks, blackSemiOpenRooks, mgScore, egScore, rookSemiOpenBonus);
+    SerializeByFile(whiteOpenRooks, blackOpenRooks, score, rookOpenBonus);
+    SerializeByFile(whiteSemiOpenRooks, blackSemiOpenRooks, score, rookSemiOpenBonus);
 
     Bitboard_t whiteOpenQueens = boardInfo->queens[white] & openFiles;
     Bitboard_t blackOpenQueens = boardInfo->queens[black] & openFiles;
@@ -65,8 +63,8 @@ void OpenFileBonus(
     Bitboard_t whiteSemiOpenQueens = boardInfo->queens[white] & blackPawnOnlyFiles;
     Bitboard_t blackSemiOpenQueens = boardInfo->queens[black] & whitePawnOnlyFiles;
 
-    SerializeByFile(whiteOpenQueens, blackOpenQueens, mgScore, egScore, queenOpenBonus);
-    SerializeByFile(whiteSemiOpenQueens, blackSemiOpenQueens, mgScore, egScore, queenSemiOpenBonus);
+    SerializeByFile(whiteOpenQueens, blackOpenQueens, score, queenOpenBonus);
+    SerializeByFile(whiteSemiOpenQueens, blackSemiOpenQueens, score, queenSemiOpenBonus);
 
     Bitboard_t whiteOpenKings = boardInfo->kings[white] & openFiles;
     Bitboard_t blackOpenKings = boardInfo->kings[black] & openFiles;
@@ -74,6 +72,6 @@ void OpenFileBonus(
     Bitboard_t whiteSemiOpenKings = boardInfo->kings[white] & blackPawnOnlyFiles;
     Bitboard_t blackSemiOpenKings = boardInfo->kings[black] & whitePawnOnlyFiles;
 
-    SerializeByFile(whiteOpenKings, blackOpenKings, mgScore, egScore, kingOpenBonus);
-    SerializeByFile(whiteSemiOpenKings, blackSemiOpenKings, mgScore, egScore, kingSemiOpenBonus);
+    SerializeByFile(whiteOpenKings, blackOpenKings, score, kingOpenBonus);
+    SerializeByFile(whiteSemiOpenKings, blackSemiOpenKings, score, kingSemiOpenBonus);
 }

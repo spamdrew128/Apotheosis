@@ -12,14 +12,12 @@
 
 void PassedPawnBonus(
     BoardInfo_t* boardInfo,
-    Centipawns_t* mgScore,
-    Centipawns_t* egScore
+    Score_t* score
 );
 
 void OpenFileBonus(
     BoardInfo_t* boardInfo,
-    Centipawns_t* mgScore,
-    Centipawns_t* egScore
+    Score_t* score
 );
 
 #endif
