@@ -63,7 +63,8 @@
         "stdlib.h": "c",
         "pawn_structure.h": "c",
         "eval_helpers.h": "c",
-        "compare": "cpp"
+        "compare": "cpp",
+        "phase_score_packing.h": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",

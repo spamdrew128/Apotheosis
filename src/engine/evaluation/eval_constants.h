@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include "phase_score_packing.h"
+
 typedef uint8_t Phase_t;
 enum {
   mg_phase,
