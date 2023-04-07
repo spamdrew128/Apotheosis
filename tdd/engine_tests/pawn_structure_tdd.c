@@ -7,7 +7,7 @@ static BoardInfo_t boardInfo;
 static GameStack_t gameStack;
 static ZobristStack_t zobristStack;
 
-static Score_t passerBonus[NUM_PST_BUCKETS][NUM_SQUARES] = { PASSED_PAWN_PST, PASSED_PAWN_PST }; 
+static Score_t passerBonus[NUM_PST_BUCKETS][NUM_SQUARES] = PASSED_PAWN_PST; 
 static Score_t blockerPenalty[8] = BLOCKED_PASSERS;
 
 static Score_t rookOpenBonus[NUM_FILES] = ROOK_OPEN_FILE;
