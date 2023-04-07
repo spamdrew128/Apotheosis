@@ -8,9 +8,8 @@
 
 static Phase_t gamePhaseLookup[6] = { KNIGHT_PHASE_VALUE, BISHOP_PHASE_VALUE, ROOK_PHASE_VALUE, QUEEN_PHASE_VALUE, PAWN_PHASE_VALUE, KING_PHASE_VALUE };
 
-static Score_t piecePSTs[NUM_PST_BUCKETS][NUM_PIECES][NUM_SQUARES] = {
+static Score_t piecePSTs[NUM_PIECES][NUM_PST_BUCKETS][NUM_SQUARES] = {
     { KNIGHT_PST, BISHOP_PST, ROOK_PST, QUEEN_PST, PAWN_PST, KING_PST }, 
-    { KNIGHT_PST, BISHOP_PST, ROOK_PST, QUEEN_PST, PAWN_PST, KING_PST }
 };
 static Score_t bishopPairBonus = BISHOP_PAIR_BONUS;
 
@@ -28,13 +27,13 @@ static void PSTEval(
 
     while(whitePieces) {
         Square_t sq = MIRROR(LSB(whitePieces));
-        *score += piecePSTs[wBucket][piece][sq];
+        *score += piecePSTs[piece][wBucket][sq];
         *gamePhase += gamePhaseLookup[piece];
         ResetLSB(&whitePieces);
     }
     while(blackPieces) {
         Square_t sq = LSB(blackPieces);
-        *score -= piecePSTs[bBucket][piece][sq];
+        *score -= piecePSTs[piece][bBucket][sq];
         *gamePhase += gamePhaseLookup[piece];
         ResetLSB(&blackPieces);
     }
