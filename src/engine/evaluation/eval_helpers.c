@@ -30,18 +30,20 @@ Bitboard_t BlackForwardFill(Bitboard_t b) {
 void SerializeBySquare(
     Bitboard_t whitePieces,
     Bitboard_t blackPieces,
+    const Bucket_t wBucket,
+    const Bucket_t bBucket,
     Score_t* score,
-    Score_t bonus[NUM_SQUARES]
+    Score_t bonus[NUM_PST_BUCKETS][NUM_SQUARES]
 )
 {
     while(whitePieces) {
         Square_t sq = MIRROR(LSB(whitePieces));
-        *score += bonus[sq];
+        *score += bonus[wBucket][sq];
         ResetLSB(&whitePieces);
     }
     while(blackPieces) {
         Square_t sq = LSB(blackPieces);
-        *score -= bonus[sq];
+        *score -= bonus[bBucket][sq];
         ResetLSB(&blackPieces);
     }
 }

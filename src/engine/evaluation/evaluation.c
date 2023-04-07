@@ -6,11 +6,6 @@
 #include "legals.h"
 #include "pawn_structure.h"
 
-enum {
-    QS_PST_MASK = C64(0x0F0F0F0F0F0F0F0F),
-    KS_PST_MASK = C64(0xF0F0F0F0F0F0F0F0),
-};
-
 static Phase_t gamePhaseLookup[6] = { KNIGHT_PHASE_VALUE, BISHOP_PHASE_VALUE, ROOK_PHASE_VALUE, QUEEN_PHASE_VALUE, PAWN_PHASE_VALUE, KING_PHASE_VALUE };
 
 static Score_t piecePSTs[NUM_PST_BUCKETS][NUM_PIECES][NUM_SQUARES] = {
@@ -19,15 +14,10 @@ static Score_t piecePSTs[NUM_PST_BUCKETS][NUM_PIECES][NUM_SQUARES] = {
 };
 static Score_t bishopPairBonus = BISHOP_PAIR_BONUS;
 
-static int PSTBucketIndex(BoardInfo_t* boardInfo, Color_t color) {
-    // indexed by opponent king position
-    return (bool)(boardInfo->kings[!color] & QS_PST_MASK);
-}
-
 static void PSTEval(
     Bitboard_t infoField[2],
-    const int wBucket,
-    const int bBucket,
+    const Bucket_t wBucket,
+    const Bucket_t bBucket,
     Piece_t piece,
     Phase_t* gamePhase,
     Score_t* score
@@ -50,16 +40,13 @@ static void PSTEval(
     }
 }
 
-static void MaterialBalanceAndPSTBonus(BoardInfo_t* boardInfo, Phase_t* phase, Score_t* score) {
-    const int whiteBucket = PSTBucketIndex(boardInfo, white);
-    const int blackBucket = PSTBucketIndex(boardInfo, black);
-
-    PSTEval(boardInfo->knights, whiteBucket, blackBucket, knight, phase, score);
-    PSTEval(boardInfo->bishops, whiteBucket, blackBucket,  bishop, phase, score);
-    PSTEval(boardInfo->rooks, whiteBucket, blackBucket,  rook, phase, score);
-    PSTEval(boardInfo->queens, whiteBucket, blackBucket,  queen, phase, score);
-    PSTEval(boardInfo->pawns, whiteBucket, blackBucket,  pawn, phase, score);
-    PSTEval(boardInfo->kings, whiteBucket, blackBucket,  king, phase, score);
+static void MaterialBalanceAndPSTBonus(BoardInfo_t* boardInfo, const Bucket_t wBucket, const Bucket_t bBucket, Phase_t* phase, Score_t* score) {
+    PSTEval(boardInfo->knights, wBucket, bBucket, knight, phase, score);
+    PSTEval(boardInfo->bishops, wBucket, bBucket,  bishop, phase, score);
+    PSTEval(boardInfo->rooks, wBucket, bBucket,  rook, phase, score);
+    PSTEval(boardInfo->queens, wBucket, bBucket,  queen, phase, score);
+    PSTEval(boardInfo->pawns, wBucket, bBucket,  pawn, phase, score);
+    PSTEval(boardInfo->kings, wBucket, bBucket,  king, phase, score);
 }
 
 static void BishopPairBonus(BoardInfo_t* boardInfo, Score_t* score) {
@@ -75,9 +62,12 @@ EvalScore_t ScoreOfPosition(BoardInfo_t* boardInfo) {
     Phase_t phase = 0;
     Score_t score = 0;
 
-    MaterialBalanceAndPSTBonus(boardInfo, &phase, &score);
+    const Bucket_t wBucket = PSTBucketIndex(boardInfo, white);
+    const Bucket_t bBucket = PSTBucketIndex(boardInfo, black);
+
+    MaterialBalanceAndPSTBonus(boardInfo, wBucket, bBucket, &phase, &score);
     BishopPairBonus(boardInfo, &score);
-    PassedPawnBonus(boardInfo, &score);
+    PassedPawnBonus(boardInfo, wBucket, bBucket, &score);
     OpenFileBonus(boardInfo, &score);
 
     const EvalScore_t mgScore = MgFromScore(score);

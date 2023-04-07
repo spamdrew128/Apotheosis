@@ -3,9 +3,12 @@
 
 #include <stdint.h>
 
+#include "board_constants.h"
+#include "board_info.h"
 #include "phase_score_packing.h"
 
 typedef uint8_t Phase_t;
+typedef uint8_t Bucket_t;
 enum {
   mg_phase,
   eg_phase,
@@ -19,8 +22,16 @@ enum {
   PAWN_PHASE_VALUE = 0,
   KING_PHASE_VALUE = 0,
 
+  QS_PST_MASK = C64(0x0F0F0F0F0F0F0F0F),
+  KS_PST_MASK = C64(0xF0F0F0F0F0F0F0F0),
   NUM_PST_BUCKETS = 2,
 };
+
+inline int PSTBucketIndex(BoardInfo_t* boardInfo, Color_t color) {
+    // indexed by opponent king position
+    // qs is index 0, ks is index 1
+    return (bool)(boardInfo->kings[!color] & KS_PST_MASK);
+}
 
 #define BISHOP_PAIR_BONUS \
    S(37, 66)

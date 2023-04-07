@@ -17,7 +17,7 @@
 #include "eval_helpers.h"
 
 enum {
-    PST_FEATURE_COUNT = NUM_PIECES * NUM_SQUARES,
+    PST_FEATURE_COUNT = NUM_PST_BUCKETS * NUM_PIECES * NUM_SQUARES,
     BISHOP_PAIR_FEATURE_COUNT = 1,
     PASSED_PAWN_FEATURE_COUNT = NUM_SQUARES,
     BLOCKED_PASSER_FEATURE_COUNT = NUM_RANKS,
@@ -126,6 +126,10 @@ static void TunerSerializeByRank(
     }
 }
 
+static int PSTOffset(Bucket_t bucket, Piece_t piece, Square_t sq, int featureOffset) {
+    return featureOffset + ((NUM_PIECES*NUM_SQUARES)*bucket + NUM_SQUARES*piece + sq);
+}
+
 static void FillPSTFeatures(
     int16_t allValues[VECTOR_LENGTH],
     BoardInfo_t* boardInfo
@@ -140,12 +144,23 @@ static void FillPSTFeatures(
         boardInfo->kings,
     };
 
+    const Bucket_t whiteBucket = PSTBucketIndex(boardInfo, white);
+    const Bucket_t blackBucket = PSTBucketIndex(boardInfo, black);
+
     for(Piece_t piece = 0; piece < NUM_PIECES; piece++) {
         Bitboard_t whitePieces = pieces[piece][white];
         Bitboard_t blackPieces = pieces[piece][black];
-        int offset = pst_offset + NUM_SQUARES*piece;
 
-        TunerSerializeBySquare(whitePieces, blackPieces, offset, allValues);
+        while(whitePieces) {
+            Square_t sq = MIRROR(LSB(whitePieces));
+            allValues[PSTOffset(whiteBucket, piece, sq, pst_offset)]++;
+            ResetLSB(&whitePieces);
+        }
+        while(blackPieces) {
+            Square_t sq = LSB(blackPieces);
+            allValues[PSTOffset(blackBucket, piece, sq, pst_offset)]--;
+            ResetLSB(&blackPieces);
+        }
     }
 }
 
