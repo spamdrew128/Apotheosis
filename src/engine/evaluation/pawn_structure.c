@@ -4,7 +4,7 @@
 #include "eval_helpers.h"
 #include "util_macros.h"
 
-static Score_t passerBonus[NUM_PST_BUCKETS][NUM_SQUARES] = { PASSED_PAWN_PST, PASSED_PAWN_PST };
+static Score_t passerBonus[NUM_PST_BUCKETS][NUM_SQUARES] = PASSED_PAWN_PST;
 static Score_t blockedPasserPenalty[NUM_RANKS] = BLOCKED_PASSERS;
 
 static Score_t rookOpenBonus[NUM_FILES] = ROOK_OPEN_FILE;
