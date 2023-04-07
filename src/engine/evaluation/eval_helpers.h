@@ -23,8 +23,10 @@ Bitboard_t FileFill(Bitboard_t b);
 void SerializeBySquare(
     Bitboard_t whitePieces,
     Bitboard_t blackPieces,
+    const Bucket_t wBucket,
+    const Bucket_t bBucket,
     Score_t* score,
-    Score_t bonus[NUM_SQUARES]
+    Score_t bonus[NUM_PST_BUCKETS][NUM_SQUARES]
 );
 
 void SerializeByFile(

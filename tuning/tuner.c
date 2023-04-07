@@ -17,9 +17,9 @@
 #include "eval_helpers.h"
 
 enum {
-    PST_FEATURE_COUNT = NUM_PIECES * NUM_SQUARES,
+    PST_FEATURE_COUNT = NUM_PST_BUCKETS * NUM_PIECES * NUM_SQUARES,
     BISHOP_PAIR_FEATURE_COUNT = 1,
-    PASSED_PAWN_FEATURE_COUNT = NUM_SQUARES,
+    PASSED_PAWN_FEATURE_COUNT = NUM_PST_BUCKETS * NUM_SQUARES,
     BLOCKED_PASSER_FEATURE_COUNT = NUM_RANKS,
     OPEN_FILE_FEATURE_COUNT = NUM_FILES,
 
@@ -69,21 +69,31 @@ typedef struct {
     int numEntries;
 } TuningData_t;
 
+static int PSTSetOffset(Bucket_t bucket, Piece_t piece, Square_t sq, int featureOffset) {
+    return featureOffset + ((NUM_PIECES*NUM_SQUARES)*bucket + NUM_SQUARES*piece + sq);
+}
+
+static int PSTSingleOffset(Bucket_t bucket, Square_t sq, int featureOffset) {
+    return featureOffset + (NUM_SQUARES)*bucket + sq;
+}
+
 static void TunerSerializeBySquare(
     Bitboard_t whitePieces,
     Bitboard_t blackPieces,
+    const Bucket_t wBucket,
+    const Bucket_t bBucket,
     int feature_offset,
     int16_t allValues[VECTOR_LENGTH]
 )
 {
     while(whitePieces) {
         Square_t sq = MIRROR(LSB(whitePieces));
-        allValues[feature_offset + sq]++;
+        allValues[PSTSingleOffset(wBucket, sq, feature_offset)]++;
         ResetLSB(&whitePieces);
     }
     while(blackPieces) {
         Square_t sq = LSB(blackPieces);
-        allValues[feature_offset + sq]--;
+        allValues[PSTSingleOffset(bBucket, sq, feature_offset)]--;
         ResetLSB(&blackPieces);
     }
 }
@@ -128,6 +138,8 @@ static void TunerSerializeByRank(
 
 static void FillPSTFeatures(
     int16_t allValues[VECTOR_LENGTH],
+    const Bucket_t whiteBucket,
+    const Bucket_t blackBucket,
     BoardInfo_t* boardInfo
 )
 {
@@ -143,14 +155,24 @@ static void FillPSTFeatures(
     for(Piece_t piece = 0; piece < NUM_PIECES; piece++) {
         Bitboard_t whitePieces = pieces[piece][white];
         Bitboard_t blackPieces = pieces[piece][black];
-        int offset = pst_offset + NUM_SQUARES*piece;
 
-        TunerSerializeBySquare(whitePieces, blackPieces, offset, allValues);
+        while(whitePieces) {
+            Square_t sq = MIRROR(LSB(whitePieces));
+            allValues[PSTSetOffset(whiteBucket, piece, sq, pst_offset)]++;
+            ResetLSB(&whitePieces);
+        }
+        while(blackPieces) {
+            Square_t sq = LSB(blackPieces);
+            allValues[PSTSetOffset(blackBucket, piece, sq, pst_offset)]--;
+            ResetLSB(&blackPieces);
+        }
     }
 }
 
 static void FillBonuses(
     int16_t allValues[VECTOR_LENGTH],
+    const Bucket_t whiteBucket,
+    const Bucket_t blackBucket,
     BoardInfo_t* boardInfo
 )
 {
@@ -172,7 +194,7 @@ static void FillBonuses(
     Bitboard_t piecesBlockingWhite = NortOne(wPassers) & boardInfo->allPieces[black];
     Bitboard_t piecesBlockingBlack = SoutOne(bPassers) & boardInfo->allPieces[white];
 
-    TunerSerializeBySquare(wPassers, bPassers, passed_pawn_offset, allValues);
+    TunerSerializeBySquare(wPassers, bPassers, whiteBucket, blackBucket, passed_pawn_offset, allValues);
 
     // BLOCKED PASSER
     TunerSerializeByRank(piecesBlockingWhite, piecesBlockingBlack, blocked_passer_offset, allValues);
@@ -216,8 +238,11 @@ static void FillBonuses(
 void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
     int16_t allValues[VECTOR_LENGTH] = {0};
 
-    FillPSTFeatures(allValues, boardInfo);
-    FillBonuses(allValues, boardInfo);
+    const Bucket_t whiteBucket = PSTBucketIndex(boardInfo, white);
+    const Bucket_t blackBucket = PSTBucketIndex(boardInfo, black);
+
+    FillPSTFeatures(allValues, whiteBucket, blackBucket, boardInfo);
+    FillBonuses(allValues, whiteBucket, blackBucket, boardInfo);
 
     tEntry->numFeatures = 0;
     for(uint16_t i = 0; i < VECTOR_LENGTH; i++) {
@@ -524,13 +549,15 @@ static void AddPieceValComment(FILE* fp) {
     fprintf(fp, "Average PST values for MG, EG:\n");
 
     for(Piece_t p = 0; p < NUM_PIECES - 1; p++) {
-        int squareCount = (p == pawn) ? NUM_SQUARES - 16 : NUM_SQUARES;
+        int squareCount = (p == pawn) ? 2*(NUM_SQUARES - 16) : NUM_SQUARES*2;
 
         double mgSum = 0;
         double egSum = 0;
         for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
-            mgSum += weights[mg_phase][pst_offset + NUM_SQUARES*p + sq];
-            egSum += weights[eg_phase][pst_offset + NUM_SQUARES*p + sq];
+            for(Bucket_t bucket = 0; bucket < NUM_PST_BUCKETS; bucket++) {
+                mgSum += weights[mg_phase][PSTSetOffset(bucket, p, sq, pst_offset)];
+                egSum += weights[eg_phase][PSTSetOffset(bucket, p, sq, pst_offset)];
+            }
         }
 
         int mgValue = mgSum / squareCount;
@@ -542,20 +569,26 @@ static void AddPieceValComment(FILE* fp) {
     fprintf(fp, "*/\n\n");
 }
 
-static void FilePrintPST(const char* tableName, Piece_t piece, FILE* fp, int offset) {
-    fprintf(fp, "#define %s { \\\n", tableName);
-    for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
-        if(sq % 8 == 0) { // first row entry
-            fprintf(fp, "   ");
-        }
+static void FilePrintPST(const char* tableName, Piece_t piece, FILE* fp, int feature_offset, bool isPartOfSet) {
+    fprintf(fp, "#define %s { ", tableName);
+    for(Bucket_t bucket = 0; bucket < NUM_PST_BUCKETS; bucket++) {
+        fprintf(fp, "{ \\\n");
+        for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
+            if(sq % 8 == 0) { // first row entry
+                fprintf(fp, "   ");
+            }
 
-        fprintf(fp, "S(%d, %d), ",
-            (int)weights[mg_phase][offset + NUM_SQUARES*piece + sq],
-            (int)weights[eg_phase][offset + NUM_SQUARES*piece + sq]);
+            int offset = isPartOfSet ? PSTSetOffset(bucket, piece, sq, feature_offset) : PSTSingleOffset(bucket, sq, feature_offset);
+            fprintf(fp, "S(%d, %d), ",
+                (int)weights[mg_phase][offset],
+                (int)weights[eg_phase][offset]
+            );
 
-        if(sq % 8 == 7) { // last row entry
-            fprintf(fp, "\\\n");
+            if(sq % 8 == 7) { // last row entry
+                fprintf(fp, "\\\n");
+            }
         }
+        fprintf(fp, "}, ");
     }
 
     fprintf(fp, "}\n\n");
@@ -578,7 +611,7 @@ static void PrintBonuses(FILE* fp) {
         (int)weights[eg_phase][bishop_pair_offset]
     );
 
-    FilePrintPST("PASSED_PAWN_PST", 0, fp, passed_pawn_offset);
+    FilePrintPST("PASSED_PAWN_PST", 0, fp, passed_pawn_offset, false);
 
     PrintFileOrRankBonus("BLOCKED_PASSERS", blocked_passer_offset, fp);
 
@@ -599,12 +632,12 @@ static void CreateOutputFile() {
 
     AddPieceValComment(fp);
 
-    FilePrintPST("KNIGHT_PST", knight, fp, pst_offset);
-    FilePrintPST("BISHOP_PST", bishop, fp, pst_offset);
-    FilePrintPST("ROOK_PST", rook, fp, pst_offset);
-    FilePrintPST("QUEEN_PST", queen, fp, pst_offset);
-    FilePrintPST("PAWN_PST", pawn, fp, pst_offset);
-    FilePrintPST("KING_PST", king, fp, pst_offset);
+    FilePrintPST("KNIGHT_PST", knight, fp, pst_offset, true);
+    FilePrintPST("BISHOP_PST", bishop, fp, pst_offset, true);
+    FilePrintPST("ROOK_PST", rook, fp, pst_offset, true);
+    FilePrintPST("QUEEN_PST", queen, fp, pst_offset, true);
+    FilePrintPST("PAWN_PST", pawn, fp, pst_offset, true);
+    FilePrintPST("KING_PST", king, fp, pst_offset, true);
 
     fclose(fp);
 }
