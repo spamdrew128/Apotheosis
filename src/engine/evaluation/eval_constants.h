@@ -27,7 +27,7 @@ enum {
   NUM_PST_BUCKETS = 2,
 };
 
-inline int PSTBucketIndex(BoardInfo_t* boardInfo, Color_t color) {
+inline Bucket_t PSTBucketIndex(BoardInfo_t* boardInfo, Color_t color) {
     // indexed by opponent king position
     // qs is index 0, ks is index 1
     return (bool)(boardInfo->kings[!color] & KS_PST_MASK);
