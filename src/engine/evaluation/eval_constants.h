@@ -18,6 +18,8 @@ enum {
   QUEEN_PHASE_VALUE = 4,
   PAWN_PHASE_VALUE = 0,
   KING_PHASE_VALUE = 0,
+
+  NUM_PST_BUCKETS = 2,
 };
 
 #define BISHOP_PAIR_BONUS \
