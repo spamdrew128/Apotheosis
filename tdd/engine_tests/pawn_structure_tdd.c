@@ -7,11 +7,15 @@ static BoardInfo_t boardInfo;
 static GameStack_t gameStack;
 static ZobristStack_t zobristStack;
 
-static Centipawns_t passerBonus[NUM_PHASES][NUM_SQUARES] = { { PASSED_PAWN_MG_PST }, { PASSED_PAWN_EG_PST } }; 
-static Centipawns_t blockerPenalty[NUM_PHASES][8] = { { BLOCKED_PASSERS_MG }, { BLOCKED_PASSERS_EG } };
+static Centipawns_t passerBonus[NUM_PHASES][NUM_SQUARES] = PASSED_PAWN_PST; 
+static Centipawns_t blockerPenalty[NUM_PHASES][8] = BLOCKED_PASSERS;
 
-static Centipawns_t rookOpenBonus[NUM_PHASES][NUM_FILES] = { { ROOK_OPEN_FILE_MG }, { ROOK_OPEN_FILE_EG } };
-static Centipawns_t rookSemiOpenBonus[NUM_PHASES][NUM_FILES] = { { ROOK_SEMI_OPEN_FILE_MG }, { ROOK_SEMI_OPEN_FILE_EG } };
+static Centipawns_t rookOpenBonus[NUM_PHASES][NUM_FILES] = ROOK_OPEN_FILE;
+static Centipawns_t rookSemiOpenBonus[NUM_PHASES][NUM_FILES] = ROOK_SEMI_OPEN_FILE;
+static Centipawns_t queenOpenBonus[NUM_PHASES][NUM_FILES] = QUEEN_OPEN_FILE;
+static Centipawns_t queenSemiOpenBonus[NUM_PHASES][NUM_FILES] = QUEEN_SEMI_OPEN_FILE;
+static Centipawns_t kingOpenBonus[NUM_PHASES][NUM_FILES] = KING_OPEN_FILE;
+static Centipawns_t kingSemiOpenBonus[NUM_PHASES][NUM_FILES] = KING_SEMI_OPEN_FILE;
 
 static void ShouldCorrectlyEvaluatePassedPawns() {
     Centipawns_t mgScore = 0;
@@ -20,7 +24,7 @@ static void ShouldCorrectlyEvaluatePassedPawns() {
     FEN_t fen = "5k2/8/p1p4p/P4K2/8/1PP5/3PpP2/8 w - - 0 1";
     InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
 
-    PawnStructureEval(&boardInfo, &mgScore, &egScore);
+    PassedPawnBonus(&boardInfo, &mgScore, &egScore);
 
     Centipawns_t expectedMgBonus = passerBonus[mg_phase][MIRROR(f2)] - (passerBonus[mg_phase][e2] + passerBonus[mg_phase][h6]);
     Centipawns_t expectedEgBonus = passerBonus[eg_phase][MIRROR(f2)] - (passerBonus[eg_phase][e2] + passerBonus[eg_phase][h6]);
@@ -38,7 +42,7 @@ static void ShouldApplyBlockerPenalties() {
     FEN_t fen = "8/5k2/8/3n4/3P4/1p6/1N6/3K4 w - - 4 5";
     InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
 
-    PawnStructureEval(&boardInfo, &mgScore, &egScore);
+    PassedPawnBonus(&boardInfo, &mgScore, &egScore);
 
     Centipawns_t expectedMg = (passerBonus[mg_phase][MIRROR(d4)] - passerBonus[mg_phase][b3]) + 
         (blockerPenalty[mg_phase][MIRROR(d5) / 8] - blockerPenalty[mg_phase][b2 / 8]);
@@ -56,13 +60,49 @@ static void ShouldGiveRookOpenFileBonus() {
     Centipawns_t mgScore = 0;
     Centipawns_t egScore = 0;
 
-    FEN_t fen = "8/4ppr1/1k6/8/8/1K1P2P1/8/R7 w - - 0 1";
+    FEN_t fen = "5k2/4ppr1/8/8/8/3P2P1/8/R2K4 w - - 0 1";
     InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
 
-    PawnStructureEval(&boardInfo, &mgScore, &egScore);
+    OpenFileBonus(&boardInfo, &mgScore, &egScore);
 
     Centipawns_t expectedMg = rookOpenBonus[mg_phase][0] - rookSemiOpenBonus[mg_phase][6];
     Centipawns_t expectedEg = rookOpenBonus[eg_phase][0] - rookSemiOpenBonus[eg_phase][6];
+
+    PrintResults(
+        mgScore == expectedMg &&
+        egScore == expectedEg
+    );
+}
+
+static void ShouldGiveQueenOpenFileBonus() {
+    Centipawns_t mgScore = 0;
+    Centipawns_t egScore = 0;
+
+    FEN_t fen = "5k2/4ppq1/8/8/8/3P2P1/8/Q2K4 w - - 0 1";
+    InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
+
+    OpenFileBonus(&boardInfo, &mgScore, &egScore);
+
+    Centipawns_t expectedMg = queenOpenBonus[mg_phase][0] - queenSemiOpenBonus[mg_phase][6];
+    Centipawns_t expectedEg = queenOpenBonus[eg_phase][0] - queenSemiOpenBonus[eg_phase][6];
+
+    PrintResults(
+        mgScore == expectedMg &&
+        egScore == expectedEg
+    );
+}
+
+static void ShouldGiveKingOpenFileBonus() {
+    Centipawns_t mgScore = 0;
+    Centipawns_t egScore = 0;
+
+    FEN_t fen = "8/4ppk1/8/8/8/3P2P1/8/K7 w - - 0 1";
+    InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
+
+    OpenFileBonus(&boardInfo, &mgScore, &egScore);
+
+    Centipawns_t expectedMg = kingOpenBonus[mg_phase][0] - kingSemiOpenBonus[mg_phase][6];
+    Centipawns_t expectedEg = kingOpenBonus[eg_phase][0] - kingSemiOpenBonus[eg_phase][6];
 
     PrintResults(
         mgScore == expectedMg &&
@@ -74,4 +114,6 @@ void PawnStructureTDDRunner() {
     ShouldCorrectlyEvaluatePassedPawns();
     ShouldApplyBlockerPenalties();
     ShouldGiveRookOpenFileBonus();
+    ShouldGiveQueenOpenFileBonus();
+    ShouldGiveKingOpenFileBonus();
 }
