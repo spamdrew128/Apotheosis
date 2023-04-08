@@ -24,6 +24,7 @@ enum {
     BLOCKED_PASSER_FEATURE_COUNT = NUM_RANKS,
     OPEN_FILE_FEATURE_COUNT = NUM_FILES,
     ISOLATED_FEATURE_COUNT = NUM_FILES,
+    SUPPORTED_PASSER_FEATURE_COUNT = 1,
 
     pst_offset = 0,
     bishop_pair_offset = pst_offset + PST_FEATURE_COUNT,
@@ -38,7 +39,9 @@ enum {
 
     isolated_pawns_offset = semi_open_king_offset + OPEN_FILE_FEATURE_COUNT,
 
-    VECTOR_LENGTH = isolated_pawns_offset + ISOLATED_FEATURE_COUNT,
+    supported_passer_offset = isolated_pawns_offset + ISOLATED_FEATURE_COUNT,
+
+    VECTOR_LENGTH = supported_passer_offset + SUPPORTED_PASSER_FEATURE_COUNT,
 };
 
 enum {
@@ -202,6 +205,15 @@ static void FillBonuses(
 
     // BLOCKED PASSER
     TunerSerializeByRank(piecesBlockingWhite, piecesBlockingBlack, blocked_passer_offset, allValues);
+
+    // SUPPORTED PASSER
+    const Bitboard_t wRookFrontSpan = WhiteFill(boardInfo->rooks[white]);
+    const Bitboard_t bRookFrontSpan = BlackFill(boardInfo->rooks[black]);
+
+    Bitboard_t wPassersWithSupportingRooks = wPassers & wRookFrontSpan;
+    Bitboard_t bPassersWithSupportingRooks = bPassers & bRookFrontSpan;
+
+    allValues[supported_passer_offset] += PopCount(wPassersWithSupportingRooks) - PopCount(bPassersWithSupportingRooks);
 
     // OPEN AND SEMI OPEN FILES
     const Bitboard_t whitePawnFileSpans = FileFill(boardInfo->pawns[white]);
@@ -625,6 +637,11 @@ static void PrintBonuses(FILE* fp) {
     fprintf(fp, "#define BISHOP_PAIR_BONUS \\\n   S(%d, %d)\n\n",
         (int)weights[mg_phase][bishop_pair_offset],
         (int)weights[eg_phase][bishop_pair_offset]
+    );
+
+    fprintf(fp, "#define SUPPORTED_PASSER_BONUS \\\n   S(%d, %d)\n\n",
+        (int)weights[mg_phase][supported_passer_offset],
+        (int)weights[eg_phase][supported_passer_offset]
     );
 
     FilePrintPST("PASSED_PAWN_PST", 0, fp, passed_pawn_offset, false);
