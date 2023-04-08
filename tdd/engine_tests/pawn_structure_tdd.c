@@ -19,6 +19,7 @@ static Score_t kingOpenBonus[NUM_FILES] = KING_OPEN_FILE;
 static Score_t kingSemiOpenBonus[NUM_FILES] = KING_SEMI_OPEN_FILE;
 
 static Score_t isolatedPawnPenalty[NUM_FILES] = ISOLATED_PAWNS;
+static Score_t doubledPawnPenalty[NUM_FILES] = DOUBLED_PAWNS;
 
 static void ShouldCorrectlyEvaluatePassedPawns() {
     Score_t score = 0;
@@ -106,6 +107,19 @@ static void ShouldGiveIsolatedPawnPenalties() {
     PrintResults(score == expectedScore);
 }
 
+static void ShouldGiveDoubledPawnPenalties() {
+    Score_t score = 0;
+
+    FEN_t fen = "k7/2P5/8/8/1PP1pp2/4p3/1K6/8 w - - 0 1";
+    InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
+
+    PawnStructure(&boardInfo, &score);
+
+    Score_t expectedScore = doubledPawnPenalty[2] - doubledPawnPenalty[4];
+
+    PrintResults(score == expectedScore);
+}
+
 void PawnStructureTDDRunner() {
     ShouldCorrectlyEvaluatePassedPawns();
     ShouldApplyBlockerPenalties();
@@ -113,4 +127,5 @@ void PawnStructureTDDRunner() {
     ShouldGiveQueenOpenFileBonus();
     ShouldGiveKingOpenFileBonus();
     ShouldGiveIsolatedPawnPenalties();
+    ShouldGiveDoubledPawnPenalties();
 }

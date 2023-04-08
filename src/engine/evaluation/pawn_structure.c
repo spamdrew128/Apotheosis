@@ -15,6 +15,7 @@ static Score_t kingOpenBonus[NUM_FILES] = KING_OPEN_FILE;
 static Score_t kingSemiOpenBonus[NUM_FILES] = KING_SEMI_OPEN_FILE;
 
 static Score_t isolatedPawnPenalty[NUM_FILES] = ISOLATED_PAWNS;
+static Score_t doubledPawnPenalty[NUM_FILES] = DOUBLED_PAWNS;
 
 void PassedPawnBonus(
     BoardInfo_t* boardInfo,
@@ -55,6 +56,14 @@ void PawnStructure(
     Bitboard_t bIsolated = boardInfo->pawns[black] & ~blackNeighbors;
 
     SerializeByFile(wIsolated, bIsolated, score, isolatedPawnPenalty);
+
+    const Bitboard_t wFrontSpan = WhiteForwardFill(boardInfo->pawns[white]);
+    const Bitboard_t bFrontSpan = BlackForwardFill(boardInfo->pawns[black]);
+
+    const Bitboard_t wDoubled = boardInfo->pawns[white] & wFrontSpan;
+    const Bitboard_t bDoubled = boardInfo->pawns[black] & bFrontSpan;
+
+    SerializeByFile(wDoubled, bDoubled, score, doubledPawnPenalty);
 }
 
 void OpenFileBonus(
