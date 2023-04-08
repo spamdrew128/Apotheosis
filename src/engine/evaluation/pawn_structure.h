@@ -17,6 +17,11 @@ void PassedPawnBonus(
     Score_t* score
 );
 
+void PawnStructure(
+    BoardInfo_t* boardInfo,
+    Score_t* score
+);
+
 void OpenFileBonus(
     BoardInfo_t* boardInfo,
     Score_t* score

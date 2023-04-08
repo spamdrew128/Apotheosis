@@ -7,9 +7,6 @@
 typedef int16_t EvalScore_t;
 typedef int16_t Centipawns_t;
 
-// used for eval calcuations. Contains both EG and MG score packed into 1 value.
-typedef int32_t Score_t;
-
 enum {
   INF = INT16_MAX - 1,
   EVAL_MAX = INF - 1,

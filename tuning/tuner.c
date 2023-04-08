@@ -11,6 +11,7 @@
 #include "datagen.h"
 #include "bitboards.h"
 #include "eval_constants.h"
+#include "eval_constants_tools.h"
 #include "util_macros.h"
 #include "chess_search.h"
 #include "engine_types.h"
@@ -22,6 +23,7 @@ enum {
     PASSED_PAWN_FEATURE_COUNT = NUM_PST_BUCKETS * NUM_SQUARES,
     BLOCKED_PASSER_FEATURE_COUNT = NUM_RANKS,
     OPEN_FILE_FEATURE_COUNT = NUM_FILES,
+    ISOLATED_FEATURE_COUNT = NUM_FILES,
 
     pst_offset = 0,
     bishop_pair_offset = pst_offset + PST_FEATURE_COUNT,
@@ -34,7 +36,9 @@ enum {
     open_king_offset = semi_open_queen_offset + OPEN_FILE_FEATURE_COUNT,
     semi_open_king_offset = open_king_offset + OPEN_FILE_FEATURE_COUNT,
 
-    VECTOR_LENGTH = semi_open_king_offset + OPEN_FILE_FEATURE_COUNT,
+    isolated_pawns_offset = semi_open_king_offset + OPEN_FILE_FEATURE_COUNT,
+
+    VECTOR_LENGTH = isolated_pawns_offset + ISOLATED_FEATURE_COUNT,
 };
 
 enum {
@@ -233,6 +237,18 @@ static void FillBonuses(
 
     TunerSerializeByFile(whiteOpenKings, blackOpenKings, open_king_offset, allValues);
     TunerSerializeByFile(whiteSemiOpenKings, blackSemiOpenKings, semi_open_king_offset, allValues);
+
+    // PAWN STRUCTURE
+    const Bitboard_t whiteFill = FileFill(boardInfo->pawns[white]);
+    const Bitboard_t blackFill = FileFill(boardInfo->pawns[black]);
+
+    const Bitboard_t whiteNeighbors = EastOne(whiteFill) | WestOne(whiteFill);
+    const Bitboard_t blackNeighbors = EastOne(blackFill) | WestOne(blackFill);
+
+    Bitboard_t wIsolated = boardInfo->pawns[white] & ~whiteNeighbors;
+    Bitboard_t bIsolated = boardInfo->pawns[black] & ~blackNeighbors;
+
+    TunerSerializeByFile(wIsolated, bIsolated, isolated_pawns_offset, allValues);
 }
 
 void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
@@ -595,14 +611,14 @@ static void FilePrintPST(const char* tableName, Piece_t piece, FILE* fp, int fea
 }
 
 static void PrintFileOrRankBonus(const char* name, int feature_offset, FILE* fp) {
-    fprintf(fp, "#define %s { \\\n", name);
+    fprintf(fp, "#define %s { \\\n   ", name);
     for(int i = 0; i < 8; i++) { 
         fprintf(fp, "S(%d, %d), ",
             (int)weights[mg_phase][feature_offset + i],
             (int)weights[eg_phase][feature_offset + i]);
     }
 
-    fprintf(fp, "}\n\n");
+    fprintf(fp, "\\\n}\n\n");
 }
 
 static void PrintBonuses(FILE* fp) {
@@ -623,6 +639,8 @@ static void PrintBonuses(FILE* fp) {
     
     PrintFileOrRankBonus("KING_OPEN_FILE", open_king_offset, fp);
     PrintFileOrRankBonus("KING_SEMI_OPEN_FILE", semi_open_king_offset, fp);
+
+    PrintFileOrRankBonus("ISOLATED_PAWNS", isolated_pawns_offset, fp);
 }
 
 static void CreateOutputFile() {

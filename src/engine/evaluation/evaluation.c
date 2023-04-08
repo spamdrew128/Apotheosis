@@ -2,6 +2,7 @@
 
 #include "evaluation.h"
 #include "eval_constants.h"
+#include "eval_constants_tools.h"
 #include "util_macros.h"
 #include "legals.h"
 #include "pawn_structure.h"
@@ -65,6 +66,7 @@ EvalScore_t ScoreOfPosition(BoardInfo_t* boardInfo) {
     MaterialBalanceAndPSTBonus(boardInfo, wBucket, bBucket, &phase, &score);
     BishopPairBonus(boardInfo, &score);
     PassedPawnBonus(boardInfo, wBucket, bBucket, &score);
+    PawnStructure(boardInfo, &score);
     OpenFileBonus(boardInfo, &score);
 
     const EvalScore_t mgScore = MgFromScore(score);

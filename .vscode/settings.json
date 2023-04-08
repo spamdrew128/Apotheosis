@@ -65,7 +65,8 @@
         "eval_helpers.h": "c",
         "compare": "cpp",
         "phase_score_packing.h": "c",
-        "engine_types.h": "c"
+        "engine_types.h": "c",
+        "eval_constants_tools.h": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",
