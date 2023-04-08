@@ -24,11 +24,13 @@ enum {
     BLOCKED_PASSER_FEATURE_COUNT = NUM_RANKS,
     OPEN_FILE_FEATURE_COUNT = NUM_FILES,
     ISOLATED_FEATURE_COUNT = NUM_FILES,
+    DOUBLED_PAWNS_FEATURE_COUNT = NUM_FILES,
 
     pst_offset = 0,
     bishop_pair_offset = pst_offset + PST_FEATURE_COUNT,
     passed_pawn_offset = bishop_pair_offset + BISHOP_PAIR_FEATURE_COUNT,
     blocked_passer_offset = passed_pawn_offset + PASSED_PAWN_FEATURE_COUNT,
+
     open_rook_offset = blocked_passer_offset + BLOCKED_PASSER_FEATURE_COUNT,
     semi_open_rook_offset = open_rook_offset + OPEN_FILE_FEATURE_COUNT,
     open_queen_offset = semi_open_rook_offset + OPEN_FILE_FEATURE_COUNT,
@@ -37,8 +39,9 @@ enum {
     semi_open_king_offset = open_king_offset + OPEN_FILE_FEATURE_COUNT,
 
     isolated_pawns_offset = semi_open_king_offset + OPEN_FILE_FEATURE_COUNT,
+    doubled_pawns_offset = isolated_pawns_offset + ISOLATED_FEATURE_COUNT,
 
-    VECTOR_LENGTH = isolated_pawns_offset + ISOLATED_FEATURE_COUNT,
+    VECTOR_LENGTH = doubled_pawns_offset + DOUBLED_PAWNS_FEATURE_COUNT,
 };
 
 enum {
@@ -249,6 +252,11 @@ static void FillBonuses(
     Bitboard_t bIsolated = boardInfo->pawns[black] & ~blackNeighbors;
 
     TunerSerializeByFile(wIsolated, bIsolated, isolated_pawns_offset, allValues);
+
+    const Bitboard_t wDoubled = boardInfo->pawns[white] & wFrontSpan;
+    const Bitboard_t bDoubled = boardInfo->pawns[black] & bFrontSpan;
+
+    TunerSerializeByFile(wDoubled, bDoubled, doubled_pawns_offset, allValues);
 }
 
 void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
@@ -641,6 +649,7 @@ static void PrintBonuses(FILE* fp) {
     PrintFileOrRankBonus("KING_SEMI_OPEN_FILE", semi_open_king_offset, fp);
 
     PrintFileOrRankBonus("ISOLATED_PAWNS", isolated_pawns_offset, fp);
+    PrintFileOrRankBonus("DOUBLED_PAWNS", doubled_pawns_offset, fp);
 }
 
 static void CreateOutputFile() {
