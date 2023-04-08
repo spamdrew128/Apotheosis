@@ -10,6 +10,7 @@ static ZobristStack_t zobristStack;
 
 static Score_t passerBonus[NUM_PST_BUCKETS][NUM_SQUARES] = PASSED_PAWN_PST; 
 static Score_t blockerPenalty[8] = BLOCKED_PASSERS;
+static Score_t supportedPasserBonus = SUPPORTED_PASSER_BONUS;
 
 static Score_t rookOpenBonus[NUM_FILES] = ROOK_OPEN_FILE;
 static Score_t rookSemiOpenBonus[NUM_FILES] = ROOK_SEMI_OPEN_FILE;
@@ -106,6 +107,22 @@ static void ShouldGiveIsolatedPawnPenalties() {
     PrintResults(score == expectedScore);
 }
 
+static void ShouldGiveSupportedPasserBonus() {
+    Score_t score = 0;
+
+    FEN_t fen = "8/5r2/1k1P4/8/5p2/8/2K5/8 w - - 0 1";
+    InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
+
+    const Bucket_t wBucket = PSTBucketIndex(&boardInfo, white);
+    const Bucket_t bBucket = PSTBucketIndex(&boardInfo, black);
+
+    PassedPawnBonus(&boardInfo, wBucket, bBucket, &score);
+
+    Score_t expectedScore = (passerBonus[wBucket][MIRROR(d6)] - passerBonus[bBucket][f4]) - supportedPasserBonus;
+
+    PrintResults(score == expectedScore);
+}
+
 void PawnStructureTDDRunner() {
     ShouldCorrectlyEvaluatePassedPawns();
     ShouldApplyBlockerPenalties();
@@ -113,4 +130,5 @@ void PawnStructureTDDRunner() {
     ShouldGiveQueenOpenFileBonus();
     ShouldGiveKingOpenFileBonus();
     ShouldGiveIsolatedPawnPenalties();
+    ShouldGiveSupportedPasserBonus();
 }

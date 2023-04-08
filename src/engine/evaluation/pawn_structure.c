@@ -6,6 +6,7 @@
 
 static Score_t passerBonus[NUM_PST_BUCKETS][NUM_SQUARES] = PASSED_PAWN_PST;
 static Score_t blockedPasserPenalty[NUM_RANKS] = BLOCKED_PASSERS;
+static Score_t supportedPasserBonus = SUPPORTED_PASSER_BONUS;
 
 static Score_t rookOpenBonus[NUM_FILES] = ROOK_OPEN_FILE;
 static Score_t rookSemiOpenBonus[NUM_FILES] = ROOK_SEMI_OPEN_FILE;
@@ -38,6 +39,14 @@ void PassedPawnBonus(
     SerializeBySquare(wPassers, bPassers, wBucket, bBucket, score, passerBonus);
 
     SerializeByRank(piecesBlockingWhite, piecesBlockingBlack, score, blockedPasserPenalty);
+
+    const Bitboard_t wRookFrontSpan = WhiteFill(boardInfo->rooks[white]);
+    const Bitboard_t bRookFrontSpan = BlackFill(boardInfo->rooks[black]);
+
+    Bitboard_t wPassersWithSupportingRooks = wPassers & wRookFrontSpan;
+    Bitboard_t bPassersWithSupportingRooks = bPassers & bRookFrontSpan;
+
+    *score += supportedPasserBonus * (PopCount(wPassersWithSupportingRooks) - PopCount(bPassersWithSupportingRooks));
 }
 
 void PawnStructure(

@@ -45,6 +45,9 @@ typedef int32_t Score_t;
 #define BISHOP_PAIR_BONUS \
    S(41, 66)
 
+#define SUPPORTED_PASSER_BONUS \
+   S(41, 66)
+
 #define PASSED_PAWN_PST { { \
    S(0, 0), S(0, 0), S(0, 0), S(0, 0), S(0, 0), S(0, 0), S(0, 0), S(0, 0), \
    S(27, 334), S(37, 276), S(9, 290), S(25, 304), S(65, 345), S(7, 360), S(-25, 372), S(34, 369), \
