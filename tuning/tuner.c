@@ -618,7 +618,7 @@ static void PrintFileOrRankBonus(const char* name, int feature_offset, FILE* fp)
             (int)weights[eg_phase][feature_offset + i]);
     }
 
-    fprintf(fp, "\n}\n\n");
+    fprintf(fp, "\\\n}\n\n");
 }
 
 static void PrintBonuses(FILE* fp) {
