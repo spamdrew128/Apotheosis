@@ -17,6 +17,8 @@ static Score_t queenSemiOpenBonus[NUM_FILES] = QUEEN_SEMI_OPEN_FILE;
 static Score_t kingOpenBonus[NUM_FILES] = KING_OPEN_FILE;
 static Score_t kingSemiOpenBonus[NUM_FILES] = KING_SEMI_OPEN_FILE;
 
+static Score_t isolatedPawnPenalty[NUM_FILES] = ISOLATED_PAWNS;
+
 static void ShouldCorrectlyEvaluatePassedPawns() {
     Score_t score = 0;
 
@@ -34,7 +36,7 @@ static void ShouldCorrectlyEvaluatePassedPawns() {
 }
 
 static void ShouldApplyBlockerPenalties() {
-    Score_t score= 0;
+    Score_t score = 0;
 
     FEN_t fen = "8/5k2/8/3n4/3P4/1p6/1N6/3K4 w - - 4 5";
     InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
@@ -52,7 +54,7 @@ static void ShouldApplyBlockerPenalties() {
 }
 
 static void ShouldGiveRookOpenFileBonus() {
-    Score_t score= 0;
+    Score_t score = 0;
 
     FEN_t fen = "5k2/4ppr1/8/8/8/3P2P1/8/R2K4 w - - 0 1";
     InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
@@ -65,7 +67,7 @@ static void ShouldGiveRookOpenFileBonus() {
 }
 
 static void ShouldGiveQueenOpenFileBonus() {
-    Score_t score= 0;
+    Score_t score = 0;
 
     FEN_t fen = "5k2/4ppq1/8/8/8/3P2P1/8/Q2K4 w - - 0 1";
     InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
@@ -78,7 +80,7 @@ static void ShouldGiveQueenOpenFileBonus() {
 }
 
 static void ShouldGiveKingOpenFileBonus() {
-    Score_t score= 0;
+    Score_t score = 0;
 
     FEN_t fen = "8/4ppk1/8/8/8/3P2P1/8/K7 w - - 0 1";
     InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
@@ -90,10 +92,24 @@ static void ShouldGiveKingOpenFileBonus() {
     PrintResults(score == expectedScore);
 }
 
+static void ShouldGiveIsolatedPawnPenalties() {
+    Score_t score = 0;
+
+    FEN_t fen = "8/8/8/K5pp/4P3/kpP2P2/8/8 w - - 0 1";
+    InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
+
+    PawnStructure(&boardInfo, &score);
+
+    Score_t expectedScore = isolatedPawnPenalty[1] - isolatedPawnPenalty[2];
+
+    PrintResults(score == expectedScore);
+}
+
 void PawnStructureTDDRunner() {
     ShouldCorrectlyEvaluatePassedPawns();
     ShouldApplyBlockerPenalties();
     ShouldGiveRookOpenFileBonus();
     ShouldGiveQueenOpenFileBonus();
     ShouldGiveKingOpenFileBonus();
+    ShouldGiveIsolatedPawnPenalties();
 }
