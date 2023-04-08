@@ -2,6 +2,7 @@
 
 #include "evaluation.h"
 #include "eval_constants.h"
+#include "eval_constants_tools.h"
 #include "util_macros.h"
 #include "legals.h"
 #include "pawn_structure.h"

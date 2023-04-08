@@ -5,7 +5,7 @@
 
 #include "board_constants.h"
 #include "board_info.h"
-#include "phase_score_packing.h"
+
 
 typedef uint8_t Phase_t;
 typedef uint8_t Bucket_t;
@@ -27,11 +27,21 @@ enum {
   NUM_PST_BUCKETS = 2,
 };
 
-inline Bucket_t PSTBucketIndex(BoardInfo_t* boardInfo, Color_t color) {
-    // indexed by opponent king position
-    // qs is index 0, ks is index 1
-    return (bool)(boardInfo->kings[!color] & KS_PST_MASK);
-}
+// used for eval calcuations. Contains both EG and MG score packed into 1 value.
+typedef int32_t Score_t;
+#define S(mg, eg) \
+	((Score_t)((uint32_t)eg << 16) + mg)
+
+/*
+
+ ██████╗ ██████╗ ███╗   ██╗███████╗████████╗ █████╗ ███╗   ██╗████████╗███████╗
+██╔════╝██╔═══██╗████╗  ██║██╔════╝╚══██╔══╝██╔══██╗████╗  ██║╚══██╔══╝██╔════╝
+██║     ██║   ██║██╔██╗ ██║███████╗   ██║   ███████║██╔██╗ ██║   ██║   ███████╗
+██║     ██║   ██║██║╚██╗██║╚════██║   ██║   ██╔══██║██║╚██╗██║   ██║   ╚════██║
+╚██████╗╚██████╔╝██║ ╚████║███████║   ██║   ██║  ██║██║ ╚████║   ██║   ███████║
+ ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝
+
+*/                                                                        
 
 #define BISHOP_PAIR_BONUS \
    S(38, 65)

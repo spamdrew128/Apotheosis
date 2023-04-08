@@ -11,6 +11,7 @@
 #include "datagen.h"
 #include "bitboards.h"
 #include "eval_constants.h"
+#include "eval_constants_tools.h"
 #include "util_macros.h"
 #include "chess_search.h"
 #include "engine_types.h"

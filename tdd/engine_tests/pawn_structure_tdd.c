@@ -2,6 +2,7 @@
 #include "debug.h"
 #include "FEN.h"
 #include "util_macros.h"
+#include "eval_constants_tools.h"
 
 static BoardInfo_t boardInfo;
 static GameStack_t gameStack;
