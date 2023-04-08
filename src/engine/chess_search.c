@@ -284,7 +284,7 @@ static EvalScore_t Negamax(
     return bestScore;
 }
 
-static void SetupGlobalTimer(UciSearchInfo_t* uciSearchInfo, BoardInfo_t* boardInfo) {
+static void SetupSearchTimers(UciSearchInfo_t* uciSearchInfo, BoardInfo_t* boardInfo, Timer_t* softCutoffTimer) {
     Milliseconds_t totalTime;
     Milliseconds_t increment;
     if(boardInfo->colorToMove == white) {
@@ -305,6 +305,9 @@ static void SetupGlobalTimer(UciSearchInfo_t* uciSearchInfo, BoardInfo_t* boardI
     timeToUse = MAX(timeToUse - uciSearchInfo->overhead, MIN_TIME_PER_MOVE);
 
     TimerInit(&globalTimer, timeToUse);
+
+    Milliseconds_t softCutoffTimeToUse = (Milliseconds_t)((double)timeToUse * 0.6);
+    TimerInit(softCutoffTimer, softCutoffTimeToUse);
 }
 
 static void PrintUciInformation(
@@ -360,7 +363,9 @@ SearchResults_t Search(
 {
     Stopwatch_t stopwatch;
     StopwatchInit(&stopwatch);
-    SetupGlobalTimer(uciSearchInfo, boardInfo);
+
+    Timer_t softCutoffTimer;
+    SetupSearchTimers(uciSearchInfo, boardInfo, &softCutoffTimer);
 
     ChessSearchInfo_t searchInfo;
     InitSearchInfo(&searchInfo, uciSearchInfo);
@@ -393,7 +398,12 @@ SearchResults_t Search(
             }
         }
 
-    } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
+    } while(
+        !TimerExpired(&softCutoffTimer) &&
+        !searchInfo.outOfTime &&
+        currentDepth != uciSearchInfo->depthLimit
+        && currentDepth < DEPTH_MAX
+    );
 
     if(printUciInfo) {
         printf("bestmove ");
@@ -410,7 +420,8 @@ NodeCount_t BenchSearch(
     ZobristStack_t* zobristStack
 )
 {
-    SetupGlobalTimer(uciSearchInfo, boardInfo);
+    Timer_t softCutoffTimer;
+    SetupSearchTimers(uciSearchInfo, boardInfo, &softCutoffTimer);
     
     ChessSearchInfo_t searchInfo;
     InitSearchInfo(&searchInfo, uciSearchInfo);
