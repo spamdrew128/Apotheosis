@@ -101,7 +101,7 @@ static void ShouldGiveIsolatedPawnPenalties() {
 
     PawnStructure(&boardInfo, &score);
 
-    Score_t expectedScore = isolatedPawnPenalty[1] - isolatedPawnPenalty[2];
+    Score_t expectedScore = isolatedPawnPenalty[2] - isolatedPawnPenalty[1];
 
     PrintResults(score == expectedScore);
 }

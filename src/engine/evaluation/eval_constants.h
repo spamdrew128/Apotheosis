@@ -6,7 +6,6 @@
 #include "board_constants.h"
 #include "board_info.h"
 
-
 typedef uint8_t Phase_t;
 typedef uint8_t Bucket_t;
 enum {
