@@ -62,4 +62,6 @@ void BoardControl(
     Bitboard_t allBlackAttacks = bPieceAttacks | bPawnAttacks;
 
     Bitboard_t contestedSquares = allWhiteAttacks & allBlackAttacks;
+
+    
 }

@@ -7,10 +7,17 @@
 #include "bitboards.h"
 
 enum {
-    knight_control = 500,
-    bishop_control = 500,
+    knight_control = 700,
+    bishop_control = 700,
     rook_control = 300,
     queen_control = 100,
 };
+
+void BoardControl(
+    BoardInfo_t* boardInfo,
+    const Bucket_t wBucket,
+    const Bucket_t bBucket,
+    Score_t* score
+);
 
 #endif
