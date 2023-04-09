@@ -16,6 +16,7 @@
 #include "chess_search.h"
 #include "engine_types.h"
 #include "eval_helpers.h"
+#include "board_control.h"
 
 enum {
     PST_FEATURE_COUNT = NUM_PST_BUCKETS * NUM_PIECES * NUM_SQUARES,
@@ -252,6 +253,12 @@ static void FillBonuses(
     Bitboard_t bIsolated = boardInfo->pawns[black] & ~blackNeighbors;
 
     TunerSerializeByFile(wIsolated, bIsolated, isolated_pawns_offset, allValues);
+
+    // BOARD CONTROL
+    Bitboard_t wControl;
+    Bitboard_t bControl;
+    ControlledSquareBitboards(boardInfo, whiteBucket, blackBucket, &wControl, &bControl);
+    TunerSerializeBySquare(wControl, bControl, whiteBucket, blackBucket, board_control_offset, allValues);
 }
 
 void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
@@ -644,6 +651,8 @@ static void PrintBonuses(FILE* fp) {
     PrintFileOrRankBonus("KING_SEMI_OPEN_FILE", semi_open_king_offset, fp);
 
     PrintFileOrRankBonus("ISOLATED_PAWNS", isolated_pawns_offset, fp);
+
+    FilePrintPST("BOARD_CONTROL_BONUSES", 0, fp, board_control_offset, false);
 }
 
 static void CreateOutputFile() {
