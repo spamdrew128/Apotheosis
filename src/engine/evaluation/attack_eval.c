@@ -2,10 +2,10 @@
 #include "lookup.h"
 #include "bitboards.h"
 
-static Score_t knightMobility[KNIGHT_MOBILITY_OPTIONS] = {0};
-static Score_t bishopMobility[BISHOP_MOBILITY_OPTIONS] = {0};
-static Score_t rookMobility[ROOK_MOBILITY_OPTIONS] = {0};
-static Score_t queenMobility[QUEEN_MOBILITY_OPTIONS] = {0};
+static Score_t knightMobility[KNIGHT_MOBILITY_OPTIONS] = KNIGHT_MOBILITY;
+static Score_t bishopMobility[BISHOP_MOBILITY_OPTIONS] = BISHOP_MOBILITY;
+static Score_t rookMobility[ROOK_MOBILITY_OPTIONS] = ROOK_MOBILITY;
+static Score_t queenMobility[QUEEN_MOBILITY_OPTIONS] = QUEEN_MOBILITY;
 
 static Score_t ComputeKnights(
     Bitboard_t knights,
