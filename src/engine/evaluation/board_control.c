@@ -173,4 +173,16 @@ void BoardControl(
     D12SliderControl(boardInfo->queens[white], boardInfo->queens[black], wD12Empty, bD12Empty, contestedSquares, queen_control, controlSums);
 
     KnightControl(boardInfo->knights[white], boardInfo->knights[black], contestedSquares, knight_control, controlSums);
+
+    while(contestedSquares) {
+        Square_t sq = LSB(contestedSquares);
+        ControlValue_t value = controlSums[sq];
+        if(value > 0) {
+            *score += boardControlBonus[wBucket][MIRROR(sq)];
+        }
+        if(value < 0) {
+            *score += boardControlBonus[bBucket][sq];
+        }
+        ResetLSB(contestedSquares);
+    }
 }

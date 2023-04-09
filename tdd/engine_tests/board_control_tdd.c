@@ -8,6 +8,8 @@ static BoardInfo_t boardInfo;
 static GameStack_t gameStack;
 static ZobristStack_t zobristStack;
 
+static Score_t boardControlBonus[NUM_PST_BUCKETS][NUM_SQUARES] = BOARD_CONTROL_BONUSES;
+
 static void ShouldGiveCorrectScore() {
     Score_t score = 0;
 
