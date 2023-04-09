@@ -183,6 +183,6 @@ void BoardControl(
         if(value < 0) {
             *score += boardControlBonus[bBucket][sq];
         }
-        ResetLSB(contestedSquares);
+        ResetLSB(&contestedSquares);
     }
 }
