@@ -24,6 +24,7 @@ enum {
     BLOCKED_PASSER_FEATURE_COUNT = NUM_RANKS,
     OPEN_FILE_FEATURE_COUNT = NUM_FILES,
     ISOLATED_FEATURE_COUNT = NUM_FILES,
+    BOARD_CONTROL_FEATURE_COUNT = NUM_PST_BUCKETS * NUM_SQUARES,
 
     pst_offset = 0,
     bishop_pair_offset = pst_offset + PST_FEATURE_COUNT,
@@ -38,7 +39,9 @@ enum {
 
     isolated_pawns_offset = semi_open_king_offset + OPEN_FILE_FEATURE_COUNT,
 
-    VECTOR_LENGTH = isolated_pawns_offset + ISOLATED_FEATURE_COUNT,
+    board_control_offset = isolated_pawns_offset + ISOLATED_FEATURE_COUNT,
+
+    VECTOR_LENGTH = board_control_offset + BOARD_CONTROL_FEATURE_COUNT,
 };
 
 enum {

@@ -22,4 +22,12 @@ void BoardControl(
     Score_t* score
 );
 
+void ControlledSquareBitboards(
+    BoardInfo_t* boardInfo,
+    const Bucket_t wBucket,
+    const Bucket_t bBucket,
+    Bitboard_t* wControl,
+    Bitboard_t* bControl
+);
+
 #endif
