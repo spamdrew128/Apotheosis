@@ -26,6 +26,7 @@
 #include "killers_tdd.h"
 #include "history_tdd.h"
 #include "pawn_structure_tdd.h"
+#include "board_control_tdd.h"
 
 static void ProgramTeardown(UciApplicationData_t* uciApplicationData) {
     TranspositionTable_t* tt = &uciApplicationData->uciSearchInfo.tt;
@@ -64,6 +65,7 @@ int main(int argc, char** argv)
     KillersTDDRunner();
     HistoryTDDRunner();
     PawnStructureTDDRunner();
+    BoardControlTDDRunner();
 
     // RANDOM CRASHES
     RandomCrashTestRunner(false);

@@ -4,6 +4,7 @@
 #include "engine_types.h"
 #include "eval_constants.h"
 #include "eval_constants_tools.h"
+#include "bitboards.h"
 
 enum {
     knight_control = 500,
