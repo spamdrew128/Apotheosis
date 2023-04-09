@@ -70,6 +70,7 @@ enum squareSets {
   full_set                  = C64(0xffffffffffffffff),
   a_file                    = C64(0x0101010101010101),
   d_file                    = C64(0x0808080808080808),
+  g_file                    = C64(0x4040404040404040),
   h_file                    = C64(0x8080808080808080),
   not_a_file                = C64(0xfefefefefefefefe), // ~a_file
   not_h_file                = C64(0x7f7f7f7f7f7f7f7f), // ~h_file

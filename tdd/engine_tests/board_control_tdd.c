@@ -3,6 +3,7 @@
 #include "FEN.h"
 #include "util_macros.h"
 #include "eval_constants_tools.h"
+#include "eval_helpers.h"
 
 static BoardInfo_t boardInfo;
 static GameStack_t gameStack;
@@ -13,13 +14,21 @@ static Score_t boardControlBonus[NUM_PST_BUCKETS][NUM_SQUARES] = BOARD_CONTROL_B
 static void ShouldGiveCorrectScore() {
     Score_t score = 0;
 
-    FEN_t fen = "5rk1/p4pp1/1pQ4p/3NP3/2BK1P2/6P1/PPP2n1n/8 b - - 5 26";
+    FEN_t fen = "8/8/5p2/1k1B4/7P/1K3b2/6q1/8 w - - 0 1";
     InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
 
     const Bucket_t wBucket = PSTBucketIndex(&boardInfo, white);
     const Bucket_t bBucket = PSTBucketIndex(&boardInfo, black);
 
     BoardControl(&boardInfo, wBucket, bBucket, &score);
+
+    Bitboard_t wControlled = CreateBitboard(8, a8,g8,b7,f7,c6,e6,c4,b3);
+    Bitboard_t bControlled = (g_file | rank_2 | CreateBitboard(8, f1,g1,h1,h3,f3,e4,d5,e5)) & ~CreateBitboard(1, g3);
+
+    Score_t expectedScore = 0;
+    SerializeBySquare(wControlled, bControlled, wBucket, bBucket, &expectedScore, boardControlBonus);
+
+    PrintResults(score == expectedScore);
 }
 
 void BoardControlTDDRunner() {
