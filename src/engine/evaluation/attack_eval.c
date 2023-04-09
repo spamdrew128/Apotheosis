@@ -80,6 +80,7 @@ void MobilityEval(BoardInfo_t* boardInfo, Score_t* score) {
         SoEaOne(boardInfo->pawns[black]) |
         SoWeOne(boardInfo->pawns[black]);
 
+    // not including supporting other pieces in mobility, EVEN in x-ray attacks
     const Bitboard_t wAvailible = ~bPawnAttacks & (boardInfo->allPieces[black] | boardInfo->empty);
     const Bitboard_t bAvailible = ~wPawnAttacks & (boardInfo->allPieces[white] | boardInfo->empty);
 
