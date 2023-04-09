@@ -9,14 +9,14 @@ static Score_t queenMobility[QUEEN_MOBILITY_OPTIONS] = QUEEN_MOBILITY;
 
 static Score_t ComputeKnights(
     Bitboard_t knights,
-    Bitboard_t safe
+    Bitboard_t Availible
 )
 {
     Score_t score = 0;
     while(knights) {
         Square_t sq = LSB(knights);
-        Bitboard_t safeMoves = GetKnightAttackSet(sq) & safe;
-        score += knightMobility[PopCount(safeMoves)];
+        Bitboard_t AvailibleMoves = GetKnightAttackSet(sq) & Availible;
+        score += knightMobility[PopCount(AvailibleMoves)];
         ResetLSB(&knights);
     }
     return score;
@@ -24,15 +24,15 @@ static Score_t ComputeKnights(
 
 static Score_t ComputeBishops(
     Bitboard_t bishops,
-    Bitboard_t safe,
+    Bitboard_t Availible,
     Bitboard_t d12Empty
 )
 {
     Score_t score = 0;
     while(bishops) {
         Square_t sq = LSB(bishops);
-        Bitboard_t safeMoves = GetBishopAttackSet(sq, d12Empty) & safe;
-        score += bishopMobility[PopCount(safeMoves)];
+        Bitboard_t AvailibleMoves = GetBishopAttackSet(sq, d12Empty) & Availible;
+        score += bishopMobility[PopCount(AvailibleMoves)];
         ResetLSB(&bishops);
     }
     return score;
@@ -40,15 +40,15 @@ static Score_t ComputeBishops(
 
 static Score_t ComputeRooks(
     Bitboard_t rooks, 
-    Bitboard_t safe,
+    Bitboard_t Availible,
     Bitboard_t hvEmpty
 )
 {
     Score_t score = 0;
     while(rooks) {
         Square_t sq = LSB(rooks);
-        Bitboard_t safeMoves = GetRookAttackSet(sq, hvEmpty) & safe;
-        score += rookMobility[PopCount(safeMoves)];
+        Bitboard_t AvailibleMoves = GetRookAttackSet(sq, hvEmpty) & Availible;
+        score += rookMobility[PopCount(AvailibleMoves)];
         ResetLSB(&rooks);
     }
     return score;    
@@ -56,7 +56,7 @@ static Score_t ComputeRooks(
 
 static Score_t ComputeQueens(
     Bitboard_t queens,
-    Bitboard_t safe,
+    Bitboard_t Availible,
     Bitboard_t hvEmpty,
     Bitboard_t d12Empty
 )
@@ -64,9 +64,9 @@ static Score_t ComputeQueens(
     Score_t score = 0;
     while(queens) {
         Square_t sq = LSB(queens);
-        Bitboard_t safeD12Moves = GetBishopAttackSet(sq, d12Empty) & safe;
-        Bitboard_t safeHvMoves = GetRookAttackSet(sq, hvEmpty) & safe;
-        score += queenMobility[PopCount(safeD12Moves) + PopCount(safeHvMoves)];
+        Bitboard_t AvailibleD12Moves = GetBishopAttackSet(sq, d12Empty) & Availible;
+        Bitboard_t AvailibleHvMoves = GetRookAttackSet(sq, hvEmpty) & Availible;
+        score += queenMobility[PopCount(AvailibleD12Moves) + PopCount(AvailibleHvMoves)];
         ResetLSB(&queens);
     }
     return score;    
@@ -80,8 +80,8 @@ void MobilityEval(BoardInfo_t* boardInfo, Score_t* score) {
         SoEaOne(boardInfo->pawns[black]) |
         SoWeOne(boardInfo->pawns[black]);
 
-    const Bitboard_t wSafe = ~bPawnAttacks;
-    const Bitboard_t bSafe = ~wPawnAttacks;
+    const Bitboard_t wAvailible = ~bPawnAttacks & (boardInfo->allPieces[black] | boardInfo->empty);
+    const Bitboard_t bAvailible = ~wPawnAttacks & (boardInfo->allPieces[white] | boardInfo->empty);
 
     const Bitboard_t whiteHvEmpty = boardInfo->empty | boardInfo->rooks[white] | boardInfo->queens[white];
     const Bitboard_t whiteD12Empty = boardInfo->empty | boardInfo->bishops[white] | boardInfo->queens[white];
@@ -89,13 +89,13 @@ void MobilityEval(BoardInfo_t* boardInfo, Score_t* score) {
     const Bitboard_t blackHvEmpty = boardInfo->empty | boardInfo->rooks[black] | boardInfo->queens[black];
     const Bitboard_t blackD12Empty = boardInfo->empty | boardInfo->bishops[black] | boardInfo->queens[black];
 
-    *score += ComputeKnights(boardInfo->knights[white], wSafe);
-    *score += ComputeBishops(boardInfo->bishops[white], wSafe, whiteD12Empty);
-    *score += ComputeRooks(boardInfo->rooks[white], wSafe, whiteHvEmpty);
-    *score += ComputeQueens(boardInfo->queens[white], wSafe, whiteHvEmpty, whiteD12Empty);
+    *score += ComputeKnights(boardInfo->knights[white], wAvailible);
+    *score += ComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty);
+    *score += ComputeRooks(boardInfo->rooks[white], wAvailible, whiteHvEmpty);
+    *score += ComputeQueens(boardInfo->queens[white], wAvailible, whiteHvEmpty, whiteD12Empty);
 
-    *score -= ComputeKnights(boardInfo->knights[black], bSafe);
-    *score -= ComputeBishops(boardInfo->bishops[black], bSafe, blackD12Empty);
-    *score -= ComputeRooks(boardInfo->rooks[black], bSafe, blackHvEmpty);
-    *score -= ComputeQueens(boardInfo->queens[black], bSafe, blackHvEmpty, blackD12Empty);
+    *score -= ComputeKnights(boardInfo->knights[black], bAvailible);
+    *score -= ComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty);
+    *score -= ComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty);
+    *score -= ComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty);
 }

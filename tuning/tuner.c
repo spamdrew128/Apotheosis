@@ -153,22 +153,22 @@ static void TunerSerializeByRank(
 
 static void TunerComputeKnights(
     Bitboard_t knights,
-    Bitboard_t safe,
+    Bitboard_t Availible,
     int16_t allValues[VECTOR_LENGTH],
     int multiplier
 )
 {
     while(knights) {
         Square_t sq = LSB(knights);
-        Bitboard_t safeMoves = GetKnightAttackSet(sq) & safe;
-        allValues[knight_mobility_offset + PopCount(safeMoves)] += multiplier;
+        Bitboard_t AvailibleMoves = GetKnightAttackSet(sq) & Availible;
+        allValues[knight_mobility_offset + PopCount(AvailibleMoves)] += multiplier;
         ResetLSB(&knights);
     }
 }
 
 static void TunerComputeBishops(
     Bitboard_t bishops,
-    Bitboard_t safe,
+    Bitboard_t Availible,
     Bitboard_t d12Empty,
     int16_t allValues[VECTOR_LENGTH],
     int multiplier
@@ -176,15 +176,15 @@ static void TunerComputeBishops(
 {
     while(bishops) {
         Square_t sq = LSB(bishops);
-        Bitboard_t safeMoves = GetBishopAttackSet(sq, d12Empty) & safe;
-        allValues[bishop_mobility_offset + PopCount(safeMoves)] += multiplier;
+        Bitboard_t AvailibleMoves = GetBishopAttackSet(sq, d12Empty) & Availible;
+        allValues[bishop_mobility_offset + PopCount(AvailibleMoves)] += multiplier;
         ResetLSB(&bishops);
     }
 }
 
 static void TunerComputeRooks(
     Bitboard_t rooks, 
-    Bitboard_t safe,
+    Bitboard_t Availible,
     Bitboard_t hvEmpty,
     int16_t allValues[VECTOR_LENGTH],
     int multiplier
@@ -192,15 +192,15 @@ static void TunerComputeRooks(
 {
     while(rooks) {
         Square_t sq = LSB(rooks);
-        Bitboard_t safeMoves = GetRookAttackSet(sq, hvEmpty) & safe;
-        allValues[rook_mobility_offset + PopCount(safeMoves)] += multiplier;
+        Bitboard_t AvailibleMoves = GetRookAttackSet(sq, hvEmpty) & Availible;
+        allValues[rook_mobility_offset + PopCount(AvailibleMoves)] += multiplier;
         ResetLSB(&rooks);
     }  
 }
 
 static void TunerComputeQueens(
     Bitboard_t queens,
-    Bitboard_t safe,
+    Bitboard_t Availible,
     Bitboard_t hvEmpty,
     Bitboard_t d12Empty,
     int16_t allValues[VECTOR_LENGTH],
@@ -209,9 +209,9 @@ static void TunerComputeQueens(
 {
     while(queens) {
         Square_t sq = LSB(queens);
-        Bitboard_t safeD12Moves = GetBishopAttackSet(sq, d12Empty) & safe;
-        Bitboard_t safeHvMoves = GetRookAttackSet(sq, hvEmpty) & safe;
-        allValues[queen_mobility_offset + PopCount(safeD12Moves) + PopCount(safeHvMoves)] += multiplier;
+        Bitboard_t AvailibleD12Moves = GetBishopAttackSet(sq, d12Empty) & Availible;
+        Bitboard_t AvailibleHvMoves = GetRookAttackSet(sq, hvEmpty) & Availible;
+        allValues[queen_mobility_offset + PopCount(AvailibleD12Moves) + PopCount(AvailibleHvMoves)] += multiplier;
         ResetLSB(&queens);
     } 
 }
@@ -224,8 +224,8 @@ void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
         SoEaOne(boardInfo->pawns[black]) |
         SoWeOne(boardInfo->pawns[black]);
 
-    const Bitboard_t wSafe = ~bPawnAttacks;
-    const Bitboard_t bSafe = ~wPawnAttacks;
+    const Bitboard_t wAvailible = ~bPawnAttacks & (boardInfo->allPieces[black] | boardInfo->empty);
+    const Bitboard_t bAvailible = ~wPawnAttacks & (boardInfo->allPieces[white] | boardInfo->empty);
 
     const Bitboard_t whiteHvEmpty = boardInfo->empty | boardInfo->rooks[white] | boardInfo->queens[white];
     const Bitboard_t whiteD12Empty = boardInfo->empty | boardInfo->bishops[white] | boardInfo->queens[white];
@@ -233,15 +233,15 @@ void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
     const Bitboard_t blackHvEmpty = boardInfo->empty | boardInfo->rooks[black] | boardInfo->queens[black];
     const Bitboard_t blackD12Empty = boardInfo->empty | boardInfo->bishops[black] | boardInfo->queens[black];
 
-    TunerComputeKnights(boardInfo->knights[white], wSafe, allValues, 1);
-    TunerComputeBishops(boardInfo->bishops[white], wSafe, whiteD12Empty, allValues, 1);
-    TunerComputeRooks(boardInfo->rooks[white], wSafe, whiteHvEmpty, allValues, 1);
-    TunerComputeQueens(boardInfo->queens[white], wSafe, whiteHvEmpty, whiteD12Empty, allValues, 1);
+    TunerComputeKnights(boardInfo->knights[white], wAvailible, allValues, 1);
+    TunerComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty, allValues, 1);
+    TunerComputeRooks(boardInfo->rooks[white], wAvailible, whiteHvEmpty, allValues, 1);
+    TunerComputeQueens(boardInfo->queens[white], wAvailible, whiteHvEmpty, whiteD12Empty, allValues, 1);
 
-    TunerComputeKnights(boardInfo->knights[black], bSafe, allValues, -1);
-    TunerComputeBishops(boardInfo->bishops[black], bSafe, blackD12Empty, allValues, -1);
-    TunerComputeRooks(boardInfo->rooks[black], bSafe, blackHvEmpty, allValues, -1);
-    TunerComputeQueens(boardInfo->queens[black], bSafe, blackHvEmpty, blackD12Empty, allValues, -1);
+    TunerComputeKnights(boardInfo->knights[black], bAvailible, allValues, -1);
+    TunerComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty, allValues, -1);
+    TunerComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, allValues, -1);
+    TunerComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, allValues, -1);
 }
 
 static void FillPSTFeatures(
