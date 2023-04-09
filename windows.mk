@@ -58,6 +58,7 @@ $(ENGINE)\PV_table.c \
 $(ENGINE)\move_ordering.c \
 $(ENGINE)\transposition_table.c \
 $(ENGINE)\history.c \
+$(EVAL)\attack_eval.c \
 $(EVAL)\eval_helpers.c \
 $(EVAL)\eval_constants_tools.c \
 $(EVAL)\evaluation.c \
