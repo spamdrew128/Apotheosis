@@ -153,22 +153,22 @@ static void TunerSerializeByRank(
 
 static void TunerComputeKnights(
     Bitboard_t knights,
-    Bitboard_t Availible,
+    Bitboard_t availible,
     int16_t allValues[VECTOR_LENGTH],
     int multiplier
 )
 {
     while(knights) {
         Square_t sq = LSB(knights);
-        Bitboard_t AvailibleMoves = GetKnightAttackSet(sq) & Availible;
-        allValues[knight_mobility_offset + PopCount(AvailibleMoves)] += multiplier;
+        Bitboard_t moves = GetKnightAttackSet(sq) & availible;
+        allValues[knight_mobility_offset + PopCount(moves)] += multiplier;
         ResetLSB(&knights);
     }
 }
 
 static void TunerComputeBishops(
     Bitboard_t bishops,
-    Bitboard_t Availible,
+    Bitboard_t availible,
     Bitboard_t d12Empty,
     int16_t allValues[VECTOR_LENGTH],
     int multiplier
@@ -176,15 +176,15 @@ static void TunerComputeBishops(
 {
     while(bishops) {
         Square_t sq = LSB(bishops);
-        Bitboard_t AvailibleMoves = GetBishopAttackSet(sq, d12Empty) & Availible;
-        allValues[bishop_mobility_offset + PopCount(AvailibleMoves)] += multiplier;
+        Bitboard_t moves = GetBishopAttackSet(sq, d12Empty) & availible;
+        allValues[bishop_mobility_offset + PopCount(moves)] += multiplier;
         ResetLSB(&bishops);
     }
 }
 
 static void TunerComputeRooks(
     Bitboard_t rooks, 
-    Bitboard_t Availible,
+    Bitboard_t availible,
     Bitboard_t hvEmpty,
     int16_t allValues[VECTOR_LENGTH],
     int multiplier
@@ -192,15 +192,15 @@ static void TunerComputeRooks(
 {
     while(rooks) {
         Square_t sq = LSB(rooks);
-        Bitboard_t AvailibleMoves = GetRookAttackSet(sq, hvEmpty) & Availible;
-        allValues[rook_mobility_offset + PopCount(AvailibleMoves)] += multiplier;
+        Bitboard_t moves = GetRookAttackSet(sq, hvEmpty) & availible;
+        allValues[rook_mobility_offset + PopCount(moves)] += multiplier;
         ResetLSB(&rooks);
     }  
 }
 
 static void TunerComputeQueens(
     Bitboard_t queens,
-    Bitboard_t Availible,
+    Bitboard_t availible,
     Bitboard_t hvEmpty,
     Bitboard_t d12Empty,
     int16_t allValues[VECTOR_LENGTH],
@@ -209,9 +209,9 @@ static void TunerComputeQueens(
 {
     while(queens) {
         Square_t sq = LSB(queens);
-        Bitboard_t AvailibleD12Moves = GetBishopAttackSet(sq, d12Empty) & Availible;
-        Bitboard_t AvailibleHvMoves = GetRookAttackSet(sq, hvEmpty) & Availible;
-        allValues[queen_mobility_offset + PopCount(AvailibleD12Moves) + PopCount(AvailibleHvMoves)] += multiplier;
+        Bitboard_t d12Moves = GetBishopAttackSet(sq, d12Empty) & availible;
+        Bitboard_t hvMoves = GetRookAttackSet(sq, hvEmpty) & availible;
+        allValues[queen_mobility_offset + PopCount(d12Moves) + PopCount(hvMoves)] += multiplier;
         ResetLSB(&queens);
     } 
 }
