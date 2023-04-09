@@ -21,7 +21,7 @@ static void ShouldCalculateMobility() {
 
     MobilityEval(&boardInfo, &score);
 
-    Score_t queenScore = -queenMobility[13];
+    Score_t queenScore = -queenMobility[14];
     Score_t rookScore = rookMobility[9] + rookMobility[9] - rookMobility[5];
     Score_t bishopScore = bishopMobility[7] - bishopMobility[5];
     Score_t knightScore = knightMobility[4] + knightMobility[3];
