@@ -111,7 +111,8 @@ $(ENGINE_TDD)/move_ordering_tdd.c \
 $(ENGINE_TDD)/TT_tdd.c \
 $(ENGINE_TDD)/killers_tdd.c \
 $(ENGINE_TDD)/history_tdd.c \
-$(ENGINE_TDD)/pawn_structure_tdd.c
+$(ENGINE_TDD)/pawn_structure_tdd.c \
+$(ENGINE_TDD)/attack_eval_tdd.c
 
 D_OBJECTS=$(D_CFILES:%.c=%.o)
 
