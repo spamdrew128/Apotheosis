@@ -58,23 +58,71 @@ static void SerializeAttacks(
 }
 
 static void HvSliderControl(
-    BoardInfo_t* boardInfo,
     Bitboard_t wPieces,
     Bitboard_t bPieces,
-    Bitboard_t empty,
-    const Bitboard_t contested,
+    Bitboard_t wEmpty,
+    Bitboard_t bEmpty,
+    const Bitboard_t contestedSquares,
     ControlValue_t controlValue,
     ControlValue_t controlSums[NUM_SQUARES]
 )
 {
     while(wPieces) {
         Square_t sq = LSB(wPieces);
-        
+        Bitboard_t attacks = GetRookAttackSet(sq, wEmpty) & contestedSquares;
+        SerializeAttacks(attacks, controlValue, controlSums);
         ResetLSB(&wPieces);
     }
     while(bPieces) {
         Square_t sq = LSB(bPieces);
-        controlSums[sq] -= controlValue;
+        Bitboard_t attacks = GetRookAttackSet(sq, bEmpty) & contestedSquares;
+        SerializeAttacks(attacks, -controlValue, controlSums);
+        ResetLSB(&bPieces);
+    }
+}
+
+static void D12SliderControl(
+    Bitboard_t wPieces,
+    Bitboard_t bPieces,
+    Bitboard_t wEmpty,
+    Bitboard_t bEmpty,
+    const Bitboard_t contestedSquares,
+    ControlValue_t controlValue,
+    ControlValue_t controlSums[NUM_SQUARES]
+)
+{
+    while(wPieces) {
+        Square_t sq = LSB(wPieces);
+        Bitboard_t attacks = GetBishopAttackSet(sq, wEmpty) & contestedSquares;
+        SerializeAttacks(attacks, controlValue, controlSums);
+        ResetLSB(&wPieces);
+    }
+    while(bPieces) {
+        Square_t sq = LSB(bPieces);
+        Bitboard_t attacks = GetBishopAttackSet(sq, bEmpty) & contestedSquares;
+        SerializeAttacks(attacks, -controlValue, controlSums);
+        ResetLSB(&bPieces);
+    }
+}
+
+static void KnightControl(
+    Bitboard_t wPieces,
+    Bitboard_t bPieces,
+    const Bitboard_t contestedSquares,
+    ControlValue_t controlValue,
+    ControlValue_t controlSums[NUM_SQUARES]
+)
+{
+    while(wPieces) {
+        Square_t sq = LSB(wPieces);
+        Bitboard_t attacks = GetKnightAttackSet(sq) & contestedSquares;
+        SerializeAttacks(attacks, controlValue, controlSums);
+        ResetLSB(&wPieces);
+    }
+    while(bPieces) {
+        Square_t sq = LSB(bPieces);
+        Bitboard_t attacks = GetKnightAttackSet(sq) & contestedSquares;
+        SerializeAttacks(attacks, -controlValue, controlSums);
         ResetLSB(&bPieces);
     }
 }
@@ -107,9 +155,22 @@ void BoardControl(
 
     ControlValue_t controlSums[NUM_SQUARES] = {0};
 
-    SerializeAttacks(wPawnAttacksEast, bPawnAttacksEast, pawn_control, controlSums);
-    SerializeAttacks(wPawnAttacksWest, bPawnAttacksWest, pawn_control, controlSums);
+    SerializeAttacks(wPawnAttacksEast & contestedSquares, pawn_control, controlSums);
+    SerializeAttacks(bPawnAttacksWest & contestedSquares, -pawn_control, controlSums);
+    SerializeAttacks(wPawnAttacksEast & contestedSquares, pawn_control, controlSums);
+    SerializeAttacks(bPawnAttacksWest & contestedSquares, -pawn_control, controlSums);
 
-    
+    Bitboard_t wHvEmpty = boardInfo->empty | boardInfo->rooks[white] | boardInfo->queens[white];
+    Bitboard_t bHvEmpty = boardInfo->empty | boardInfo->rooks[black] | boardInfo->queens[black];
 
+    HvSliderControl(boardInfo->rooks[white], boardInfo->rooks[black], wHvEmpty, bHvEmpty, contestedSquares, rook_control, controlSums);
+    HvSliderControl(boardInfo->queens[white], boardInfo->queens[black], wHvEmpty, bHvEmpty, contestedSquares, queen_control, controlSums);
+
+    Bitboard_t wD12Empty = boardInfo->empty | boardInfo->bishops[white] | boardInfo->queens[white];
+    Bitboard_t bD12Empty = boardInfo->empty | boardInfo->bishops[black] | boardInfo->queens[black];
+
+    D12SliderControl(boardInfo->bishops[white], boardInfo->bishops[black], wD12Empty, bD12Empty, contestedSquares, bishop_control, controlSums);
+    D12SliderControl(boardInfo->queens[white], boardInfo->queens[black], wD12Empty, bD12Empty, contestedSquares, queen_control, controlSums);
+
+    KnightControl(boardInfo->knights[white], boardInfo->knights[black], contestedSquares, knight_control, controlSums);
 }
