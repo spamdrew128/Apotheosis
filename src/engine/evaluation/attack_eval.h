@@ -5,6 +5,14 @@
 #include "eval_constants.h"
 #include "eval_constants_tools.h"
 
+enum {
+  KNIGHT_MOBILITY_OPTIONS = 9,
+  BISHOP_MOBILITY_OPTIONS = 14,
+  ROOK_MOBILITY_OPTIONS = 15,
+  QUEEN_MOBILITY_OPTIONS = 27,
+  KING_MOBILITY_OPTIONS = 9,
+};
+
 void MobilityEval(BoardInfo_t* boardInfo, Score_t* score);
 
 #endif
