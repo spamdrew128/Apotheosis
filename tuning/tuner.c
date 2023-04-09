@@ -17,6 +17,7 @@
 #include "engine_types.h"
 #include "eval_helpers.h"
 #include "attack_eval.h"
+#include "lookup.h"
 
 enum {
     PST_FEATURE_COUNT = NUM_PST_BUCKETS * NUM_PIECES * NUM_SQUARES,
@@ -173,14 +174,12 @@ static void TunerComputeBishops(
     int multiplier
 )
 {
-    Score_t score = 0;
     while(bishops) {
         Square_t sq = LSB(bishops);
         Bitboard_t safeMoves = GetBishopAttackSet(sq, d12Empty) & safe;
         allValues[bishop_mobility_offset + PopCount(safeMoves)] += multiplier;
         ResetLSB(&bishops);
     }
-    return score;
 }
 
 static void TunerComputeRooks(
@@ -191,14 +190,12 @@ static void TunerComputeRooks(
     int multiplier
 )
 {
-    Score_t score = 0;
     while(rooks) {
         Square_t sq = LSB(rooks);
         Bitboard_t safeMoves = GetRookAttackSet(sq, hvEmpty) & safe;
         allValues[rook_mobility_offset + PopCount(safeMoves)] += multiplier;
         ResetLSB(&rooks);
-    }
-    return score;    
+    }  
 }
 
 static void TunerComputeQueens(
@@ -210,15 +207,13 @@ static void TunerComputeQueens(
     int multiplier
 )
 {
-    Score_t score = 0;
     while(queens) {
         Square_t sq = LSB(queens);
         Bitboard_t safeD12Moves = GetBishopAttackSet(sq, d12Empty) & safe;
         Bitboard_t safeHvMoves = GetRookAttackSet(sq, hvEmpty) & safe;
         allValues[PopCount(safeD12Moves) + PopCount(safeHvMoves)] += multiplier;
         ResetLSB(&queens);
-    }
-    return score;    
+    } 
 }
 
 void TunerAddMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
@@ -719,9 +714,9 @@ static void FilePrintPST(const char* tableName, Piece_t piece, FILE* fp, int fea
     fprintf(fp, "}\n\n");
 }
 
-static void PrintFileOrRankBonus(const char* name, int feature_offset, FILE* fp) {
+static void PrintIndividualBonus(const char* name, int feature_offset, int count, FILE* fp) {
     fprintf(fp, "#define %s { \\\n   ", name);
-    for(int i = 0; i < 8; i++) { 
+    for(int i = 0; i < count; i++) { 
         fprintf(fp, "S(%d, %d), ",
             (int)weights[mg_phase][feature_offset + i],
             (int)weights[eg_phase][feature_offset + i]);
@@ -738,18 +733,23 @@ static void PrintBonuses(FILE* fp) {
 
     FilePrintPST("PASSED_PAWN_PST", 0, fp, passed_pawn_offset, false);
 
-    PrintFileOrRankBonus("BLOCKED_PASSERS", blocked_passer_offset, fp);
+    PrintIndividualBonus("BLOCKED_PASSERS", blocked_passer_offset, BLOCKED_PASSER_FEATURE_COUNT, fp);
 
-    PrintFileOrRankBonus("ROOK_OPEN_FILE", open_rook_offset, fp);
-    PrintFileOrRankBonus("ROOK_SEMI_OPEN_FILE", semi_open_rook_offset, fp);
+    PrintIndividualBonus("ROOK_OPEN_FILE", open_rook_offset, OPEN_FILE_FEATURE_COUNT, fp);
+    PrintIndividualBonus("ROOK_SEMI_OPEN_FILE", semi_open_rook_offset, OPEN_FILE_FEATURE_COUNT, fp);
 
-    PrintFileOrRankBonus("QUEEN_OPEN_FILE", open_queen_offset, fp);
-    PrintFileOrRankBonus("QUEEN_SEMI_OPEN_FILE", semi_open_queen_offset, fp);
+    PrintIndividualBonus("QUEEN_OPEN_FILE", open_queen_offset, OPEN_FILE_FEATURE_COUNT, fp);
+    PrintIndividualBonus("QUEEN_SEMI_OPEN_FILE", semi_open_queen_offset, OPEN_FILE_FEATURE_COUNT, fp);
     
-    PrintFileOrRankBonus("KING_OPEN_FILE", open_king_offset, fp);
-    PrintFileOrRankBonus("KING_SEMI_OPEN_FILE", semi_open_king_offset, fp);
+    PrintIndividualBonus("KING_OPEN_FILE", open_king_offset, OPEN_FILE_FEATURE_COUNT, fp);
+    PrintIndividualBonus("KING_SEMI_OPEN_FILE", semi_open_king_offset, OPEN_FILE_FEATURE_COUNT, fp);
 
-    PrintFileOrRankBonus("ISOLATED_PAWNS", isolated_pawns_offset, fp);
+    PrintIndividualBonus("ISOLATED_PAWNS", isolated_pawns_offset, ISOLATED_FEATURE_COUNT, fp);
+
+    PrintIndividualBonus("KNIGHT_MOBILITY", knight_mobility_offset, KNIGHT_MOBILITY_FEATURE_COUNT, fp);
+    PrintIndividualBonus("BISHOP_MOBILITY", bishop_mobility_offset, BISHOP_MOBILITY_FEATURE_COUNT, fp);
+    PrintIndividualBonus("ROOK_MOBILITY", rook_mobility_offset, ROOK_MOBILITY_FEATURE_COUNT, fp);
+    PrintIndividualBonus("QUEEN_MOBILITY", queen_mobility_offset, QUEEN_MOBILITY_FEATURE_COUNT, fp);
 }
 
 static void CreateOutputFile() {
