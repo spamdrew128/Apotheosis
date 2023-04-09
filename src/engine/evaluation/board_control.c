@@ -181,7 +181,7 @@ void BoardControl(
             *score += boardControlBonus[wBucket][MIRROR(sq)];
         }
         if(value < 0) {
-            *score += boardControlBonus[bBucket][sq];
+            *score -= boardControlBonus[bBucket][sq];
         }
         ResetLSB(&contestedSquares);
     }
