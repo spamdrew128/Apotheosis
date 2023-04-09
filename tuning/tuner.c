@@ -216,7 +216,7 @@ static void TunerComputeQueens(
     } 
 }
 
-void TunerAddMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
+void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
     const Bitboard_t wPawnAttacks = 
         NoEaOne(boardInfo->pawns[white]) | 
         NoWeOne(boardInfo->pawns[white]);
@@ -363,6 +363,7 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
 
     FillPSTFeatures(allValues, whiteBucket, blackBucket, boardInfo);
     FillBonuses(allValues, whiteBucket, blackBucket, boardInfo);
+    FillMobility(boardInfo, allValues);
 
     tEntry->numFeatures = 0;
     for(uint16_t i = 0; i < VECTOR_LENGTH; i++) {
