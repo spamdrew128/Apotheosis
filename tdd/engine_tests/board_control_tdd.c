@@ -23,7 +23,7 @@ static void ShouldGiveCorrectScore() {
     BoardControl(&boardInfo, wBucket, bBucket, &score);
 
     Bitboard_t wControlled = CreateBitboard(9, a8,g8,b7,f7,c6,e6,c4,b3,f3);
-    Bitboard_t bControlled = (g_file | rank_2 | CreateBitboard(11, f1,g1,h1,h3,e4,d5,e5,d1,e2,g4,h5)) & ~CreateBitboard(2, g3,g8);
+    Bitboard_t bControlled = (g_file | rank_2 | CreateBitboard(11, f1,g1,h1,h3,e4,d5,e5,d1,e2,g4,h5)) & ~CreateBitboard(1,g8);
 
     Score_t expectedScore = 0;
     SerializeBySquare(wControlled, bControlled, wBucket, bBucket, &expectedScore, boardControlBonus);
