@@ -62,6 +62,7 @@ $(EVAL)\eval_helpers.c \
 $(EVAL)\eval_constants_tools.c \
 $(EVAL)\evaluation.c \
 $(EVAL)\pawn_structure.c \
+$(EVAL)\board_control.c \
 $(FEN)\FEN.c \
 $(LOOKUP)\lookup.c \
 $(PLAY)\move.c \
