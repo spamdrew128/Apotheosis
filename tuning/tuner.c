@@ -211,7 +211,7 @@ static void TunerComputeQueens(
         Square_t sq = LSB(queens);
         Bitboard_t safeD12Moves = GetBishopAttackSet(sq, d12Empty) & safe;
         Bitboard_t safeHvMoves = GetRookAttackSet(sq, hvEmpty) & safe;
-        allValues[PopCount(safeD12Moves) + PopCount(safeHvMoves)] += multiplier;
+        allValues[queen_mobility_offset + PopCount(safeD12Moves) + PopCount(safeHvMoves)] += multiplier;
         ResetLSB(&queens);
     } 
 }
