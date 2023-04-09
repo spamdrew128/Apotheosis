@@ -1,6 +1,10 @@
 #include "board_control.h"
 #include "pieces.h"
 #include "lookup.h"
+#include "eval_helpers.h"
+#include "util_macros.h"
+
+static Score_t boardControlBonus[NUM_PST_BUCKETS][NUM_SQUARES] = BOARD_CONTROL_BONUSES;
 
 static Bitboard_t QueenAttacks(Square_t square, Bitboard_t empty) {
     return GetRookAttackSet(square, empty) | GetBishopAttackSet(square, empty);
@@ -40,6 +44,41 @@ static Bitboard_t PieceAttackSets(BoardInfo_t* boardInfo, Color_t color) {
     return attackedSquares;
 }
 
+static void SerializeAttacks(
+    Bitboard_t attacks,
+    ControlValue_t controlValue,
+    ControlValue_t controlSums[NUM_SQUARES]
+)
+{
+    while(attacks) {
+        Square_t sq = LSB(attacks);
+        controlSums[sq] += controlValue;
+        ResetLSB(&attacks);
+    }
+}
+
+static void HvSliderControl(
+    BoardInfo_t* boardInfo,
+    Bitboard_t wPieces,
+    Bitboard_t bPieces,
+    Bitboard_t empty,
+    const Bitboard_t contested,
+    ControlValue_t controlValue,
+    ControlValue_t controlSums[NUM_SQUARES]
+)
+{
+    while(wPieces) {
+        Square_t sq = LSB(wPieces);
+        
+        ResetLSB(&wPieces);
+    }
+    while(bPieces) {
+        Square_t sq = LSB(bPieces);
+        controlSums[sq] -= controlValue;
+        ResetLSB(&bPieces);
+    }
+}
+
 void BoardControl(
     BoardInfo_t* boardInfo,
     const Bucket_t wBucket,
@@ -50,18 +89,27 @@ void BoardControl(
     const Bitboard_t wPieceAttacks = PieceAttackSets(boardInfo, white);
     const Bitboard_t bPieceAttacks = PieceAttackSets(boardInfo, black);
 
-    const Bitboard_t wPawnAttacks = 
-        NoEaOne(boardInfo->pawns[white]) | 
-        NoWeOne(boardInfo->pawns[white]);
+    Bitboard_t wPawnAttacksEast = NoEaOne(boardInfo->pawns[white]);
+    Bitboard_t wPawnAttacksWest = NoWeOne(boardInfo->pawns[white]);
 
-    const Bitboard_t bPawnAttacks = 
-        SoEaOne(boardInfo->pawns[black]) |
-        SoWeOne(boardInfo->pawns[black]);
+    Bitboard_t bPawnAttacksEast = SoEaOne(boardInfo->pawns[black]);
+    Bitboard_t bPawnAttacksWest= SoWeOne(boardInfo->pawns[black]);
 
-    Bitboard_t allWhiteAttacks = wPieceAttacks | wPawnAttacks;
-    Bitboard_t allBlackAttacks = bPieceAttacks | bPawnAttacks;
+    const Bitboard_t allWhiteAttacks = wPieceAttacks | wPawnAttacksEast | wPawnAttacksWest;
+    const Bitboard_t allBlackAttacks = bPieceAttacks | bPawnAttacksEast | bPawnAttacksWest;
 
     Bitboard_t contestedSquares = allWhiteAttacks & allBlackAttacks;
 
+    Bitboard_t wUncontested = allWhiteAttacks & ~contestedSquares;
+    Bitboard_t bUncontested = allBlackAttacks & ~contestedSquares;
+
+    SerializeBySquare(wUncontested, bUncontested, wBucket, bBucket, score, boardControlBonus);
+
+    ControlValue_t controlSums[NUM_SQUARES] = {0};
+
+    SerializeAttacks(wPawnAttacksEast, bPawnAttacksEast, pawn_control, controlSums);
+    SerializeAttacks(wPawnAttacksWest, bPawnAttacksWest, pawn_control, controlSums);
+
     
+
 }

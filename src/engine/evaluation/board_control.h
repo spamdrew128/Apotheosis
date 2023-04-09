@@ -6,11 +6,13 @@
 #include "eval_constants_tools.h"
 #include "bitboards.h"
 
+typedef int ControlValue_t;
 enum {
     knight_control = 700,
     bishop_control = 700,
     rook_control = 300,
     queen_control = 100,
+    pawn_control = 9000,
 };
 
 void BoardControl(
