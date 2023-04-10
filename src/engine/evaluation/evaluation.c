@@ -6,6 +6,7 @@
 #include "util_macros.h"
 #include "legals.h"
 #include "pawn_structure.h"
+#include "attack_eval.h"
 
 static Phase_t gamePhaseLookup[6] = { KNIGHT_PHASE_VALUE, BISHOP_PHASE_VALUE, ROOK_PHASE_VALUE, QUEEN_PHASE_VALUE, PAWN_PHASE_VALUE, KING_PHASE_VALUE };
 
@@ -68,6 +69,7 @@ EvalScore_t ScoreOfPosition(BoardInfo_t* boardInfo) {
     PassedPawnBonus(boardInfo, wBucket, bBucket, &score);
     PawnStructure(boardInfo, &score);
     OpenFileBonus(boardInfo, &score);
+    MobilityEval(boardInfo, &score);
 
     const EvalScore_t mgScore = MgFromScore(score);
     const EvalScore_t egScore = EgFromScore(score);

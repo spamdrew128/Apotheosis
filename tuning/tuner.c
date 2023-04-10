@@ -16,6 +16,8 @@
 #include "chess_search.h"
 #include "engine_types.h"
 #include "eval_helpers.h"
+#include "attack_eval.h"
+#include "lookup.h"
 
 enum {
     PST_FEATURE_COUNT = NUM_PST_BUCKETS * NUM_PIECES * NUM_SQUARES,
@@ -24,6 +26,10 @@ enum {
     BLOCKED_PASSER_FEATURE_COUNT = NUM_RANKS,
     OPEN_FILE_FEATURE_COUNT = NUM_FILES,
     ISOLATED_FEATURE_COUNT = NUM_FILES,
+    KNIGHT_MOBILITY_FEATURE_COUNT = KNIGHT_MOBILITY_OPTIONS,
+    BISHOP_MOBILITY_FEATURE_COUNT = BISHOP_MOBILITY_OPTIONS,
+    ROOK_MOBILITY_FEATURE_COUNT = ROOK_MOBILITY_OPTIONS,
+    QUEEN_MOBILITY_FEATURE_COUNT = QUEEN_MOBILITY_OPTIONS,
 
     pst_offset = 0,
     bishop_pair_offset = pst_offset + PST_FEATURE_COUNT,
@@ -38,7 +44,12 @@ enum {
 
     isolated_pawns_offset = semi_open_king_offset + OPEN_FILE_FEATURE_COUNT,
 
-    VECTOR_LENGTH = isolated_pawns_offset + ISOLATED_FEATURE_COUNT,
+    knight_mobility_offset = isolated_pawns_offset + ISOLATED_FEATURE_COUNT,
+    bishop_mobility_offset = knight_mobility_offset + KNIGHT_MOBILITY_FEATURE_COUNT,
+    rook_mobility_offset = bishop_mobility_offset + BISHOP_MOBILITY_FEATURE_COUNT,
+    queen_mobility_offset = rook_mobility_offset + ROOK_MOBILITY_FEATURE_COUNT,
+
+    VECTOR_LENGTH = queen_mobility_offset + QUEEN_MOBILITY_FEATURE_COUNT,
 };
 
 enum {
@@ -138,6 +149,99 @@ static void TunerSerializeByRank(
         allValues[feature_offset + rank]--;
         ResetLSB(&blackPieces);
     }
+}
+
+static void TunerComputeKnights(
+    Bitboard_t knights,
+    Bitboard_t availible,
+    int16_t allValues[VECTOR_LENGTH],
+    int multiplier
+)
+{
+    while(knights) {
+        Square_t sq = LSB(knights);
+        Bitboard_t moves = GetKnightAttackSet(sq) & availible;
+        allValues[knight_mobility_offset + PopCount(moves)] += multiplier;
+        ResetLSB(&knights);
+    }
+}
+
+static void TunerComputeBishops(
+    Bitboard_t bishops,
+    Bitboard_t availible,
+    Bitboard_t d12Empty,
+    int16_t allValues[VECTOR_LENGTH],
+    int multiplier
+)
+{
+    while(bishops) {
+        Square_t sq = LSB(bishops);
+        Bitboard_t moves = GetBishopAttackSet(sq, d12Empty) & availible;
+        allValues[bishop_mobility_offset + PopCount(moves)] += multiplier;
+        ResetLSB(&bishops);
+    }
+}
+
+static void TunerComputeRooks(
+    Bitboard_t rooks, 
+    Bitboard_t availible,
+    Bitboard_t hvEmpty,
+    int16_t allValues[VECTOR_LENGTH],
+    int multiplier
+)
+{
+    while(rooks) {
+        Square_t sq = LSB(rooks);
+        Bitboard_t moves = GetRookAttackSet(sq, hvEmpty) & availible;
+        allValues[rook_mobility_offset + PopCount(moves)] += multiplier;
+        ResetLSB(&rooks);
+    }  
+}
+
+static void TunerComputeQueens(
+    Bitboard_t queens,
+    Bitboard_t availible,
+    Bitboard_t hvEmpty,
+    Bitboard_t d12Empty,
+    int16_t allValues[VECTOR_LENGTH],
+    int multiplier
+)
+{
+    while(queens) {
+        Square_t sq = LSB(queens);
+        Bitboard_t d12Moves = GetBishopAttackSet(sq, d12Empty) & availible;
+        Bitboard_t hvMoves = GetRookAttackSet(sq, hvEmpty) & availible;
+        allValues[queen_mobility_offset + PopCount(d12Moves) + PopCount(hvMoves)] += multiplier;
+        ResetLSB(&queens);
+    } 
+}
+
+void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
+    const Bitboard_t wPawnAttacks = 
+        NoEaOne(boardInfo->pawns[white]) | 
+        NoWeOne(boardInfo->pawns[white]);
+    const Bitboard_t bPawnAttacks = 
+        SoEaOne(boardInfo->pawns[black]) |
+        SoWeOne(boardInfo->pawns[black]);
+
+    const Bitboard_t wAvailible = ~bPawnAttacks & (boardInfo->allPieces[black] | boardInfo->empty);
+    const Bitboard_t bAvailible = ~wPawnAttacks & (boardInfo->allPieces[white] | boardInfo->empty);
+
+    const Bitboard_t whiteHvEmpty = boardInfo->empty | boardInfo->rooks[white] | boardInfo->queens[white];
+    const Bitboard_t whiteD12Empty = boardInfo->empty | boardInfo->bishops[white] | boardInfo->queens[white];
+
+    const Bitboard_t blackHvEmpty = boardInfo->empty | boardInfo->rooks[black] | boardInfo->queens[black];
+    const Bitboard_t blackD12Empty = boardInfo->empty | boardInfo->bishops[black] | boardInfo->queens[black];
+
+    TunerComputeKnights(boardInfo->knights[white], wAvailible, allValues, 1);
+    TunerComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty, allValues, 1);
+    TunerComputeRooks(boardInfo->rooks[white], wAvailible, whiteHvEmpty, allValues, 1);
+    TunerComputeQueens(boardInfo->queens[white], wAvailible, whiteHvEmpty, whiteD12Empty, allValues, 1);
+
+    TunerComputeKnights(boardInfo->knights[black], bAvailible, allValues, -1);
+    TunerComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty, allValues, -1);
+    TunerComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, allValues, -1);
+    TunerComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, allValues, -1);
 }
 
 static void FillPSTFeatures(
@@ -259,6 +363,7 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
 
     FillPSTFeatures(allValues, whiteBucket, blackBucket, boardInfo);
     FillBonuses(allValues, whiteBucket, blackBucket, boardInfo);
+    FillMobility(boardInfo, allValues);
 
     tEntry->numFeatures = 0;
     for(uint16_t i = 0; i < VECTOR_LENGTH; i++) {
@@ -610,9 +715,9 @@ static void FilePrintPST(const char* tableName, Piece_t piece, FILE* fp, int fea
     fprintf(fp, "}\n\n");
 }
 
-static void PrintFileOrRankBonus(const char* name, int feature_offset, FILE* fp) {
+static void PrintIndividualBonus(const char* name, int feature_offset, int count, FILE* fp) {
     fprintf(fp, "#define %s { \\\n   ", name);
-    for(int i = 0; i < 8; i++) { 
+    for(int i = 0; i < count; i++) { 
         fprintf(fp, "S(%d, %d), ",
             (int)weights[mg_phase][feature_offset + i],
             (int)weights[eg_phase][feature_offset + i]);
@@ -629,18 +734,23 @@ static void PrintBonuses(FILE* fp) {
 
     FilePrintPST("PASSED_PAWN_PST", 0, fp, passed_pawn_offset, false);
 
-    PrintFileOrRankBonus("BLOCKED_PASSERS", blocked_passer_offset, fp);
+    PrintIndividualBonus("BLOCKED_PASSERS", blocked_passer_offset, BLOCKED_PASSER_FEATURE_COUNT, fp);
 
-    PrintFileOrRankBonus("ROOK_OPEN_FILE", open_rook_offset, fp);
-    PrintFileOrRankBonus("ROOK_SEMI_OPEN_FILE", semi_open_rook_offset, fp);
+    PrintIndividualBonus("ROOK_OPEN_FILE", open_rook_offset, OPEN_FILE_FEATURE_COUNT, fp);
+    PrintIndividualBonus("ROOK_SEMI_OPEN_FILE", semi_open_rook_offset, OPEN_FILE_FEATURE_COUNT, fp);
 
-    PrintFileOrRankBonus("QUEEN_OPEN_FILE", open_queen_offset, fp);
-    PrintFileOrRankBonus("QUEEN_SEMI_OPEN_FILE", semi_open_queen_offset, fp);
+    PrintIndividualBonus("QUEEN_OPEN_FILE", open_queen_offset, OPEN_FILE_FEATURE_COUNT, fp);
+    PrintIndividualBonus("QUEEN_SEMI_OPEN_FILE", semi_open_queen_offset, OPEN_FILE_FEATURE_COUNT, fp);
     
-    PrintFileOrRankBonus("KING_OPEN_FILE", open_king_offset, fp);
-    PrintFileOrRankBonus("KING_SEMI_OPEN_FILE", semi_open_king_offset, fp);
+    PrintIndividualBonus("KING_OPEN_FILE", open_king_offset, OPEN_FILE_FEATURE_COUNT, fp);
+    PrintIndividualBonus("KING_SEMI_OPEN_FILE", semi_open_king_offset, OPEN_FILE_FEATURE_COUNT, fp);
 
-    PrintFileOrRankBonus("ISOLATED_PAWNS", isolated_pawns_offset, fp);
+    PrintIndividualBonus("ISOLATED_PAWNS", isolated_pawns_offset, ISOLATED_FEATURE_COUNT, fp);
+
+    PrintIndividualBonus("KNIGHT_MOBILITY", knight_mobility_offset, KNIGHT_MOBILITY_FEATURE_COUNT, fp);
+    PrintIndividualBonus("BISHOP_MOBILITY", bishop_mobility_offset, BISHOP_MOBILITY_FEATURE_COUNT, fp);
+    PrintIndividualBonus("ROOK_MOBILITY", rook_mobility_offset, ROOK_MOBILITY_FEATURE_COUNT, fp);
+    PrintIndividualBonus("QUEEN_MOBILITY", queen_mobility_offset, QUEEN_MOBILITY_FEATURE_COUNT, fp);
 }
 
 static void CreateOutputFile() {
