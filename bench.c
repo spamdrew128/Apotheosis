@@ -26,7 +26,7 @@ bool Bench(int argc, char** argv) {
     UciSearchInfo_t uciSearchInfo;
     UciSearchInfoInit(&uciSearchInfo);
     uciSearchInfo.forceTime = 1000000;
-    uciSearchInfo.depthLimit = 5;
+    uciSearchInfo.depthLimit = 8;
 
     NodeCount_t nodeCount = 0;
     for(int i = 0; i < NUM_PERFT_ENTRIES; i++) {
