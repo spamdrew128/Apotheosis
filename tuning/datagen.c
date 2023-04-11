@@ -5,7 +5,7 @@
 
 #include "util_macros.h"
 #include "datagen.h"
-#include "uci.h"
+#include "UCI.h"
 #include "RNG.h"
 #include "endings.h"
 #include "FEN.h"
