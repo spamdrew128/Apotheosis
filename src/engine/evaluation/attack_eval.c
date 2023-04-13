@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #include "attack_eval.h"
 #include "lookup.h"
 #include "bitboards.h"
@@ -7,6 +9,9 @@ static Score_t bishopMobility[BISHOP_MOBILITY_OPTIONS] = BISHOP_MOBILITY;
 static Score_t rookMobility[ROOK_MOBILITY_OPTIONS] = ROOK_MOBILITY;
 static Score_t queenMobility[QUEEN_MOBILITY_OPTIONS] = QUEEN_MOBILITY;
 
+typedef int16_t AttackScore_t;
+typedef int16_t DefenseScore_t;
+
 static Score_t ComputeKnights(
     Bitboard_t knights,
     Bitboard_t availible
@@ -15,8 +20,7 @@ static Score_t ComputeKnights(
     Score_t score = 0;
     while(knights) {
         Square_t sq = LSB(knights);
-        Bitboard_t attacks = GetKnightAttackSet(sq);
-        Bitboard_t moves = attacks & availible;
+        Bitboard_t moves = GetKnightAttackSet(sq) & availible;
         score += knightMobility[PopCount(moves)];
         ResetLSB(&knights);
     }
@@ -32,8 +36,7 @@ static Score_t ComputeBishops(
     Score_t score = 0;
     while(bishops) {
         Square_t sq = LSB(bishops);
-        Bitboard_t attacks = GetBishopAttackSet(sq, d12Empty);
-        Bitboard_t moves = attacks & availible;
+        Bitboard_t moves = GetBishopAttackSet(sq, d12Empty) & availible;
         score += bishopMobility[PopCount(moves)];
         ResetLSB(&bishops);
     }
@@ -49,8 +52,7 @@ static Score_t ComputeRooks(
     Score_t score = 0;
     while(rooks) {
         Square_t sq = LSB(rooks);
-        Bitboard_t attacks = GetRookAttackSet(sq, hvEmpty);
-        Bitboard_t moves = attacks & availible;
+        Bitboard_t moves = GetRookAttackSet(sq, hvEmpty) & availible;
         score += rookMobility[PopCount(moves)];
         ResetLSB(&rooks);
     }
@@ -67,13 +69,33 @@ static Score_t ComputeQueens(
     Score_t score = 0;
     while(queens) {
         Square_t sq = LSB(queens);
-        Bitboard_t attacks = GetRookAttackSet(sq, hvEmpty) | GetBishopAttackSet(sq, d12Empty);
         Bitboard_t d12Moves = GetBishopAttackSet(sq, d12Empty) & availible;
         Bitboard_t hvMoves = GetRookAttackSet(sq, hvEmpty) & availible;
         score += queenMobility[PopCount(d12Moves) + PopCount(hvMoves)];
         ResetLSB(&queens);
     }
     return score;    
+}
+
+static void PawnShields(
+    DefenseScore_t* wDefense,
+    DefenseScore_t* bDefense,
+    const Square_t wKingSquare,
+    const Square_t bKingSquare
+)
+{
+
+}
+
+static void KingAiriness(
+    DefenseScore_t* wDefense,
+    DefenseScore_t* bDefense,
+    const Square_t wKingSquare,
+    const Square_t bKingSquare,
+    BoardInfo_t* boardInfo
+)
+{
+    
 }
 
 void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
@@ -104,6 +126,12 @@ void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
 
     const Bitboard_t wForwardKingZone = wInnerKingZone | GenShiftNorth(wInnerKingZone, 3);
     const Bitboard_t bForwardKingZone = bInnerKingZone | GenShiftSouth(wInnerKingZone, 3);
+
+    // COMPUTATIONS
+    EvalScore_t wAttackScore = 0;
+    EvalScore_t bDefenseScore = 0;
+    EvalScore_t wAttackScore = 0;
+    EvalScore_t bDefenseScore = 0;
 
     *score += ComputeKnights(boardInfo->knights[white], wAvailible);
     *score += ComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty);
