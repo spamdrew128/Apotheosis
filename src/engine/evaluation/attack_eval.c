@@ -81,10 +81,11 @@ static void PawnShields(
     DefenseScore_t* wDefense,
     DefenseScore_t* bDefense,
     const Square_t wKingSquare,
-    const Square_t bKingSquare
+    const Square_t bKingSquare,
+    BoardInfo_t* boardInfo
 )
 {
-
+    
 }
 
 static void KingAiriness(
@@ -95,7 +96,7 @@ static void KingAiriness(
     BoardInfo_t* boardInfo
 )
 {
-    
+
 }
 
 void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
@@ -129,8 +130,8 @@ void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
 
     // COMPUTATIONS
     EvalScore_t wAttackScore = 0;
-    EvalScore_t bDefenseScore = 0;
-    EvalScore_t wAttackScore = 0;
+    EvalScore_t wDefenseScore = 0;
+    EvalScore_t bAttackScore = 0;
     EvalScore_t bDefenseScore = 0;
 
     *score += ComputeKnights(boardInfo->knights[white], wAvailible);
