@@ -12,6 +12,6 @@ enum {
   QUEEN_MOBILITY_OPTIONS = BISHOP_MOBILITY_OPTIONS + ROOK_MOBILITY_OPTIONS - 1,
 };
 
-void MobilityEval(BoardInfo_t* boardInfo, Score_t* score);
+void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score);
 
 #endif

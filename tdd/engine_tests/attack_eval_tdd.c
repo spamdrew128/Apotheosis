@@ -19,7 +19,7 @@ static void ShouldCalculateMobility() {
     FEN_t fen = "B2r2k1/3p1p2/p4PpB/1p3b2/8/2Nq2PP/PP2R1NK/3R4 b - - 2 23";
     InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
 
-    MobilityEval(&boardInfo, &score);
+    ThreatsMobilitySafety(&boardInfo, &score);
 
     Score_t queenScore = -queenMobility[13];
     Score_t rookScore = rookMobility[9] + rookMobility[9] - rookMobility[5];

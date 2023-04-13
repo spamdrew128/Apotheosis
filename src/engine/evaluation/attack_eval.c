@@ -72,7 +72,7 @@ static Score_t ComputeQueens(
     return score;    
 }
 
-void MobilityEval(BoardInfo_t* boardInfo, Score_t* score) {
+void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
     const Bitboard_t wPawnAttacks = 
         NoEaOne(boardInfo->pawns[white]) | 
         NoWeOne(boardInfo->pawns[white]);
