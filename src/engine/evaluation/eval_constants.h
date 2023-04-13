@@ -277,13 +277,13 @@ Bias: 3, 4
    {131, -428}, {21, -133}, {-3, -50}, {-5, -18}, {-3, 1}, {-19, 0}, \
 }
 
+#define KING_AIRINESS \
+   {21, -133}
+
 #define FLAT_PAWN_SHIELD \
    {21, -133}
 
 #define POINTED_PAWN_SHIELD \
-   {21, -133}
-
-#define KING_AIRINESS \
    {21, -133}
 
 #endif

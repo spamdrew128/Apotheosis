@@ -4,13 +4,21 @@
 #include "lookup.h"
 #include "bitboards.h"
 
-static Score_t knightMobility[KNIGHT_MOBILITY_OPTIONS] = KNIGHT_MOBILITY;
-static Score_t bishopMobility[BISHOP_MOBILITY_OPTIONS] = BISHOP_MOBILITY;
-static Score_t rookMobility[ROOK_MOBILITY_OPTIONS] = ROOK_MOBILITY;
-static Score_t queenMobility[QUEEN_MOBILITY_OPTIONS] = QUEEN_MOBILITY;
+static const Score_t knightMobility[KNIGHT_MOBILITY_OPTIONS] = KNIGHT_MOBILITY;
+static const Score_t bishopMobility[BISHOP_MOBILITY_OPTIONS] = BISHOP_MOBILITY;
+static const Score_t rookMobility[ROOK_MOBILITY_OPTIONS] = ROOK_MOBILITY;
+static const Score_t queenMobility[QUEEN_MOBILITY_OPTIONS] = QUEEN_MOBILITY;
 
 typedef int16_t AttackScore_t;
 typedef int16_t DefenseScore_t;
+static const AttackScore_t innerAttacks[NUM_PIECES][NUM_PHASES] = INNER_ATTACKS;
+static const AttackScore_t outerAttacks[NUM_PIECES][NUM_PHASES] = OUTER_ATTACKS;
+
+static const DefenseScore_t innerDefense[NUM_PIECES][NUM_PHASES] = INNER_DEFENSE;
+static const DefenseScore_t outerDefense[NUM_PIECES][NUM_PHASES] = OUTER_DEFENSE; 
+static const DefenseScore_t kingAiriness[NUM_PHASES] = KING_AIRINESS;
+static const DefenseScore_t flatPawnShield[NUM_PHASES] = FLAT_PAWN_SHIELD;
+static const DefenseScore_t pointedPawnShield[NUM_PHASES] = POINTED_PAWN_SHIELD;
 
 static Score_t ComputeKnights(
     Bitboard_t knights,
@@ -85,7 +93,16 @@ static void PawnShields(
     BoardInfo_t* boardInfo
 )
 {
-    
+    const Bitboard_t wFlatShield = GetFlatPawnShield(wKingSquare, white);
+    const Bitboard_t wPointedShield = GetFlatPawnShield(wKingSquare, white);
+    const Bitboard_t bFlatShield = GetFlatPawnShield(bKingSquare, black);
+    const Bitboard_t bPointedShield = GetFlatPawnShield(bKingSquare, black);
+
+    *wDefense += FLAT_PAWN_SHIELD_MG * ((wFlatShield & boardInfo->pawns[white]) == wFlatShield);
+    *wDefense += POINTED_PAWN_SHIELD_MG * ((wPointedShield & boardInfo->pawns[white]) == wPointedShield);
+
+    *bDefense += FLAT_PAWN_SHIELD_MG * ((bFlatShield & boardInfo->pawns[black]) == bFlatShield);
+    *bDefense += POINTED_PAWN_SHIELD_MG * ((bPointedShield & boardInfo->pawns[black]) == bPointedShield);
 }
 
 static void KingAiriness(
@@ -125,8 +142,8 @@ void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
     const Bitboard_t wInnerKingZone = GetKingAttackSet(wKingSquare) | boardInfo->kings[white];
     const Bitboard_t bInnerKingZone = GetKingAttackSet(bKingSquare) | boardInfo->kings[black];
 
-    const Bitboard_t wForwardKingZone = wInnerKingZone | GenShiftNorth(wInnerKingZone, 3);
-    const Bitboard_t bForwardKingZone = bInnerKingZone | GenShiftSouth(wInnerKingZone, 3);
+    const Bitboard_t wOuterKingZone = wInnerKingZone | GenShiftNorth(wInnerKingZone, 3);
+    const Bitboard_t bOuterKingZone = bInnerKingZone | GenShiftSouth(wInnerKingZone, 3);
 
     // COMPUTATIONS
     EvalScore_t wAttackScore = 0;
