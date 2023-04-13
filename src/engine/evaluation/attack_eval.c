@@ -15,7 +15,8 @@ static Score_t ComputeKnights(
     Score_t score = 0;
     while(knights) {
         Square_t sq = LSB(knights);
-        Bitboard_t moves = GetKnightAttackSet(sq) & availible;
+        Bitboard_t attacks = GetKnightAttackSet(sq);
+        Bitboard_t moves = attacks & availible;
         score += knightMobility[PopCount(moves)];
         ResetLSB(&knights);
     }
@@ -31,7 +32,8 @@ static Score_t ComputeBishops(
     Score_t score = 0;
     while(bishops) {
         Square_t sq = LSB(bishops);
-        Bitboard_t moves = GetBishopAttackSet(sq, d12Empty) & availible;
+        Bitboard_t attacks = GetBishopAttackSet(sq, d12Empty);
+        Bitboard_t moves = attacks & availible;
         score += bishopMobility[PopCount(moves)];
         ResetLSB(&bishops);
     }
@@ -47,7 +49,8 @@ static Score_t ComputeRooks(
     Score_t score = 0;
     while(rooks) {
         Square_t sq = LSB(rooks);
-        Bitboard_t moves = GetRookAttackSet(sq, hvEmpty) & availible;
+        Bitboard_t attacks = GetRookAttackSet(sq, hvEmpty);
+        Bitboard_t moves = attacks & availible;
         score += rookMobility[PopCount(moves)];
         ResetLSB(&rooks);
     }
@@ -64,6 +67,7 @@ static Score_t ComputeQueens(
     Score_t score = 0;
     while(queens) {
         Square_t sq = LSB(queens);
+        Bitboard_t attacks = GetRookAttackSet(sq, hvEmpty) | GetBishopAttackSet(sq, d12Empty);
         Bitboard_t d12Moves = GetBishopAttackSet(sq, d12Empty) & availible;
         Bitboard_t hvMoves = GetRookAttackSet(sq, hvEmpty) & availible;
         score += queenMobility[PopCount(d12Moves) + PopCount(hvMoves)];
@@ -80,6 +84,7 @@ void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
         SoEaOne(boardInfo->pawns[black]) |
         SoWeOne(boardInfo->pawns[black]);
 
+    // MOBILITY
     // not including supporting other pieces in mobility, EVEN in x-ray attacks
     const Bitboard_t wAvailible = ~bPawnAttacks & (boardInfo->allPieces[black] | boardInfo->empty);
     const Bitboard_t bAvailible = ~wPawnAttacks & (boardInfo->allPieces[white] | boardInfo->empty);
@@ -89,6 +94,16 @@ void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
 
     const Bitboard_t blackHvEmpty = boardInfo->empty | boardInfo->rooks[black] | boardInfo->queens[black];
     const Bitboard_t blackD12Empty = boardInfo->empty | boardInfo->bishops[black] | boardInfo->queens[black];
+
+    // KING SAFETY
+    const Square_t wKingSquare = KingSquare(boardInfo, white);
+    const Square_t bKingSquare = KingSquare(boardInfo, black);
+
+    const Bitboard_t wInnerKingZone = GetKingAttackSet(wKingSquare) | boardInfo->kings[white];
+    const Bitboard_t bInnerKingZone = GetKingAttackSet(bKingSquare) | boardInfo->kings[black];
+
+    const Bitboard_t wForwardKingZone = wInnerKingZone | GenShiftNorth(wInnerKingZone, 3);
+    const Bitboard_t bForwardKingZone = bInnerKingZone | GenShiftSouth(wInnerKingZone, 3);
 
     *score += ComputeKnights(boardInfo->knights[white], wAvailible);
     *score += ComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty);
