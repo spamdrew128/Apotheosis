@@ -9,16 +9,16 @@ static const Score_t bishopMobility[BISHOP_MOBILITY_OPTIONS] = BISHOP_MOBILITY;
 static const Score_t rookMobility[ROOK_MOBILITY_OPTIONS] = ROOK_MOBILITY;
 static const Score_t queenMobility[QUEEN_MOBILITY_OPTIONS] = QUEEN_MOBILITY;
 
-typedef int16_t AttackScore_t;
-typedef int16_t DefenseScore_t;
-static const AttackScore_t innerAttacks[NUM_PIECES][NUM_PHASES] = INNER_ATTACKS;
-static const AttackScore_t outerAttacks[NUM_PIECES][NUM_PHASES] = OUTER_ATTACKS;
+typedef Score_t AttackScore_t;
+typedef Score_t DefenseScore_t;
+static const AttackScore_t innerAttacks[NUM_PIECES] = INNER_ATTACKS;
+static const AttackScore_t outerAttacks[NUM_PIECES] = OUTER_ATTACKS;
 
-static const DefenseScore_t innerDefense[NUM_PIECES][NUM_PHASES] = INNER_DEFENSE;
-static const DefenseScore_t outerDefense[NUM_PIECES][NUM_PHASES] = OUTER_DEFENSE; 
-static const DefenseScore_t kingAiriness[NUM_PHASES] = KING_AIRINESS;
-static const DefenseScore_t flatPawnShield[NUM_PHASES] = FLAT_PAWN_SHIELD;
-static const DefenseScore_t pointedPawnShield[NUM_PHASES] = POINTED_PAWN_SHIELD;
+static const DefenseScore_t innerDefense[NUM_PIECES] = INNER_DEFENSE;
+static const DefenseScore_t outerDefense[NUM_PIECES] = OUTER_DEFENSE; 
+static const DefenseScore_t kingAiriness = KING_AIRINESS;
+static const DefenseScore_t flatPawnShield = FLAT_PAWN_SHIELD;
+static const DefenseScore_t pointedPawnShield = POINTED_PAWN_SHIELD;
 
 static Score_t ComputeKnights(
     Bitboard_t knights,
@@ -98,11 +98,11 @@ static void PawnShields(
     const Bitboard_t bFlatShield = GetFlatPawnShield(bKingSquare, black);
     const Bitboard_t bPointedShield = GetFlatPawnShield(bKingSquare, black);
 
-    *wDefense += FLAT_PAWN_SHIELD_MG * ((wFlatShield & boardInfo->pawns[white]) == wFlatShield);
-    *wDefense += POINTED_PAWN_SHIELD_MG * ((wPointedShield & boardInfo->pawns[white]) == wPointedShield);
+    *wDefense += flatPawnShield * ((wFlatShield & boardInfo->pawns[white]) == wFlatShield);
+    *wDefense += pointedPawnShield * ((wPointedShield & boardInfo->pawns[white]) == wPointedShield);
 
-    *bDefense += FLAT_PAWN_SHIELD_MG * ((bFlatShield & boardInfo->pawns[black]) == bFlatShield);
-    *bDefense += POINTED_PAWN_SHIELD_MG * ((bPointedShield & boardInfo->pawns[black]) == bPointedShield);
+    *bDefense += flatPawnShield * ((bFlatShield & boardInfo->pawns[black]) == bFlatShield);
+    *bDefense += pointedPawnShield * ((bPointedShield & boardInfo->pawns[black]) == bPointedShield);
 }
 
 static void KingAiriness(

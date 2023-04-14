@@ -68,7 +68,8 @@
         "engine_types.h": "c",
         "eval_constants_tools.h": "c",
         "attack_eval.h": "c",
-        "attack_eval_tdd.h": "c"
+        "attack_eval_tdd.h": "c",
+        "dea": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",
