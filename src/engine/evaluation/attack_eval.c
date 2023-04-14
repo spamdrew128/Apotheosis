@@ -94,9 +94,9 @@ static void PawnShields(
 )
 {
     const Bitboard_t wFlatShield = GetFlatPawnShield(wKingSquare, white);
-    const Bitboard_t wPointedShield = GetFlatPawnShield(wKingSquare, white);
+    const Bitboard_t wPointedShield = GetPointedSPawnShield(wKingSquare, white);
     const Bitboard_t bFlatShield = GetFlatPawnShield(bKingSquare, black);
-    const Bitboard_t bPointedShield = GetFlatPawnShield(bKingSquare, black);
+    const Bitboard_t bPointedShield = GetPointedSPawnShield(bKingSquare, black);
 
     *wDefense += flatPawnShield * ((wFlatShield & boardInfo->pawns[white]) == wFlatShield);
     *wDefense += pointedPawnShield * ((wPointedShield & boardInfo->pawns[white]) == wPointedShield);
@@ -146,10 +146,10 @@ void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
     const Bitboard_t bOuterKingZone = bInnerKingZone | GenShiftSouth(wInnerKingZone, 3);
 
     // COMPUTATIONS
-    EvalScore_t wAttackScore = 0;
-    EvalScore_t wDefenseScore = 0;
-    EvalScore_t bAttackScore = 0;
-    EvalScore_t bDefenseScore = 0;
+    AttackScore_t wAttackScore = 0;
+    DefenseScore_t wDefenseScore = 0;
+    AttackScore_t bAttackScore = 0;
+    DefenseScore_t bDefenseScore = 0;
 
     *score += ComputeKnights(boardInfo->knights[white], wAvailible);
     *score += ComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty);
