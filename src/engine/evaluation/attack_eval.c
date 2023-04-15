@@ -14,8 +14,8 @@ typedef Score_t DefenseScore_t;
 static const AttackScore_t innerAttacks[NUM_PIECES] = INNER_ATTACKS;
 static const AttackScore_t outerAttacks[NUM_PIECES] = OUTER_ATTACKS;
 
-static const DefenseScore_t innerDefense[NUM_PIECES] = INNER_DEFENSE;
-static const DefenseScore_t outerDefense[NUM_PIECES] = OUTER_DEFENSE; 
+static const DefenseScore_t innerDefense[NUM_PIECES-1] = INNER_DEFENSE; // kings don't defend themselves so only 5 indexes
+static const DefenseScore_t outerDefense[NUM_PIECES-1] = OUTER_DEFENSE; 
 static const DefenseScore_t kingAiriness = KING_AIRINESS;
 static const DefenseScore_t flatPawnShield = FLAT_PAWN_SHIELD;
 static const DefenseScore_t pointedPawnShield = POINTED_PAWN_SHIELD;
@@ -229,6 +229,24 @@ static void KingAiriness(
     *bDefense += kingAiriness * PopCount(blackAiriness);
 }
 
+static void KingAttackContribution(
+    AttackScore_t* wAttack,
+    AttackScore_t* bAttack,
+    const Bitboard_t wKingAttacks,
+    const Bitboard_t bKingAttacks,
+    const Bitboard_t wInnerKing,
+    const Bitboard_t wOuterKing,
+    const Bitboard_t bInnerKing,
+    const Bitboard_t bOuterKing
+)
+{
+    *wAttack += Popcount(wKingAttacks & bInnerKing) * innerAttacks[king];
+    *wAttack += Popcount(wKingAttacks & bOuterKing) * outerAttacks[king];
+
+    *bAttack += Popcount(bKingAttacks & wInnerKing) * innerAttacks[king];
+    *bAttack += Popcount(bKingAttacks & wOuterKing) * outerAttacks[king];
+}
+
 void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
     const Bitboard_t wPawnAttacks = 
         NoEaOne(boardInfo->pawns[white]) | 
@@ -258,6 +276,9 @@ void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
     const Bitboard_t wOuterKingZone = wInnerKingZone | GenShiftNorth(wInnerKingZone, 3);
     const Bitboard_t bOuterKingZone = bInnerKingZone | GenShiftSouth(bInnerKingZone, 3);
 
+    const Bitboard_t wKingAttacks = GetKingAttackSet(wKingSquare) & wAvailible;
+    const Bitboard_t bKingAttacks = GetKingAttackSet(bKingSquare) & bAvailible;
+
     // COMPUTATIONS
     AttackScore_t wAttackScore = 0;
     DefenseScore_t wDefenseScore = 0;
@@ -266,6 +287,7 @@ void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
 
     PawnShields(&wDefenseScore, &bDefenseScore, wKingSquare, bKingSquare, boardInfo);
     KingAiriness(&wDefenseScore, &bDefenseScore, wKingSquare, bKingSquare, boardInfo);
+    KingAttackContribution(&wAttackScore, &bAttackScore, wKingAttacks, bKingAttacks, wInnerKingZone, wOuterKingZone, bInnerKingZone, bOuterKingZone);
 
     *score += ComputeKnights(boardInfo->knights[white], wAvailible, wInnerKingZone, wOuterKingZone, bInnerKingZone, bOuterKingZone, &wAttackScore, &wDefenseScore);
     *score += ComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty, wInnerKingZone, wOuterKingZone, bInnerKingZone, bOuterKingZone, &wAttackScore, &wDefenseScore);
