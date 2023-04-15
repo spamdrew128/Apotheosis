@@ -138,17 +138,6 @@ static void InitCastleSquares(Square_t ksCastleSquares[], Square_t qsCastleSquar
     qsCastleSquares[black] = LSB(black_queenside_castle_bb);
 }
 
-static void InitPawnShields(Bitboard_t flatShields[2][NUM_SQUARES], Bitboard_t pointedShields[2][NUM_SQUARES]) {
-    for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
-        Bitboard_t bitset = GetSingleBitset(sq);
-        flatShields[white][sq] = NoWeOne(bitset) | NortOne(bitset) | NoEaOne(bitset);
-        flatShields[black][sq] = SoWeOne(bitset) | SoutOne(bitset) | SoEaOne(bitset);
-
-        pointedShields[white][sq] = NoWeOne(bitset) | NortTwo(bitset) | NoEaOne(bitset);
-        pointedShields[black][sq] = SoWeOne(bitset) | SoutTwo(bitset) | SoEaOne(bitset);
-    }
-}
-
 static void InitOuterKingZone(Bitboard_t outerKingZones[2][NUM_SQUARES]) {
     for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
         const Bitboard_t wShield = GetFlatPawnShield(sq, white);
@@ -222,14 +211,6 @@ Square_t GetKingsideCastleSquare(Color_t color) {
 
 Square_t GetQueensideCastleSquare(Color_t color) {
     return lookup.qsCastleSquares[color];
-}
-
-Bitboard_t GetFlatPawnShield(Square_t square, Color_t color) {
-    return lookup.flatPawnShield[color][square];
-}
-
-Square_t GetPointedPawnShield(Square_t square, Color_t color) {
-    return lookup.pointedPawnShield[color][square];
 }
 
 Bitboard_t GetOuterKingZone(Square_t square, Color_t color) {

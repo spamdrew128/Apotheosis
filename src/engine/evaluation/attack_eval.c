@@ -16,9 +16,8 @@ static const AttackScore_t outerAttacks[NUM_PIECES] = OUTER_ATTACKS;
 
 static const DefenseScore_t innerDefense[NUM_PIECES-1] = INNER_DEFENSE; // kings don't defend themselves so only 5 indexes
 static const DefenseScore_t outerDefense[NUM_PIECES-1] = OUTER_DEFENSE; 
-static const DefenseScore_t kingAiriness = KING_AIRINESS;
-static const DefenseScore_t flatPawnShield = FLAT_PAWN_SHIELD;
-static const DefenseScore_t pointedPawnShield = POINTED_PAWN_SHIELD;
+static const DefenseScore_t kingAiriness[KING_AIRINESS_OPTIONS] = KING_AIRINESS;
+static const DefenseScore_t kingSafetyPST[NUM_SQUARES] = KING_SAFETY_PST;
 
 static void UpdateSafety(
     const Bitboard_t moves,
@@ -186,26 +185,6 @@ static Score_t ComputeQueens(
     return score;    
 }
 
-static void PawnShields(
-    DefenseScore_t* wDefense,
-    DefenseScore_t* bDefense,
-    const Square_t wKingSquare,
-    const Square_t bKingSquare,
-    BoardInfo_t* boardInfo
-)
-{
-    const Bitboard_t wFlatShield = GetFlatPawnShield(wKingSquare, white);
-    const Bitboard_t wPointedShield = GetPointedPawnShield(wKingSquare, white);
-    const Bitboard_t bFlatShield = GetFlatPawnShield(bKingSquare, black);
-    const Bitboard_t bPointedShield = GetPointedPawnShield(bKingSquare, black);
-
-    *wDefense += flatPawnShield * ((wFlatShield & boardInfo->pawns[white]) == wFlatShield);
-    *wDefense += pointedPawnShield * ((wPointedShield & boardInfo->pawns[white]) == wPointedShield);
-
-    *bDefense += flatPawnShield * ((bFlatShield & boardInfo->pawns[black]) == bFlatShield);
-    *bDefense += pointedPawnShield * ((bPointedShield & boardInfo->pawns[black]) == bPointedShield);
-}
-
 static void KingAiriness(
     DefenseScore_t* wDefense,
     DefenseScore_t* bDefense,
@@ -225,8 +204,8 @@ static void KingAiriness(
     const Bitboard_t whiteAiriness = GetRookAttackSet(wKingSquare, wVirtualEmpty) | GetBishopAttackSet(wKingSquare, wVirtualEmpty);
     const Bitboard_t blackAiriness = GetRookAttackSet(bKingSquare, bVirtualEmpty) | GetBishopAttackSet(bKingSquare, bVirtualEmpty);
 
-    *wDefense += kingAiriness * PopCount(whiteAiriness);
-    *bDefense += kingAiriness * PopCount(blackAiriness);
+    *wDefense += kingAiriness[PopCount(whiteAiriness)];
+    *bDefense += kingAiriness[PopCount(blackAiriness)];
 }
 
 static void KingAttackContribution(
@@ -285,7 +264,6 @@ void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
     AttackScore_t bAttackScore = 0;
     DefenseScore_t bDefenseScore = 0;
 
-    PawnShields(&wDefenseScore, &bDefenseScore, wKingSquare, bKingSquare, boardInfo);
     KingAiriness(&wDefenseScore, &bDefenseScore, wKingSquare, bKingSquare, boardInfo);
     KingAttackContribution(&wAttackScore, &bAttackScore, wKingAttacks, bKingAttacks, wInnerKingZone, wOuterKingZone, bInnerKingZone, bOuterKingZone);
 

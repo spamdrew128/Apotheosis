@@ -51,10 +51,6 @@ Square_t GetKingsideCastleSquare(Color_t color);
 
 Square_t GetQueensideCastleSquare(Color_t color);
 
-Bitboard_t GetFlatPawnShield(Square_t square, Color_t color);
-
-Square_t GetPointedPawnShield(Square_t square, Color_t color);
-
 Bitboard_t GetOuterKingZone(Square_t square, Color_t color);
 
 #endif
