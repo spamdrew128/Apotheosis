@@ -113,7 +113,19 @@ static void KingAiriness(
     BoardInfo_t* boardInfo
 )
 {
+    const Bitboard_t whiteMobilePieces = boardInfo->allPieces[white] ^ boardInfo->pawns[white];
+    const Bitboard_t blackMobilePieces = boardInfo->allPieces[black] ^ boardInfo->pawns[black];
 
+    // we want to count mobile enemy pieces as empty for king airiness. If an enemy knight is right next to us and blocking a 
+    // file, that doesn't mean we are safer than we would be without it there because it can move!
+    const Bitboard_t wVirtualEmpty = boardInfo->empty | blackMobilePieces;
+    const Bitboard_t bVirtualEmpty = boardInfo->empty | whiteMobilePieces;
+
+    const Bitboard_t whiteAiriness = GetRookAttackSet(wKingSquare, wVirtualEmpty) | GetBishopAttackSet(wKingSquare, wVirtualEmpty);
+    const Bitboard_t blackAiriness = GetRookAttackSet(bKingSquare, bVirtualEmpty) | GetBishopAttackSet(bKingSquare, bVirtualEmpty);
+
+    *wDefense += kingAiriness * PopCount(whiteAiriness);
+    *bDefense += kingAiriness * PopCount(blackAiriness);
 }
 
 void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
