@@ -98,8 +98,8 @@ typedef struct {
 } Feature_t;
 
 typedef struct {
-    int16_t whiteSumValue;
-    int16_t blackSumValue;
+    int16_t whiteAttackValue;
+    int16_t blackAttackValue;
 } KingSafetyFeature_t;
 
 typedef struct {
@@ -418,8 +418,8 @@ static void FillNonlinear(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
     const Bitboard_t wKingAttacks = GetKingAttackSet(wKingSquare) & wAvailible;
     const Bitboard_t bKingAttacks = GetKingAttackSet(bKingSquare) & bAvailible;
 
-    tEntry->safetyFeatures[safety_pst_offset + MIRROR(wKingSquare)].whiteSumValue++;
-    tEntry->safetyFeatures[safety_pst_offset + bKingSquare].blackSumValue++;
+    tEntry->safetyFeatures[safety_pst_offset + MIRROR(wKingSquare)].whiteAttackValue++;
+    tEntry->safetyFeatures[safety_pst_offset + bKingSquare].blackAttackValue++;
 
     for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
         Piece_t piece = PieceOnSquare(boardInfo, sq);
@@ -444,10 +444,23 @@ static void FillNonlinear(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
             break;
         }
 
+        const int wInnerKingMoveCount = PopCount(moves & wInnerKingZone);
+        const int bInnerKingMoveCount = PopCount(moves & bInnerKingZone);
+        const int wOuterKingMoveCount = PopCount(moves & wOuterKingZone);
+        const int bOuterKingMoveCount = PopCount(moves & bOuterKingZone);
+
         if(moves && color == white) {
+            tEntry->safetyFeatures[inner_attacks_offset + piece].whiteAttackValue += bInnerKingMoveCount;
+            tEntry->safetyFeatures[outer_attacks_offset + piece].whiteAttackValue += bOuterKingMoveCount;
 
+            tEntry->safetyFeatures[inner_defense_offset + piece].blackAttackValue += wInnerKingMoveCount;
+            tEntry->safetyFeatures[outer_defense_offset + piece].blackAttackValue += wOuterKingMoveCount;
         } else if(moves && color == black) {
+            tEntry->safetyFeatures[inner_attacks_offset + piece].blackAttackValue += wInnerKingMoveCount; 
+            tEntry->safetyFeatures[outer_attacks_offset + piece].blackAttackValue += wOuterKingMoveCount; 
 
+            tEntry->safetyFeatures[inner_defense_offset + piece].whiteAttackValue += bInnerKingMoveCount;
+            tEntry->safetyFeatures[outer_defense_offset + piece].whiteAttackValue += bOuterKingMoveCount;
         }
     }
 }
@@ -456,8 +469,8 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
     int16_t linearValues[LINEAR_FEATURE_COUNT] = {0};
 
     for(int i = 0; i < NONLINEAR_FEATURE_COUNT; i++) {
-        tEntry->safetyFeatures[i].whiteSumValue = 0;
-        tEntry->safetyFeatures[i].blackSumValue = 0;
+        tEntry->safetyFeatures[i].whiteAttackValue = 0;
+        tEntry->safetyFeatures[i].blackAttackValue = 0;
     }
 
     const Bucket_t whiteBucket = PSTBucketIndex(boardInfo, white);
@@ -466,6 +479,7 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
     FillPSTFeatures(linearValues, whiteBucket, blackBucket, boardInfo);
     FillBonuses(linearValues, whiteBucket, blackBucket, boardInfo);
     FillMobility(boardInfo, linearValues);
+    FillNonlinear(tEntry, boardInfo);
 
     tEntry->numFeatures = 0;
     for(uint16_t i = 0; i < LINEAR_FEATURE_COUNT; i++) {
