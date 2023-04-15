@@ -3,6 +3,7 @@
 #include "attack_eval.h"
 #include "lookup.h"
 #include "bitboards.h"
+#include "util_macros.h"
 
 static const Score_t knightMobility[KNIGHT_MOBILITY_OPTIONS] = KNIGHT_MOBILITY;
 static const Score_t bishopMobility[BISHOP_MOBILITY_OPTIONS] = BISHOP_MOBILITY;
@@ -264,6 +265,8 @@ void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
     AttackScore_t bAttackScore = 0;
     DefenseScore_t bDefenseScore = 0;
 
+    wDefenseScore += kingSafetyPST[MIRROR(wKingSquare)];
+    bDefenseScore += kingSafetyPST[bKingSquare];
     KingAiriness(&wDefenseScore, &bDefenseScore, wKingSquare, bKingSquare, boardInfo);
     KingAttackContribution(&wAttackScore, &bAttackScore, wKingAttacks, bKingAttacks, wInnerKingZone, wOuterKingZone, bInnerKingZone, bOuterKingZone);
 
