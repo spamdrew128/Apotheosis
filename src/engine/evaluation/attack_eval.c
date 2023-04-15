@@ -293,9 +293,11 @@ void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
     *score += ComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty, wInnerKingZone, wOuterKingZone, bInnerKingZone, bOuterKingZone, &wAttackScore, &wDefenseScore);
     *score += ComputeRooks(boardInfo->rooks[white], wAvailible, whiteHvEmpty, wInnerKingZone, wOuterKingZone, bInnerKingZone, bOuterKingZone, &wAttackScore, &wDefenseScore);
     *score += ComputeQueens(boardInfo->queens[white], wAvailible, whiteHvEmpty, whiteD12Empty, wInnerKingZone, wOuterKingZone, bInnerKingZone, bOuterKingZone, &wAttackScore, &wDefenseScore);
+    UpdateSafety(wPawnAttacks, pawn, wInnerKingZone, wOuterKingZone, bInnerKingZone, bOuterKingZone, &wAttackScore, &wDefenseScore);
 
     *score -= ComputeKnights(boardInfo->knights[black], bAvailible, bInnerKingZone, bOuterKingZone, wInnerKingZone, wOuterKingZone, &bAttackScore, &bDefenseScore);
     *score -= ComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty, bInnerKingZone, bOuterKingZone, wInnerKingZone, wOuterKingZone, &bAttackScore, &bDefenseScore);
     *score -= ComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, bInnerKingZone, bOuterKingZone, wInnerKingZone, wOuterKingZone, &bAttackScore, &bDefenseScore);
     *score -= ComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, bInnerKingZone, bOuterKingZone, wInnerKingZone, wOuterKingZone, &bAttackScore, &bDefenseScore);
+    UpdateSafety(bPawnAttacks, pawn, bInnerKingZone, bOuterKingZone, wInnerKingZone, wOuterKingZone, &bAttackScore, &bDefenseScore);
 }
