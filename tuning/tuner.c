@@ -98,8 +98,8 @@ typedef struct {
 } Feature_t;
 
 typedef struct {
-    int16_t whiteAttackValue;
-    int16_t blackAttackValue;
+    int16_t whiteAttackBenefit;
+    int16_t blackAttackBenefit;
 } KingSafetyFeature_t;
 
 typedef struct {
@@ -405,18 +405,57 @@ static void UpdateSafetyMoves(
     const int bOuterKingMoveCount = PopCount(moves & bOuterKingZone);
 
     if(moves && color == white) {
-        tEntry->safetyFeatures[inner_attacks_offset + piece].whiteAttackValue += bInnerKingMoveCount;
-        tEntry->safetyFeatures[outer_attacks_offset + piece].whiteAttackValue += bOuterKingMoveCount;
+        tEntry->safetyFeatures[inner_attacks_offset + piece].whiteAttackBenefit += bInnerKingMoveCount;
+        tEntry->safetyFeatures[outer_attacks_offset + piece].whiteAttackBenefit += bOuterKingMoveCount;
 
-        tEntry->safetyFeatures[inner_defense_offset + piece].blackAttackValue += wInnerKingMoveCount;
-        tEntry->safetyFeatures[outer_defense_offset + piece].blackAttackValue += wOuterKingMoveCount;
+        tEntry->safetyFeatures[inner_defense_offset + piece].blackAttackBenefit += wInnerKingMoveCount;
+        tEntry->safetyFeatures[outer_defense_offset + piece].blackAttackBenefit += wOuterKingMoveCount;
     } else if(moves && color == black) {
-        tEntry->safetyFeatures[inner_attacks_offset + piece].blackAttackValue += wInnerKingMoveCount; 
-        tEntry->safetyFeatures[outer_attacks_offset + piece].blackAttackValue += wOuterKingMoveCount; 
+        tEntry->safetyFeatures[inner_attacks_offset + piece].blackAttackBenefit += wInnerKingMoveCount; 
+        tEntry->safetyFeatures[outer_attacks_offset + piece].blackAttackBenefit += wOuterKingMoveCount; 
 
-        tEntry->safetyFeatures[inner_defense_offset + piece].whiteAttackValue += bInnerKingMoveCount;
-        tEntry->safetyFeatures[outer_defense_offset + piece].whiteAttackValue += bOuterKingMoveCount;
+        tEntry->safetyFeatures[inner_defense_offset + piece].whiteAttackBenefit += bInnerKingMoveCount;
+        tEntry->safetyFeatures[outer_defense_offset + piece].whiteAttackBenefit += bOuterKingMoveCount;
     }
+}
+
+static void KingAttackContribution(
+    TEntry_t* tEntry,
+    const Bitboard_t wKingAttacks,
+    const Bitboard_t bKingAttacks,
+    const Bitboard_t wInnerKing,
+    const Bitboard_t wOuterKing,
+    const Bitboard_t bInnerKing,
+    const Bitboard_t bOuterKing
+)
+{
+    tEntry->safetyFeatures[inner_attacks_offset + king].whiteAttackBenefit += PopCount(wKingAttacks & bInnerKing);
+    tEntry->safetyFeatures[outer_attacks_offset + king].whiteAttackBenefit += PopCount(wKingAttacks & bOuterKing);
+
+    tEntry->safetyFeatures[inner_attacks_offset + king].blackAttackBenefit += PopCount(bKingAttacks & wInnerKing);
+    tEntry->safetyFeatures[outer_attacks_offset + king].blackAttackBenefit += PopCount(bKingAttacks & wOuterKing);
+}
+
+static void KingAiriness(
+    TEntry_t* tEntry,
+    const Square_t wKingSquare,
+    const Square_t bKingSquare,
+    BoardInfo_t* boardInfo
+)
+{
+    const Bitboard_t whiteMobilePieces = boardInfo->allPieces[white] ^ boardInfo->pawns[white];
+    const Bitboard_t blackMobilePieces = boardInfo->allPieces[black] ^ boardInfo->pawns[black];
+
+    // we want to count mobile enemy pieces as empty for king airiness. If an enemy knight is right next to us and
+    // blocking a file, that doesn't mean we are safer than we would be without it there because it can move!
+    const Bitboard_t wVirtualEmpty = boardInfo->empty | blackMobilePieces;
+    const Bitboard_t bVirtualEmpty = boardInfo->empty | whiteMobilePieces;
+
+    const Bitboard_t whiteAiriness = GetRookAttackSet(wKingSquare, wVirtualEmpty) | GetBishopAttackSet(wKingSquare, wVirtualEmpty);
+    const Bitboard_t blackAiriness = GetRookAttackSet(bKingSquare, bVirtualEmpty) | GetBishopAttackSet(bKingSquare, bVirtualEmpty);
+
+    tEntry->safetyFeatures[king_airiness_offset + PopCount(whiteAiriness)].blackAttackBenefit++;
+    tEntry->safetyFeatures[king_airiness_offset + PopCount(blackAiriness)].whiteAttackBenefit++;
 }
 
 static void FillNonlinear(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
@@ -449,8 +488,15 @@ static void FillNonlinear(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
     const Bitboard_t wKingAttacks = GetKingAttackSet(wKingSquare) & wAvailible;
     const Bitboard_t bKingAttacks = GetKingAttackSet(bKingSquare) & bAvailible;
 
-    tEntry->safetyFeatures[safety_pst_offset + MIRROR(wKingSquare)].whiteAttackValue++;
-    tEntry->safetyFeatures[safety_pst_offset + bKingSquare].blackAttackValue++;
+    KingAttackContribution(
+        tEntry,
+        wKingAttacks,
+        bKingAttacks,
+        wInnerKingZone,
+        wOuterKingZone,
+        bInnerKingZone,
+        bOuterKingZone
+    );
 
     UpdateSafetyMoves(
         tEntry,
@@ -508,14 +554,19 @@ static void FillNonlinear(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
             bOuterKingZone
         );
     }
+
+    KingAiriness(tEntry, wKingSquare, bKingSquare, boardInfo);
+
+    tEntry->safetyFeatures[safety_pst_offset + MIRROR(wKingSquare)].blackAttackBenefit++;
+    tEntry->safetyFeatures[safety_pst_offset + bKingSquare].whiteAttackBenefit++;
 }
 
 void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
     int16_t linearValues[LINEAR_FEATURE_COUNT] = {0};
 
     for(int i = 0; i < NONLINEAR_FEATURE_COUNT; i++) {
-        tEntry->safetyFeatures[i].whiteAttackValue = 0;
-        tEntry->safetyFeatures[i].blackAttackValue = 0;
+        tEntry->safetyFeatures[i].whiteAttackBenefit = 0;
+        tEntry->safetyFeatures[i].blackAttackBenefit = 0;
     }
 
     const Bucket_t whiteBucket = PSTBucketIndex(boardInfo, white);
