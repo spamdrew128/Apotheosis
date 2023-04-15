@@ -59,9 +59,10 @@ enum {
     queen_mobility_offset = rook_mobility_offset + ROOK_MOBILITY_FEATURE_COUNT,
 
     LINEAR_FEATURE_COUNT = queen_mobility_offset + QUEEN_MOBILITY_FEATURE_COUNT,
+    NONLINEAR_OFFSET = LINEAR_FEATURE_COUNT,
 
     // safety sigmoid constants
-    growth_rate_offset = LINEAR_FEATURE_COUNT,
+    growth_rate_offset = NONLINEAR_OFFSET,
     ceiling_offset = growth_rate_offset + 1,
     bias_offset = ceiling_offset + 1,
     // safety weighted sum
@@ -73,6 +74,8 @@ enum {
     safety_pst_offset = king_airiness_offset + AIRINESS_FEATURE_COUNT,
 
     VECTOR_LENGTH = safety_pst_offset + SAFETY_PST_FEATURE_COUNT,
+
+    NONLINEAR_FEATURE_COUNT = VECTOR_LENGTH - LINEAR_FEATURE_COUNT,
 };
 
 enum {
@@ -95,8 +98,15 @@ typedef struct {
 } Feature_t;
 
 typedef struct {
+    int16_t whiteSumValue;
+    int16_t blackSumValue;
+} KingSafetyFeature_t;
+
+typedef struct {
     Feature_t* features;
     uint16_t numFeatures;
+
+    KingSafetyFeature_t safetyFeatures[NONLINEAR_FEATURE_COUNT];
 
     double phaseConstant[NUM_PHASES];
     double result;
