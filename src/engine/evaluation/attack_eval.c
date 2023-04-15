@@ -273,8 +273,8 @@ void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
     const Bitboard_t wInnerKingZone = GetKingAttackSet(wKingSquare) | boardInfo->kings[white];
     const Bitboard_t bInnerKingZone = GetKingAttackSet(bKingSquare) | boardInfo->kings[black];
 
-    const Bitboard_t wOuterKingZone = wInnerKingZone | GenShiftNorth(wInnerKingZone, 3);
-    const Bitboard_t bOuterKingZone = bInnerKingZone | GenShiftSouth(bInnerKingZone, 3);
+    const Bitboard_t wOuterKingZone = GetOuterKingZone(wKingSquare, white);
+    const Bitboard_t bOuterKingZone = GetOuterKingZone(bKingSquare, black);
 
     const Bitboard_t wKingAttacks = GetKingAttackSet(wKingSquare) & wAvailible;
     const Bitboard_t bKingAttacks = GetKingAttackSet(bKingSquare) & bAvailible;

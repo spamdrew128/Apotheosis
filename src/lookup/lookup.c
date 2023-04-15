@@ -149,6 +149,16 @@ static void InitPawnShields(Bitboard_t flatShields[2][NUM_SQUARES], Bitboard_t p
     }
 }
 
+static void InitOuterKingZone(Bitboard_t outerKingZones[2][NUM_SQUARES]) {
+    for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
+        const Bitboard_t wShield = GetFlatPawnShield(sq, white);
+        const Bitboard_t bShield = GetFlatPawnShield(sq, black);
+
+        outerKingZones[white][sq] = GenShiftNorth(wShield, 1) | GenShiftNorth(wShield, 2) | GenShiftNorth(wShield, 3);
+        outerKingZones[black][sq] = GenShiftSouth(bShield, 1) | GenShiftSouth(bShield, 2) | GenShiftSouth(bShield, 3);
+    }
+}
+
 void InitLookupTables() {
     InitSingleBitset(lookup.singleBitsets);
     InitKnightAttacks(lookup.knightAttacks);
@@ -159,6 +169,7 @@ void InitLookupTables() {
     InitDirectionalRays(lookup.directionalRays);
     InitCastleSquares(lookup.ksCastleSquares, lookup.qsCastleSquares);
     InitPawnShields(lookup.flatPawnShield, lookup.pointedPawnShield);
+    InitOuterKingZone(lookup.outerKingZones);
 }
 
 Bitboard_t GetSingleBitset(Square_t square) {
@@ -219,4 +230,8 @@ Bitboard_t GetFlatPawnShield(Square_t square, Color_t color) {
 
 Square_t GetPointedPawnShield(Square_t square, Color_t color) {
     return lookup.pointedPawnShield[color][square];
+}
+
+Bitboard_t GetOuterKingZone(Square_t square, Color_t color) {
+    return lookup.outerKingZones[color][square];
 }

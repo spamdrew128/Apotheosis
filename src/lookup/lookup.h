@@ -25,6 +25,8 @@ typedef struct {
     // EVAL
     Bitboard_t flatPawnShield[2][NUM_SQUARES];
     Bitboard_t pointedPawnShield[2][NUM_SQUARES];
+
+    Bitboard_t outerKingZones[2][NUM_SQUARES];
 } Lookup_t;
 
 void InitLookupTables();
@@ -52,5 +54,7 @@ Square_t GetQueensideCastleSquare(Color_t color);
 Bitboard_t GetFlatPawnShield(Square_t square, Color_t color);
 
 Square_t GetPointedPawnShield(Square_t square, Color_t color);
+
+Bitboard_t GetOuterKingZone(Square_t square, Color_t color);
 
 #endif
