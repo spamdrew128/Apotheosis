@@ -23,9 +23,6 @@ typedef struct {
     Square_t qsCastleSquares[2];
 
     // EVAL
-    Bitboard_t flatPawnShield[2][NUM_SQUARES];
-    Bitboard_t pointedPawnShield[2][NUM_SQUARES];
-
     Bitboard_t outerKingZones[2][NUM_SQUARES];
 } Lookup_t;
 
