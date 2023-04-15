@@ -94,9 +94,9 @@ static void PawnShields(
 )
 {
     const Bitboard_t wFlatShield = GetFlatPawnShield(wKingSquare, white);
-    const Bitboard_t wPointedShield = GetPointedSPawnShield(wKingSquare, white);
+    const Bitboard_t wPointedShield = GetPointedPawnShield(wKingSquare, white);
     const Bitboard_t bFlatShield = GetFlatPawnShield(bKingSquare, black);
-    const Bitboard_t bPointedShield = GetPointedSPawnShield(bKingSquare, black);
+    const Bitboard_t bPointedShield = GetPointedPawnShield(bKingSquare, black);
 
     *wDefense += flatPawnShield * ((wFlatShield & boardInfo->pawns[white]) == wFlatShield);
     *wDefense += pointedPawnShield * ((wPointedShield & boardInfo->pawns[white]) == wPointedShield);
@@ -143,7 +143,7 @@ void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
     const Bitboard_t bInnerKingZone = GetKingAttackSet(bKingSquare) | boardInfo->kings[black];
 
     const Bitboard_t wOuterKingZone = wInnerKingZone | GenShiftNorth(wInnerKingZone, 3);
-    const Bitboard_t bOuterKingZone = bInnerKingZone | GenShiftSouth(wInnerKingZone, 3);
+    const Bitboard_t bOuterKingZone = bInnerKingZone | GenShiftSouth(bInnerKingZone, 3);
 
     // COMPUTATIONS
     AttackScore_t wAttackScore = 0;
