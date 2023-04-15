@@ -140,8 +140,9 @@ static void InitCastleSquares(Square_t ksCastleSquares[], Square_t qsCastleSquar
 
 static void InitOuterKingZone(Bitboard_t outerKingZones[2][NUM_SQUARES]) {
     for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
-        const Bitboard_t wShield = GetFlatPawnShield(sq, white);
-        const Bitboard_t bShield = GetFlatPawnShield(sq, black);
+        const Bitboard_t bitset = GetSingleBitset(sq);
+        const Bitboard_t wShield = NoWeOne(bitset)| NortOne(bitset) | NoEaOne(bitset);
+        const Bitboard_t bShield = SoWeOne(bitset)| SoutOne(bitset) | SoEaOne(bitset);
 
         outerKingZones[white][sq] = GenShiftNorth(wShield, 1) | GenShiftNorth(wShield, 2) | GenShiftNorth(wShield, 3);
         outerKingZones[black][sq] = GenShiftSouth(bShield, 1) | GenShiftSouth(bShield, 2) | GenShiftSouth(bShield, 3);
@@ -157,7 +158,6 @@ void InitLookupTables() {
     InitPawnCheckmasks(lookup.pawnCheckmasks);
     InitDirectionalRays(lookup.directionalRays);
     InitCastleSquares(lookup.ksCastleSquares, lookup.qsCastleSquares);
-    InitPawnShields(lookup.flatPawnShield, lookup.pointedPawnShield);
     InitOuterKingZone(lookup.outerKingZones);
 }
 
