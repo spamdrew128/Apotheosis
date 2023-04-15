@@ -158,6 +158,7 @@ void InitLookupTables() {
     InitPawnCheckmasks(lookup.pawnCheckmasks);
     InitDirectionalRays(lookup.directionalRays);
     InitCastleSquares(lookup.ksCastleSquares, lookup.qsCastleSquares);
+    InitPawnShields(lookup.flatPawnShield, lookup.pointedPawnShield);
 }
 
 Bitboard_t GetSingleBitset(Square_t square) {

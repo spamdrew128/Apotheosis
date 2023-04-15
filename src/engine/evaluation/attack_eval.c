@@ -240,11 +240,11 @@ static void KingAttackContribution(
     const Bitboard_t bOuterKing
 )
 {
-    *wAttack += Popcount(wKingAttacks & bInnerKing) * innerAttacks[king];
-    *wAttack += Popcount(wKingAttacks & bOuterKing) * outerAttacks[king];
+    *wAttack += PopCount(wKingAttacks & bInnerKing) * innerAttacks[king];
+    *wAttack += PopCount(wKingAttacks & bOuterKing) * outerAttacks[king];
 
-    *bAttack += Popcount(bKingAttacks & wInnerKing) * innerAttacks[king];
-    *bAttack += Popcount(bKingAttacks & wOuterKing) * outerAttacks[king];
+    *bAttack += PopCount(bKingAttacks & wInnerKing) * innerAttacks[king];
+    *bAttack += PopCount(bKingAttacks & wOuterKing) * outerAttacks[king];
 }
 
 void ThreatsMobilitySafety(BoardInfo_t* boardInfo, Score_t* score) {
