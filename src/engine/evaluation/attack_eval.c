@@ -164,9 +164,9 @@ static Score_t ComputeQueens(
     while(queens) {
         Square_t sq = LSB(queens);
         // MOBILITY
-        Bitboard_t d12Moves = GetBishopAttackSet(sq, d12Empty) & availible;
-        Bitboard_t hvMoves = GetRookAttackSet(sq, hvEmpty) & availible;
-        Bitboard_t moves = hvMoves | d12Moves;
+        Bitboard_t d12Moves = GetBishopAttackSet(sq, d12Empty);
+        Bitboard_t hvMoves = GetRookAttackSet(sq, hvEmpty);
+        Bitboard_t moves = (hvMoves | d12Moves) & availible;
         score += queenMobility[PopCount(moves)];
 
         // KING SAFETY

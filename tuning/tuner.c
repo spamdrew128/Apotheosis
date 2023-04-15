@@ -131,13 +131,13 @@ static void TunerSerializeBySquare(
     const Bucket_t wBucket,
     const Bucket_t bBucket,
     int feature_offset,
-    int16_t linearValues[VECTOR_LENGTH]
+    int16_t linearValues[LINEAR_FEATURE_COUNT]
 )
 {
     while(whitePieces) {
         Square_t sq = MIRROR(LSB(whitePieces));
         linearValues[PSTSingleOffset(wBucket, sq, feature_offset)]++;
-        ResetLSB(&whitePieces);
+        ResetLSB(&whitePieces); 
     }
     while(blackPieces) {
         Square_t sq = LSB(blackPieces);
@@ -150,7 +150,7 @@ static void TunerSerializeByFile(
     Bitboard_t whitePieces,
     Bitboard_t blackPieces,
     int feature_offset,
-    int16_t linearValues[VECTOR_LENGTH]
+    int16_t linearValues[LINEAR_FEATURE_COUNT]
 )
 {
     while(whitePieces) {
@@ -169,7 +169,7 @@ static void TunerSerializeByRank(
     Bitboard_t whitePieces,
     Bitboard_t blackPieces,
     int feature_offset,
-    int16_t linearValues[VECTOR_LENGTH]
+    int16_t linearValues[LINEAR_FEATURE_COUNT]
 )
 {
     while(whitePieces) {
@@ -187,7 +187,7 @@ static void TunerSerializeByRank(
 static void TunerComputeKnights(
     Bitboard_t knights,
     Bitboard_t availible,
-    int16_t linearValues[VECTOR_LENGTH],
+    int16_t linearValues[LINEAR_FEATURE_COUNT],
     int multiplier
 )
 {
@@ -203,7 +203,7 @@ static void TunerComputeBishops(
     Bitboard_t bishops,
     Bitboard_t availible,
     Bitboard_t d12Empty,
-    int16_t linearValues[VECTOR_LENGTH],
+    int16_t linearValues[LINEAR_FEATURE_COUNT],
     int multiplier
 )
 {
@@ -219,7 +219,7 @@ static void TunerComputeRooks(
     Bitboard_t rooks, 
     Bitboard_t availible,
     Bitboard_t hvEmpty,
-    int16_t linearValues[VECTOR_LENGTH],
+    int16_t linearValues[LINEAR_FEATURE_COUNT],
     int multiplier
 )
 {
@@ -236,7 +236,7 @@ static void TunerComputeQueens(
     Bitboard_t availible,
     Bitboard_t hvEmpty,
     Bitboard_t d12Empty,
-    int16_t linearValues[VECTOR_LENGTH],
+    int16_t linearValues[LINEAR_FEATURE_COUNT],
     int multiplier
 )
 {
@@ -249,7 +249,7 @@ static void TunerComputeQueens(
     } 
 }
 
-void FillMobilityKSAndThreats(BoardInfo_t* boardInfo, int16_t linearValues[VECTOR_LENGTH]) {
+void FillMobility(BoardInfo_t* boardInfo, int16_t linearValues[LINEAR_FEATURE_COUNT]) {
     const Bitboard_t wPawnAttacks = 
         NoEaOne(boardInfo->pawns[white]) | 
         NoWeOne(boardInfo->pawns[white]);
@@ -278,7 +278,7 @@ void FillMobilityKSAndThreats(BoardInfo_t* boardInfo, int16_t linearValues[VECTO
 }
 
 static void FillPSTFeatures(
-    int16_t linearValues[VECTOR_LENGTH],
+    int16_t linearValues[LINEAR_FEATURE_COUNT],
     const Bucket_t whiteBucket,
     const Bucket_t blackBucket,
     BoardInfo_t* boardInfo
@@ -311,7 +311,7 @@ static void FillPSTFeatures(
 }
 
 static void FillBonuses(
-    int16_t linearValues[VECTOR_LENGTH],
+    int16_t linearValues[LINEAR_FEATURE_COUNT],
     const Bucket_t whiteBucket,
     const Bucket_t blackBucket,
     BoardInfo_t* boardInfo
@@ -388,6 +388,70 @@ static void FillBonuses(
     TunerSerializeByFile(wIsolated, bIsolated, isolated_pawns_offset, linearValues);
 }
 
+static void FillNonlinear(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
+    const Bitboard_t wPawnAttacks = 
+        NoEaOne(boardInfo->pawns[white]) | 
+        NoWeOne(boardInfo->pawns[white]);
+    const Bitboard_t bPawnAttacks = 
+        SoEaOne(boardInfo->pawns[black]) |
+        SoWeOne(boardInfo->pawns[black]);
+
+    const Bitboard_t wAvailible = ~bPawnAttacks & (boardInfo->allPieces[black] | boardInfo->empty);
+    const Bitboard_t bAvailible = ~wPawnAttacks & (boardInfo->allPieces[white] | boardInfo->empty);
+
+    const Bitboard_t whiteHvEmpty = boardInfo->empty | boardInfo->rooks[white] | boardInfo->queens[white];
+    const Bitboard_t whiteD12Empty = boardInfo->empty | boardInfo->bishops[white] | boardInfo->queens[white];
+
+    const Bitboard_t blackHvEmpty = boardInfo->empty | boardInfo->rooks[black] | boardInfo->queens[black];
+    const Bitboard_t blackD12Empty = boardInfo->empty | boardInfo->bishops[black] | boardInfo->queens[black];
+
+    // KING SAFETY
+    const Square_t wKingSquare = KingSquare(boardInfo, white);
+    const Square_t bKingSquare = KingSquare(boardInfo, black);
+
+    const Bitboard_t wInnerKingZone = GetKingAttackSet(wKingSquare) | boardInfo->kings[white];
+    const Bitboard_t bInnerKingZone = GetKingAttackSet(bKingSquare) | boardInfo->kings[black];
+
+    const Bitboard_t wOuterKingZone = GetOuterKingZone(wKingSquare, white);
+    const Bitboard_t bOuterKingZone = GetOuterKingZone(bKingSquare, black);
+
+    const Bitboard_t wKingAttacks = GetKingAttackSet(wKingSquare) & wAvailible;
+    const Bitboard_t bKingAttacks = GetKingAttackSet(bKingSquare) & bAvailible;
+
+    tEntry->safetyFeatures[safety_pst_offset + MIRROR(wKingSquare)].whiteSumValue++;
+    tEntry->safetyFeatures[safety_pst_offset + bKingSquare].blackSumValue++;
+
+    for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
+        Piece_t piece = PieceOnSquare(boardInfo, sq);
+        Color_t color = ColorOfPiece(boardInfo, sq);
+        Bitboard_t hvEmpty = color == white ? whiteHvEmpty : blackHvEmpty;
+        Bitboard_t d12Empty = color == white ? whiteD12Empty : blackD12Empty;
+        Bitboard_t availible = color == white ? wAvailible : bAvailible;
+
+        Bitboard_t moves = empty_set;
+        switch (piece) {
+        case knight:
+            moves = GetKnightAttackSet(sq) & availible;
+            break;
+        case bishop:
+            moves = GetBishopAttackSet(sq, d12Empty) & availible;
+            break;
+        case rook:
+            moves = GetRookAttackSet(sq, hvEmpty) & availible;
+            break;
+        case queen:
+            moves = (GetBishopAttackSet(sq, d12Empty) | GetRookAttackSet(sq, hvEmpty)) & availible;
+            break;
+        }
+
+        if(moves && color == white) {
+
+        } else if(moves && color == black) {
+
+        }
+    }
+}
+
 void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
     int16_t linearValues[LINEAR_FEATURE_COUNT] = {0};
 
@@ -401,10 +465,10 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
 
     FillPSTFeatures(linearValues, whiteBucket, blackBucket, boardInfo);
     FillBonuses(linearValues, whiteBucket, blackBucket, boardInfo);
-    FillMobilityKSAndThreats(boardInfo, linearValues);
+    FillMobility(boardInfo, linearValues);
 
     tEntry->numFeatures = 0;
-    for(uint16_t i = 0; i < VECTOR_LENGTH; i++) {
+    for(uint16_t i = 0; i < LINEAR_FEATURE_COUNT; i++) {
         if(linearValues[i] != 0) {
             tEntry->numFeatures++;
         }
@@ -414,7 +478,7 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
     assert(tEntry->features != NULL);
     
     uint16_t featureIndex = 0;
-    for(uint16_t i = 0; i < VECTOR_LENGTH; i++) {
+    for(uint16_t i = 0; i < LINEAR_FEATURE_COUNT; i++) {
         if(linearValues[i] != 0) {
             tEntry->features[featureIndex].value = linearValues[i];
             tEntry->features[featureIndex].index = i;
