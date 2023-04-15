@@ -388,6 +388,37 @@ static void FillBonuses(
     TunerSerializeByFile(wIsolated, bIsolated, isolated_pawns_offset, linearValues);
 }
 
+static void UpdateSafetyMoves(
+    TEntry_t* tEntry,
+    Piece_t piece,
+    Color_t color,
+    Bitboard_t moves,
+    const Bitboard_t wInnerKingZone,
+    const Bitboard_t bInnerKingZone,
+    const Bitboard_t wOuterKingZone,
+    const Bitboard_t bOuterKingZone
+)
+{
+    const int wInnerKingMoveCount = PopCount(moves & wInnerKingZone);
+    const int bInnerKingMoveCount = PopCount(moves & bInnerKingZone);
+    const int wOuterKingMoveCount = PopCount(moves & wOuterKingZone);
+    const int bOuterKingMoveCount = PopCount(moves & bOuterKingZone);
+
+    if(moves && color == white) {
+        tEntry->safetyFeatures[inner_attacks_offset + piece].whiteAttackValue += bInnerKingMoveCount;
+        tEntry->safetyFeatures[outer_attacks_offset + piece].whiteAttackValue += bOuterKingMoveCount;
+
+        tEntry->safetyFeatures[inner_defense_offset + piece].blackAttackValue += wInnerKingMoveCount;
+        tEntry->safetyFeatures[outer_defense_offset + piece].blackAttackValue += wOuterKingMoveCount;
+    } else if(moves && color == black) {
+        tEntry->safetyFeatures[inner_attacks_offset + piece].blackAttackValue += wInnerKingMoveCount; 
+        tEntry->safetyFeatures[outer_attacks_offset + piece].blackAttackValue += wOuterKingMoveCount; 
+
+        tEntry->safetyFeatures[inner_defense_offset + piece].whiteAttackValue += bInnerKingMoveCount;
+        tEntry->safetyFeatures[outer_defense_offset + piece].whiteAttackValue += bOuterKingMoveCount;
+    }
+}
+
 static void FillNonlinear(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
     const Bitboard_t wPawnAttacks = 
         NoEaOne(boardInfo->pawns[white]) | 
@@ -421,6 +452,28 @@ static void FillNonlinear(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
     tEntry->safetyFeatures[safety_pst_offset + MIRROR(wKingSquare)].whiteAttackValue++;
     tEntry->safetyFeatures[safety_pst_offset + bKingSquare].blackAttackValue++;
 
+    UpdateSafetyMoves(
+        tEntry,
+        pawn,
+        white,
+        wPawnAttacks,
+        wInnerKingZone,
+        bInnerKingZone,
+        wOuterKingZone,
+        bOuterKingZone
+    );
+
+    UpdateSafetyMoves(
+        tEntry,
+        pawn,
+        black,
+        bPawnAttacks,
+        wInnerKingZone,
+        bInnerKingZone,
+        wOuterKingZone,
+        bOuterKingZone
+    );
+
     for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
         Piece_t piece = PieceOnSquare(boardInfo, sq);
         Color_t color = ColorOfPiece(boardInfo, sq);
@@ -444,24 +497,16 @@ static void FillNonlinear(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
             break;
         }
 
-        const int wInnerKingMoveCount = PopCount(moves & wInnerKingZone);
-        const int bInnerKingMoveCount = PopCount(moves & bInnerKingZone);
-        const int wOuterKingMoveCount = PopCount(moves & wOuterKingZone);
-        const int bOuterKingMoveCount = PopCount(moves & bOuterKingZone);
-
-        if(moves && color == white) {
-            tEntry->safetyFeatures[inner_attacks_offset + piece].whiteAttackValue += bInnerKingMoveCount;
-            tEntry->safetyFeatures[outer_attacks_offset + piece].whiteAttackValue += bOuterKingMoveCount;
-
-            tEntry->safetyFeatures[inner_defense_offset + piece].blackAttackValue += wInnerKingMoveCount;
-            tEntry->safetyFeatures[outer_defense_offset + piece].blackAttackValue += wOuterKingMoveCount;
-        } else if(moves && color == black) {
-            tEntry->safetyFeatures[inner_attacks_offset + piece].blackAttackValue += wInnerKingMoveCount; 
-            tEntry->safetyFeatures[outer_attacks_offset + piece].blackAttackValue += wOuterKingMoveCount; 
-
-            tEntry->safetyFeatures[inner_defense_offset + piece].whiteAttackValue += bInnerKingMoveCount;
-            tEntry->safetyFeatures[outer_defense_offset + piece].whiteAttackValue += bOuterKingMoveCount;
-        }
+        UpdateSafetyMoves(
+            tEntry,
+            piece,
+            color,
+            moves,
+            wInnerKingZone,
+            bInnerKingZone,
+            wOuterKingZone,
+            bOuterKingZone
+        );
     }
 }
 
