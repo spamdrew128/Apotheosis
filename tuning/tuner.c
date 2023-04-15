@@ -38,7 +38,7 @@ enum {
     INNER_DEFENSE_FEATURE_COUNT = NUM_PIECES-1,
     OUTER_DEFENSE_FEATURE_COUNT = NUM_PIECES-1,
     AIRINESS_FEATURE_COUNT = KING_AIRINESS_OPTIONS,
-    SAFETY_PST = NUM_SQUARES,
+    SAFETY_PST_FEATURE_COUNT = NUM_SQUARES,
 
     pst_offset = 0,
     bishop_pair_offset = pst_offset + PST_FEATURE_COUNT,
@@ -60,9 +60,19 @@ enum {
 
     LINEAR_FEATURE_COUNT = queen_mobility_offset + QUEEN_MOBILITY_FEATURE_COUNT,
 
+    // safety sigmoid constants
+    growth_rate_offset = LINEAR_FEATURE_COUNT,
+    ceiling_offset = growth_rate_offset + 1,
+    bias_offset = ceiling_offset + 1,
+    // safety weighted sum
+    inner_attacks_offset = bias_offset + 1,
+    outer_attacks_offset = inner_attacks_offset + INNER_ATTACKS_FEATURE_COUNT,
+    inner_defense_offset = outer_attacks_offset + OUTER_ATTACKS_FEATURE_COUNT,
+    outer_defense_offset = inner_defense_offset + INNER_DEFENSE_FEATURE_COUNT,
+    king_airiness_offset = outer_defense_offset + OUTER_DEFENSE_FEATURE_COUNT,
+    safety_pst_offset = king_airiness_offset + AIRINESS_FEATURE_COUNT,
 
-
-    VECTOR_LENGTH = queen_mobility_offset + QUEEN_MOBILITY_FEATURE_COUNT,
+    VECTOR_LENGTH = safety_pst_offset + SAFETY_PST_FEATURE_COUNT,
 };
 
 enum {
