@@ -131,17 +131,17 @@ static void TunerSerializeBySquare(
     const Bucket_t wBucket,
     const Bucket_t bBucket,
     int feature_offset,
-    int16_t allValues[VECTOR_LENGTH]
+    int16_t linearValues[VECTOR_LENGTH]
 )
 {
     while(whitePieces) {
         Square_t sq = MIRROR(LSB(whitePieces));
-        allValues[PSTSingleOffset(wBucket, sq, feature_offset)]++;
+        linearValues[PSTSingleOffset(wBucket, sq, feature_offset)]++;
         ResetLSB(&whitePieces);
     }
     while(blackPieces) {
         Square_t sq = LSB(blackPieces);
-        allValues[PSTSingleOffset(bBucket, sq, feature_offset)]--;
+        linearValues[PSTSingleOffset(bBucket, sq, feature_offset)]--;
         ResetLSB(&blackPieces);
     }
 }
@@ -150,17 +150,17 @@ static void TunerSerializeByFile(
     Bitboard_t whitePieces,
     Bitboard_t blackPieces,
     int feature_offset,
-    int16_t allValues[VECTOR_LENGTH]
+    int16_t linearValues[VECTOR_LENGTH]
 )
 {
     while(whitePieces) {
         File_t file = LSB(whitePieces) % 8;
-        allValues[feature_offset + file]++;
+        linearValues[feature_offset + file]++;
         ResetLSB(&whitePieces);
     }
     while(blackPieces) {
         File_t file = LSB(blackPieces) % 8;
-        allValues[feature_offset + file]--;
+        linearValues[feature_offset + file]--;
         ResetLSB(&blackPieces);
     }
 }
@@ -169,17 +169,17 @@ static void TunerSerializeByRank(
     Bitboard_t whitePieces,
     Bitboard_t blackPieces,
     int feature_offset,
-    int16_t allValues[VECTOR_LENGTH]
+    int16_t linearValues[VECTOR_LENGTH]
 )
 {
     while(whitePieces) {
         Rank_t rank = (MIRROR(LSB(whitePieces))) / 8;
-        allValues[feature_offset + rank]++;
+        linearValues[feature_offset + rank]++;
         ResetLSB(&whitePieces);
     }
     while(blackPieces) {
         Rank_t rank = LSB(blackPieces) / 8;
-        allValues[feature_offset + rank]--;
+        linearValues[feature_offset + rank]--;
         ResetLSB(&blackPieces);
     }
 }
@@ -187,14 +187,14 @@ static void TunerSerializeByRank(
 static void TunerComputeKnights(
     Bitboard_t knights,
     Bitboard_t availible,
-    int16_t allValues[VECTOR_LENGTH],
+    int16_t linearValues[VECTOR_LENGTH],
     int multiplier
 )
 {
     while(knights) {
         Square_t sq = LSB(knights);
         Bitboard_t moves = GetKnightAttackSet(sq) & availible;
-        allValues[knight_mobility_offset + PopCount(moves)] += multiplier;
+        linearValues[knight_mobility_offset + PopCount(moves)] += multiplier;
         ResetLSB(&knights);
     }
 }
@@ -203,14 +203,14 @@ static void TunerComputeBishops(
     Bitboard_t bishops,
     Bitboard_t availible,
     Bitboard_t d12Empty,
-    int16_t allValues[VECTOR_LENGTH],
+    int16_t linearValues[VECTOR_LENGTH],
     int multiplier
 )
 {
     while(bishops) {
         Square_t sq = LSB(bishops);
         Bitboard_t moves = GetBishopAttackSet(sq, d12Empty) & availible;
-        allValues[bishop_mobility_offset + PopCount(moves)] += multiplier;
+        linearValues[bishop_mobility_offset + PopCount(moves)] += multiplier;
         ResetLSB(&bishops);
     }
 }
@@ -219,14 +219,14 @@ static void TunerComputeRooks(
     Bitboard_t rooks, 
     Bitboard_t availible,
     Bitboard_t hvEmpty,
-    int16_t allValues[VECTOR_LENGTH],
+    int16_t linearValues[VECTOR_LENGTH],
     int multiplier
 )
 {
     while(rooks) {
         Square_t sq = LSB(rooks);
         Bitboard_t moves = GetRookAttackSet(sq, hvEmpty) & availible;
-        allValues[rook_mobility_offset + PopCount(moves)] += multiplier;
+        linearValues[rook_mobility_offset + PopCount(moves)] += multiplier;
         ResetLSB(&rooks);
     }  
 }
@@ -236,7 +236,7 @@ static void TunerComputeQueens(
     Bitboard_t availible,
     Bitboard_t hvEmpty,
     Bitboard_t d12Empty,
-    int16_t allValues[VECTOR_LENGTH],
+    int16_t linearValues[VECTOR_LENGTH],
     int multiplier
 )
 {
@@ -244,12 +244,12 @@ static void TunerComputeQueens(
         Square_t sq = LSB(queens);
         Bitboard_t d12Moves = GetBishopAttackSet(sq, d12Empty) & availible;
         Bitboard_t hvMoves = GetRookAttackSet(sq, hvEmpty) & availible;
-        allValues[queen_mobility_offset + PopCount(d12Moves) + PopCount(hvMoves)] += multiplier;
+        linearValues[queen_mobility_offset + PopCount(d12Moves) + PopCount(hvMoves)] += multiplier;
         ResetLSB(&queens);
     } 
 }
 
-void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
+void FillMobilityKSAndThreats(BoardInfo_t* boardInfo, int16_t linearValues[VECTOR_LENGTH]) {
     const Bitboard_t wPawnAttacks = 
         NoEaOne(boardInfo->pawns[white]) | 
         NoWeOne(boardInfo->pawns[white]);
@@ -266,19 +266,19 @@ void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
     const Bitboard_t blackHvEmpty = boardInfo->empty | boardInfo->rooks[black] | boardInfo->queens[black];
     const Bitboard_t blackD12Empty = boardInfo->empty | boardInfo->bishops[black] | boardInfo->queens[black];
 
-    TunerComputeKnights(boardInfo->knights[white], wAvailible, allValues, 1);
-    TunerComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty, allValues, 1);
-    TunerComputeRooks(boardInfo->rooks[white], wAvailible, whiteHvEmpty, allValues, 1);
-    TunerComputeQueens(boardInfo->queens[white], wAvailible, whiteHvEmpty, whiteD12Empty, allValues, 1);
+    TunerComputeKnights(boardInfo->knights[white], wAvailible, linearValues, 1);
+    TunerComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty, linearValues, 1);
+    TunerComputeRooks(boardInfo->rooks[white], wAvailible, whiteHvEmpty, linearValues, 1);
+    TunerComputeQueens(boardInfo->queens[white], wAvailible, whiteHvEmpty, whiteD12Empty, linearValues, 1);
 
-    TunerComputeKnights(boardInfo->knights[black], bAvailible, allValues, -1);
-    TunerComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty, allValues, -1);
-    TunerComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, allValues, -1);
-    TunerComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, allValues, -1);
+    TunerComputeKnights(boardInfo->knights[black], bAvailible, linearValues, -1);
+    TunerComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty, linearValues, -1);
+    TunerComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, linearValues, -1);
+    TunerComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, linearValues, -1);
 }
 
 static void FillPSTFeatures(
-    int16_t allValues[VECTOR_LENGTH],
+    int16_t linearValues[VECTOR_LENGTH],
     const Bucket_t whiteBucket,
     const Bucket_t blackBucket,
     BoardInfo_t* boardInfo
@@ -299,26 +299,26 @@ static void FillPSTFeatures(
 
         while(whitePieces) {
             Square_t sq = MIRROR(LSB(whitePieces));
-            allValues[PSTSetOffset(whiteBucket, piece, sq, pst_offset)]++;
+            linearValues[PSTSetOffset(whiteBucket, piece, sq, pst_offset)]++;
             ResetLSB(&whitePieces);
         }
         while(blackPieces) {
             Square_t sq = LSB(blackPieces);
-            allValues[PSTSetOffset(blackBucket, piece, sq, pst_offset)]--;
+            linearValues[PSTSetOffset(blackBucket, piece, sq, pst_offset)]--;
             ResetLSB(&blackPieces);
         }
     }
 }
 
 static void FillBonuses(
-    int16_t allValues[VECTOR_LENGTH],
+    int16_t linearValues[VECTOR_LENGTH],
     const Bucket_t whiteBucket,
     const Bucket_t blackBucket,
     BoardInfo_t* boardInfo
 )
 {
     // BISHOP PAIR
-    allValues[bishop_pair_offset] += 
+    linearValues[bishop_pair_offset] += 
         (int)(PopCount(boardInfo->bishops[white]) >= 2) - 
         (int)(PopCount(boardInfo->bishops[black]) >= 2);
 
@@ -335,10 +335,10 @@ static void FillBonuses(
     Bitboard_t piecesBlockingWhite = NortOne(wPassers) & boardInfo->allPieces[black];
     Bitboard_t piecesBlockingBlack = SoutOne(bPassers) & boardInfo->allPieces[white];
 
-    TunerSerializeBySquare(wPassers, bPassers, whiteBucket, blackBucket, passed_pawn_offset, allValues);
+    TunerSerializeBySquare(wPassers, bPassers, whiteBucket, blackBucket, passed_pawn_offset, linearValues);
 
     // BLOCKED PASSER
-    TunerSerializeByRank(piecesBlockingWhite, piecesBlockingBlack, blocked_passer_offset, allValues);
+    TunerSerializeByRank(piecesBlockingWhite, piecesBlockingBlack, blocked_passer_offset, linearValues);
 
     // OPEN AND SEMI OPEN FILES
     const Bitboard_t whitePawnFileSpans = FileFill(boardInfo->pawns[white]);
@@ -354,8 +354,8 @@ static void FillBonuses(
     Bitboard_t whiteSemiOpenRooks = boardInfo->rooks[white] & blackPawnOnlyFiles;
     Bitboard_t blackSemiOpenRooks = boardInfo->rooks[black] & whitePawnOnlyFiles;
 
-    TunerSerializeByFile(whiteOpenRooks, blackOpenRooks, open_rook_offset, allValues);
-    TunerSerializeByFile(whiteSemiOpenRooks, blackSemiOpenRooks, semi_open_rook_offset, allValues);
+    TunerSerializeByFile(whiteOpenRooks, blackOpenRooks, open_rook_offset, linearValues);
+    TunerSerializeByFile(whiteSemiOpenRooks, blackSemiOpenRooks, semi_open_rook_offset, linearValues);
 
     Bitboard_t whiteOpenQueens = boardInfo->queens[white] & openFiles;
     Bitboard_t blackOpenQueens = boardInfo->queens[black] & openFiles;
@@ -363,8 +363,8 @@ static void FillBonuses(
     Bitboard_t whiteSemiOpenQueens = boardInfo->queens[white] & blackPawnOnlyFiles;
     Bitboard_t blackSemiOpenQueens = boardInfo->queens[black] & whitePawnOnlyFiles;
 
-    TunerSerializeByFile(whiteOpenQueens, blackOpenQueens, open_queen_offset, allValues);
-    TunerSerializeByFile(whiteSemiOpenQueens, blackSemiOpenQueens, semi_open_queen_offset, allValues);
+    TunerSerializeByFile(whiteOpenQueens, blackOpenQueens, open_queen_offset, linearValues);
+    TunerSerializeByFile(whiteSemiOpenQueens, blackSemiOpenQueens, semi_open_queen_offset, linearValues);
 
     Bitboard_t whiteOpenKings = boardInfo->kings[white] & openFiles;
     Bitboard_t blackOpenKings = boardInfo->kings[black] & openFiles;
@@ -372,8 +372,8 @@ static void FillBonuses(
     Bitboard_t whiteSemiOpenKings = boardInfo->kings[white] & blackPawnOnlyFiles;
     Bitboard_t blackSemiOpenKings = boardInfo->kings[black] & whitePawnOnlyFiles;
 
-    TunerSerializeByFile(whiteOpenKings, blackOpenKings, open_king_offset, allValues);
-    TunerSerializeByFile(whiteSemiOpenKings, blackSemiOpenKings, semi_open_king_offset, allValues);
+    TunerSerializeByFile(whiteOpenKings, blackOpenKings, open_king_offset, linearValues);
+    TunerSerializeByFile(whiteSemiOpenKings, blackSemiOpenKings, semi_open_king_offset, linearValues);
 
     // PAWN STRUCTURE
     const Bitboard_t whiteFill = FileFill(boardInfo->pawns[white]);
@@ -385,22 +385,27 @@ static void FillBonuses(
     Bitboard_t wIsolated = boardInfo->pawns[white] & ~whiteNeighbors;
     Bitboard_t bIsolated = boardInfo->pawns[black] & ~blackNeighbors;
 
-    TunerSerializeByFile(wIsolated, bIsolated, isolated_pawns_offset, allValues);
+    TunerSerializeByFile(wIsolated, bIsolated, isolated_pawns_offset, linearValues);
 }
 
 void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
-    int16_t allValues[VECTOR_LENGTH] = {0};
+    int16_t linearValues[LINEAR_FEATURE_COUNT] = {0};
+
+    for(int i = 0; i < NONLINEAR_FEATURE_COUNT; i++) {
+        tEntry->safetyFeatures[i].whiteSumValue = 0;
+        tEntry->safetyFeatures[i].blackSumValue = 0;
+    }
 
     const Bucket_t whiteBucket = PSTBucketIndex(boardInfo, white);
     const Bucket_t blackBucket = PSTBucketIndex(boardInfo, black);
 
-    FillPSTFeatures(allValues, whiteBucket, blackBucket, boardInfo);
-    FillBonuses(allValues, whiteBucket, blackBucket, boardInfo);
-    FillMobility(boardInfo, allValues);
+    FillPSTFeatures(linearValues, whiteBucket, blackBucket, boardInfo);
+    FillBonuses(linearValues, whiteBucket, blackBucket, boardInfo);
+    FillMobilityKSAndThreats(boardInfo, linearValues);
 
     tEntry->numFeatures = 0;
     for(uint16_t i = 0; i < VECTOR_LENGTH; i++) {
-        if(allValues[i] != 0) {
+        if(linearValues[i] != 0) {
             tEntry->numFeatures++;
         }
     }
@@ -410,8 +415,8 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
     
     uint16_t featureIndex = 0;
     for(uint16_t i = 0; i < VECTOR_LENGTH; i++) {
-        if(allValues[i] != 0) {
-            tEntry->features[featureIndex].value = allValues[i];
+        if(linearValues[i] != 0) {
+            tEntry->features[featureIndex].value = linearValues[i];
             tEntry->features[featureIndex].index = i;
             featureIndex++;
         }
