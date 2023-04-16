@@ -7,12 +7,17 @@ static Score_t bishopMobility[BISHOP_MOBILITY_OPTIONS] = BISHOP_MOBILITY;
 static Score_t rookMobility[ROOK_MOBILITY_OPTIONS] = ROOK_MOBILITY;
 static Score_t queenMobility[QUEEN_MOBILITY_OPTIONS] = QUEEN_MOBILITY;
 
-typedef int AttackScore_t;
 typedef struct {
     int attackerCount;
     AttackScore_t attackScore;
     Bitboard_t attackZone;
 } AttackInfo_t;
+
+static void UpdateAttackInfo(AttackInfo_t* attackInfo, const Bitboard_t moves, const AttackScore_t attackValue, const int weight) {
+    const Bitboard_t attacks = moves & attackInfo->attackZone;
+    attackInfo->attackScore += PopCount(attacks) * attackValue;
+    attackInfo->attackerCount += weight * (bool)attacks;
+}
 
 static Score_t ComputeKnights(
     Bitboard_t knights,
@@ -25,6 +30,8 @@ static Score_t ComputeKnights(
         Square_t sq = LSB(knights);
         Bitboard_t moves = GetKnightAttackSet(sq) & availible;
         score += knightMobility[PopCount(moves)];
+
+        UpdateAttackInfo(attackInfo, moves, minor_attack, other_piece_weight);
         ResetLSB(&knights);
     }
     return score;
@@ -42,6 +49,8 @@ static Score_t ComputeBishops(
         Square_t sq = LSB(bishops);
         Bitboard_t moves = GetBishopAttackSet(sq, d12Empty) & availible;
         score += bishopMobility[PopCount(moves)];
+
+        UpdateAttackInfo(attackInfo, moves, minor_attack, other_piece_weight);
         ResetLSB(&bishops);
     }
     return score;
@@ -59,6 +68,8 @@ static Score_t ComputeRooks(
         Square_t sq = LSB(rooks);
         Bitboard_t moves = GetRookAttackSet(sq, hvEmpty) & availible;
         score += rookMobility[PopCount(moves)];
+
+        UpdateAttackInfo(attackInfo, moves, rook_attack, other_piece_weight);
         ResetLSB(&rooks);
     }
     return score;    
@@ -75,9 +86,10 @@ static Score_t ComputeQueens(
     Score_t score = 0;
     while(queens) {
         Square_t sq = LSB(queens);
-        Bitboard_t d12Moves = GetBishopAttackSet(sq, d12Empty) & availible;
-        Bitboard_t hvMoves = GetRookAttackSet(sq, hvEmpty) & availible;
-        score += queenMobility[PopCount(d12Moves) + PopCount(hvMoves)];
+        Bitboard_t moves = (GetBishopAttackSet(sq, d12Empty) | GetRookAttackSet(sq, hvEmpty)) & availible;
+        score += queenMobility[PopCount(moves)];
+
+        UpdateAttackInfo(attackInfo, moves, queen_attack, queen_piece_weight);
         ResetLSB(&queens);
     }
     return score;    
