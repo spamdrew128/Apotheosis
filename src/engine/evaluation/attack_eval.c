@@ -7,6 +7,8 @@ static Score_t bishopMobility[BISHOP_MOBILITY_OPTIONS] = BISHOP_MOBILITY;
 static Score_t rookMobility[ROOK_MOBILITY_OPTIONS] = ROOK_MOBILITY;
 static Score_t queenMobility[QUEEN_MOBILITY_OPTIONS] = QUEEN_MOBILITY;
 
+static Score_t safetyTable[SAFETY_TABLE_SIZE] = SAFETY_TABLE;
+
 static void UpdateAttackInfo(AttackInfo_t* attackInfo, const Bitboard_t moves, const AttackScore_t attackValue, const int weight) {
     const Bitboard_t attacks = moves & attackInfo->attackZone;
     const Bitboard_t innerAttacks = moves & attackInfo->innerKingRing;
@@ -170,10 +172,10 @@ void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
 
 
     if(whiteAttack.attackerCount > 2) {
-        *score += whiteAttack.attackScore;
+        *score += safetyTable[MIN(whiteAttack.attackScore, ATTACK_SCORE_MAX)];
     }
     if(blackAttack.attackerCount > 2) {
-        *score += blackAttack.attackScore;
+        *score -= safetyTable[MIN(blackAttack.attackScore, ATTACK_SCORE_MAX)];
     }
 }
 
