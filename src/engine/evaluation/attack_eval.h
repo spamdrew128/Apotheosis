@@ -12,21 +12,9 @@ enum {
   QUEEN_MOBILITY_OPTIONS = BISHOP_MOBILITY_OPTIONS + ROOK_MOBILITY_OPTIONS - 1,
 };
 
-typedef int AttackScore_t;
-typedef struct {
-    int attackerCount;
-    AttackScore_t attackScore;
-    Bitboard_t attackZone;
-
-    Bitboard_t rookContactRing;
-    Bitboard_t queenContactRing;
-    Bitboard_t rookContacts;
-    Bitboard_t queenContacts;
-} AttackInfo_t;
-
 enum {
-  pawn_inner_attack = 1,
-  king_inner_attack = 1,
+  // pawn_inner_attack = 1,
+  // king_inner_attack = 1,
   minor_attack = 2,
   rook_attack = 3,
   queen_attack = 5,
@@ -37,6 +25,19 @@ enum {
   queen_piece_weight = 2,
   other_piece_weight = 1,
 };
+
+typedef int AttackScore_t;
+typedef struct {
+  int attackerCount;
+  AttackScore_t attackScore;
+  Bitboard_t attackZone;
+
+  Bitboard_t rookContactRing;
+  Bitboard_t queenContactRing;
+
+  Bitboard_t pawnKnightControl;
+  Bitboard_t sliderControl;
+} AttackInfo_t;
 
 void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score);
 

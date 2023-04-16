@@ -23,10 +23,12 @@ static Score_t ComputeKnights(
     Score_t score = 0;
     while(knights) {
         Square_t sq = LSB(knights);
-        Bitboard_t moves = GetKnightAttackSet(sq) & availible;
+        Bitboard_t attacks = GetKnightAttackSet(sq);
+        Bitboard_t moves = attacks & availible;
         score += knightMobility[PopCount(moves)];
 
         UpdateAttackInfo(attackInfo, moves, minor_attack, other_piece_weight);
+        attackInfo->pawnKnightControl |= attacks;
         ResetLSB(&knights);
     }
     return score;
@@ -42,10 +44,12 @@ static Score_t ComputeBishops(
     Score_t score = 0;
     while(bishops) {
         Square_t sq = LSB(bishops);
-        Bitboard_t moves = GetBishopAttackSet(sq, d12Empty) & availible;
+        Bitboard_t attacks = GetBishopAttackSet(sq, d12Empty);
+        Bitboard_t moves = attacks & availible;
         score += bishopMobility[PopCount(moves)];
 
         UpdateAttackInfo(attackInfo, moves, minor_attack, other_piece_weight);
+        attackInfo->sliderControl |= attacks;
         ResetLSB(&bishops);
     }
     return score;
@@ -61,11 +65,12 @@ static Score_t ComputeRooks(
     Score_t score = 0;
     while(rooks) {
         Square_t sq = LSB(rooks);
-        Bitboard_t moves = GetRookAttackSet(sq, hvEmpty) & availible;
+        Bitboard_t attacks = GetRookAttackSet(sq, hvEmpty);
+        Bitboard_t moves = attacks & availible;
         score += rookMobility[PopCount(moves)];
 
         UpdateAttackInfo(attackInfo, moves, rook_attack, other_piece_weight);
-        attackInfo->rookContacts |= moves & attackInfo->rookContactRing;
+        attackInfo->sliderControl |= attacks;
         ResetLSB(&rooks);
     }
     return score;    
@@ -82,23 +87,15 @@ static Score_t ComputeQueens(
     Score_t score = 0;
     while(queens) {
         Square_t sq = LSB(queens);
-        Bitboard_t moves = (GetBishopAttackSet(sq, d12Empty) | GetRookAttackSet(sq, hvEmpty)) & availible;
+        Bitboard_t attacks = GetBishopAttackSet(sq, d12Empty) | GetRookAttackSet(sq, hvEmpty);
+        Bitboard_t moves = attacks & availible;
         score += queenMobility[PopCount(moves)];
 
         UpdateAttackInfo(attackInfo, moves, queen_attack, queen_piece_weight);
-        attackInfo->queenContacts |= moves & attackInfo->queenContactRing;
+        attackInfo->sliderControl |= attacks;
         ResetLSB(&queens);
     }
     return score;    
-}
-
-static void InnerAttacks(
-    AttackInfo_t* attackInfo,
-    const Bitboard_t kingAttacks,
-    const Bitboard_t pawnAttacks
-)
-{
-
 }
 
 void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
@@ -131,8 +128,10 @@ void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
 
         .rookContactRing = GetRookContactCheckZone(KingSquare(boardInfo, black)),
         .queenContactRing = bKingAttacks,
-        .rookContacts = empty_set,
-        .queenContacts = empty_set
+
+        // these will be filled out fully during computations
+        .pawnKnightControl = wKingAttacks | wPawnAttacks,
+        .sliderControl = empty_set,
     };
 
     AttackInfo_t blackAttack = {
@@ -142,8 +141,10 @@ void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
 
         .rookContactRing = GetRookContactCheckZone(KingSquare(boardInfo, white)),
         .queenContactRing = wKingAttacks,
-        .rookContacts = empty_set,
-        .queenContacts = empty_set
+
+        // these will be filled out fully during computations
+        .pawnKnightControl = bKingAttacks | bPawnAttacks,
+        .sliderControl = empty_set,
     };
 
     *score += ComputeKnights(boardInfo->knights[white], wAvailible, &whiteAttack);
@@ -155,7 +156,6 @@ void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
     *score -= ComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty, &blackAttack);
     *score -= ComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, &blackAttack);
     *score -= ComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, &blackAttack);
-
 
     if(whiteAttack.attackerCount > 2) {
 
