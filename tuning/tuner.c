@@ -774,6 +774,9 @@ static void UpdateGradient(
         gradient[mg_phase][feature.index] += coeffs[mg_phase] * feature.value;
         gradient[eg_phase][feature.index] += coeffs[eg_phase] * feature.value;
     }
+
+    double whiteAttackScore[NUM_PHASES] = { SafetySigmoid(wSum, mg_phase), SafetySigmoid(wSum, eg_phase) };
+    double blackAttackScore[NUM_PHASES] = { SafetySigmoid(bSum, mg_phase), SafetySigmoid(bSum, eg_phase) };
 }
 
 static void UpdateWeights(
@@ -943,7 +946,7 @@ static void FilePrintBucketPST(const char* tableName, Piece_t piece, FILE* fp, i
     fprintf(fp, "}\n\n");
 }
 
-static void FilePrintPST(const char* tableName, Piece_t piece, FILE* fp, int feature_offset) {
+static void FilePrintSafetyPST(const char* tableName, Piece_t piece, FILE* fp, int feature_offset) {
     fprintf(fp, "#define %s { \\\n", tableName);
     for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
         if(sq % 8 == 0) { // first row entry
@@ -952,8 +955,8 @@ static void FilePrintPST(const char* tableName, Piece_t piece, FILE* fp, int fea
 
         int offset = feature_offset + sq;
         fprintf(fp, "S(%d, %d), ",
-            (int)weights[mg_phase][offset],
-            (int)weights[eg_phase][offset]
+            (int)-weights[mg_phase][offset],
+            (int)-weights[eg_phase][offset]
         );
 
         if(sq % 8 == 7) { // last row entry
@@ -969,6 +972,19 @@ static void PrintIndividualBonus(const char* name, int feature_offset, int count
         fprintf(fp, "S(%d, %d), ",
             (int)weights[mg_phase][feature_offset + i],
             (int)weights[eg_phase][feature_offset + i]);
+    }
+
+    fprintf(fp, "\\\n}\n\n");
+}
+
+static void PrintSafetyBonus(const char* name, int feature_offset, int count, FILE* fp, bool isAttack) {
+    int mulitplier = isAttack ? 1 : -1;
+
+    fprintf(fp, "#define %s { \\\n   ", name);
+    for(int i = 0; i < count; i++) { 
+        fprintf(fp, "S(%d, %d), ",
+            (int)weights[mg_phase][feature_offset + i]*mulitplier,
+            (int)weights[eg_phase][feature_offset + i]*mulitplier);
     }
 
     fprintf(fp, "\\\n}\n\n");
@@ -1013,12 +1029,12 @@ static void PrintKingSafety(FILE* fp) {
         weights[mg_phase][bias_offset], weights[eg_phase][bias_offset]
     );
 
-    PrintIndividualBonus("INNER_ATTACKS", NONLINEAR_OFFSET + inner_attacks_offset, INNER_ATTACKS_FEATURE_COUNT, fp);
-    PrintIndividualBonus("OUTER_ATTACKS", NONLINEAR_OFFSET + outer_attacks_offset, OUTER_ATTACKS_FEATURE_COUNT, fp);
-    PrintIndividualBonus("INNER_DEFENSE", NONLINEAR_OFFSET + inner_defense_offset, INNER_DEFENSE_FEATURE_COUNT, fp);
-    PrintIndividualBonus("OUTER_DEFENSE", NONLINEAR_OFFSET + outer_defense_offset, OUTER_DEFENSE_FEATURE_COUNT, fp);
-    PrintIndividualBonus("KING_AIRINESS", NONLINEAR_OFFSET + king_airiness_offset, AIRINESS_FEATURE_COUNT, fp);
-    FilePrintPST("KING_SAFETY_PST", 0, fp, NONLINEAR_OFFSET + safety_pst_offset);
+    PrintSafetyBonus("INNER_ATTACKS", NONLINEAR_OFFSET + inner_attacks_offset, INNER_ATTACKS_FEATURE_COUNT, fp, true);
+    PrintSafetyBonus("OUTER_ATTACKS", NONLINEAR_OFFSET + outer_attacks_offset, OUTER_ATTACKS_FEATURE_COUNT, fp, true);
+    PrintSafetyBonus("INNER_DEFENSE", NONLINEAR_OFFSET + inner_defense_offset, INNER_DEFENSE_FEATURE_COUNT, fp, false);
+    PrintSafetyBonus("OUTER_DEFENSE", NONLINEAR_OFFSET + outer_defense_offset, OUTER_DEFENSE_FEATURE_COUNT, fp, false);
+    PrintSafetyBonus("KING_AIRINESS", NONLINEAR_OFFSET + king_airiness_offset, AIRINESS_FEATURE_COUNT, fp, false);
+    FilePrintSafetyPST("KING_SAFETY_PST", 0, fp, NONLINEAR_OFFSET + safety_pst_offset);
 }
 
 static void CreateOutputFile() {
