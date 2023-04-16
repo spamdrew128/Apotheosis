@@ -1,6 +1,7 @@
 #include "attack_eval.h"
 #include "lookup.h"
 #include "bitboards.h"
+#include "util_macros.h"
 
 static Score_t knightMobility[KNIGHT_MOBILITY_OPTIONS] = KNIGHT_MOBILITY;
 static Score_t bishopMobility[BISHOP_MOBILITY_OPTIONS] = BISHOP_MOBILITY;
