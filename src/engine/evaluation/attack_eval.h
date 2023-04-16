@@ -31,10 +31,7 @@ typedef struct {
   int attackerCount;
   AttackScore_t attackScore;
   Bitboard_t attackZone;
-
-  Bitboard_t rookContactRing;
-  Bitboard_t queenContactRing;
-
+  
   Bitboard_t pawnKnightControl;
   Bitboard_t sliderControl;
 } AttackInfo_t;

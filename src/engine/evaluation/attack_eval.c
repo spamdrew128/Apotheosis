@@ -98,6 +98,22 @@ static Score_t ComputeQueens(
     return score;    
 }
 
+static void ContactChecks(BoardInfo_t* boardInfo, AttackInfo_t* whiteInfo, AttackInfo_t* blackInfo) {
+    const Square_t wKingSq = KingSquare(boardInfo, white);
+    const Square_t bKingSq = KingSquare(boardInfo, black);
+
+    const Bitboard_t allWhiteAttacks = whiteInfo->pawnKnightControl | whiteInfo->sliderControl;
+    const Bitboard_t allBlackAttacks = blackInfo->pawnKnightControl | blackInfo->sliderControl;
+
+    const Bitboard_t wRookContactZone = GetRookContactCheckZone(bKingSq) & ~allBlackAttacks; // need to make sure squares are safe
+    const Bitboard_t wQueenContactZone = GetKingAttackSet(bKingSq) & ~allBlackAttacks;
+
+    const Bitboard_t bRookContactZone = GetRookContactCheckZone(wKingSq) & ~allWhiteAttacks;
+    const Bitboard_t bQueenContactZone = GetKingAttackSet(wKingSq) & ~allWhiteAttacks;
+
+    
+}
+
 void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
     const Bitboard_t wPawnAttacks = 
         NoEaOne(boardInfo->pawns[white]) | 
@@ -126,12 +142,9 @@ void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
         .attackScore = 0,
         .attackZone = GetVulnerableKingZone(KingSquare(boardInfo, black), black),
 
-        .rookContactRing = GetRookContactCheckZone(KingSquare(boardInfo, black)),
-        .queenContactRing = bKingAttacks,
 
-        // these will be filled out fully during computations
         .pawnKnightControl = wKingAttacks | wPawnAttacks,
-        .sliderControl = empty_set,
+        .sliderControl = empty_set, // these will be filled out fully during computations
     };
 
     AttackInfo_t blackAttack = {
@@ -139,10 +152,6 @@ void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
         .attackScore = 0,
         .attackZone = GetVulnerableKingZone(KingSquare(boardInfo, white), white),
 
-        .rookContactRing = GetRookContactCheckZone(KingSquare(boardInfo, white)),
-        .queenContactRing = wKingAttacks,
-
-        // these will be filled out fully during computations
         .pawnKnightControl = bKingAttacks | bPawnAttacks,
         .sliderControl = empty_set,
     };
