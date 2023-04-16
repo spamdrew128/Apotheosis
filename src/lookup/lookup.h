@@ -23,6 +23,7 @@ typedef struct {
     Square_t qsCastleSquares[2];
 
     Bitboard_t vulnerableKingZone[2][NUM_SQUARES];
+    Bitboard_t rookContactCheckZone[NUM_SQUARES];
 } Lookup_t;
 
 void InitLookupTables();
@@ -48,5 +49,7 @@ Square_t GetKingsideCastleSquare(Color_t color);
 Square_t GetQueensideCastleSquare(Color_t color);
 
 Bitboard_t GetVulnerableKingZone(Square_t square, Color_t color);
+
+Bitboard_t GetRookContactCheckZone(Square_t square);
 
 #endif
