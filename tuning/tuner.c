@@ -1013,12 +1013,12 @@ static void PrintKingSafety(FILE* fp) {
         weights[mg_phase][bias_offset], weights[eg_phase][bias_offset]
     );
 
-    PrintIndividualBonus("INNER_ATTACKS", inner_attacks_offset, INNER_ATTACKS_FEATURE_COUNT, fp);
-    PrintIndividualBonus("OUTER_ATTACKS", outer_attacks_offset, OUTER_ATTACKS_FEATURE_COUNT, fp);
-    PrintIndividualBonus("INNER_DEFENSE", inner_defense_offset, INNER_DEFENSE_FEATURE_COUNT, fp);
-    PrintIndividualBonus("OUTER_DEFENSE", outer_defense_offset, OUTER_DEFENSE_FEATURE_COUNT, fp);
-    PrintIndividualBonus("KING_AIRINESS", king_airiness_offset, AIRINESS_FEATURE_COUNT, fp);
-    FilePrintPST("KING_SAFETY_PST", 0, fp, safety_pst_offset);
+    PrintIndividualBonus("INNER_ATTACKS", NONLINEAR_OFFSET + inner_attacks_offset, INNER_ATTACKS_FEATURE_COUNT, fp);
+    PrintIndividualBonus("OUTER_ATTACKS", NONLINEAR_OFFSET + outer_attacks_offset, OUTER_ATTACKS_FEATURE_COUNT, fp);
+    PrintIndividualBonus("INNER_DEFENSE", NONLINEAR_OFFSET + inner_defense_offset, INNER_DEFENSE_FEATURE_COUNT, fp);
+    PrintIndividualBonus("OUTER_DEFENSE", NONLINEAR_OFFSET + outer_defense_offset, OUTER_DEFENSE_FEATURE_COUNT, fp);
+    PrintIndividualBonus("KING_AIRINESS", NONLINEAR_OFFSET + king_airiness_offset, AIRINESS_FEATURE_COUNT, fp);
+    FilePrintPST("KING_SAFETY_PST", 0, fp, NONLINEAR_OFFSET + safety_pst_offset);
 }
 
 static void CreateOutputFile() {
