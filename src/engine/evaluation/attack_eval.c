@@ -98,6 +98,69 @@ static Score_t ComputeQueens(
     return score;    
 }
 
+static Bitboard_t SliderHelpers(Bitboard_t hvSliders, Bitboard_t d12Sliders, const Bitboard_t empty) {
+    Bitboard_t result = empty_set;
+    while(hvSliders) {
+        Square_t sq = LSB(hvSliders);
+        result |= GetRookAttackSet(sq, empty);
+        ResetLSB(&hvSliders);
+    }
+    while(d12Sliders) {
+        Square_t sq = LSB(d12Sliders);
+        result |= GetBishopAttackSet(sq, empty);
+        ResetLSB(&d12Sliders);
+    }
+    return result;
+}
+
+static void SerializeRookContact(
+    AttackInfo_t* attackInfo,
+    Color_t color,
+    BoardInfo_t* boardInfo,
+    Bitboard_t contactZone,
+    Bitboard_t nonSliderHelpers
+) 
+{
+    Bitboard_t rooks = boardInfo->rooks[color];
+    while(rooks) {
+        Square_t sq = LSB(rooks);
+        Bitboard_t contactChecks = GetRookAttackSet(sq, boardInfo->empty) & contactZone;
+        if(contactChecks) {
+            Bitboard_t empty = boardInfo->empty | GetSingleBitset(sq); // we don't include ourself as a helper
+            Bitboard_t hvSliders = (boardInfo->rooks[color] | boardInfo->queens[color]) | ~GetSingleBitset(sq);
+            Bitboard_t d12Sliders = boardInfo->bishops[color] | boardInfo->queens[color];
+            Bitboard_t protected = SliderHelpers(hvSliders, d12Sliders, empty) | nonSliderHelpers;
+
+            attackInfo->attackScore += PopCount(contactChecks & protected) * rook_contact_check;
+        }
+        ResetLSB(&rooks);
+    }
+}
+
+static void SerializeQueenContact(
+    AttackInfo_t* attackInfo,
+    Color_t color,
+    BoardInfo_t* boardInfo,
+    Bitboard_t contactZone,
+    Bitboard_t nonSliderHelpers
+) 
+{
+    Bitboard_t queens = boardInfo->queens[color];
+    while(queens) {
+        Square_t sq = LSB(queens);
+        Bitboard_t contactChecks = (GetRookAttackSet(sq, boardInfo->empty) | GetBishopAttackSet(sq, boardInfo->empty)) & contactZone;
+        if(contactChecks) {
+            Bitboard_t empty = boardInfo->empty | GetSingleBitset(sq); // we don't include ourself as a helper
+            Bitboard_t hvSliders = (boardInfo->rooks[color] | boardInfo->queens[color]) | ~GetSingleBitset(sq);
+            Bitboard_t d12Sliders = (boardInfo->bishops[color] | boardInfo->queens[color]) | ~GetSingleBitset(sq);
+            Bitboard_t protected = SliderHelpers(hvSliders, d12Sliders, empty) | nonSliderHelpers;
+
+            attackInfo->attackScore += PopCount(contactChecks & protected) * queen_contact_check;
+        }
+        ResetLSB(&queens);
+    }
+}
+
 static void ContactChecks(BoardInfo_t* boardInfo, AttackInfo_t* whiteInfo, AttackInfo_t* blackInfo) {
     const Square_t wKingSq = KingSquare(boardInfo, white);
     const Square_t bKingSq = KingSquare(boardInfo, black);
@@ -105,13 +168,20 @@ static void ContactChecks(BoardInfo_t* boardInfo, AttackInfo_t* whiteInfo, Attac
     const Bitboard_t allWhiteAttacks = whiteInfo->pawnKnightControl | whiteInfo->sliderControl;
     const Bitboard_t allBlackAttacks = blackInfo->pawnKnightControl | blackInfo->sliderControl;
 
-    const Bitboard_t wRookContactZone = GetRookContactCheckZone(bKingSq) & ~allBlackAttacks; // need to make sure squares are safe
+    const Bitboard_t wRookContactZone = GetRookContactCheckZone(bKingSq) & ~allBlackAttacks; // need to make sure squares are safe (ignoring king attacks because that is a givin)
     const Bitboard_t wQueenContactZone = GetKingAttackSet(bKingSq) & ~allBlackAttacks;
 
     const Bitboard_t bRookContactZone = GetRookContactCheckZone(wKingSq) & ~allWhiteAttacks;
     const Bitboard_t bQueenContactZone = GetKingAttackSet(wKingSq) & ~allWhiteAttacks;
 
-    
+    const Bitboard_t wNonSliderHelpers = whiteInfo->pawnKnightControl | GetKingAttackSet(wKingSq);
+    const Bitboard_t bNonSliderHelpers = blackInfo->pawnKnightControl | GetKingAttackSet(bKingSq);
+
+    SerializeRookContact(whiteInfo, white, boardInfo, wRookContactZone, wNonSliderHelpers);
+    SerializeQueenContact(whiteInfo, white, boardInfo, bQueenContactZone, wNonSliderHelpers);
+
+    SerializeRookContact(blackInfo, black, boardInfo, bRookContactZone, bNonSliderHelpers);
+    SerializeQueenContact(blackInfo, black, boardInfo, bQueenContactZone, bNonSliderHelpers);
 }
 
 void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
@@ -166,12 +236,14 @@ void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
     *score -= ComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, &blackAttack);
     *score -= ComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, &blackAttack);
 
-    if(whiteAttack.attackerCount > 2) {
+    ContactChecks(boardInfo, &whiteAttack, &blackAttack);
 
-    }
-    if(blackAttack.attackerCount > 2) {
+    // if(whiteAttack.attackerCount > 2) {
 
-    }
+    // }
+    // if(blackAttack.attackerCount > 2) {
+
+    // }
 }
 
 void TDDSafetyOnly(BoardInfo_t* boardInfo, AttackInfo_t* wAttack, AttackInfo_t* bAttack) {
