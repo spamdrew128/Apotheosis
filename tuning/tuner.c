@@ -692,7 +692,21 @@ static void SafetySums(TEntry_t entry, double wSum[NUM_PHASES], double bSum[NUM_
     }
 }
 
-static double Evaluation(TEntry_t entry) {
+static double Sigmoid(double E, double K, double J) {
+    return 1 / (1 + exp(-K * (E - J)));
+}
+
+static double SigmoidPrime(double sigmoid) {
+    // K is omitted for now but will be added later
+    return sigmoid * (1 - sigmoid);
+}
+
+static double SafetySigmoid(double safetySum[NUM_PHASES], Phase_t phase) {
+    return
+        Sigmoid(safetySum[phase], weights[phase][growth_rate_offset], weights[phase][bias_offset]);
+}
+
+static double Evaluation(TEntry_t entry, double wSum[NUM_PHASES], double bSum[NUM_PHASES]) {
     double mgScore = 0;
     double egScore = 0;
 
@@ -703,23 +717,27 @@ static double Evaluation(TEntry_t entry) {
         egScore += feature.value * weights[eg_phase][feature.index];
     }
 
+    mgScore += weights[mg_phase][ceiling_offset] *
+        (SafetySigmoid(wSum, mg_phase) -
+        SafetySigmoid(bSum, mg_phase));
+
+    egScore += weights[eg_phase][ceiling_offset] *
+        (SafetySigmoid(wSum, eg_phase) -
+        SafetySigmoid(bSum, eg_phase));
+
     return (mgScore * entry.phaseConstant[mg_phase] + egScore * entry.phaseConstant[eg_phase]);
-}
-
-static double Sigmoid(double E, double K, double J) {
-    return 1 / (1 + exp(-K * (E - J)));
-}
-
-static double SigmoidPrime(double sigmoid) {
-    // K is omitted for now but will be added later
-    return sigmoid * (1 - sigmoid);
 }
 
 static double Cost(TuningData_t* tuningData, double K) {
     double totalError = 0;
     for(int i = 0; i < tuningData->numEntries; i++) {
         TEntry_t entry = tuningData->entryList[i];
-        double E = Evaluation(entry);
+
+        double wSum[NUM_PHASES] = {0};
+        double bSum[NUM_PHASES] = {0};
+        SafetySums(entry, wSum, bSum);
+
+        double E = Evaluation(entry, wSum, bSum);
 
         double error = entry.result - Sigmoid(E, K, 0);
         totalError += error * error;
@@ -738,8 +756,12 @@ static void UpdateGradient(
     Gradient_t gradient[NUM_PHASES][VECTOR_LENGTH]
 )
 {
+    double wSum[NUM_PHASES] = {0};
+    double bSum[NUM_PHASES] = {0};
+    SafetySums(entry, wSum, bSum);
+
     double R = entry.result;
-    double sigmoid = Sigmoid(Evaluation(entry), K, 0);
+    double sigmoid = Sigmoid(Evaluation(entry, wSum, bSum), K, 0);
     double sigmoidPrime = SigmoidPrime(sigmoid);
 
     double coeffs[NUM_PHASES];
