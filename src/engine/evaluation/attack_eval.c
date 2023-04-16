@@ -75,6 +75,7 @@ static Score_t ComputeRooks(
         score += rookMobility[PopCount(moves)];
 
         UpdateAttackInfo(attackInfo, moves, rook_attack, other_piece_weight);
+        attackInfo->rookContacts |= moves & attackInfo->rookContactRing;
         ResetLSB(&rooks);
     }
     return score;    
@@ -95,6 +96,7 @@ static Score_t ComputeQueens(
         score += queenMobility[PopCount(moves)];
 
         UpdateAttackInfo(attackInfo, moves, queen_attack, queen_piece_weight);
+        attackInfo->queenContacts |= moves & attackInfo->queenContactRing;
         ResetLSB(&queens);
     }
     return score;    
@@ -106,7 +108,26 @@ static void SafeContactChecks(
     const Color_t color
 )
 {
+    const Bitboard_t rookStoppers = 
+        boardInfo->knights[!color] | boardInfo->bishops[!color] | boardInfo->rooks[!color];
+    
+    const Bitboard_t queenStoppers = 
+        rookStoppers | boardInfo->queens[!color];
 
+    Bitboard_t rooksMoves = attackInfo->rookContacts;
+    Bitboard_t queenMoves = attackInfo->queenContacts;
+
+    while(rooksMoves) {
+        Square_t sq = LSB(rooksMoves);
+
+        ResetLSB(&rooksMoves);
+    }
+
+    while(queenMoves) {
+        Square_t sq = LSB(queenMoves);
+
+        ResetLSB(&queenMoves);
+    }
 }
 
 void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
