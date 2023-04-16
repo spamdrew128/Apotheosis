@@ -12,9 +12,10 @@ enum {
   QUEEN_MOBILITY_OPTIONS = BISHOP_MOBILITY_OPTIONS + ROOK_MOBILITY_OPTIONS - 1,
 };
 
+typedef int AttackScore_t;
 enum {
-  king_attack = 0,
-  pawn_attack = 0,
+  king_attack = 0, // still count inner ring attacks
+  pawn_attack = 0, 
   minor_attack = 2,
   rook_attack = 3,
   queen_attack = 5,
@@ -23,9 +24,10 @@ enum {
 
   queen_piece_weight = 2,
   other_piece_weight = 1,
+
+  ATTACK_SCORE_MAX = 128,
 };
 
-typedef int AttackScore_t;
 typedef struct {
   int attackerCount;
   AttackScore_t attackScore;

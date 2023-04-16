@@ -31,6 +31,28 @@ static void ShouldCalculateMobility() {
     PrintResults(score == (queenScore + rookScore + bishopScore + knightScore));
 }
 
+static void ShouldCalculateKingSafety() {
+    Score_t score = 0;
+
+    FEN_t fen = "B2r2k1/3p1p2/p4PpB/1p3b2/8/2Nq2PP/PP2R1NK/3R4 b - - 2 23";
+    InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
+
+    TDDMobilityStuff(&boardInfo, &wAttack, &bAttack, &score);
+
+    int wAttackerCount = 3;
+    int wInnerAttackerCount = 3;
+    int wAttackScore = 6 * minor_attack + wInnerAttackerCount * inner_ring_bonus;
+
+    int bAttackerCount = 3;
+    int bInnerAttackerCount = 2;
+    int bAttackScore = 6 * minor_attack + bInnerAttackerCount * inner_ring_bonus;
+
+    bool wCorrect = wAttack.attackerCount == wAttackerCount && wAttack.attackScore == wAttackScore; 
+    bool bCorrect = wAttack.attackerCount == wAttackerCount && wAttack.attackScore == wAttackScore;
+    PrintResults(wCorrect && bCorrect);
+}
+
 void AttackEvalTDDRunner() {
     ShouldCalculateMobility();
+    ShouldCalculateKingSafety();
 }
