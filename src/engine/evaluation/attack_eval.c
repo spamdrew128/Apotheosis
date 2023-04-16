@@ -72,7 +72,7 @@ static Score_t ComputeQueens(
     return score;    
 }
 
-void MobilityEval(BoardInfo_t* boardInfo, Score_t* score) {
+void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
     const Bitboard_t wPawnAttacks = 
         NoEaOne(boardInfo->pawns[white]) | 
         NoWeOne(boardInfo->pawns[white]);
@@ -80,6 +80,7 @@ void MobilityEval(BoardInfo_t* boardInfo, Score_t* score) {
         SoEaOne(boardInfo->pawns[black]) |
         SoWeOne(boardInfo->pawns[black]);
 
+    // MOBILITY
     // not including supporting other pieces in mobility, EVEN in x-ray attacks
     const Bitboard_t wAvailible = ~bPawnAttacks & (boardInfo->allPieces[black] | boardInfo->empty);
     const Bitboard_t bAvailible = ~wPawnAttacks & (boardInfo->allPieces[white] | boardInfo->empty);
@@ -89,6 +90,11 @@ void MobilityEval(BoardInfo_t* boardInfo, Score_t* score) {
 
     const Bitboard_t blackHvEmpty = boardInfo->empty | boardInfo->rooks[black] | boardInfo->queens[black];
     const Bitboard_t blackD12Empty = boardInfo->empty | boardInfo->bishops[black] | boardInfo->queens[black];
+
+    // KING SAFETY
+    const Bitboard_t whiteAttackZone = GetVulnerableKingZone(boardInfo->kings[black], black);
+    const Bitboard_t blackAttackZone = GetVulnerableKingZone(boardInfo->kings[white], white);
+    
 
     *score += ComputeKnights(boardInfo->knights[white], wAvailible);
     *score += ComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty);
