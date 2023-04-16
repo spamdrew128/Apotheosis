@@ -775,8 +775,28 @@ static void UpdateGradient(
         gradient[eg_phase][feature.index] += coeffs[eg_phase] * feature.value;
     }
 
-    double whiteAttackScore[NUM_PHASES] = { SafetySigmoid(wSum, mg_phase), SafetySigmoid(wSum, eg_phase) };
-    double blackAttackScore[NUM_PHASES] = { SafetySigmoid(bSum, mg_phase), SafetySigmoid(bSum, eg_phase) };
+    for(Phase_t phase = 0; phase < NUM_PHASES; phase++) {
+        double L = weights[phase][ceiling_offset];
+        double J = weights[phase][bias_offset];
+        double G = weights[phase][growth_rate_offset];
+
+        double wSig = SafetySigmoid(wSum, phase);
+        double bSig = SafetySigmoid(bSum, phase);
+        double wSigPrime = SigmoidPrime(wSig);
+        double bSigPrime = SigmoidPrime(bSig);
+        double W = wSum[phase];
+        double B = bSum[phase];
+
+        gradient[phase][ceiling_offset] += coeffs[phase] * (wSig - bSig);
+        gradient[phase][bias_offset] += coeffs[phase] * L * -G*(wSigPrime - bSigPrime);
+        gradient[phase][growth_rate_offset] += coeffs[phase] * L * ((W - J) * wSigPrime - (B - J) * bSigPrime);
+
+        for(int i = 0; i < NONLINEAR_FEATURE_COUNT; i++) {
+            double wFeature = entry.safetyFeatures[i].whiteAttackBenefit;
+            double bFeature = entry.safetyFeatures[i].blackAttackBenefit;
+            gradient[phase][NONLINEAR_OFFSET + i] += coeffs[phase] * L * G*(wSigPrime*wFeature - bSigPrime*bFeature);
+        }
+    }
 }
 
 static void UpdateWeights(
