@@ -985,6 +985,15 @@ static void PrintBonuses(FILE* fp) {
     PrintIndividualBonus("QUEEN_MOBILITY", queen_mobility_offset, QUEEN_MOBILITY_FEATURE_COUNT, fp);
 }
 
+static void PrintKingSafety(FILE* fp) {
+    fprintf(fp,
+        "/*\nSigmoid Constants for MG, EG:\nGrowth Rate: %f, %f\nCeiling: %f, %f\nBias: %f, %f\n*/\n",
+        weights[mg_phase][growth_rate_offset], weights[eg_phase][growth_rate_offset],
+        weights[mg_phase][ceiling_offset], weights[eg_phase][ceiling_offset],
+        weights[mg_phase][bias_offset], weights[eg_phase][bias_offset]
+    );
+}
+
 static void CreateOutputFile() {
     FILE* fp = fopen("tuning_output.txt", "w");
 
@@ -1002,6 +1011,8 @@ static void CreateOutputFile() {
     FilePrintPST("KING_PST", king, fp, pst_offset, true);
 
     PrintArt(fp, KING_SAFETY_ART);
+
+    PrintKingSafety(fp);
 
     fclose(fp);
 }
