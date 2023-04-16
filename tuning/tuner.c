@@ -59,14 +59,16 @@ enum {
     queen_mobility_offset = rook_mobility_offset + ROOK_MOBILITY_FEATURE_COUNT,
 
     LINEAR_FEATURE_COUNT = queen_mobility_offset + QUEEN_MOBILITY_FEATURE_COUNT,
-    NONLINEAR_OFFSET = LINEAR_FEATURE_COUNT,
 
     // safety sigmoid constants
-    growth_rate_offset = 0,
+    growth_rate_offset = LINEAR_FEATURE_COUNT,
     ceiling_offset = growth_rate_offset + 1,
     bias_offset = ceiling_offset + 1,
+
+    NONLINEAR_OFFSET = bias_offset + 1,
+
     // safety weighted sum
-    inner_attacks_offset = bias_offset + 1,
+    inner_attacks_offset = 0,
     outer_attacks_offset = inner_attacks_offset + INNER_ATTACKS_FEATURE_COUNT,
     inner_defense_offset = outer_attacks_offset + OUTER_ATTACKS_FEATURE_COUNT,
     outer_defense_offset = inner_defense_offset + INNER_DEFENSE_FEATURE_COUNT,
@@ -75,7 +77,7 @@ enum {
 
     VECTOR_LENGTH = safety_pst_offset + SAFETY_PST_FEATURE_COUNT + NONLINEAR_OFFSET,
 
-    NONLINEAR_FEATURE_COUNT = VECTOR_LENGTH - LINEAR_FEATURE_COUNT,
+    NONLINEAR_FEATURE_COUNT = VECTOR_LENGTH - NONLINEAR_OFFSET,
 };
 
 enum {
@@ -681,6 +683,15 @@ static void TuningDataTeardown(TuningData_t* tuningData) {
     free(tuningData->entryList);
 }
 
+static void SafetySums(TEntry_t entry, Weight_t wSum[NUM_PHASES], Weight_t bSum[NUM_PHASES]) { // assumes sums are initialized to 0
+    for(int i = 0; i < NONLINEAR_FEATURE_COUNT; i++) {
+        for(Phase_t phase = 0; phase < NUM_PHASES; phase++) {
+            wSum[phase] += entry.safetyFeatures[i].whiteAttackBenefit * weights[phase][NONLINEAR_OFFSET + i];
+            bSum[phase] += entry.safetyFeatures[i].blackAttackBenefit * weights[phase][NONLINEAR_OFFSET + i];
+        }
+    }
+}
+
 static double Evaluation(TEntry_t entry) {
     double mgScore = 0;
     double egScore = 0;
@@ -794,7 +805,6 @@ void TuneParameters(const char* filename) {
         }
 
         UpdateWeights(&tuningData, K, gradient);
-
 
         if(epoch % 25 == 0) {
             double cost = Cost(&tuningData, K);
