@@ -12,6 +12,16 @@ enum {
   QUEEN_MOBILITY_OPTIONS = BISHOP_MOBILITY_OPTIONS + ROOK_MOBILITY_OPTIONS - 1,
 };
 
+enum {
+  pawn_inner_attack = 1,
+  minor_attack = 2,
+  rook_attack = 3,
+  queen_attack = 5,
+
+  rook_contact_check = 2,
+  queen_contact_check = 6,
+};
+
 void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score);
 
 #endif
