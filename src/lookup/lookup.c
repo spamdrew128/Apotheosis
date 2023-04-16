@@ -140,10 +140,13 @@ static void InitCastleSquares(Square_t ksCastleSquares[], Square_t qsCastleSquar
 
 static void InitVulnerableKingZone(Bitboard_t vulnerableKingZone[2][NUM_SQUARES]) {
     for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
-        const Bitboard_t kingRing = GetSingleBitset(sq) | GetKingAttackSet(sq);
+        const Bitboard_t bitset = GetSingleBitset(sq + (sq % 8 == 0) - (sq % 8 == 7));
 
-        vulnerableKingZone[white][sq] = GenShiftNorth(kingRing, 1) | GenShiftNorth(kingRing, 2) | GenShiftNorth(kingRing, 3);
-        vulnerableKingZone[black][sq] = GenShiftSouth(kingRing, 1) | GenShiftSouth(kingRing, 2) | GenShiftSouth(kingRing, 3);
+        const Bitboard_t wKingShield = NoEaOne(bitset) | NortOne(bitset) | NoWeOne(bitset);
+        const Bitboard_t bKingShield = SoEaOne(bitset) | SoutOne(bitset) | SoWeOne(bitset);
+
+        vulnerableKingZone[white][sq] = GenShiftNorth(wKingShield, 1) | GenShiftNorth(wKingShield, 2) | GenShiftNorth(wKingShield, 3);
+        vulnerableKingZone[black][sq] = GenShiftSouth(bKingShield, 1) | GenShiftSouth(bKingShield, 2) | GenShiftSouth(bKingShield, 3);
     }
 }
 

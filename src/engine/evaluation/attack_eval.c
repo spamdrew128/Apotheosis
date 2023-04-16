@@ -169,9 +169,9 @@ void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
     AttackInfo_t whiteAttack = {
         .attackerCount = 0,
         .attackScore = 0,
-        .attackZone = GetVulnerableKingZone(boardInfo->kings[black], black),
+        .attackZone = GetVulnerableKingZone(KingSquare(boardInfo, black), black),
 
-        .rookContactRing = GetRookContactCheckZone(boardInfo->kings[black]),
+        .rookContactRing = GetRookContactCheckZone(KingSquare(boardInfo, black)),
         .queenContactRing = bKingAttacks,
         .rookContacts = empty_set,
         .queenContacts = empty_set,
@@ -182,9 +182,9 @@ void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
     AttackInfo_t blackAttack = {
         .attackerCount = 0,
         .attackScore = 0,
-        .attackZone = GetVulnerableKingZone(boardInfo->kings[white], white),
+        .attackZone = GetVulnerableKingZone(KingSquare(boardInfo, white), white),
 
-        .rookContactRing = GetRookContactCheckZone(boardInfo->kings[white]),
+        .rookContactRing = GetRookContactCheckZone(KingSquare(boardInfo, white)),
         .queenContactRing = wKingAttacks,
         .rookContacts = empty_set,
         .queenContacts = empty_set,
@@ -197,8 +197,11 @@ void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
     *score += ComputeRooks(boardInfo->rooks[white], wAvailible, whiteHvEmpty, &whiteAttack);
     *score += ComputeQueens(boardInfo->queens[white], wAvailible, whiteHvEmpty, whiteD12Empty, &whiteAttack);
 
-    *score -= ComputeKnights(boardInfo->knights[black], bAvailible, &whiteAttack);
-    *score -= ComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty, &whiteAttack);
-    *score -= ComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, &whiteAttack);
-    *score -= ComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, &whiteAttack);
+    *score -= ComputeKnights(boardInfo->knights[black], bAvailible, &blackAttack);
+    *score -= ComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty, &blackAttack);
+    *score -= ComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, &blackAttack);
+    *score -= ComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, &blackAttack);
+
+    SafeContactChecks(boardInfo, &whiteAttack, wPawnAttacks, blackAttack.allAttacks, white);
+    SafeContactChecks(boardInfo, &blackAttack, bPawnAttacks, whiteAttack.allAttacks, black);
 }
