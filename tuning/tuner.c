@@ -824,8 +824,8 @@ static void CreateOutputFile();
 
 static void InitWeights() {
     for(int i = 0; i < VECTOR_LENGTH; i++) {
-        weights[mg_phase][i] = 0;
-        weights[eg_phase][i] = 0;
+        weights[mg_phase][i] = 1;
+        weights[eg_phase][i] = 1;
     }
     for(int p = 0; p < NUM_PHASES; p++) {
         weights[p][growth_rate_offset] = 15;
