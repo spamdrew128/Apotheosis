@@ -954,6 +954,10 @@ static void PrintIndividualBonus(const char* name, int feature_offset, int count
     fprintf(fp, "\\\n}\n\n");
 }
 
+static void PrintArt(FILE* fp, const char* art) {
+    fprintf(fp, "\n/*\n\n%s\n*/\n\n", art);
+}
+
 static void PrintBonuses(FILE* fp) {
     fprintf(fp, "#define BISHOP_PAIR_BONUS \\\n   S(%d, %d)\n\n",
         (int)weights[mg_phase][bishop_pair_offset],
@@ -984,6 +988,8 @@ static void PrintBonuses(FILE* fp) {
 static void CreateOutputFile() {
     FILE* fp = fopen("tuning_output.txt", "w");
 
+    PrintArt(fp, CONSTANTS_ART);
+
     PrintBonuses(fp);
 
     AddPieceValComment(fp);
@@ -994,6 +1000,8 @@ static void CreateOutputFile() {
     FilePrintPST("QUEEN_PST", queen, fp, pst_offset, true);
     FilePrintPST("PAWN_PST", pawn, fp, pst_offset, true);
     FilePrintPST("KING_PST", king, fp, pst_offset, true);
+
+    PrintArt(fp, KING_SAFETY_ART);
 
     fclose(fp);
 }
