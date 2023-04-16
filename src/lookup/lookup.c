@@ -150,14 +150,6 @@ static void InitVulnerableKingZone(Bitboard_t vulnerableKingZone[2][NUM_SQUARES]
     }
 }
 
-static void InitRookContactCheckZone(Bitboard_t rookContactCheckZone[NUM_SQUARES]) {
-    for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
-        const Bitboard_t bitset = GetSingleBitset(sq);
-
-        rookContactCheckZone[sq] = NortOne(bitset) | SoutOne(bitset) | EastOne(bitset) | WestOne(bitset);
-    }
-}
-
 void InitLookupTables() {
     InitSingleBitset(lookup.singleBitsets);
     InitKnightAttacks(lookup.knightAttacks);
@@ -168,7 +160,6 @@ void InitLookupTables() {
     InitDirectionalRays(lookup.directionalRays);
     InitCastleSquares(lookup.ksCastleSquares, lookup.qsCastleSquares);
     InitVulnerableKingZone(lookup.vulnerableKingZone);
-    InitRookContactCheckZone(lookup.rookContactCheckZone);
 }
 
 Bitboard_t GetSingleBitset(Square_t square) {
@@ -225,8 +216,4 @@ Square_t GetQueensideCastleSquare(Color_t color) {
 
 Bitboard_t GetVulnerableKingZone(Square_t square, Color_t color) {
     return lookup.vulnerableKingZone[color][square];
-}
-
-Bitboard_t GetRookContactCheckZone(Square_t square) {
-    return lookup.rookContactCheckZone[square];
 }

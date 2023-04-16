@@ -13,14 +13,13 @@ enum {
 };
 
 enum {
-  // pawn_inner_attack = 1,
-  // king_inner_attack = 1,
+  king_attack = 0,
+  pawn_attack = 0,
   minor_attack = 2,
   rook_attack = 3,
   queen_attack = 5,
 
-  rook_contact_check = 2,
-  queen_contact_check = 6,
+  inner_ring_bonus = 1,
 
   queen_piece_weight = 2,
   other_piece_weight = 1,
@@ -31,9 +30,7 @@ typedef struct {
   int attackerCount;
   AttackScore_t attackScore;
   Bitboard_t attackZone;
-  
-  Bitboard_t pawnKnightControl;
-  Bitboard_t sliderControl;
+  Bitboard_t innerKingRing;
 } AttackInfo_t;
 
 void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score);

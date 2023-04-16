@@ -9,8 +9,9 @@ static Score_t queenMobility[QUEEN_MOBILITY_OPTIONS] = QUEEN_MOBILITY;
 
 static void UpdateAttackInfo(AttackInfo_t* attackInfo, const Bitboard_t moves, const AttackScore_t attackValue, const int weight) {
     const Bitboard_t attacks = moves & attackInfo->attackZone;
+    const Bitboard_t innerAttacks = moves & attackInfo->innerKingRing;
 
-    attackInfo->attackScore += PopCount(attacks) * attackValue;
+    attackInfo->attackScore += PopCount(attacks) * attackValue + PopCount(innerAttacks) * inner_ring_bonus;
     attackInfo->attackerCount += weight * (bool)attacks;
 }
 
@@ -28,7 +29,6 @@ static Score_t ComputeKnights(
         score += knightMobility[PopCount(moves)];
 
         UpdateAttackInfo(attackInfo, moves, minor_attack, other_piece_weight);
-        attackInfo->pawnKnightControl |= attacks;
         ResetLSB(&knights);
     }
     return score;
@@ -49,7 +49,6 @@ static Score_t ComputeBishops(
         score += bishopMobility[PopCount(moves)];
 
         UpdateAttackInfo(attackInfo, moves, minor_attack, other_piece_weight);
-        attackInfo->sliderControl |= attacks;
         ResetLSB(&bishops);
     }
     return score;
@@ -70,7 +69,6 @@ static Score_t ComputeRooks(
         score += rookMobility[PopCount(moves)];
 
         UpdateAttackInfo(attackInfo, moves, rook_attack, other_piece_weight);
-        attackInfo->sliderControl |= attacks;
         ResetLSB(&rooks);
     }
     return score;    
@@ -92,96 +90,31 @@ static Score_t ComputeQueens(
         score += queenMobility[PopCount(moves)];
 
         UpdateAttackInfo(attackInfo, moves, queen_attack, queen_piece_weight);
-        attackInfo->sliderControl |= attacks;
         ResetLSB(&queens);
     }
     return score;    
 }
 
-static Bitboard_t SliderHelpers(Bitboard_t hvSliders, Bitboard_t d12Sliders, const Bitboard_t empty) {
-    Bitboard_t result = empty_set;
-    while(hvSliders) {
-        Square_t sq = LSB(hvSliders);
-        result |= GetRookAttackSet(sq, empty);
-        ResetLSB(&hvSliders);
-    }
-    while(d12Sliders) {
-        Square_t sq = LSB(d12Sliders);
-        result |= GetBishopAttackSet(sq, empty);
-        ResetLSB(&d12Sliders);
-    }
-    return result;
-}
-
-static void SerializeRookContact(
-    AttackInfo_t* attackInfo,
-    Color_t color,
-    BoardInfo_t* boardInfo,
-    Bitboard_t contactZone,
-    Bitboard_t nonSliderHelpers
-) 
+static void ComputePawns(
+    Bitboard_t pawnAttacks,
+    AttackInfo_t* attackInfo
+)
 {
-    Bitboard_t rooks = boardInfo->rooks[color];
-    while(rooks) {
-        Square_t sq = LSB(rooks);
-        Bitboard_t contactChecks = GetRookAttackSet(sq, boardInfo->empty) & contactZone;
-        if(contactChecks) {
-            Bitboard_t empty = boardInfo->empty | GetSingleBitset(sq); // we don't include ourself as a helper
-            Bitboard_t hvSliders = (boardInfo->rooks[color] | boardInfo->queens[color]) | ~GetSingleBitset(sq);
-            Bitboard_t d12Sliders = boardInfo->bishops[color] | boardInfo->queens[color];
-            Bitboard_t protected = SliderHelpers(hvSliders, d12Sliders, empty) | nonSliderHelpers;
+    const Bitboard_t innerAttacks = pawnAttacks & attackInfo->innerKingRing;
 
-            attackInfo->attackScore += PopCount(contactChecks & protected) * rook_contact_check;
-        }
-        ResetLSB(&rooks);
-    }
+    attackInfo->attackScore += PopCount(innerAttacks) * inner_ring_bonus;
+    attackInfo->attackerCount += (bool)innerAttacks;
 }
 
-static void SerializeQueenContact(
-    AttackInfo_t* attackInfo,
-    Color_t color,
-    BoardInfo_t* boardInfo,
-    Bitboard_t contactZone,
-    Bitboard_t nonSliderHelpers
-) 
+static void ComputeKing(
+    Bitboard_t kingAttacks,
+    AttackInfo_t* attackInfo
+)
 {
-    Bitboard_t queens = boardInfo->queens[color];
-    while(queens) {
-        Square_t sq = LSB(queens);
-        Bitboard_t contactChecks = (GetRookAttackSet(sq, boardInfo->empty) | GetBishopAttackSet(sq, boardInfo->empty)) & contactZone;
-        if(contactChecks) {
-            Bitboard_t empty = boardInfo->empty | GetSingleBitset(sq); // we don't include ourself as a helper
-            Bitboard_t hvSliders = (boardInfo->rooks[color] | boardInfo->queens[color]) | ~GetSingleBitset(sq);
-            Bitboard_t d12Sliders = (boardInfo->bishops[color] | boardInfo->queens[color]) | ~GetSingleBitset(sq);
-            Bitboard_t protected = SliderHelpers(hvSliders, d12Sliders, empty) | nonSliderHelpers;
+    const Bitboard_t innerAttacks = kingAttacks & attackInfo->innerKingRing;
 
-            attackInfo->attackScore += PopCount(contactChecks & protected) * queen_contact_check;
-        }
-        ResetLSB(&queens);
-    }
-}
-
-static void ContactChecks(BoardInfo_t* boardInfo, AttackInfo_t* whiteInfo, AttackInfo_t* blackInfo) {
-    const Square_t wKingSq = KingSquare(boardInfo, white);
-    const Square_t bKingSq = KingSquare(boardInfo, black);
-
-    const Bitboard_t allWhiteAttacks = whiteInfo->pawnKnightControl | whiteInfo->sliderControl;
-    const Bitboard_t allBlackAttacks = blackInfo->pawnKnightControl | blackInfo->sliderControl;
-
-    const Bitboard_t wRookContactZone = GetRookContactCheckZone(bKingSq) & ~allBlackAttacks; // need to make sure squares are safe (ignoring king attacks because that is a givin)
-    const Bitboard_t wQueenContactZone = GetKingAttackSet(bKingSq) & ~allBlackAttacks;
-
-    const Bitboard_t bRookContactZone = GetRookContactCheckZone(wKingSq) & ~allWhiteAttacks;
-    const Bitboard_t bQueenContactZone = GetKingAttackSet(wKingSq) & ~allWhiteAttacks;
-
-    const Bitboard_t wNonSliderHelpers = whiteInfo->pawnKnightControl | GetKingAttackSet(wKingSq);
-    const Bitboard_t bNonSliderHelpers = blackInfo->pawnKnightControl | GetKingAttackSet(bKingSq);
-
-    SerializeRookContact(whiteInfo, white, boardInfo, wRookContactZone, wNonSliderHelpers);
-    SerializeQueenContact(whiteInfo, white, boardInfo, wQueenContactZone, wNonSliderHelpers);
-
-    SerializeRookContact(blackInfo, black, boardInfo, bRookContactZone, bNonSliderHelpers);
-    SerializeQueenContact(blackInfo, black, boardInfo, bQueenContactZone, bNonSliderHelpers);
+    attackInfo->attackScore += PopCount(innerAttacks) * inner_ring_bonus;
+    attackInfo->attackerCount += (bool)innerAttacks;
 }
 
 void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
@@ -211,32 +144,30 @@ void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
         .attackerCount = 0,
         .attackScore = 0,
         .attackZone = GetVulnerableKingZone(KingSquare(boardInfo, black), black),
-
-
-        .pawnKnightControl = wKingAttacks | wPawnAttacks,
-        .sliderControl = empty_set, // these will be filled out fully during computations
+        .innerKingRing = GetKingAttackSet(KingSquare(boardInfo, black)),
     };
 
     AttackInfo_t blackAttack = {
         .attackerCount = 0,
         .attackScore = 0,
         .attackZone = GetVulnerableKingZone(KingSquare(boardInfo, white), white),
-
-        .pawnKnightControl = bKingAttacks | bPawnAttacks,
-        .sliderControl = empty_set,
+        .innerKingRing = GetKingAttackSet(KingSquare(boardInfo, white)),
     };
 
     *score += ComputeKnights(boardInfo->knights[white], wAvailible, &whiteAttack);
     *score += ComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty, &whiteAttack);
     *score += ComputeRooks(boardInfo->rooks[white], wAvailible, whiteHvEmpty, &whiteAttack);
     *score += ComputeQueens(boardInfo->queens[white], wAvailible, whiteHvEmpty, whiteD12Empty, &whiteAttack);
+    ComputePawns(wPawnAttacks, &whiteAttack);
+    ComputeKing(wKingAttacks, &whiteAttack);
 
     *score -= ComputeKnights(boardInfo->knights[black], bAvailible, &blackAttack);
     *score -= ComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty, &blackAttack);
     *score -= ComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, &blackAttack);
     *score -= ComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, &blackAttack);
+    ComputePawns(bPawnAttacks, &blackAttack);
+    ComputeKing(bKingAttacks, &blackAttack);
 
-    ContactChecks(boardInfo, &whiteAttack, &blackAttack);
 
     if(whiteAttack.attackerCount > 2) {
         *score += whiteAttack.attackScore;
