@@ -154,7 +154,7 @@ static void TunerSerializeByRank(
     }
 }
 
-static void TunerUpdateAttackInfo(AttackInfo_t* attackInfo, const Bitboard_t moves, const AttackScore_t attackValue, const int weight) {
+static void UpdateAttackInfo(AttackInfo_t* attackInfo, const Bitboard_t moves, const AttackScore_t attackValue, const int weight) {
     const Bitboard_t attacks = moves & attackInfo->attackZone;
     const Bitboard_t innerAttacks = moves & attackInfo->innerKingRing;
 
@@ -590,30 +590,30 @@ static double MSE(TuningData_t* tuningData, double cost) {
     return cost / tuningData->numEntries;
 }
 
-static double ComputeK(TuningData_t* tuningData) {
-    double start = 0.001;
-    double end = 0.01;
-    double step = (end - start) / 1000;
-    double currentK = start;
+// static double ComputeK(TuningData_t* tuningData) {
+//     double start = 0.001;
+//     double end = 0.01;
+//     double step = (end - start) / 1000;
+//     double currentK = start;
 
-    int iter = 0;
+//     int iter = 0;
 
-    double bestK;
-    double lowestCost = 10000000;
-    while(currentK <= end) {
-        double cost = Cost(tuningData, currentK);
-        if(cost <= lowestCost) {
-            lowestCost = cost;
-            bestK = currentK;
-        }
-        currentK += step;
-        printf("iteration %d\n", iter++);
-    }
+//     double bestK;
+//     double lowestCost = 10000000;
+//     while(currentK <= end) {
+//         double cost = Cost(tuningData, currentK);
+//         if(cost <= lowestCost) {
+//             lowestCost = cost;
+//             bestK = currentK;
+//         }
+//         currentK += step;
+//         printf("iteration %d\n", iter++);
+//     }
     
-    printf("K = %f gives MSE of %f\n", bestK, MSE(tuningData, lowestCost));
+//     printf("K = %f gives MSE of %f\n", bestK, MSE(tuningData, lowestCost));
 
-    return bestK;
-}
+//     return bestK;
+// }
 
 static void UpdateGradient(
     TEntry_t entry,
@@ -834,8 +834,34 @@ static void PrintBonuses(FILE* fp) {
     PrintIndividualBonus("QUEEN_MOBILITY", queen_mobility_offset, QUEEN_MOBILITY_FEATURE_COUNT, fp);
 }
 
+static void PrintArt(FILE* fp, const char* art) {
+    fprintf(fp, "\n/*\n\n%s\n*/\n\n", art);
+}
+
+static void PrintKingSafetyTable(FILE* fp) {
+    fprintf(fp, "#define SAFETY_TABLE { \\\n");
+    for(int i = 0; i < KING_SAFTEY_TABLE_FEATURE_COUNT; i++) {
+        if(i % 10 == 0) { // first row entry
+            fprintf(fp, "   ");
+        }
+
+        fprintf(fp, "S(%d, %d), ",
+            (int)weights[mg_phase][king_safety_table_offset + i],
+            (int)weights[eg_phase][king_safety_table_offset + i]
+        );
+
+        if(i % 10 == 9) { // last row entry
+            fprintf(fp, "\\\n");
+        }
+    }
+
+    fprintf(fp, "}\n\n");
+}
+
 static void CreateOutputFile() {
     FILE* fp = fopen("tuning_output.txt", "w");
+
+    PrintArt(fp, CONSTANTS_ART);
 
     PrintBonuses(fp);
 
@@ -847,6 +873,8 @@ static void CreateOutputFile() {
     FilePrintPST("QUEEN_PST", queen, fp, pst_offset, true);
     FilePrintPST("PAWN_PST", pawn, fp, pst_offset, true);
     FilePrintPST("KING_PST", king, fp, pst_offset, true);
+
+    PrintKingSafetyTable(fp);
 
     fclose(fp);
 }
