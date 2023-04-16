@@ -918,7 +918,7 @@ static void AddPieceValComment(FILE* fp) {
     fprintf(fp, "*/\n\n");
 }
 
-static void FilePrintPST(const char* tableName, Piece_t piece, FILE* fp, int feature_offset, bool isPartOfSet) {
+static void FilePrintBucketPST(const char* tableName, Piece_t piece, FILE* fp, int feature_offset, bool isPartOfSet) {
     fprintf(fp, "#define %s { ", tableName);
     for(Bucket_t bucket = 0; bucket < NUM_PST_BUCKETS; bucket++) {
         fprintf(fp, "{ \\\n");
@@ -943,6 +943,26 @@ static void FilePrintPST(const char* tableName, Piece_t piece, FILE* fp, int fea
     fprintf(fp, "}\n\n");
 }
 
+static void FilePrintPST(const char* tableName, Piece_t piece, FILE* fp, int feature_offset) {
+    fprintf(fp, "#define %s { \\\n", tableName);
+    for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
+        if(sq % 8 == 0) { // first row entry
+            fprintf(fp, "   ");
+        }
+
+        int offset = feature_offset + sq;
+        fprintf(fp, "S(%d, %d), ",
+            (int)weights[mg_phase][offset],
+            (int)weights[eg_phase][offset]
+        );
+
+        if(sq % 8 == 7) { // last row entry
+            fprintf(fp, "\\\n");
+        }
+    }
+    fprintf(fp, "}\n\n ");
+}
+
 static void PrintIndividualBonus(const char* name, int feature_offset, int count, FILE* fp) {
     fprintf(fp, "#define %s { \\\n   ", name);
     for(int i = 0; i < count; i++) { 
@@ -964,7 +984,7 @@ static void PrintBonuses(FILE* fp) {
         (int)weights[eg_phase][bishop_pair_offset]
     );
 
-    FilePrintPST("PASSED_PAWN_PST", 0, fp, passed_pawn_offset, false);
+    FilePrintBucketPST("PASSED_PAWN_PST", 0, fp, passed_pawn_offset, false);
 
     PrintIndividualBonus("BLOCKED_PASSERS", blocked_passer_offset, BLOCKED_PASSER_FEATURE_COUNT, fp);
 
@@ -992,6 +1012,13 @@ static void PrintKingSafety(FILE* fp) {
         weights[mg_phase][ceiling_offset], weights[eg_phase][ceiling_offset],
         weights[mg_phase][bias_offset], weights[eg_phase][bias_offset]
     );
+
+    PrintIndividualBonus("INNER_ATTACKS", inner_attacks_offset, INNER_ATTACKS_FEATURE_COUNT, fp);
+    PrintIndividualBonus("OUTER_ATTACKS", outer_attacks_offset, OUTER_ATTACKS_FEATURE_COUNT, fp);
+    PrintIndividualBonus("INNER_DEFENSE", inner_defense_offset, INNER_DEFENSE_FEATURE_COUNT, fp);
+    PrintIndividualBonus("OUTER_DEFENSE", outer_defense_offset, OUTER_DEFENSE_FEATURE_COUNT, fp);
+    PrintIndividualBonus("KING_AIRINESS", king_airiness_offset, AIRINESS_FEATURE_COUNT, fp);
+    FilePrintPST("KING_SAFETY_PST", 0, fp, safety_pst_offset);
 }
 
 static void CreateOutputFile() {
@@ -1003,12 +1030,12 @@ static void CreateOutputFile() {
 
     AddPieceValComment(fp);
 
-    FilePrintPST("KNIGHT_PST", knight, fp, pst_offset, true);
-    FilePrintPST("BISHOP_PST", bishop, fp, pst_offset, true);
-    FilePrintPST("ROOK_PST", rook, fp, pst_offset, true);
-    FilePrintPST("QUEEN_PST", queen, fp, pst_offset, true);
-    FilePrintPST("PAWN_PST", pawn, fp, pst_offset, true);
-    FilePrintPST("KING_PST", king, fp, pst_offset, true);
+    FilePrintBucketPST("KNIGHT_PST", knight, fp, pst_offset, true);
+    FilePrintBucketPST("BISHOP_PST", bishop, fp, pst_offset, true);
+    FilePrintBucketPST("ROOK_PST", rook, fp, pst_offset, true);
+    FilePrintBucketPST("QUEEN_PST", queen, fp, pst_offset, true);
+    FilePrintBucketPST("PAWN_PST", pawn, fp, pst_offset, true);
+    FilePrintBucketPST("KING_PST", king, fp, pst_offset, true);
 
     PrintArt(fp, KING_SAFETY_ART);
 
