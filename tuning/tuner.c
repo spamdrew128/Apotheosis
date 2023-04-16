@@ -766,9 +766,18 @@ static void UpdateWeights(
 
 static void CreateOutputFile();
 
+static void InitWeights() {
+    for(int i = 0; i < VECTOR_LENGTH; i++) {
+        weights[mg_phase][i] = 1;
+        weights[eg_phase][i] = 1;
+    }
+}
+
 void TuneParameters(const char* filename) {
     TuningData_t tuningData;
     TuningDataInit(&tuningData, filename);
+
+    InitWeights();
 
     double K = 0.006634;
 
