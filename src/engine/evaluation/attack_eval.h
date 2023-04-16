@@ -35,6 +35,6 @@ typedef struct {
 
 void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score);
 
-void TDDSafetyOnly(BoardInfo_t* boardInfo, AttackInfo_t* wAttack, AttackInfo_t* bAttack);
+void TDDMobilityStuff(BoardInfo_t* boardInfo, AttackInfo_t* wAttack, AttackInfo_t* bAttack, Score_t* nonSafetyScore);
 
 #endif
