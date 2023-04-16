@@ -827,6 +827,11 @@ static void InitWeights() {
         weights[mg_phase][i] = 1;
         weights[eg_phase][i] = 1;
     }
+    for(int p = 0; p < NUM_PHASES; p++) {
+        weights[p][growth_rate_offset] = 15;
+        weights[p][bias_offset] = 20;
+        weights[p][ceiling_offset] = 700;
+    }
 }
 
 void TuneParameters(const char* filename) {
