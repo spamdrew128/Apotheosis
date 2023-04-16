@@ -683,7 +683,7 @@ static void TuningDataTeardown(TuningData_t* tuningData) {
     free(tuningData->entryList);
 }
 
-static void SafetySums(TEntry_t entry, Weight_t wSum[NUM_PHASES], Weight_t bSum[NUM_PHASES]) { // assumes sums are initialized to 0
+static void SafetySums(TEntry_t entry, double wSum[NUM_PHASES], double bSum[NUM_PHASES]) { // assumes sums are initialized to 0
     for(int i = 0; i < NONLINEAR_FEATURE_COUNT; i++) {
         for(Phase_t phase = 0; phase < NUM_PHASES; phase++) {
             wSum[phase] += entry.safetyFeatures[i].whiteAttackBenefit * weights[phase][NONLINEAR_OFFSET + i];
@@ -706,8 +706,8 @@ static double Evaluation(TEntry_t entry) {
     return (mgScore * entry.phaseConstant[mg_phase] + egScore * entry.phaseConstant[eg_phase]);
 }
 
-static double Sigmoid(double E, double K) {
-    return 1 / (1 + exp(-K * E));
+static double Sigmoid(double E, double K, double J) {
+    return 1 / (1 + exp(-K * (E - J)));
 }
 
 static double SigmoidPrime(double sigmoid) {
@@ -721,7 +721,7 @@ static double Cost(TuningData_t* tuningData, double K) {
         TEntry_t entry = tuningData->entryList[i];
         double E = Evaluation(entry);
 
-        double error = entry.result - Sigmoid(E, K);
+        double error = entry.result - Sigmoid(E, K, 0);
         totalError += error * error;
     }
 
@@ -739,7 +739,7 @@ static void UpdateGradient(
 )
 {
     double R = entry.result;
-    double sigmoid = Sigmoid(Evaluation(entry), K);
+    double sigmoid = Sigmoid(Evaluation(entry), K, 0);
     double sigmoidPrime = SigmoidPrime(sigmoid);
 
     double coeffs[NUM_PHASES];
