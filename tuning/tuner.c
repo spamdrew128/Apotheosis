@@ -30,6 +30,7 @@ enum {
     BISHOP_MOBILITY_FEATURE_COUNT = BISHOP_MOBILITY_OPTIONS,
     ROOK_MOBILITY_FEATURE_COUNT = ROOK_MOBILITY_OPTIONS,
     QUEEN_MOBILITY_FEATURE_COUNT = QUEEN_MOBILITY_OPTIONS,
+    KING_SAFTEY_TABLE_FEATURE_COUNT = SAFETY_TABLE_SIZE,
 
     pst_offset = 0,
     bishop_pair_offset = pst_offset + PST_FEATURE_COUNT,
@@ -49,7 +50,9 @@ enum {
     rook_mobility_offset = bishop_mobility_offset + BISHOP_MOBILITY_FEATURE_COUNT,
     queen_mobility_offset = rook_mobility_offset + ROOK_MOBILITY_FEATURE_COUNT,
 
-    VECTOR_LENGTH = queen_mobility_offset + QUEEN_MOBILITY_FEATURE_COUNT,
+    king_safety_table_offset = queen_mobility_offset + QUEEN_MOBILITY_FEATURE_COUNT,
+
+    VECTOR_LENGTH = king_safety_table_offset + KING_SAFTEY_TABLE_FEATURE_COUNT,
 };
 
 enum {
@@ -151,17 +154,29 @@ static void TunerSerializeByRank(
     }
 }
 
+static void TunerUpdateAttackInfo(AttackInfo_t* attackInfo, const Bitboard_t moves, const AttackScore_t attackValue, const int weight) {
+    const Bitboard_t attacks = moves & attackInfo->attackZone;
+    const Bitboard_t innerAttacks = moves & attackInfo->innerKingRing;
+
+    attackInfo->attackScore += PopCount(attacks) * attackValue + PopCount(innerAttacks) * inner_ring_bonus;
+    attackInfo->attackerCount += weight * (bool)attacks;
+}
+
 static void TunerComputeKnights(
     Bitboard_t knights,
     Bitboard_t availible,
     int16_t allValues[VECTOR_LENGTH],
+    AttackInfo_t* attackInfo,
     int multiplier
 )
 {
     while(knights) {
         Square_t sq = LSB(knights);
-        Bitboard_t moves = GetKnightAttackSet(sq) & availible;
+        Bitboard_t attacks = GetKnightAttackSet(sq);
+        Bitboard_t moves = attacks & availible;
         allValues[knight_mobility_offset + PopCount(moves)] += multiplier;
+
+        UpdateAttackInfo(attackInfo, moves, minor_attack, other_piece_weight);
         ResetLSB(&knights);
     }
 }
@@ -171,13 +186,18 @@ static void TunerComputeBishops(
     Bitboard_t availible,
     Bitboard_t d12Empty,
     int16_t allValues[VECTOR_LENGTH],
+    AttackInfo_t* attackInfo,
     int multiplier
 )
 {
+
     while(bishops) {
         Square_t sq = LSB(bishops);
-        Bitboard_t moves = GetBishopAttackSet(sq, d12Empty) & availible;
+        Bitboard_t attacks = GetBishopAttackSet(sq, d12Empty);
+        Bitboard_t moves = attacks & availible;
         allValues[bishop_mobility_offset + PopCount(moves)] += multiplier;
+
+        UpdateAttackInfo(attackInfo, moves, minor_attack, other_piece_weight);
         ResetLSB(&bishops);
     }
 }
@@ -187,15 +207,19 @@ static void TunerComputeRooks(
     Bitboard_t availible,
     Bitboard_t hvEmpty,
     int16_t allValues[VECTOR_LENGTH],
+    AttackInfo_t* attackInfo,
     int multiplier
 )
 {
     while(rooks) {
         Square_t sq = LSB(rooks);
-        Bitboard_t moves = GetRookAttackSet(sq, hvEmpty) & availible;
+        Bitboard_t attacks = GetRookAttackSet(sq, hvEmpty);
+        Bitboard_t moves = attacks & availible;
         allValues[rook_mobility_offset + PopCount(moves)] += multiplier;
+
+        UpdateAttackInfo(attackInfo, moves, rook_attack, other_piece_weight);
         ResetLSB(&rooks);
-    }  
+    }
 }
 
 static void TunerComputeQueens(
@@ -204,16 +228,41 @@ static void TunerComputeQueens(
     Bitboard_t hvEmpty,
     Bitboard_t d12Empty,
     int16_t allValues[VECTOR_LENGTH],
+    AttackInfo_t* attackInfo,
     int multiplier
 )
 {
     while(queens) {
         Square_t sq = LSB(queens);
-        Bitboard_t d12Moves = GetBishopAttackSet(sq, d12Empty) & availible;
-        Bitboard_t hvMoves = GetRookAttackSet(sq, hvEmpty) & availible;
-        allValues[queen_mobility_offset + PopCount(d12Moves) + PopCount(hvMoves)] += multiplier;
+        Bitboard_t attacks = GetBishopAttackSet(sq, d12Empty) | GetRookAttackSet(sq, hvEmpty);
+        Bitboard_t moves = attacks & availible;
+        allValues[queen_mobility_offset + PopCount(moves)] += multiplier;
+
+        UpdateAttackInfo(attackInfo, moves, queen_attack, queen_piece_weight);
         ResetLSB(&queens);
-    } 
+    }
+}
+
+static void TunerComputePawns(
+    Bitboard_t pawnAttacks,
+    AttackInfo_t* attackInfo
+)
+{
+    const Bitboard_t innerAttacks = pawnAttacks & attackInfo->innerKingRing;
+
+    attackInfo->attackScore += PopCount(innerAttacks) * inner_ring_bonus;
+    attackInfo->attackerCount += (bool)innerAttacks;
+}
+
+static void TunerComputeKing(
+    Bitboard_t kingAttacks,
+    AttackInfo_t* attackInfo
+)
+{
+    const Bitboard_t innerAttacks = kingAttacks & attackInfo->innerKingRing;
+
+    attackInfo->attackScore += PopCount(innerAttacks) * inner_ring_bonus;
+    attackInfo->attackerCount += (bool)innerAttacks;
 }
 
 void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
@@ -224,6 +273,8 @@ void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
         SoEaOne(boardInfo->pawns[black]) |
         SoWeOne(boardInfo->pawns[black]);
 
+    // MOBILITY
+    // not including supporting other pieces in mobility, EVEN in x-ray attacks
     const Bitboard_t wAvailible = ~bPawnAttacks & (boardInfo->allPieces[black] | boardInfo->empty);
     const Bitboard_t bAvailible = ~wPawnAttacks & (boardInfo->allPieces[white] | boardInfo->empty);
 
@@ -233,15 +284,45 @@ void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
     const Bitboard_t blackHvEmpty = boardInfo->empty | boardInfo->rooks[black] | boardInfo->queens[black];
     const Bitboard_t blackD12Empty = boardInfo->empty | boardInfo->bishops[black] | boardInfo->queens[black];
 
-    TunerComputeKnights(boardInfo->knights[white], wAvailible, allValues, 1);
-    TunerComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty, allValues, 1);
-    TunerComputeRooks(boardInfo->rooks[white], wAvailible, whiteHvEmpty, allValues, 1);
-    TunerComputeQueens(boardInfo->queens[white], wAvailible, whiteHvEmpty, whiteD12Empty, allValues, 1);
+    // KING SAFETY
+    const Bitboard_t wKingAttacks = GetKingAttackSet(boardInfo->kings[white]);
+    const Bitboard_t bKingAttacks = GetKingAttackSet(boardInfo->kings[black]);
 
-    TunerComputeKnights(boardInfo->knights[black], bAvailible, allValues, -1);
-    TunerComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty, allValues, -1);
-    TunerComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, allValues, -1);
-    TunerComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, allValues, -1);
+    AttackInfo_t whiteAttack = {
+        .attackerCount = 0,
+        .attackScore = 0,
+        .attackZone = GetVulnerableKingZone(KingSquare(boardInfo, black), black),
+        .innerKingRing = GetKingAttackSet(KingSquare(boardInfo, black)),
+    };
+
+    AttackInfo_t blackAttack = {
+        .attackerCount = 0,
+        .attackScore = 0,
+        .attackZone = GetVulnerableKingZone(KingSquare(boardInfo, white), white),
+        .innerKingRing = GetKingAttackSet(KingSquare(boardInfo, white)),
+    };
+
+    TunerComputeKnights(boardInfo->knights[white], wAvailible, allValues, &whiteAttack, 1);
+    TunerComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty, allValues, &whiteAttack, 1);
+    TunerComputeRooks(boardInfo->rooks[white], wAvailible, whiteHvEmpty, allValues, &whiteAttack, 1);
+    TunerComputeQueens(boardInfo->queens[white], wAvailible, whiteHvEmpty, whiteD12Empty, allValues, &whiteAttack, 1);
+    TunerComputePawns(wPawnAttacks, &whiteAttack);
+    TunerComputeKing(wKingAttacks, &whiteAttack);
+
+    TunerComputeKnights(boardInfo->knights[black], bAvailible, allValues, &blackAttack, -1);
+    TunerComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty, allValues, &blackAttack, -1);
+    TunerComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, allValues, &blackAttack, -1);
+    TunerComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, allValues, &blackAttack, -1);
+    TunerComputePawns(bPawnAttacks, &blackAttack);
+    TunerComputeKing(bKingAttacks, &blackAttack);
+
+
+    if(whiteAttack.attackerCount > 2) {
+        allValues[MIN(whiteAttack.attackScore, ATTACK_SCORE_MAX)]++;
+    }
+    if(blackAttack.attackerCount > 2) {
+        allValues[MIN(blackAttack.attackScore, ATTACK_SCORE_MAX)]--;
+    }
 }
 
 static void FillPSTFeatures(

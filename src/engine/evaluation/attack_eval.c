@@ -137,21 +137,21 @@ void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
     const Bitboard_t blackD12Empty = boardInfo->empty | boardInfo->bishops[black] | boardInfo->queens[black];
 
     // KING SAFETY
-    const Bitboard_t wKingAttacks = GetKingAttackSet(boardInfo->kings[white]);
-    const Bitboard_t bKingAttacks = GetKingAttackSet(boardInfo->kings[black]);
+    const Bitboard_t wKingAttacks = GetKingAttackSet(KingSquare(boardInfo, white));
+    const Bitboard_t bKingAttacks = GetKingAttackSet(KingSquare(boardInfo, black));
 
     AttackInfo_t whiteAttack = {
         .attackerCount = 0,
         .attackScore = 0,
         .attackZone = GetVulnerableKingZone(KingSquare(boardInfo, black), black),
-        .innerKingRing = GetKingAttackSet(KingSquare(boardInfo, black)),
+        .innerKingRing = bKingAttacks,
     };
 
     AttackInfo_t blackAttack = {
         .attackerCount = 0,
         .attackScore = 0,
         .attackZone = GetVulnerableKingZone(KingSquare(boardInfo, white), white),
-        .innerKingRing = GetKingAttackSet(KingSquare(boardInfo, white)),
+        .innerKingRing = wKingAttacks,
     };
 
     *score += ComputeKnights(boardInfo->knights[white], wAvailible, &whiteAttack);

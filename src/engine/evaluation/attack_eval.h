@@ -25,7 +25,8 @@ enum {
   queen_piece_weight = 2,
   other_piece_weight = 1,
 
-  ATTACK_SCORE_MAX = 128,
+  ATTACK_SCORE_MAX = 99,
+  SAFETY_TABLE_SIZE = ATTACK_SCORE_MAX + 1,
 };
 
 typedef struct {
