@@ -12,7 +12,6 @@ static void UpdateAttackInfo(AttackInfo_t* attackInfo, const Bitboard_t moves, c
 
     attackInfo->attackScore += PopCount(attacks) * attackValue;
     attackInfo->attackerCount += weight * (bool)attacks;
-    attackInfo->allAttacks |= moves;
 }
 
 static Score_t ComputeKnights(
@@ -93,54 +92,13 @@ static Score_t ComputeQueens(
     return score;    
 }
 
-static void SafeContactChecks(
-    BoardInfo_t* boardInfo,
+static void InnerAttacks(
     AttackInfo_t* attackInfo,
-    const Bitboard_t friendlyPawnAttacks,
-    const Bitboard_t enemyAttacked,
-    const Color_t color
+    const Bitboard_t kingAttacks,
+    const Bitboard_t pawnAttacks
 )
 {
-    const Bitboard_t allSupport = boardInfo->allPieces[white] & ~boardInfo->pawns[white];
 
-    Bitboard_t rooksChecks = attackInfo->rookContacts & ~enemyAttacked;
-    Bitboard_t queenChecks = attackInfo->queenContacts & ~enemyAttacked;
-
-    while(rooksChecks) {
-        Square_t sq = LSB(rooksChecks);
-        const Bitboard_t bitset = GetSingleBitset(sq);
-
-        const Bitboard_t empty = boardInfo->empty | bitset; // we don't include ourself
-        const Bitboard_t support = allSupport & ~bitset;
-
-        const Bitboard_t supportPaths = 
-            GetBishopAttackSet(sq, empty) | GetRookAttackSet(sq, empty) | GetKnightAttackSet(sq);
-            
-        if((bitset & friendlyPawnAttacks) || (supportPaths & support)) {
-            attackInfo->attackScore += rook_contact_check;
-            break;
-        }
-
-        ResetLSB(&rooksChecks);
-    }
-
-    while(queenChecks) {
-        Square_t sq = LSB(queenChecks);
-        const Bitboard_t bitset = GetSingleBitset(sq);
-
-        const Bitboard_t empty = boardInfo->empty | bitset;
-        const Bitboard_t support = allSupport & ~bitset;
-
-        const Bitboard_t supportPaths = 
-            GetBishopAttackSet(sq, empty) | GetRookAttackSet(sq, empty) | GetKnightAttackSet(sq);
-            
-        if((bitset & friendlyPawnAttacks) || (supportPaths & support)) {
-            attackInfo->attackScore += queen_contact_check;
-            break;
-        }
-
-        ResetLSB(&queenChecks);
-    }
 }
 
 void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
@@ -174,9 +132,7 @@ void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
         .rookContactRing = GetRookContactCheckZone(KingSquare(boardInfo, black)),
         .queenContactRing = bKingAttacks,
         .rookContacts = empty_set,
-        .queenContacts = empty_set,
-
-        .allAttacks = wPawnAttacks | (wKingAttacks & wAvailible),
+        .queenContacts = empty_set
     };
 
     AttackInfo_t blackAttack = {
@@ -187,9 +143,7 @@ void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
         .rookContactRing = GetRookContactCheckZone(KingSquare(boardInfo, white)),
         .queenContactRing = wKingAttacks,
         .rookContacts = empty_set,
-        .queenContacts = empty_set,
-
-        .allAttacks = bPawnAttacks | (bKingAttacks & bAvailible),
+        .queenContacts = empty_set
     };
 
     *score += ComputeKnights(boardInfo->knights[white], wAvailible, &whiteAttack);
@@ -202,6 +156,18 @@ void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
     *score -= ComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, &blackAttack);
     *score -= ComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, &blackAttack);
 
-    SafeContactChecks(boardInfo, &whiteAttack, wPawnAttacks, blackAttack.allAttacks, white);
-    SafeContactChecks(boardInfo, &blackAttack, bPawnAttacks, whiteAttack.allAttacks, black);
+
+    if(whiteAttack.attackerCount > 2) {
+
+    }
+    if(blackAttack.attackerCount > 2) {
+
+    }
+}
+
+void TDDSafetyOnly(BoardInfo_t* boardInfo, AttackInfo_t* wAttack, AttackInfo_t* bAttack) {
+    Score_t score = 0;
+
+    // *wAttack = whiteAttack;
+    // *bAttack = blackAttack;
 }

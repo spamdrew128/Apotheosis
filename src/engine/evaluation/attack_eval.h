@@ -22,12 +22,11 @@ typedef struct {
     Bitboard_t queenContactRing;
     Bitboard_t rookContacts;
     Bitboard_t queenContacts;
-
-    Bitboard_t allAttacks;
 } AttackInfo_t;
 
 enum {
   pawn_inner_attack = 1,
+  king_inner_attack = 1,
   minor_attack = 2,
   rook_attack = 3,
   queen_attack = 5,
@@ -40,5 +39,7 @@ enum {
 };
 
 void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score);
+
+void TDDSafetyOnly(BoardInfo_t* boardInfo, AttackInfo_t* wAttack, AttackInfo_t* bAttack);
 
 #endif
