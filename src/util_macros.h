@@ -14,9 +14,9 @@
         } \
     } while(0)
 
-#define MIN(v1, v2) ((v1) < (v2)) ? (v1) : (v2)
+#define MIN(v1, v2) (((v1) < (v2)) ? (v1) : (v2))
 
-#define MAX(v1, v2) ((v1) > (v2)) ? (v1) : (v2)
+#define MAX(v1, v2) (((v1) > (v2)) ? (v1) : (v2))
 
 #define MIRROR(sq) ((sq)^56)
 

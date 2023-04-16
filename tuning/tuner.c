@@ -318,10 +318,10 @@ void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
 
 
     if(whiteAttack.attackerCount > 2) {
-        allValues[MIN(whiteAttack.attackScore, ATTACK_SCORE_MAX)]++;
+        allValues[king_safety_table_offset + MIN(whiteAttack.attackScore, ATTACK_SCORE_MAX)]++;
     }
     if(blackAttack.attackerCount > 2) {
-        allValues[MIN(blackAttack.attackScore, ATTACK_SCORE_MAX)]--;
+        allValues[king_safety_table_offset + MIN(blackAttack.attackScore, ATTACK_SCORE_MAX)]--;
     }
 }
 
