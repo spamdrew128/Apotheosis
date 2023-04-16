@@ -145,8 +145,11 @@ static void InitVulnerableKingZone(Bitboard_t vulnerableKingZone[2][NUM_SQUARES]
         const Bitboard_t wKingShield = NoEaOne(bitset) | NortOne(bitset) | NoWeOne(bitset);
         const Bitboard_t bKingShield = SoEaOne(bitset) | SoutOne(bitset) | SoWeOne(bitset);
 
-        vulnerableKingZone[white][sq] = GenShiftNorth(wKingShield, 1) | GenShiftNorth(wKingShield, 2) | GenShiftNorth(wKingShield, 3);
-        vulnerableKingZone[black][sq] = GenShiftSouth(bKingShield, 1) | GenShiftSouth(bKingShield, 2) | GenShiftSouth(bKingShield, 3);
+        const Bitboard_t wForward = GenShiftNorth(wKingShield, 1) | GenShiftNorth(wKingShield, 2) | GenShiftNorth(wKingShield, 3);
+        const Bitboard_t bForward = GenShiftSouth(bKingShield, 1) | GenShiftSouth(bKingShield, 2) | GenShiftSouth(bKingShield, 3);
+
+        vulnerableKingZone[white][sq] = wForward | GenShiftSouth(wForward, 3);
+        vulnerableKingZone[black][sq] = bForward | GenShiftNorth(bForward, 3);
     }
 }
 

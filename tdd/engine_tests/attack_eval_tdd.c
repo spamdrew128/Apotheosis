@@ -45,10 +45,10 @@ static void ShouldCalculateKingSafety() {
 
     int bAttackerCount = 3;
     int bInnerAttackerCount = 2;
-    int bAttackScore = 6 * minor_attack + bInnerAttackerCount * inner_ring_bonus;
+    int bAttackScore = 1 * minor_attack + 2 * queen_attack + bInnerAttackerCount * inner_ring_bonus;
 
     bool wCorrect = wAttack.attackerCount == wAttackerCount && wAttack.attackScore == wAttackScore; 
-    bool bCorrect = wAttack.attackerCount == wAttackerCount && wAttack.attackScore == wAttackScore;
+    bool bCorrect = bAttack.attackerCount == bAttackerCount && bAttack.attackScore == bAttackScore;
     PrintResults(wCorrect && bCorrect);
 }
 
