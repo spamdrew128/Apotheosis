@@ -178,7 +178,7 @@ static void ContactChecks(BoardInfo_t* boardInfo, AttackInfo_t* whiteInfo, Attac
     const Bitboard_t bNonSliderHelpers = blackInfo->pawnKnightControl | GetKingAttackSet(bKingSq);
 
     SerializeRookContact(whiteInfo, white, boardInfo, wRookContactZone, wNonSliderHelpers);
-    SerializeQueenContact(whiteInfo, white, boardInfo, bQueenContactZone, wNonSliderHelpers);
+    SerializeQueenContact(whiteInfo, white, boardInfo, wQueenContactZone, wNonSliderHelpers);
 
     SerializeRookContact(blackInfo, black, boardInfo, bRookContactZone, bNonSliderHelpers);
     SerializeQueenContact(blackInfo, black, boardInfo, bQueenContactZone, bNonSliderHelpers);
@@ -238,12 +238,12 @@ void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
 
     ContactChecks(boardInfo, &whiteAttack, &blackAttack);
 
-    // if(whiteAttack.attackerCount > 2) {
-
-    // }
-    // if(blackAttack.attackerCount > 2) {
-
-    // }
+    if(whiteAttack.attackerCount > 2) {
+        *score += whiteAttack.attackScore;
+    }
+    if(blackAttack.attackerCount > 2) {
+        *score += blackAttack.attackScore;
+    }
 }
 
 void TDDSafetyOnly(BoardInfo_t* boardInfo, AttackInfo_t* wAttack, AttackInfo_t* bAttack) {
