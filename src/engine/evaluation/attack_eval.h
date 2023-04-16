@@ -13,6 +13,19 @@ enum {
 };
 
 typedef int AttackScore_t;
+typedef struct {
+    int attackerCount;
+    AttackScore_t attackScore;
+    Bitboard_t attackZone;
+
+    Bitboard_t rookContactRing;
+    Bitboard_t queenContactRing;
+    Bitboard_t rookContacts;
+    Bitboard_t queenContacts;
+
+    Bitboard_t allAttacks;
+} AttackInfo_t;
+
 enum {
   pawn_inner_attack = 1,
   minor_attack = 2,
