@@ -62,7 +62,7 @@ enum {
     NONLINEAR_OFFSET = LINEAR_FEATURE_COUNT,
 
     // safety sigmoid constants
-    growth_rate_offset = NONLINEAR_OFFSET,
+    growth_rate_offset = 0,
     ceiling_offset = growth_rate_offset + 1,
     bias_offset = ceiling_offset + 1,
     // safety weighted sum
@@ -73,7 +73,7 @@ enum {
     king_airiness_offset = outer_defense_offset + OUTER_DEFENSE_FEATURE_COUNT,
     safety_pst_offset = king_airiness_offset + AIRINESS_FEATURE_COUNT,
 
-    VECTOR_LENGTH = safety_pst_offset + SAFETY_PST_FEATURE_COUNT,
+    VECTOR_LENGTH = safety_pst_offset + SAFETY_PST_FEATURE_COUNT + NONLINEAR_OFFSET,
 
     NONLINEAR_FEATURE_COUNT = VECTOR_LENGTH - LINEAR_FEATURE_COUNT,
 };
