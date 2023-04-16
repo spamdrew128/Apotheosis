@@ -138,6 +138,15 @@ static void InitCastleSquares(Square_t ksCastleSquares[], Square_t qsCastleSquar
     qsCastleSquares[black] = LSB(black_queenside_castle_bb);
 }
 
+static void InitVulnerableKingZone(Bitboard_t vulnerableKingZone[2][NUM_SQUARES]) {
+    for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
+        const Bitboard_t kingRing = GetSingleBitset(sq) | GetKingAttackSet(sq);
+
+        vulnerableKingZone[white][sq] = GenShiftNorth(kingRing, 1) | GenShiftNorth(kingRing, 2) | GenShiftNorth(kingRing, 3);
+        vulnerableKingZone[black][sq] = GenShiftSouth(kingRing, 1) | GenShiftSouth(kingRing, 2) | GenShiftSouth(kingRing, 3);
+    }
+}
+
 void InitLookupTables() {
     InitSingleBitset(lookup.singleBitsets);
     InitKnightAttacks(lookup.knightAttacks);
@@ -147,6 +156,7 @@ void InitLookupTables() {
     InitPawnCheckmasks(lookup.pawnCheckmasks);
     InitDirectionalRays(lookup.directionalRays);
     InitCastleSquares(lookup.ksCastleSquares, lookup.qsCastleSquares);
+    InitVulnerableKingZone(lookup.vulnerableKingZone);
 }
 
 Bitboard_t GetSingleBitset(Square_t square) {
@@ -199,4 +209,8 @@ Square_t GetKingsideCastleSquare(Color_t color) {
 
 Square_t GetQueensideCastleSquare(Color_t color) {
     return lookup.qsCastleSquares[color];
+}
+
+Bitboard_t GetVulnerableKingZone(Square_t square, Color_t color) {
+    return lookup.vulnerableKingZone[color][square];
 }

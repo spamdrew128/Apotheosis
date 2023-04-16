@@ -21,6 +21,8 @@ typedef struct {
 
     Square_t ksCastleSquares[2];
     Square_t qsCastleSquares[2];
+
+    Bitboard_t vulnerableKingZone[2][NUM_SQUARES];
 } Lookup_t;
 
 void InitLookupTables();
@@ -44,5 +46,7 @@ Bitboard_t GetDirectionalRay(Square_t square, Direction_t direction);
 Square_t GetKingsideCastleSquare(Color_t color);
 
 Square_t GetQueensideCastleSquare(Color_t color);
+
+Bitboard_t GetVulnerableKingZone(Square_t square, Color_t color);
 
 #endif
