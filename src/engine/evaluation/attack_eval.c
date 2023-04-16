@@ -11,6 +11,11 @@ typedef struct {
     int attackerCount;
     AttackScore_t attackScore;
     Bitboard_t attackZone;
+
+    Bitboard_t rookContactRing;
+    Bitboard_t queenContactRing;
+    Bitboard_t rookContacts;
+    Bitboard_t queenContacts;
 } AttackInfo_t;
 
 static void UpdateAttackInfo(AttackInfo_t* attackInfo, const Bitboard_t moves, const AttackScore_t attackValue, const int weight) {
@@ -95,6 +100,15 @@ static Score_t ComputeQueens(
     return score;    
 }
 
+static void SafeContactChecks(
+    AttackInfo_t* attackInfo,
+    BoardInfo_t* boardInfo,
+    const Color_t color
+)
+{
+
+}
+
 void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
     const Bitboard_t wPawnAttacks = 
         NoEaOne(boardInfo->pawns[white]) | 
@@ -119,12 +133,22 @@ void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
         .attackerCount = 0,
         .attackScore = 0,
         .attackZone = GetVulnerableKingZone(boardInfo->kings[black], black),
+
+        .rookContactRing = GetRookContactCheckZone(boardInfo->kings[black]),
+        .queenContactRing = GetKingAttackSet(boardInfo->kings[black]),
+        .rookContacts = empty_set,
+        .queenContacts = empty_set,
     };
 
     AttackInfo_t blackAttack = {
         .attackerCount = 0,
         .attackScore = 0,
         .attackZone = GetVulnerableKingZone(boardInfo->kings[white], white),
+
+        .rookContactRing = GetRookContactCheckZone(boardInfo->kings[white]),
+        .queenContactRing = GetKingAttackSet(boardInfo->kings[white]),
+        .rookContacts = empty_set,
+        .queenContacts = empty_set,
     };
 
     *score += ComputeKnights(boardInfo->knights[white], wAvailible, &whiteAttack);
