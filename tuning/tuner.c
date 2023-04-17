@@ -184,9 +184,10 @@ static void TunerComputeKnights(
         Bitboard_t moves = GetKnightAttackSet(sq) & availible;
         allValues[knight_mobility_offset + PopCount(moves)] += multiplier;
 
-        allValues[knight_threat_on_bishop] += PopCount(moves & enemyBishops) * multiplier;
-        allValues[knight_threat_on_rook] += PopCount(moves & enemyRooks) * multiplier;
-        allValues[knight_threat_on_queen] += PopCount(moves & enemyQueens) * multiplier;
+        Bitboard_t attacks = GetKnightAttackSet(sq);
+        allValues[knight_threat_on_bishop] += PopCount(attacks & enemyBishops) * multiplier;
+        allValues[knight_threat_on_rook] += PopCount(attacks & enemyRooks) * multiplier;
+        allValues[knight_threat_on_queen] += PopCount(attacks & enemyQueens) * multiplier;
 
         ResetLSB(&knights);
     }
@@ -210,9 +211,10 @@ static void TunerComputeBishops(
         Bitboard_t moves = GetBishopAttackSet(sq, d12Empty) & availible;
         allValues[bishop_mobility_offset + PopCount(moves)] += multiplier;
 
-        allValues[bishop_threat_on_knight] += PopCount(moves & enemyKnights) * multiplier;
-        allValues[bishop_threat_on_rook] += PopCount(moves & enemyRooks) * multiplier;
-        allValues[bishop_threat_on_queen] += PopCount(moves & enemyQueens) * multiplier;
+        Bitboard_t attacks = GetBishopAttackSet(sq, boardInfo->empty);
+        allValues[bishop_threat_on_knight] += PopCount(attacks & enemyKnights) * multiplier;
+        allValues[bishop_threat_on_rook] += PopCount(attacks & enemyRooks) * multiplier;
+        allValues[bishop_threat_on_queen] += PopCount(attacks & enemyQueens) * multiplier;
 
         ResetLSB(&bishops);
     }
@@ -233,8 +235,9 @@ static void TunerComputeRooks(
         Square_t sq = LSB(rooks);
         Bitboard_t moves = GetRookAttackSet(sq, hvEmpty) & availible;
         allValues[rook_mobility_offset + PopCount(moves)] += multiplier;
-
-        allValues[rook_threat_on_queen] += PopCount(moves & enemyQueens) * multiplier;
+        
+        Bitboard_t attacks = GetRookAttackSet(sq, boardInfo->empty);
+        allValues[rook_threat_on_queen] += PopCount(attacks & enemyQueens) * multiplier;
 
         ResetLSB(&rooks);
     }  
