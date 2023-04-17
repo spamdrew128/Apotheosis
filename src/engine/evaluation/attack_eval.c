@@ -21,9 +21,9 @@ static Score_t ComputeKnights(
         Bitboard_t moves = GetKnightAttackSet(sq) & availible;
         score += knightMobility[PopCount(moves)];
         score += 
-            KNIGHT_THREAT_ON_BISHOP*PopCount(moves & enemyBishops) +
-            KNIGHT_THREAT_ON_ROOK*PopCount(moves & enemyRooks) +
-            KNIGHT_THREAT_ON_QUEEN*PopCount(moves & enemyQueens);
+            KNIGHT_THREAT_ON_BISHOP * PopCount(moves & enemyBishops) +
+            KNIGHT_THREAT_ON_ROOK * PopCount(moves & enemyRooks) +
+            KNIGHT_THREAT_ON_QUEEN * PopCount(moves & enemyQueens);
         ResetLSB(&knights);
     }
     return score;
@@ -44,9 +44,9 @@ static Score_t ComputeBishops(
         Bitboard_t moves = GetBishopAttackSet(sq, d12Empty) & availible;
         score += bishopMobility[PopCount(moves)];
         score += 
-            BISHOP_THREAT_ON_KNIGHT*PopCount(moves & enemyKnights) +
-            BISHOP_THREAT_ON_ROOK*PopCount(moves & enemyRooks) +
-            BISHOP_THREAT_ON_QUEEN*PopCount(moves & enemyQueens);
+            BISHOP_THREAT_ON_KNIGHT * PopCount(moves & enemyKnights) +
+            BISHOP_THREAT_ON_ROOK * PopCount(moves & enemyRooks) +
+            BISHOP_THREAT_ON_QUEEN * PopCount(moves & enemyQueens);
         ResetLSB(&bishops);
     }
     return score;
@@ -65,7 +65,7 @@ static Score_t ComputeRooks(
         Bitboard_t moves = GetRookAttackSet(sq, hvEmpty) & availible;
         score += rookMobility[PopCount(moves)];
         score += 
-            ROOK_THREAT_ON_QUEEN*PopCount(moves & enemyQueens);
+            ROOK_THREAT_ON_QUEEN * PopCount(moves & enemyQueens);
         ResetLSB(&rooks);
     }
     return score;    
