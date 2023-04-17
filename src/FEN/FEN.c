@@ -177,9 +177,8 @@ void InterpretFEN(
                 break;
 
             default: // some integer
-                int emptySpaces = CharToInt(fen[i]);
-                assert(emptySpaces >= 1 && emptySpaces <= 8);
-                file += emptySpaces;
+                assert(CharToInt(fen[i]) >= 1 && CharToInt(fen[i]) <= 8);
+                file += CharToInt(fen[i]);
                 break;
         }
 
