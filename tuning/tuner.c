@@ -568,31 +568,6 @@ static double MSE(TuningData_t* tuningData, double cost) {
     return cost / tuningData->numEntries;
 }
 
-static double ComputeK(TuningData_t* tuningData) {
-    double start = 0.001;
-    double end = 0.01;
-    double step = (end - start) / 1000;
-    double currentK = start;
-
-    int iter = 0;
-
-    double bestK;
-    double lowestCost = 10000000;
-    while(currentK <= end) {
-        double cost = Cost(tuningData, currentK);
-        if(cost <= lowestCost) {
-            lowestCost = cost;
-            bestK = currentK;
-        }
-        currentK += step;
-        printf("iteration %d\n", iter++);
-    }
-    
-    printf("K = %f gives MSE of %f\n", bestK, MSE(tuningData, lowestCost));
-
-    return bestK;
-}
-
 static void UpdateGradient(
     TEntry_t entry,
     double K,
@@ -642,7 +617,7 @@ void TuneParameters(const char* filename) {
     TuningData_t tuningData;
     TuningDataInit(&tuningData, filename);
 
-    double K = 0.006634;
+    double K = 0.006634; // pretty arbitrary lol
 
     Gradient_t gradient[NUM_PHASES][VECTOR_LENGTH];
 
