@@ -12,9 +12,8 @@ static Score_t safetyTable[SAFETY_TABLE_SIZE] = SAFETY_TABLE;
 
 static void UpdateAttackInfo(AttackInfo_t* attackInfo, const Bitboard_t moves, const AttackScore_t attackValue, const int weight) {
     const Bitboard_t attacks = moves & attackInfo->attackZone;
-    const Bitboard_t innerAttacks = moves & attackInfo->innerKingRing;
 
-    attackInfo->attackScore += PopCount(attacks) * attackValue + PopCount(innerAttacks) * inner_ring_bonus;
+    attackInfo->attackScore += PopCount(attacks) * attackValue;
     attackInfo->attackerCount += weight * (bool)attacks;
 }
 
@@ -98,28 +97,6 @@ static Score_t ComputeQueens(
     return score;    
 }
 
-static void ComputePawns(
-    Bitboard_t pawnAttacks,
-    AttackInfo_t* attackInfo
-)
-{
-    const Bitboard_t innerAttacks = pawnAttacks & attackInfo->innerKingRing;
-
-    attackInfo->attackScore += PopCount(innerAttacks) * inner_ring_bonus;
-    attackInfo->attackerCount += (bool)innerAttacks;
-}
-
-static void ComputeKing(
-    Bitboard_t kingAttacks,
-    AttackInfo_t* attackInfo
-)
-{
-    const Bitboard_t innerAttacks = kingAttacks & attackInfo->innerKingRing;
-
-    attackInfo->attackScore += PopCount(innerAttacks) * inner_ring_bonus;
-    attackInfo->attackerCount += (bool)innerAttacks;
-}
-
 void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
     const Bitboard_t wPawnAttacks = 
         NoEaOne(boardInfo->pawns[white]) | 
@@ -140,42 +117,32 @@ void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
     const Bitboard_t blackD12Empty = boardInfo->empty | boardInfo->bishops[black] | boardInfo->queens[black];
 
     // KING SAFETY
-    const Bitboard_t wKingAttacks = GetKingAttackSet(KingSquare(boardInfo, white));
-    const Bitboard_t bKingAttacks = GetKingAttackSet(KingSquare(boardInfo, black));
-
     AttackInfo_t whiteAttack = {
         .attackerCount = 0,
         .attackScore = 0,
         .attackZone = GetVulnerableKingZone(KingSquare(boardInfo, black), black),
-        .innerKingRing = bKingAttacks,
     };
 
     AttackInfo_t blackAttack = {
         .attackerCount = 0,
         .attackScore = 0,
         .attackZone = GetVulnerableKingZone(KingSquare(boardInfo, white), white),
-        .innerKingRing = wKingAttacks,
     };
 
     *score += ComputeKnights(boardInfo->knights[white], wAvailible, &whiteAttack);
     *score += ComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty, &whiteAttack);
     *score += ComputeRooks(boardInfo->rooks[white], wAvailible, whiteHvEmpty, &whiteAttack);
     *score += ComputeQueens(boardInfo->queens[white], wAvailible, whiteHvEmpty, whiteD12Empty, &whiteAttack);
-    ComputePawns(wPawnAttacks, &whiteAttack);
-    ComputeKing(wKingAttacks, &whiteAttack);
 
     *score -= ComputeKnights(boardInfo->knights[black], bAvailible, &blackAttack);
     *score -= ComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty, &blackAttack);
     *score -= ComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, &blackAttack);
     *score -= ComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, &blackAttack);
-    ComputePawns(bPawnAttacks, &blackAttack);
-    ComputeKing(bKingAttacks, &blackAttack);
 
-
-    if(whiteAttack.attackerCount > 2) {
+    if(whiteAttack.attackerCount >= 2) {
         *score += safetyTable[MIN(whiteAttack.attackScore, ATTACK_SCORE_MAX)];
     }
-    if(blackAttack.attackerCount > 2) {
+    if(blackAttack.attackerCount >= 2) {
         *score -= safetyTable[MIN(blackAttack.attackScore, ATTACK_SCORE_MAX)];
     }
 }
@@ -202,36 +169,27 @@ void TDDMobilityStuff(BoardInfo_t* boardInfo, AttackInfo_t* wAttack, AttackInfo_
     const Bitboard_t blackD12Empty = boardInfo->empty | boardInfo->bishops[black] | boardInfo->queens[black];
 
     // KING SAFETY
-    const Bitboard_t wKingAttacks = GetKingAttackSet(KingSquare(boardInfo, white));
-    const Bitboard_t bKingAttacks = GetKingAttackSet(KingSquare(boardInfo, black));
-
     AttackInfo_t whiteAttack = {
         .attackerCount = 0,
         .attackScore = 0,
         .attackZone = GetVulnerableKingZone(KingSquare(boardInfo, black), black),
-        .innerKingRing = bKingAttacks,
     };
 
     AttackInfo_t blackAttack = {
         .attackerCount = 0,
         .attackScore = 0,
         .attackZone = GetVulnerableKingZone(KingSquare(boardInfo, white), white),
-        .innerKingRing = wKingAttacks,
     };
 
     *nonSafetyScore += ComputeKnights(boardInfo->knights[white], wAvailible, &whiteAttack);
     *nonSafetyScore += ComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty, &whiteAttack);
     *nonSafetyScore += ComputeRooks(boardInfo->rooks[white], wAvailible, whiteHvEmpty, &whiteAttack);
     *nonSafetyScore += ComputeQueens(boardInfo->queens[white], wAvailible, whiteHvEmpty, whiteD12Empty, &whiteAttack);
-    ComputePawns(wPawnAttacks, &whiteAttack);
-    ComputeKing(wKingAttacks, &whiteAttack);
 
     *nonSafetyScore -= ComputeKnights(boardInfo->knights[black], bAvailible, &blackAttack);
     *nonSafetyScore -= ComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty, &blackAttack);
     *nonSafetyScore -= ComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, &blackAttack);
     *nonSafetyScore -= ComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, &blackAttack);
-    ComputePawns(bPawnAttacks, &blackAttack);
-    ComputeKing(bKingAttacks, &blackAttack);
 
     *wAttack = whiteAttack;
     *bAttack = blackAttack;

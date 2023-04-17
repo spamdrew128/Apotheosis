@@ -39,13 +39,13 @@ static void ShouldCalculateKingSafety() {
 
     TDDMobilityStuff(&boardInfo, &wAttack, &bAttack, &score);
 
-    int wAttackerCount = 3;
+    int wAttackerCount = 2;
     int wInnerAttackerCount = 3;
-    int wAttackScore = 6 * minor_attack + wInnerAttackerCount * inner_ring_bonus;
+    int wAttackScore = 6 * minor_attack;
 
     int bAttackerCount = 3;
     int bInnerAttackerCount = 2;
-    int bAttackScore = 1 * minor_attack + 2 * queen_attack + bInnerAttackerCount * inner_ring_bonus;
+    int bAttackScore = 1 * minor_attack + 2 * queen_attack;
 
     bool wCorrect = wAttack.attackerCount == wAttackerCount && wAttack.attackScore == wAttackScore; 
     bool bCorrect = bAttack.attackerCount == bAttackerCount && bAttack.attackScore == bAttackScore;

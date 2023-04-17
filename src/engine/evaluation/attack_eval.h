@@ -14,13 +14,9 @@ enum {
 
 typedef int AttackScore_t;
 enum {
-  king_attack = 0, // still count inner ring attacks
-  pawn_attack = 0, 
   minor_attack = 2,
   rook_attack = 3,
   queen_attack = 5,
-
-  inner_ring_bonus = 1,
 
   queen_piece_weight = 2,
   other_piece_weight = 1,
@@ -33,7 +29,6 @@ typedef struct {
   int attackerCount;
   AttackScore_t attackScore;
   Bitboard_t attackZone;
-  Bitboard_t innerKingRing;
 } AttackInfo_t;
 
 void MobilitySafetyThreatsEval(BoardInfo_t* boardInfo, Score_t* score);

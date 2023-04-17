@@ -156,9 +156,8 @@ static void TunerSerializeByRank(
 
 static void UpdateAttackInfo(AttackInfo_t* attackInfo, const Bitboard_t moves, const AttackScore_t attackValue, const int weight) {
     const Bitboard_t attacks = moves & attackInfo->attackZone;
-    const Bitboard_t innerAttacks = moves & attackInfo->innerKingRing;
 
-    attackInfo->attackScore += PopCount(attacks) * attackValue + PopCount(innerAttacks) * inner_ring_bonus;
+    attackInfo->attackScore += PopCount(attacks) * attackValue;
     attackInfo->attackerCount += weight * (bool)attacks;
 }
 
@@ -243,28 +242,6 @@ static void TunerComputeQueens(
     }
 }
 
-static void TunerComputePawns(
-    Bitboard_t pawnAttacks,
-    AttackInfo_t* attackInfo
-)
-{
-    const Bitboard_t innerAttacks = pawnAttacks & attackInfo->innerKingRing;
-
-    attackInfo->attackScore += PopCount(innerAttacks) * inner_ring_bonus;
-    attackInfo->attackerCount += (bool)innerAttacks;
-}
-
-static void TunerComputeKing(
-    Bitboard_t kingAttacks,
-    AttackInfo_t* attackInfo
-)
-{
-    const Bitboard_t innerAttacks = kingAttacks & attackInfo->innerKingRing;
-
-    attackInfo->attackScore += PopCount(innerAttacks) * inner_ring_bonus;
-    attackInfo->attackerCount += (bool)innerAttacks;
-}
-
 void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
     const Bitboard_t wPawnAttacks = 
         NoEaOne(boardInfo->pawns[white]) | 
@@ -285,37 +262,27 @@ void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
     const Bitboard_t blackD12Empty = boardInfo->empty | boardInfo->bishops[black] | boardInfo->queens[black];
 
     // KING SAFETY
-    const Bitboard_t wKingAttacks = GetKingAttackSet(KingSquare(boardInfo, white));
-    const Bitboard_t bKingAttacks = GetKingAttackSet(KingSquare(boardInfo, black));
-
     AttackInfo_t whiteAttack = {
         .attackerCount = 0,
         .attackScore = 0,
-        .attackZone = GetVulnerableKingZone(KingSquare(boardInfo, black), black),
-        .innerKingRing = bKingAttacks,
+        .attackZone = GetVulnerableKingZone(KingSquare(boardInfo, black), black)
     };
 
     AttackInfo_t blackAttack = {
         .attackerCount = 0,
         .attackScore = 0,
-        .attackZone = GetVulnerableKingZone(KingSquare(boardInfo, white), white),
-        .innerKingRing = wKingAttacks,
+        .attackZone = GetVulnerableKingZone(KingSquare(boardInfo, white), white)
     };
 
     TunerComputeKnights(boardInfo->knights[white], wAvailible, allValues, &whiteAttack, 1);
     TunerComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty, allValues, &whiteAttack, 1);
     TunerComputeRooks(boardInfo->rooks[white], wAvailible, whiteHvEmpty, allValues, &whiteAttack, 1);
     TunerComputeQueens(boardInfo->queens[white], wAvailible, whiteHvEmpty, whiteD12Empty, allValues, &whiteAttack, 1);
-    TunerComputePawns(wPawnAttacks, &whiteAttack);
-    TunerComputeKing(wKingAttacks, &whiteAttack);
 
     TunerComputeKnights(boardInfo->knights[black], bAvailible, allValues, &blackAttack, -1);
     TunerComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty, allValues, &blackAttack, -1);
     TunerComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, allValues, &blackAttack, -1);
     TunerComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, allValues, &blackAttack, -1);
-    TunerComputePawns(bPawnAttacks, &blackAttack);
-    TunerComputeKing(bKingAttacks, &blackAttack);
-
 
     if(whiteAttack.attackerCount > 2) {
         allValues[king_safety_table_offset + MIN(whiteAttack.attackScore, ATTACK_SCORE_MAX)]++;
