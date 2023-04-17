@@ -168,21 +168,32 @@ static void TunerSerializeByRank(
 }
 
 static void TunerComputeKnights(
+    BoardInfo_t* boardInfo,
     Bitboard_t knights,
     Bitboard_t availible,
     int16_t allValues[VECTOR_LENGTH],
     int multiplier
 )
 {
+    Color_t color = multiplier == 1 ? white : black;
+    const Bitboard_t enemyBishops = boardInfo->bishops[!color];
+    const Bitboard_t enemyRooks = boardInfo->rooks[!color];
+    const Bitboard_t enemyQueens = boardInfo->queens[!color];
     while(knights) {
         Square_t sq = LSB(knights);
         Bitboard_t moves = GetKnightAttackSet(sq) & availible;
         allValues[knight_mobility_offset + PopCount(moves)] += multiplier;
+
+        allValues[knight_threat_on_bishop] += PopCount(moves & enemyBishops) * multiplier;
+        allValues[knight_threat_on_rook] += PopCount(moves & enemyRooks) * multiplier;
+        allValues[knight_threat_on_queen] += PopCount(moves & enemyQueens) * multiplier;
+
         ResetLSB(&knights);
     }
 }
 
 static void TunerComputeBishops(
+    BoardInfo_t* boardInfo,
     Bitboard_t bishops,
     Bitboard_t availible,
     Bitboard_t d12Empty,
@@ -190,15 +201,25 @@ static void TunerComputeBishops(
     int multiplier
 )
 {
+    Color_t color = multiplier == 1 ? white : black;
+    const Bitboard_t enemyKnights = boardInfo->knights[!color];
+    const Bitboard_t enemyRooks = boardInfo->rooks[!color];
+    const Bitboard_t enemyQueens = boardInfo->queens[!color];
     while(bishops) {
         Square_t sq = LSB(bishops);
         Bitboard_t moves = GetBishopAttackSet(sq, d12Empty) & availible;
         allValues[bishop_mobility_offset + PopCount(moves)] += multiplier;
+
+        allValues[bishop_threat_on_knight] += PopCount(moves & enemyKnights) * multiplier;
+        allValues[bishop_threat_on_rook] += PopCount(moves & enemyRooks) * multiplier;
+        allValues[bishop_threat_on_queen] += PopCount(moves & enemyQueens) * multiplier;
+
         ResetLSB(&bishops);
     }
 }
 
 static void TunerComputeRooks(
+    BoardInfo_t* boardInfo,
     Bitboard_t rooks, 
     Bitboard_t availible,
     Bitboard_t hvEmpty,
@@ -206,10 +227,15 @@ static void TunerComputeRooks(
     int multiplier
 )
 {
+    Color_t color = multiplier == 1 ? white : black;
+    const Bitboard_t enemyQueens = boardInfo->queens[!color];
     while(rooks) {
         Square_t sq = LSB(rooks);
         Bitboard_t moves = GetRookAttackSet(sq, hvEmpty) & availible;
         allValues[rook_mobility_offset + PopCount(moves)] += multiplier;
+
+        allValues[rook_threat_on_queen] += PopCount(moves & enemyQueens) * multiplier;
+
         ResetLSB(&rooks);
     }  
 }
@@ -232,6 +258,18 @@ static void TunerComputeQueens(
     } 
 }
 
+static void PawnThreats(BoardInfo_t* boardInfo, const Bitboard_t wPawnAttacks, const Bitboard_t bPawnAttacks, int16_t allValues[VECTOR_LENGTH]) {
+    int knightThreats = PopCount(wPawnAttacks & boardInfo->knights[black]) - PopCount(bPawnAttacks & boardInfo->knights[white]);
+    int bishopThreats = PopCount(wPawnAttacks & boardInfo->bishops[black]) - PopCount(bPawnAttacks & boardInfo->bishops[white]);
+    int rookThreats = PopCount(wPawnAttacks & boardInfo->rooks[black]) - PopCount(bPawnAttacks & boardInfo->rooks[white]);
+    int queenThreats = PopCount(wPawnAttacks & boardInfo->queens[black]) - PopCount(bPawnAttacks & boardInfo->queens[white]);
+
+    allValues[pawn_threat_on_knight] += knightThreats;
+    allValues[pawn_threat_on_bishop] += bishopThreats;
+    allValues[pawn_threat_on_rook] += rookThreats;
+    allValues[pawn_threat_on_queen] += queenThreats;
+}
+
 void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
     const Bitboard_t wPawnAttacks = 
         NoEaOne(boardInfo->pawns[white]) | 
@@ -249,15 +287,17 @@ void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
     const Bitboard_t blackHvEmpty = boardInfo->empty | boardInfo->rooks[black] | boardInfo->queens[black];
     const Bitboard_t blackD12Empty = boardInfo->empty | boardInfo->bishops[black] | boardInfo->queens[black];
 
-    TunerComputeKnights(boardInfo->knights[white], wAvailible, allValues, 1);
-    TunerComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty, allValues, 1);
-    TunerComputeRooks(boardInfo->rooks[white], wAvailible, whiteHvEmpty, allValues, 1);
+    TunerComputeKnights(boardInfo, boardInfo->knights[white], wAvailible, allValues, 1);
+    TunerComputeBishops(boardInfo, boardInfo->bishops[white], wAvailible, whiteD12Empty, allValues, 1);
+    TunerComputeRooks(boardInfo, boardInfo->rooks[white], wAvailible, whiteHvEmpty, allValues, 1);
     TunerComputeQueens(boardInfo->queens[white], wAvailible, whiteHvEmpty, whiteD12Empty, allValues, 1);
 
-    TunerComputeKnights(boardInfo->knights[black], bAvailible, allValues, -1);
-    TunerComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty, allValues, -1);
-    TunerComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, allValues, -1);
+    TunerComputeKnights(boardInfo, boardInfo->knights[black], bAvailible, allValues, -1);
+    TunerComputeBishops(boardInfo, boardInfo->bishops[black], bAvailible, blackD12Empty, allValues, -1);
+    TunerComputeRooks(boardInfo, boardInfo->rooks[black], bAvailible, blackHvEmpty, allValues, -1);
     TunerComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, allValues, -1);
+
+    PawnThreats(boardInfo, wPawnAttacks, bPawnAttacks, allValues);
 }
 
 static void FillPSTFeatures(
