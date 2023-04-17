@@ -823,13 +823,15 @@ static void PrintThreats(FILE* fp) {
     fprintf(fp, "#define BISHOP_THREAT_ON_ROOK S(%d, %d)\n", (int)weights[mg_phase][bishop_threat_on_rook], (int)weights[eg_phase][bishop_threat_on_rook]);
     fprintf(fp, "#define BISHOP_THREAT_ON_QUEEN S(%d, %d)\n\n", (int)weights[mg_phase][bishop_threat_on_queen], (int)weights[eg_phase][bishop_threat_on_queen]);
 
-    fprintf(fp, "#define ROOK_THREAT_ON_QUEEN S(%d, %d))\n\n", (int)weights[mg_phase][rook_threat_on_queen], (int)weights[eg_phase][rook_threat_on_queen]);
+    fprintf(fp, "#define ROOK_THREAT_ON_QUEEN S(%d, %d)\n\n", (int)weights[mg_phase][rook_threat_on_queen], (int)weights[eg_phase][rook_threat_on_queen]);
 }
 
 static void CreateOutputFile() {
     FILE* fp = fopen("tuning_output.txt", "w");
 
     PrintBonuses(fp);
+
+    PrintThreats(fp);
 
     AddPieceValComment(fp);
 
@@ -839,8 +841,6 @@ static void CreateOutputFile() {
     FilePrintPST("QUEEN_PST", queen, fp, pst_offset, true);
     FilePrintPST("PAWN_PST", pawn, fp, pst_offset, true);
     FilePrintPST("KING_PST", king, fp, pst_offset, true);
-
-    PrintThreats(fp);
 
     fclose(fp);
 }
