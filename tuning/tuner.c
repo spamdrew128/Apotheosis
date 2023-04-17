@@ -809,6 +809,23 @@ static void PrintBonuses(FILE* fp) {
     PrintIndividualBonus("QUEEN_MOBILITY", queen_mobility_offset, QUEEN_MOBILITY_FEATURE_COUNT, fp);
 }
 
+static void PrintThreats(FILE* fp) {
+    fprintf(fp, "\n#define PAWN_THREAT_ON_KNIGHT S(%d, %d)\n", (int)weights[mg_phase][pawn_threat_on_knight], (int)weights[eg_phase][pawn_threat_on_knight]);
+    fprintf(fp, "#define PAWN_THREAT_ON_BISHOP S(%d, %d)\n", (int)weights[mg_phase][pawn_threat_on_bishop], (int)weights[eg_phase][pawn_threat_on_bishop]);
+    fprintf(fp, "#define PAWN_THREAT_ON_ROOK S(%d, %d)\n", (int)weights[mg_phase][pawn_threat_on_rook], (int)weights[eg_phase][pawn_threat_on_rook]);
+    fprintf(fp, "#define PAWN_THREAT_ON_QUEEN S(%d, %d)\n\n", (int)weights[mg_phase][pawn_threat_on_queen], (int)weights[eg_phase][pawn_threat_on_queen]);
+
+    fprintf(fp, "#define KNIGHT_THREAT_ON_BISHOP S(%d, %d)\n", (int)weights[mg_phase][knight_threat_on_bishop], (int)weights[eg_phase][knight_threat_on_bishop]);
+    fprintf(fp, "#define KNIGHT_THREAT_ON_ROOK S(%d, %d)\n", (int)weights[mg_phase][knight_threat_on_rook], (int)weights[eg_phase][knight_threat_on_rook]);
+    fprintf(fp, "#define KNIGHT_THREAT_ON_QUEEN S(%d, %d)\n\n", (int)weights[mg_phase][knight_threat_on_queen], (int)weights[eg_phase][knight_threat_on_queen]);
+
+    fprintf(fp, "#define BISHOP_THREAT_ON_KNIGHT S(%d, %d)\n", (int)weights[mg_phase][bishop_threat_on_knight], (int)weights[eg_phase][bishop_threat_on_knight]);
+    fprintf(fp, "#define BISHOP_THREAT_ON_ROOK S(%d, %d)\n", (int)weights[mg_phase][bishop_threat_on_rook], (int)weights[eg_phase][bishop_threat_on_rook]);
+    fprintf(fp, "#define BISHOP_THREAT_ON_QUEEN S(%d, %d)\n\n", (int)weights[mg_phase][bishop_threat_on_queen], (int)weights[eg_phase][bishop_threat_on_queen]);
+
+    fprintf(fp, "#define ROOK_THREAT_ON_QUEEN S(%d, %d)) S(%d, %d)\n\n", (int)weights[mg_phase][rook_threat_on_queen], (int)weights[eg_phase][rook_threat_on_queen]);
+}
+
 static void CreateOutputFile() {
     FILE* fp = fopen("tuning_output.txt", "w");
 
@@ -822,6 +839,8 @@ static void CreateOutputFile() {
     FilePrintPST("QUEEN_PST", queen, fp, pst_offset, true);
     FilePrintPST("PAWN_PST", pawn, fp, pst_offset, true);
     FilePrintPST("KING_PST", king, fp, pst_offset, true);
+
+    PrintThreats(fp);
 
     fclose(fp);
 }
