@@ -813,7 +813,7 @@ static void PrintBonuses(FILE* fp) {
 }
 
 static void PrintThreats(FILE* fp) {
-    fprintf(fp, "\n#define PAWN_THREAT_ON_KNIGHT S(%d, %d)\n", (int)weights[mg_phase][pawn_threat_on_knight], (int)weights[eg_phase][pawn_threat_on_knight]);
+    fprintf(fp, "#define PAWN_THREAT_ON_KNIGHT S(%d, %d)\n", (int)weights[mg_phase][pawn_threat_on_knight], (int)weights[eg_phase][pawn_threat_on_knight]);
     fprintf(fp, "#define PAWN_THREAT_ON_BISHOP S(%d, %d)\n", (int)weights[mg_phase][pawn_threat_on_bishop], (int)weights[eg_phase][pawn_threat_on_bishop]);
     fprintf(fp, "#define PAWN_THREAT_ON_ROOK S(%d, %d)\n", (int)weights[mg_phase][pawn_threat_on_rook], (int)weights[eg_phase][pawn_threat_on_rook]);
     fprintf(fp, "#define PAWN_THREAT_ON_QUEEN S(%d, %d)\n\n", (int)weights[mg_phase][pawn_threat_on_queen], (int)weights[eg_phase][pawn_threat_on_queen]);
