@@ -290,7 +290,7 @@ void InterpretGoArguments(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* sear
             GetNextWord(input, nextWord, i);
             searchInfo->depthLimit = NumberStringToNumber(nextWord);
 
-            if(searchInfo->wTime == 0 || !searchInfo->bTime == 0) {
+            if(searchInfo->wTime == 0 || searchInfo->bTime == 0) {
                 searchInfo->wTime = MSEC_MAX;       
                 searchInfo->bTime = MSEC_MAX;
             }
@@ -349,6 +349,9 @@ static bool RespondToSignal(
     UciApplicationData_t* applicationData
 )
 {
+    char outputFile[BUFFER_SIZE];
+    char inputFile[BUFFER_SIZE];
+    
     switch(signal) {
     case signal_uci:
         UciSignalResponse();
@@ -387,12 +390,10 @@ static bool RespondToSignal(
         PrintFEN(&applicationData->boardInfo, &applicationData->gameStack);
         break;
     case signal_begin_datagen:
-        char outputFile[BUFFER_SIZE];
         GetNextWord(input, outputFile, i);
         GenerateData(outputFile);
         break;
     case signal_begin_tuning:
-        char inputFile[BUFFER_SIZE];
         GetNextWord(input, inputFile, i);
         TuneParameters(inputFile);
         break;
