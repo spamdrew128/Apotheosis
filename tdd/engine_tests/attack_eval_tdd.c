@@ -26,7 +26,9 @@ static void ShouldCalculateMobility() {
     Score_t bishopScore = bishopMobility[7] + bishopMobility[4] - bishopMobility[5];
     Score_t knightScore = knightMobility[4] + knightMobility[3];
 
-    PrintResults(score == (queenScore + rookScore + bishopScore + knightScore));
+    Score_t threatScore = ROOK_THREAT_ON_QUEEN;
+
+    PrintResults(score == (queenScore + rookScore + bishopScore + knightScore + threatScore));
 }
 
 void AttackEvalTDDRunner() {
