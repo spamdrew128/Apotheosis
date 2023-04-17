@@ -42,6 +42,9 @@ typedef int32_t Score_t;
 
 */                                                                        
 
+#define TEMPO_BONUS \
+   S(36, 66)
+
 #define BISHOP_PAIR_BONUS \
    S(36, 66)
 

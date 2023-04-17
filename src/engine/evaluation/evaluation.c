@@ -70,11 +70,12 @@ EvalScore_t ScoreOfPosition(BoardInfo_t* boardInfo) {
     PawnStructure(boardInfo, &score);
     OpenFileBonus(boardInfo, &score);
     MobilityAndThreatsEval(boardInfo, &score);
+    score += (boardInfo->colorToMove == white) ? TEMPO_BONUS : -TEMPO_BONUS;
 
     const EvalScore_t mgScore = MgFromScore(score);
     const EvalScore_t egScore = EgFromScore(score);
 
     EvalScore_t eval = (mgScore*phase + egScore*(PHASE_MAX - phase)) / PHASE_MAX;
 
-    return boardInfo->colorToMove == white ? eval : -eval;
+    return (boardInfo->colorToMove == white) ? eval: -eval;
 }
