@@ -30,6 +30,7 @@ enum {
     BISHOP_MOBILITY_FEATURE_COUNT = BISHOP_MOBILITY_OPTIONS,
     ROOK_MOBILITY_FEATURE_COUNT = ROOK_MOBILITY_OPTIONS,
     QUEEN_MOBILITY_FEATURE_COUNT = QUEEN_MOBILITY_OPTIONS,
+    THREAT_FEATURE_COUNT = 1,
 
     pst_offset = 0,
     bishop_pair_offset = pst_offset + PST_FEATURE_COUNT,
@@ -49,7 +50,22 @@ enum {
     rook_mobility_offset = bishop_mobility_offset + BISHOP_MOBILITY_FEATURE_COUNT,
     queen_mobility_offset = rook_mobility_offset + ROOK_MOBILITY_FEATURE_COUNT,
 
-    VECTOR_LENGTH = queen_mobility_offset + QUEEN_MOBILITY_FEATURE_COUNT,
+    pawn_threat_on_knight = queen_mobility_offset + QUEEN_MOBILITY_FEATURE_COUNT,
+    pawn_threat_on_bishop = pawn_threat_on_knight + THREAT_FEATURE_COUNT,
+    pawn_threat_on_rook = pawn_threat_on_bishop + THREAT_FEATURE_COUNT,
+    pawn_threat_on_queen = pawn_threat_on_rook + THREAT_FEATURE_COUNT,
+
+    knight_threat_on_bishop = pawn_threat_on_queen + THREAT_FEATURE_COUNT,
+    knight_threat_on_rook = knight_threat_on_bishop + THREAT_FEATURE_COUNT,
+    knight_threat_on_queen = knight_threat_on_rook + THREAT_FEATURE_COUNT,
+
+    bishop_threat_on_knight = knight_threat_on_queen + THREAT_FEATURE_COUNT,
+    bishop_threat_on_rook = bishop_threat_on_knight + THREAT_FEATURE_COUNT,
+    bishop_threat_on_queen = bishop_threat_on_rook + THREAT_FEATURE_COUNT,
+
+    rook_threat_on_queen = bishop_threat_on_queen + THREAT_FEATURE_COUNT,
+
+    VECTOR_LENGTH = rook_threat_on_queen + THREAT_FEATURE_COUNT,
 };
 
 enum {
