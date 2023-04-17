@@ -113,6 +113,21 @@ typedef int32_t Score_t;
    S(790, 486), S(787, 585), S(785, 543), S(787, 567), S(792, 569), S(793, 598), S(794, 628), S(796, 663), S(800, 676), S(804, 691), S(805, 702), S(810, 715), S(811, 724), S(813, 738), S(822, 746), S(822, 758), S(822, 766), S(825, 772), S(853, 761), S(862, 765), S(891, 761), S(911, 762), S(959, 732), S(958, 744), S(974, 728), S(1096, 672), S(813, 858), S(786, 835), \
 }
 
+#define PAWN_THREAT_ON_KNIGHT S(785, 543)
+#define PAWN_THREAT_ON_BISHOP S(785, 543)
+#define PAWN_THREAT_ON_ROOK S(785, 543)
+#define PAWN_THREAT_ON_QUEEN S(785, 543)
+
+#define KNIGHT_THREAT_ON_BISHOP S(785, 543)
+#define KNIGHT_THREAT_ON_ROOK S(785, 543)
+#define KNIGHT_THREAT_ON_QUEEN S(785, 543)
+
+#define BISHOP_THREAT_ON_KNIGHT S(785, 543)
+#define BISHOP_THREAT_ON_ROOK S(785, 543)
+#define BISHOP_THREAT_ON_QUEEN S(785, 543)
+
+#define ROOK_THREAT_ON_QUEEN S(785, 543)
+
 /*
 Average PST values for MG, EG:
 Knight Values: 164 118
@@ -241,7 +256,5 @@ Pawn Values: 109 158
    S(-218, -72), S(-272, -22), S(-352, 15), S(-386, 29), S(-100, 47), S(-58, 29), S(11, -3), S(14, -33), \
    S(-240, -111), S(-193, -93), S(-228, -58), S(-378, -5), S(-14, -17), S(-62, -4), S(47, -50), S(30, -91), \
 }, }
-
-
 
 #endif
