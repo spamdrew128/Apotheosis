@@ -19,14 +19,16 @@ static void ShouldCalculateMobility() {
     FEN_t fen = "B2r2k1/3p1p2/p4PpB/1p3b2/8/2Nq2PP/PP2R1NK/3R4 b - - 2 23";
     InterpretFEN(fen, &boardInfo, &gameStack, &zobristStack);
 
-    MobilityEval(&boardInfo, &score);
+    MobilityAndThreatsEval(&boardInfo, &score);
 
     Score_t queenScore = -queenMobility[13];
     Score_t rookScore = rookMobility[9] + rookMobility[9] - rookMobility[5];
     Score_t bishopScore = bishopMobility[7] + bishopMobility[4] - bishopMobility[5];
     Score_t knightScore = knightMobility[4] + knightMobility[3];
 
-    PrintResults(score == (queenScore + rookScore + bishopScore + knightScore));
+    Score_t threatScore = ROOK_THREAT_ON_QUEEN;
+
+    PrintResults(score == (queenScore + rookScore + bishopScore + knightScore + threatScore));
 }
 
 void AttackEvalTDDRunner() {

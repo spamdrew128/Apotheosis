@@ -30,6 +30,7 @@ enum {
     BISHOP_MOBILITY_FEATURE_COUNT = BISHOP_MOBILITY_OPTIONS,
     ROOK_MOBILITY_FEATURE_COUNT = ROOK_MOBILITY_OPTIONS,
     QUEEN_MOBILITY_FEATURE_COUNT = QUEEN_MOBILITY_OPTIONS,
+    THREAT_FEATURE_COUNT = 1,
 
     pst_offset = 0,
     bishop_pair_offset = pst_offset + PST_FEATURE_COUNT,
@@ -49,7 +50,22 @@ enum {
     rook_mobility_offset = bishop_mobility_offset + BISHOP_MOBILITY_FEATURE_COUNT,
     queen_mobility_offset = rook_mobility_offset + ROOK_MOBILITY_FEATURE_COUNT,
 
-    VECTOR_LENGTH = queen_mobility_offset + QUEEN_MOBILITY_FEATURE_COUNT,
+    pawn_threat_on_knight = queen_mobility_offset + QUEEN_MOBILITY_FEATURE_COUNT,
+    pawn_threat_on_bishop = pawn_threat_on_knight + THREAT_FEATURE_COUNT,
+    pawn_threat_on_rook = pawn_threat_on_bishop + THREAT_FEATURE_COUNT,
+    pawn_threat_on_queen = pawn_threat_on_rook + THREAT_FEATURE_COUNT,
+
+    knight_threat_on_bishop = pawn_threat_on_queen + THREAT_FEATURE_COUNT,
+    knight_threat_on_rook = knight_threat_on_bishop + THREAT_FEATURE_COUNT,
+    knight_threat_on_queen = knight_threat_on_rook + THREAT_FEATURE_COUNT,
+
+    bishop_threat_on_knight = knight_threat_on_queen + THREAT_FEATURE_COUNT,
+    bishop_threat_on_rook = bishop_threat_on_knight + THREAT_FEATURE_COUNT,
+    bishop_threat_on_queen = bishop_threat_on_rook + THREAT_FEATURE_COUNT,
+
+    rook_threat_on_queen = bishop_threat_on_queen + THREAT_FEATURE_COUNT,
+
+    VECTOR_LENGTH = rook_threat_on_queen + THREAT_FEATURE_COUNT,
 };
 
 enum {
@@ -152,21 +168,33 @@ static void TunerSerializeByRank(
 }
 
 static void TunerComputeKnights(
+    BoardInfo_t* boardInfo,
     Bitboard_t knights,
     Bitboard_t availible,
     int16_t allValues[VECTOR_LENGTH],
     int multiplier
 )
 {
+    Color_t color = multiplier == 1 ? white : black;
+    const Bitboard_t enemyBishops = boardInfo->bishops[!color];
+    const Bitboard_t enemyRooks = boardInfo->rooks[!color];
+    const Bitboard_t enemyQueens = boardInfo->queens[!color];
     while(knights) {
         Square_t sq = LSB(knights);
         Bitboard_t moves = GetKnightAttackSet(sq) & availible;
         allValues[knight_mobility_offset + PopCount(moves)] += multiplier;
+
+        Bitboard_t attacks = GetKnightAttackSet(sq);
+        allValues[knight_threat_on_bishop] += PopCount(attacks & enemyBishops) * multiplier;
+        allValues[knight_threat_on_rook] += PopCount(attacks & enemyRooks) * multiplier;
+        allValues[knight_threat_on_queen] += PopCount(attacks & enemyQueens) * multiplier;
+
         ResetLSB(&knights);
     }
 }
 
 static void TunerComputeBishops(
+    BoardInfo_t* boardInfo,
     Bitboard_t bishops,
     Bitboard_t availible,
     Bitboard_t d12Empty,
@@ -174,15 +202,26 @@ static void TunerComputeBishops(
     int multiplier
 )
 {
+    Color_t color = multiplier == 1 ? white : black;
+    const Bitboard_t enemyKnights = boardInfo->knights[!color];
+    const Bitboard_t enemyRooks = boardInfo->rooks[!color];
+    const Bitboard_t enemyQueens = boardInfo->queens[!color];
     while(bishops) {
         Square_t sq = LSB(bishops);
         Bitboard_t moves = GetBishopAttackSet(sq, d12Empty) & availible;
         allValues[bishop_mobility_offset + PopCount(moves)] += multiplier;
+
+        Bitboard_t attacks = GetBishopAttackSet(sq, boardInfo->empty);
+        allValues[bishop_threat_on_knight] += PopCount(attacks & enemyKnights) * multiplier;
+        allValues[bishop_threat_on_rook] += PopCount(attacks & enemyRooks) * multiplier;
+        allValues[bishop_threat_on_queen] += PopCount(attacks & enemyQueens) * multiplier;
+
         ResetLSB(&bishops);
     }
 }
 
 static void TunerComputeRooks(
+    BoardInfo_t* boardInfo,
     Bitboard_t rooks, 
     Bitboard_t availible,
     Bitboard_t hvEmpty,
@@ -190,10 +229,16 @@ static void TunerComputeRooks(
     int multiplier
 )
 {
+    Color_t color = multiplier == 1 ? white : black;
+    const Bitboard_t enemyQueens = boardInfo->queens[!color];
     while(rooks) {
         Square_t sq = LSB(rooks);
         Bitboard_t moves = GetRookAttackSet(sq, hvEmpty) & availible;
         allValues[rook_mobility_offset + PopCount(moves)] += multiplier;
+        
+        Bitboard_t attacks = GetRookAttackSet(sq, boardInfo->empty);
+        allValues[rook_threat_on_queen] += PopCount(attacks & enemyQueens) * multiplier;
+
         ResetLSB(&rooks);
     }  
 }
@@ -216,6 +261,18 @@ static void TunerComputeQueens(
     } 
 }
 
+static void PawnThreats(BoardInfo_t* boardInfo, const Bitboard_t wPawnAttacks, const Bitboard_t bPawnAttacks, int16_t allValues[VECTOR_LENGTH]) {
+    int knightThreats = PopCount(wPawnAttacks & boardInfo->knights[black]) - PopCount(bPawnAttacks & boardInfo->knights[white]);
+    int bishopThreats = PopCount(wPawnAttacks & boardInfo->bishops[black]) - PopCount(bPawnAttacks & boardInfo->bishops[white]);
+    int rookThreats = PopCount(wPawnAttacks & boardInfo->rooks[black]) - PopCount(bPawnAttacks & boardInfo->rooks[white]);
+    int queenThreats = PopCount(wPawnAttacks & boardInfo->queens[black]) - PopCount(bPawnAttacks & boardInfo->queens[white]);
+
+    allValues[pawn_threat_on_knight] += knightThreats;
+    allValues[pawn_threat_on_bishop] += bishopThreats;
+    allValues[pawn_threat_on_rook] += rookThreats;
+    allValues[pawn_threat_on_queen] += queenThreats;
+}
+
 void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
     const Bitboard_t wPawnAttacks = 
         NoEaOne(boardInfo->pawns[white]) | 
@@ -233,15 +290,17 @@ void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
     const Bitboard_t blackHvEmpty = boardInfo->empty | boardInfo->rooks[black] | boardInfo->queens[black];
     const Bitboard_t blackD12Empty = boardInfo->empty | boardInfo->bishops[black] | boardInfo->queens[black];
 
-    TunerComputeKnights(boardInfo->knights[white], wAvailible, allValues, 1);
-    TunerComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty, allValues, 1);
-    TunerComputeRooks(boardInfo->rooks[white], wAvailible, whiteHvEmpty, allValues, 1);
+    TunerComputeKnights(boardInfo, boardInfo->knights[white], wAvailible, allValues, 1);
+    TunerComputeBishops(boardInfo, boardInfo->bishops[white], wAvailible, whiteD12Empty, allValues, 1);
+    TunerComputeRooks(boardInfo, boardInfo->rooks[white], wAvailible, whiteHvEmpty, allValues, 1);
     TunerComputeQueens(boardInfo->queens[white], wAvailible, whiteHvEmpty, whiteD12Empty, allValues, 1);
 
-    TunerComputeKnights(boardInfo->knights[black], bAvailible, allValues, -1);
-    TunerComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty, allValues, -1);
-    TunerComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, allValues, -1);
+    TunerComputeKnights(boardInfo, boardInfo->knights[black], bAvailible, allValues, -1);
+    TunerComputeBishops(boardInfo, boardInfo->bishops[black], bAvailible, blackD12Empty, allValues, -1);
+    TunerComputeRooks(boardInfo, boardInfo->rooks[black], bAvailible, blackHvEmpty, allValues, -1);
     TunerComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, allValues, -1);
+
+    PawnThreats(boardInfo, wPawnAttacks, bPawnAttacks, allValues);
 }
 
 static void FillPSTFeatures(
@@ -753,10 +812,29 @@ static void PrintBonuses(FILE* fp) {
     PrintIndividualBonus("QUEEN_MOBILITY", queen_mobility_offset, QUEEN_MOBILITY_FEATURE_COUNT, fp);
 }
 
+static void PrintThreats(FILE* fp) {
+    fprintf(fp, "#define PAWN_THREAT_ON_KNIGHT S(%d, %d)\n", (int)weights[mg_phase][pawn_threat_on_knight], (int)weights[eg_phase][pawn_threat_on_knight]);
+    fprintf(fp, "#define PAWN_THREAT_ON_BISHOP S(%d, %d)\n", (int)weights[mg_phase][pawn_threat_on_bishop], (int)weights[eg_phase][pawn_threat_on_bishop]);
+    fprintf(fp, "#define PAWN_THREAT_ON_ROOK S(%d, %d)\n", (int)weights[mg_phase][pawn_threat_on_rook], (int)weights[eg_phase][pawn_threat_on_rook]);
+    fprintf(fp, "#define PAWN_THREAT_ON_QUEEN S(%d, %d)\n\n", (int)weights[mg_phase][pawn_threat_on_queen], (int)weights[eg_phase][pawn_threat_on_queen]);
+
+    fprintf(fp, "#define KNIGHT_THREAT_ON_BISHOP S(%d, %d)\n", (int)weights[mg_phase][knight_threat_on_bishop], (int)weights[eg_phase][knight_threat_on_bishop]);
+    fprintf(fp, "#define KNIGHT_THREAT_ON_ROOK S(%d, %d)\n", (int)weights[mg_phase][knight_threat_on_rook], (int)weights[eg_phase][knight_threat_on_rook]);
+    fprintf(fp, "#define KNIGHT_THREAT_ON_QUEEN S(%d, %d)\n\n", (int)weights[mg_phase][knight_threat_on_queen], (int)weights[eg_phase][knight_threat_on_queen]);
+
+    fprintf(fp, "#define BISHOP_THREAT_ON_KNIGHT S(%d, %d)\n", (int)weights[mg_phase][bishop_threat_on_knight], (int)weights[eg_phase][bishop_threat_on_knight]);
+    fprintf(fp, "#define BISHOP_THREAT_ON_ROOK S(%d, %d)\n", (int)weights[mg_phase][bishop_threat_on_rook], (int)weights[eg_phase][bishop_threat_on_rook]);
+    fprintf(fp, "#define BISHOP_THREAT_ON_QUEEN S(%d, %d)\n\n", (int)weights[mg_phase][bishop_threat_on_queen], (int)weights[eg_phase][bishop_threat_on_queen]);
+
+    fprintf(fp, "#define ROOK_THREAT_ON_QUEEN S(%d, %d)\n\n", (int)weights[mg_phase][rook_threat_on_queen], (int)weights[eg_phase][rook_threat_on_queen]);
+}
+
 static void CreateOutputFile() {
     FILE* fp = fopen("tuning_output.txt", "w");
 
     PrintBonuses(fp);
+
+    PrintThreats(fp);
 
     AddPieceValComment(fp);
 

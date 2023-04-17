@@ -69,7 +69,7 @@ EvalScore_t ScoreOfPosition(BoardInfo_t* boardInfo) {
     PassedPawnBonus(boardInfo, wBucket, bBucket, &score);
     PawnStructure(boardInfo, &score);
     OpenFileBonus(boardInfo, &score);
-    MobilityEval(boardInfo, &score);
+    MobilityAndThreatsEval(boardInfo, &score);
 
     const EvalScore_t mgScore = MgFromScore(score);
     const EvalScore_t egScore = EgFromScore(score);
