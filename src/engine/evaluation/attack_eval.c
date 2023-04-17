@@ -127,8 +127,6 @@ void MobilityAndThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
     const Bitboard_t blackHvEmpty = boardInfo->empty | boardInfo->rooks[black] | boardInfo->queens[black];
     const Bitboard_t blackD12Empty = boardInfo->empty | boardInfo->bishops[black] | boardInfo->queens[black];
 
-    const Bitboard_t normalEmpty = boardInfo->empty;
-
     // THREAT STUFF
     const Bitboard_t wKnights = boardInfo->knights[white];
     const Bitboard_t wBishops = boardInfo->bishops[white];
