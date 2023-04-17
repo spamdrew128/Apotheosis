@@ -34,7 +34,6 @@ static Score_t ComputeKnights(
 static Score_t ComputeBishops(
     Bitboard_t bishops,
     Bitboard_t availible,
-    const Bitboard_t normalEmpty,
     const Bitboard_t d12Empty,
     const Bitboard_t enemyKnights,
     const Bitboard_t enemyRooks,
@@ -44,10 +43,10 @@ static Score_t ComputeBishops(
     Score_t score = 0;
     while(bishops) {
         Square_t sq = LSB(bishops);
-        Bitboard_t moves = GetBishopAttackSet(sq, d12Empty) & availible;
+        Bitboard_t attacks = GetBishopAttackSet(sq, d12Empty);
+        Bitboard_t moves = attacks & availible;
         score += bishopMobility[PopCount(moves)];
 
-        Bitboard_t attacks = GetBishopAttackSet(sq, normalEmpty);
         score += 
             BISHOP_THREAT_ON_KNIGHT * PopCount(attacks & enemyKnights) +
             BISHOP_THREAT_ON_ROOK * PopCount(attacks & enemyRooks) +
@@ -60,7 +59,6 @@ static Score_t ComputeBishops(
 static Score_t ComputeRooks(
     Bitboard_t rooks,
     Bitboard_t availible,
-    const Bitboard_t normalEmpty,
     const Bitboard_t hvEmpty,
     const Bitboard_t enemyQueens
 )
@@ -68,10 +66,10 @@ static Score_t ComputeRooks(
     Score_t score = 0;
     while(rooks) {
         Square_t sq = LSB(rooks);
-        Bitboard_t moves = GetRookAttackSet(sq, hvEmpty) & availible;
+        Bitboard_t attacks = GetRookAttackSet(sq, hvEmpty);
+        Bitboard_t moves = attacks & availible;
         score += rookMobility[PopCount(moves)];
 
-        Bitboard_t attacks = GetRookAttackSet(sq, normalEmpty);
         score += 
             ROOK_THREAT_ON_QUEEN * PopCount(attacks & enemyQueens);
         ResetLSB(&rooks);
@@ -144,13 +142,13 @@ void MobilityAndThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
 
     // COMPUTATIONS
     *score += ComputeKnights(boardInfo->knights[white], wAvailible, bBishops, bRooks, bQueens);
-    *score += ComputeBishops(boardInfo->bishops[white], wAvailible, normalEmpty, whiteD12Empty, bKnights, bRooks, bQueens);
-    *score += ComputeRooks(boardInfo->rooks[white], wAvailible, normalEmpty, whiteHvEmpty, bQueens);
+    *score += ComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty, bKnights, bRooks, bQueens);
+    *score += ComputeRooks(boardInfo->rooks[white], wAvailible, whiteHvEmpty, bQueens);
     *score += ComputeQueens(boardInfo->queens[white], wAvailible, whiteHvEmpty, whiteD12Empty);
 
     *score -= ComputeKnights(boardInfo->knights[black], bAvailible, wBishops, wRooks, wQueens);
-    *score -= ComputeBishops(boardInfo->bishops[black], bAvailible, normalEmpty, blackD12Empty, wKnights, wRooks, wQueens);
-    *score -= ComputeRooks(boardInfo->rooks[black], bAvailible, normalEmpty, blackHvEmpty, wQueens);
+    *score -= ComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty, wKnights, wRooks, wQueens);
+    *score -= ComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, wQueens);
     *score -= ComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty);
 
     *score += PawnThreats(boardInfo, wPawnAttacks, bPawnAttacks);

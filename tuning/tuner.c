@@ -211,7 +211,7 @@ static void TunerComputeBishops(
         Bitboard_t moves = GetBishopAttackSet(sq, d12Empty) & availible;
         allValues[bishop_mobility_offset + PopCount(moves)] += multiplier;
 
-        Bitboard_t attacks = GetBishopAttackSet(sq, boardInfo->empty);
+        Bitboard_t attacks = GetBishopAttackSet(sq, d12Empty);
         allValues[bishop_threat_on_knight] += PopCount(attacks & enemyKnights) * multiplier;
         allValues[bishop_threat_on_rook] += PopCount(attacks & enemyRooks) * multiplier;
         allValues[bishop_threat_on_queen] += PopCount(attacks & enemyQueens) * multiplier;
@@ -236,7 +236,7 @@ static void TunerComputeRooks(
         Bitboard_t moves = GetRookAttackSet(sq, hvEmpty) & availible;
         allValues[rook_mobility_offset + PopCount(moves)] += multiplier;
         
-        Bitboard_t attacks = GetRookAttackSet(sq, boardInfo->empty);
+        Bitboard_t attacks = GetRookAttackSet(sq, hvEmpty);
         allValues[rook_threat_on_queen] += PopCount(attacks & enemyQueens) * multiplier;
 
         ResetLSB(&rooks);
