@@ -87,9 +87,9 @@ static Score_t ComputeQueens(
     Score_t score = 0;
     while(queens) {
         Square_t sq = LSB(queens);
-        Bitboard_t d12Moves = GetBishopAttackSet(sq, d12Empty) & availible;
-        Bitboard_t hvMoves = GetRookAttackSet(sq, hvEmpty) & availible;
-        score += queenMobility[PopCount(d12Moves) + PopCount(hvMoves)];
+        Bitboard_t attacks = GetBishopAttackSet(sq, d12Empty) | GetRookAttackSet(sq, hvEmpty);
+        Bitboard_t moves = attacks & availible;
+        score += queenMobility[PopCount(moves)];
         ResetLSB(&queens);
     }
     return score;    
