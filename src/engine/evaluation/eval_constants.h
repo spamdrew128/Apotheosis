@@ -117,6 +117,10 @@ typedef int32_t Score_t;
    S(14, -10), S(23, -3), S(25, -7), S(14, 7), S(33, -14), \
 }
 
+#define CHECK_BONUS { \
+   S(14, -10), S(23, -3), S(25, -7), S(14, 7), S(33, -14), \
+}
+
 #define PAWN_THREAT_ON_KNIGHT S(61, 8)
 #define PAWN_THREAT_ON_BISHOP S(60, 42)
 #define PAWN_THREAT_ON_ROOK S(118, -39)

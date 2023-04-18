@@ -122,7 +122,7 @@ static Score_t PawnThreats(
     int rookThreats = PopCount(wPawnAttacks & boardInfo->rooks[black]) - PopCount(bPawnAttacks & boardInfo->rooks[white]);
     int queenThreats = PopCount(wPawnAttacks & boardInfo->queens[black]) - PopCount(bPawnAttacks & boardInfo->queens[white]);
     int pawnKingRingThreats = PopCount(wPawnAttacks & bKingRing) - PopCount(bPawnAttacks & wKingRing);
-    
+
     return 
         knightThreats * PAWN_THREAT_ON_KNIGHT +
         bishopThreats * PAWN_THREAT_ON_BISHOP +
@@ -166,15 +166,15 @@ void MobilityAndThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
     const Bitboard_t bKingRing = GetKingAttackSet(KingSquare(boardInfo, black));
 
     // COMPUTATIONS
-    *score += ComputeKnights(boardInfo->knights[white], wAvailible, bBishops, bRooks, bQueens, bKingRing);
-    *score += ComputeBishops(boardInfo->bishops[white], wAvailible, whiteD12Empty, bKnights, bRooks, bQueens, bKingRing);
-    *score += ComputeRooks(boardInfo->rooks[white], wAvailible, whiteHvEmpty, bQueens, bKingRing);
-    *score += ComputeQueens(boardInfo->queens[white], wAvailible, whiteHvEmpty, whiteD12Empty, bKingRing);
+    *score += ComputeKnights(wKnights, wAvailible, bBishops, bRooks, bQueens, bKingRing);
+    *score += ComputeBishops(wBishops, wAvailible, whiteD12Empty, bKnights, bRooks, bQueens, bKingRing);
+    *score += ComputeRooks(wRooks, wAvailible, whiteHvEmpty, bQueens, bKingRing);
+    *score += ComputeQueens(wQueens, wAvailible, whiteHvEmpty, whiteD12Empty, bKingRing);
 
-    *score -= ComputeKnights(boardInfo->knights[black], bAvailible, wBishops, wRooks, wQueens, wKingRing);
-    *score -= ComputeBishops(boardInfo->bishops[black], bAvailible, blackD12Empty, wKnights, wRooks, wQueens, wKingRing);
-    *score -= ComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, wQueens, wKingRing);
-    *score -= ComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, wKingRing);
+    *score -= ComputeKnights(bKnights, bAvailible, wBishops, wRooks, wQueens, wKingRing);
+    *score -= ComputeBishops(bBishops, bAvailible, blackD12Empty, wKnights, wRooks, wQueens, wKingRing);
+    *score -= ComputeRooks(bRooks, bAvailible, blackHvEmpty, wQueens, wKingRing);
+    *score -= ComputeQueens(bQueens, bAvailible, blackHvEmpty, blackD12Empty, wKingRing);
 
     *score += PawnThreats(boardInfo, wPawnAttacks, bPawnAttacks, wKingRing, bKingRing);
 }
