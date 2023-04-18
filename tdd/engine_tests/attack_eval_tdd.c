@@ -34,7 +34,7 @@ static void ShouldCalculateMobility() {
         (kingRingThreats[pawn] + 2 * kingRingThreats[bishop]) -
         (kingRingThreats[bishop] + kingRingThreats[queen]);
 
-    PrintResults(score == (queenScore + rookScore + bishopScore + knightScore + threatScore));
+    PrintResults(score == (queenScore + rookScore + bishopScore + knightScore + threatScore + safetyScore));
 }
 
 void AttackEvalTDDRunner() {

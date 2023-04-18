@@ -109,17 +109,25 @@ static Score_t ComputeQueens(
     return score;    
 }
 
-static Score_t PawnThreats(BoardInfo_t* boardInfo, const Bitboard_t wPawnAttacks, const Bitboard_t bPawnAttacks) {
+static Score_t PawnThreats(
+    BoardInfo_t* boardInfo,
+    const Bitboard_t wPawnAttacks,
+    const Bitboard_t bPawnAttacks,
+    const Bitboard_t wKingRing,
+    const Bitboard_t bKingRing
+)
+{
     int knightThreats = PopCount(wPawnAttacks & boardInfo->knights[black]) - PopCount(bPawnAttacks & boardInfo->knights[white]);
     int bishopThreats = PopCount(wPawnAttacks & boardInfo->bishops[black]) - PopCount(bPawnAttacks & boardInfo->bishops[white]);
     int rookThreats = PopCount(wPawnAttacks & boardInfo->rooks[black]) - PopCount(bPawnAttacks & boardInfo->rooks[white]);
     int queenThreats = PopCount(wPawnAttacks & boardInfo->queens[black]) - PopCount(bPawnAttacks & boardInfo->queens[white]);
-
+    int pawnKingRingThreats = PopCount(wPawnAttacks & bKingRing) - PopCount(bPawnAttacks & wKingRing);
     return 
         knightThreats * PAWN_THREAT_ON_KNIGHT +
         bishopThreats * PAWN_THREAT_ON_BISHOP +
         rookThreats * PAWN_THREAT_ON_ROOK +
-        queenThreats * PAWN_THREAT_ON_QUEEN;
+        queenThreats * PAWN_THREAT_ON_QUEEN +
+        pawnKingRingThreats * kingRingThreats[pawn];
 }
 
 void MobilityAndThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
@@ -167,5 +175,5 @@ void MobilityAndThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
     *score -= ComputeRooks(boardInfo->rooks[black], bAvailible, blackHvEmpty, wQueens, wKingRing);
     *score -= ComputeQueens(boardInfo->queens[black], bAvailible, blackHvEmpty, blackD12Empty, wKingRing);
 
-    *score += PawnThreats(boardInfo, wPawnAttacks, bPawnAttacks);
+    *score += PawnThreats(boardInfo, wPawnAttacks, bPawnAttacks, wKingRing, bKingRing);
 }
