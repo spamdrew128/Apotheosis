@@ -674,7 +674,7 @@ void TuneParameters(const char* filename) {
             printf("Cost change since previous: %f\n", cost - prevCost);
             printf("MSE change since previous: %f\n\n", mse - prevMSE);
 
-            if(prevMSE - mse < 1e-7) {
+            if(prevMSE - mse < 1e-8) {
                 printf("CONVERGED!\n");
                 break;
             }
