@@ -291,7 +291,7 @@ static void PawnThreats(BoardInfo_t* boardInfo, const Bitboard_t wPawnAttacks, c
     allValues[pawn_threat_on_rook] += rookThreats;
     allValues[pawn_threat_on_queen] += queenThreats;
 
-    allValues[king_ring_threat_offset + pawn] += queenThreats;
+    allValues[king_ring_threat_offset + pawn] += pawnKingRingThreats;
 }
 
 void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
