@@ -122,6 +122,7 @@ static Score_t PawnThreats(
     int rookThreats = PopCount(wPawnAttacks & boardInfo->rooks[black]) - PopCount(bPawnAttacks & boardInfo->rooks[white]);
     int queenThreats = PopCount(wPawnAttacks & boardInfo->queens[black]) - PopCount(bPawnAttacks & boardInfo->queens[white]);
     int pawnKingRingThreats = PopCount(wPawnAttacks & bKingRing) - PopCount(bPawnAttacks & wKingRing);
+    
     return 
         knightThreats * PAWN_THREAT_ON_KNIGHT +
         bishopThreats * PAWN_THREAT_ON_BISHOP +
