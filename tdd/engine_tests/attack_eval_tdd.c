@@ -9,6 +9,8 @@ static Score_t bishopMobility[BISHOP_MOBILITY_OPTIONS] = BISHOP_MOBILITY;
 static Score_t rookMobility[ROOK_MOBILITY_OPTIONS] = ROOK_MOBILITY;
 static Score_t queenMobility[QUEEN_MOBILITY_OPTIONS] = QUEEN_MOBILITY;
 
+static Score_t kingRingThreats[NUM_PIECES - 1] = KING_RING_THREATS;
+
 static BoardInfo_t boardInfo;
 static GameStack_t gameStack;
 static ZobristStack_t zobristStack;
@@ -27,6 +29,10 @@ static void ShouldCalculateMobility() {
     Score_t knightScore = knightMobility[4] + knightMobility[3];
 
     Score_t threatScore = ROOK_THREAT_ON_QUEEN;
+
+    Score_t safetyScore = 
+        (kingRingThreats[pawn] + 2 * kingRingThreats[bishop]) -
+        (kingRingThreats[bishop] + kingRingThreats[queen]);
 
     PrintResults(score == (queenScore + rookScore + bishopScore + knightScore + threatScore));
 }
