@@ -32,6 +32,7 @@ enum {
     QUEEN_MOBILITY_FEATURE_COUNT = QUEEN_MOBILITY_OPTIONS,
     THREAT_FEATURE_COUNT = 1,
     KING_RING_FEATURE_COUNT = NUM_PIECES - 1,
+    CHECK_BONUS_FEATURE_COUNT = NUM_PIECES - 1,
 
     pst_offset = 0,
     bishop_pair_offset = pst_offset + PST_FEATURE_COUNT,
@@ -65,7 +66,9 @@ enum {
 
     king_ring_threat_offset = rook_threat_on_queen + THREAT_FEATURE_COUNT,
 
-    VECTOR_LENGTH = king_ring_threat_offset + KING_RING_FEATURE_COUNT,
+    check_bonus_offset = king_ring_threat_offset + KING_RING_FEATURE_COUNT,
+
+    VECTOR_LENGTH = check_bonus_offset + CHECK_BONUS_FEATURE_COUNT,
 };
 
 enum {
@@ -191,6 +194,7 @@ static void TunerComputeKnights(
         allValues[knight_threat_on_queen] += PopCount(attacks & enemyQueens) * multiplier;
 
         allValues[king_ring_threat_offset + knight] += PopCount(attacks & enemyKingRing) * multiplier;
+        allValues[check_bonus_offset + knight] += PopCount(attacks & boardInfo->kings[!color]) * multiplier;
 
         ResetLSB(&knights);
     }
@@ -221,6 +225,7 @@ static void TunerComputeBishops(
         allValues[bishop_threat_on_queen] += PopCount(attacks & enemyQueens) * multiplier;
 
         allValues[king_ring_threat_offset + bishop] += PopCount(attacks & enemyKingRing) * multiplier;
+        allValues[check_bonus_offset + bishop] += PopCount(attacks & boardInfo->kings[!color]) * multiplier;
 
         ResetLSB(&bishops);
     }
@@ -247,6 +252,7 @@ static void TunerComputeRooks(
         allValues[rook_threat_on_queen] += PopCount(attacks & enemyQueens) * multiplier;
 
         allValues[king_ring_threat_offset + rook] += PopCount(attacks & enemyKingRing) * multiplier;
+        allValues[check_bonus_offset + rook] += PopCount(attacks & boardInfo->kings[!color]) * multiplier;
 
         ResetLSB(&rooks);
     }  
@@ -271,6 +277,7 @@ static void TunerComputeQueens(
         allValues[queen_mobility_offset + PopCount(moves)] += multiplier;
 
         allValues[king_ring_threat_offset + queen] += PopCount(attacks & enemyKingRing) * multiplier;
+        allValues[check_bonus_offset + queen] += PopCount(attacks & boardInfo->kings[!color]) * multiplier;
 
         ResetLSB(&queens);
     } 
@@ -279,12 +286,16 @@ static void TunerComputeQueens(
 static void PawnThreats(BoardInfo_t* boardInfo, const Bitboard_t wPawnAttacks, const Bitboard_t bPawnAttacks, int16_t allValues[VECTOR_LENGTH]) {
     const Bitboard_t wKingRing = GetKingAttackSet(KingSquare(boardInfo, white));
     const Bitboard_t bKingRing = GetKingAttackSet(KingSquare(boardInfo, black));
+    const Bitboard_t wKing = boardInfo->kings[white];
+    const Bitboard_t bKing = boardInfo->kings[black];
 
     int knightThreats = PopCount(wPawnAttacks & boardInfo->knights[black]) - PopCount(bPawnAttacks & boardInfo->knights[white]);
     int bishopThreats = PopCount(wPawnAttacks & boardInfo->bishops[black]) - PopCount(bPawnAttacks & boardInfo->bishops[white]);
     int rookThreats = PopCount(wPawnAttacks & boardInfo->rooks[black]) - PopCount(bPawnAttacks & boardInfo->rooks[white]);
     int queenThreats = PopCount(wPawnAttacks & boardInfo->queens[black]) - PopCount(bPawnAttacks & boardInfo->queens[white]);
+
     int pawnKingRingThreats = PopCount(wPawnAttacks & bKingRing) - PopCount(bPawnAttacks & wKingRing);
+    int pawnChecks = PopCount(wPawnAttacks & bKing) - PopCount(bPawnAttacks & wKing);
 
     allValues[pawn_threat_on_knight] += knightThreats;
     allValues[pawn_threat_on_bishop] += bishopThreats;
@@ -292,6 +303,7 @@ static void PawnThreats(BoardInfo_t* boardInfo, const Bitboard_t wPawnAttacks, c
     allValues[pawn_threat_on_queen] += queenThreats;
 
     allValues[king_ring_threat_offset + pawn] += pawnKingRingThreats;
+    allValues[check_bonus_offset + pawn] += pawnChecks;
 }
 
 void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
@@ -808,6 +820,8 @@ static void PrintBonuses(FILE* fp) {
     PrintIndividualBonus("QUEEN_MOBILITY", queen_mobility_offset, QUEEN_MOBILITY_FEATURE_COUNT, fp);
 
     PrintIndividualBonus("KING_RING_THREATS", king_ring_threat_offset, KING_RING_FEATURE_COUNT, fp);
+
+    PrintIndividualBonus("CHECK_BONUS", check_bonus_offset, CHECK_BONUS_FEATURE_COUNT, fp);
 }
 
 static void PrintThreats(FILE* fp) {
