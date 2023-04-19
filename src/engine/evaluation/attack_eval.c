@@ -7,8 +7,13 @@ static Score_t bishopMobility[BISHOP_MOBILITY_OPTIONS] = BISHOP_MOBILITY;
 static Score_t rookMobility[ROOK_MOBILITY_OPTIONS] = ROOK_MOBILITY;
 static Score_t queenMobility[QUEEN_MOBILITY_OPTIONS] = QUEEN_MOBILITY;
 
-static Score_t kingRingThreats[NUM_PIECES - 1] = KING_RING_THREATS;
 static Score_t checkBonus[NUM_PIECES - 1] = CHECK_BONUS;
+
+static Score_t knightKZThreats[KING_SAFETY_ZONE_SQUARES] = KNIGHT_KING_ZONE_ATTACKS;
+static Score_t bishopKZThreats[KING_SAFETY_ZONE_SQUARES] = BISHOP_KING_ZONE_ATTACKS;
+static Score_t rookKZThreats[KING_SAFETY_ZONE_SQUARES] = ROOK_KING_ZONE_ATTACKS;
+static Score_t queenKZThreats[KING_SAFETY_ZONE_SQUARES] = QUEEN_KING_ZONE_ATTACKS;
+static Score_t pawnKZThreats[KING_SAFETY_ZONE_SQUARES] = PAWN_KING_ZONE_ATTACKS;
 
 static Score_t ComputeKnights(
     Bitboard_t knights,
@@ -32,7 +37,7 @@ static Score_t ComputeKnights(
             KNIGHT_THREAT_ON_ROOK * PopCount(attacks & enemyRooks) +
             KNIGHT_THREAT_ON_QUEEN * PopCount(attacks & enemyQueens);
 
-        score += kingRingThreats[knight] * PopCount(attacks & enemyKingRing);
+        score += knightKZThreats[PopCount(attacks & enemyKingRing)];
         score += checkBonus[knight] * PopCount(attacks & enemyKing);
         ResetLSB(&knights);
     }
@@ -62,7 +67,7 @@ static Score_t ComputeBishops(
             BISHOP_THREAT_ON_ROOK * PopCount(attacks & enemyRooks) +
             BISHOP_THREAT_ON_QUEEN * PopCount(attacks & enemyQueens);
 
-        score += kingRingThreats[bishop] * PopCount(attacks & enemyKingRing);
+        score += bishopKZThreats[PopCount(attacks & enemyKingRing)];
         score += checkBonus[bishop] * PopCount(attacks & enemyKing);
         ResetLSB(&bishops);
     }
@@ -88,7 +93,7 @@ static Score_t ComputeRooks(
         score += 
             ROOK_THREAT_ON_QUEEN * PopCount(attacks & enemyQueens);
 
-        score += kingRingThreats[rook] * PopCount(attacks & enemyKingRing);
+        score += rookKZThreats[PopCount(attacks & enemyKingRing)];
         score += checkBonus[rook] * PopCount(attacks & enemyKing);
         ResetLSB(&rooks);
     }
@@ -111,7 +116,7 @@ static Score_t ComputeQueens(
         Bitboard_t moves = attacks & availible;
         score += queenMobility[PopCount(moves)];
 
-        score += kingRingThreats[queen] * PopCount(attacks & enemyKingRing);
+        score += queenKZThreats[PopCount(attacks & enemyKingRing)];
         score += checkBonus[queen] * PopCount(attacks & enemyKing);
         ResetLSB(&queens);
     }
@@ -122,8 +127,8 @@ static Score_t PawnThreats(
     BoardInfo_t* boardInfo,
     const Bitboard_t wPawnAttacks,
     const Bitboard_t bPawnAttacks,
-    const Bitboard_t wKingRing,
-    const Bitboard_t bKingRing,
+    const Bitboard_t wKingZone,
+    const Bitboard_t bKingZone,
     const Bitboard_t wKing,
     const Bitboard_t bKing
 )
@@ -132,7 +137,6 @@ static Score_t PawnThreats(
     int bishopThreats = PopCount(wPawnAttacks & boardInfo->bishops[black]) - PopCount(bPawnAttacks & boardInfo->bishops[white]);
     int rookThreats = PopCount(wPawnAttacks & boardInfo->rooks[black]) - PopCount(bPawnAttacks & boardInfo->rooks[white]);
     int queenThreats = PopCount(wPawnAttacks & boardInfo->queens[black]) - PopCount(bPawnAttacks & boardInfo->queens[white]);
-    int pawnKingRingThreats = PopCount(wPawnAttacks & bKingRing) - PopCount(bPawnAttacks & wKingRing);
     int pawnChecks = PopCount(wPawnAttacks & bKing) - PopCount(bPawnAttacks & wKing);
 
     return 
@@ -140,7 +144,8 @@ static Score_t PawnThreats(
         bishopThreats * PAWN_THREAT_ON_BISHOP +
         rookThreats * PAWN_THREAT_ON_ROOK +
         queenThreats * PAWN_THREAT_ON_QUEEN +
-        pawnKingRingThreats * kingRingThreats[pawn] +
+
+        pawnKZThreats[PopCount(wPawnAttacks & bKingZone)] - pawnKZThreats[PopCount(bPawnAttacks & wKingZone)] +
         pawnChecks * checkBonus[pawn];
 }
 
@@ -177,19 +182,19 @@ void MobilityAndThreatsEval(BoardInfo_t* boardInfo, Score_t* score) {
     const Bitboard_t bQueens = boardInfo->queens[black];
 
     // KING SAFETY
-    const Bitboard_t wKingRing = GetKingAttackSet(KingSquare(boardInfo, white));
-    const Bitboard_t bKingRing = GetKingAttackSet(KingSquare(boardInfo, black));
+    const Bitboard_t wKingZone = GetKingSafetyZone(KingSquare(boardInfo, white), white);
+    const Bitboard_t bKingZone = GetKingSafetyZone(KingSquare(boardInfo, black), black);
 
     // COMPUTATIONS
-    *score += ComputeKnights(wKnights, wAvailible, bBishops, bRooks, bQueens, bKingRing, bKing);
-    *score += ComputeBishops(wBishops, wAvailible, whiteD12Empty, bKnights, bRooks, bQueens, bKingRing, bKing);
-    *score += ComputeRooks(wRooks, wAvailible, whiteHvEmpty, bQueens, bKingRing, bKing);
-    *score += ComputeQueens(wQueens, wAvailible, whiteHvEmpty, whiteD12Empty, bKingRing, bKing);
+    *score += ComputeKnights(wKnights, wAvailible, bBishops, bRooks, bQueens, bKingZone, bKing);
+    *score += ComputeBishops(wBishops, wAvailible, whiteD12Empty, bKnights, bRooks, bQueens, bKingZone, bKing);
+    *score += ComputeRooks(wRooks, wAvailible, whiteHvEmpty, bQueens, bKingZone, bKing);
+    *score += ComputeQueens(wQueens, wAvailible, whiteHvEmpty, whiteD12Empty, bKingZone, bKing);
 
-    *score -= ComputeKnights(bKnights, bAvailible, wBishops, wRooks, wQueens, wKingRing, wKing);
-    *score -= ComputeBishops(bBishops, bAvailible, blackD12Empty, wKnights, wRooks, wQueens, wKingRing, wKing);
-    *score -= ComputeRooks(bRooks, bAvailible, blackHvEmpty, wQueens, wKingRing, wKing);
-    *score -= ComputeQueens(bQueens, bAvailible, blackHvEmpty, blackD12Empty, wKingRing, wKing);
+    *score -= ComputeKnights(bKnights, bAvailible, wBishops, wRooks, wQueens, wKingZone, wKing);
+    *score -= ComputeBishops(bBishops, bAvailible, blackD12Empty, wKnights, wRooks, wQueens, wKingZone, wKing);
+    *score -= ComputeRooks(bRooks, bAvailible, blackHvEmpty, wQueens, wKingZone, wKing);
+    *score -= ComputeQueens(bQueens, bAvailible, blackHvEmpty, blackD12Empty, wKingZone, wKing);
 
-    *score += PawnThreats(boardInfo, wPawnAttacks, bPawnAttacks, wKingRing, bKingRing, wKing, bKing);
+    *score += PawnThreats(boardInfo, wPawnAttacks, bPawnAttacks, wKingZone, bKingZone, wKing, bKing);
 }
