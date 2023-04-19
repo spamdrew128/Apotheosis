@@ -31,8 +31,12 @@ enum {
     ROOK_MOBILITY_FEATURE_COUNT = ROOK_MOBILITY_OPTIONS,
     QUEEN_MOBILITY_FEATURE_COUNT = QUEEN_MOBILITY_OPTIONS,
     THREAT_FEATURE_COUNT = 1,
-    KING_RING_FEATURE_COUNT = NUM_PIECES - 1,
     CHECK_BONUS_FEATURE_COUNT = NUM_PIECES - 1,
+    KNIGHT_KING_ZONE_FEATURE_COUNT = KING_SAFETY_ZONE_SQUARES,
+    BISHOP_KING_ZONE_FEATURE_COUNT = KING_SAFETY_ZONE_SQUARES,
+    ROOK_KING_ZONE_FEATURE_COUNT = KING_SAFETY_ZONE_SQUARES,
+    QUEEN_KING_ZONE_FEATURE_COUNT = KING_SAFETY_ZONE_SQUARES,
+    PAWN_KING_ZONE_FEATURE_COUNT = KING_SAFETY_ZONE_SQUARES,
 
     pst_offset = 0,
     bishop_pair_offset = pst_offset + PST_FEATURE_COUNT,
@@ -64,11 +68,15 @@ enum {
     bishop_threat_on_queen = bishop_threat_on_rook + THREAT_FEATURE_COUNT,
     rook_threat_on_queen = bishop_threat_on_queen + THREAT_FEATURE_COUNT,
 
-    king_ring_threat_offset = rook_threat_on_queen + THREAT_FEATURE_COUNT,
+    check_bonus_offset = rook_threat_on_queen + THREAT_FEATURE_COUNT,
 
-    check_bonus_offset = king_ring_threat_offset + KING_RING_FEATURE_COUNT,
+    knight_king_zone_offset = check_bonus_offset + CHECK_BONUS_FEATURE_COUNT,
+    bishop_king_zone_offset = knight_king_zone_offset + KNIGHT_KING_ZONE_FEATURE_COUNT,
+    rook_king_zone_offset = bishop_king_zone_offset + BISHOP_KING_ZONE_FEATURE_COUNT,
+    queen_king_zone_offset = rook_king_zone_offset + ROOK_KING_ZONE_FEATURE_COUNT,
+    pawn_king_zone_offset = queen_king_zone_offset + QUEEN_KING_ZONE_FEATURE_COUNT,
 
-    VECTOR_LENGTH = check_bonus_offset + CHECK_BONUS_FEATURE_COUNT,
+    VECTOR_LENGTH = pawn_king_zone_offset + PAWN_KING_ZONE_FEATURE_COUNT,
 };
 
 enum {
