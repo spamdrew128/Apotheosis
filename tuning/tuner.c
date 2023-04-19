@@ -187,10 +187,10 @@ static void KingZoneFeature(
 )
 {
     const int zoneAttackCount = PopCount(attacks & enemyKingZone);
-    // if(zoneAttackCount > 0) {
+    if(zoneAttackCount > 0) {
         // we want no attacks to stay at 0 for readablility
         allValues[offset + zoneAttackCount] += multiplier;
-    // }
+    }
 }
 
 static void TunerComputeKnights(
