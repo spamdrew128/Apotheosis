@@ -307,8 +307,9 @@ static void TunerComputeQueens(
 }
 
 static void PawnThreats(BoardInfo_t* boardInfo, const Bitboard_t wPawnAttacks, const Bitboard_t bPawnAttacks, int16_t allValues[VECTOR_LENGTH]) {
-    const Bitboard_t wKingZone = GetKingAttackSet(KingSquare(boardInfo, white));
-    const Bitboard_t bKingZone = GetKingAttackSet(KingSquare(boardInfo, black));
+    const Bitboard_t wKingZone = GetKingSafetyZone(KingSquare(boardInfo, white), white);
+    const Bitboard_t bKingZone = GetKingSafetyZone(KingSquare(boardInfo, black), black);
+
     const Bitboard_t wKing = boardInfo->kings[white];
     const Bitboard_t bKing = boardInfo->kings[black];
 
