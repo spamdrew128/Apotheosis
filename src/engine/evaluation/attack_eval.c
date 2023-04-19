@@ -21,7 +21,7 @@ static Score_t ComputeKnights(
     const Bitboard_t enemyBishops,
     const Bitboard_t enemyRooks,
     const Bitboard_t enemyQueens,
-    const Bitboard_t enemyKingRing,
+    const Bitboard_t enemyKingZone,
     const Bitboard_t enemyKing
 )
 {
@@ -37,7 +37,7 @@ static Score_t ComputeKnights(
             KNIGHT_THREAT_ON_ROOK * PopCount(attacks & enemyRooks) +
             KNIGHT_THREAT_ON_QUEEN * PopCount(attacks & enemyQueens);
 
-        score += knightKZThreats[PopCount(attacks & enemyKingRing)];
+        score += knightKZThreats[PopCount(attacks & enemyKingZone)];
         score += checkBonus[knight] * PopCount(attacks & enemyKing);
         ResetLSB(&knights);
     }
@@ -51,7 +51,7 @@ static Score_t ComputeBishops(
     const Bitboard_t enemyKnights,
     const Bitboard_t enemyRooks,
     const Bitboard_t enemyQueens,
-    const Bitboard_t enemyKingRing,
+    const Bitboard_t enemyKingZone,
     const Bitboard_t enemyKing
 )
 {
@@ -67,7 +67,7 @@ static Score_t ComputeBishops(
             BISHOP_THREAT_ON_ROOK * PopCount(attacks & enemyRooks) +
             BISHOP_THREAT_ON_QUEEN * PopCount(attacks & enemyQueens);
 
-        score += bishopKZThreats[PopCount(attacks & enemyKingRing)];
+        score += bishopKZThreats[PopCount(attacks & enemyKingZone)];
         score += checkBonus[bishop] * PopCount(attacks & enemyKing);
         ResetLSB(&bishops);
     }
@@ -79,7 +79,7 @@ static Score_t ComputeRooks(
     Bitboard_t availible,
     const Bitboard_t hvEmpty,
     const Bitboard_t enemyQueens,
-    const Bitboard_t enemyKingRing,
+    const Bitboard_t enemyKingZone,
     const Bitboard_t enemyKing
 )
 {
@@ -93,7 +93,7 @@ static Score_t ComputeRooks(
         score += 
             ROOK_THREAT_ON_QUEEN * PopCount(attacks & enemyQueens);
 
-        score += rookKZThreats[PopCount(attacks & enemyKingRing)];
+        score += rookKZThreats[PopCount(attacks & enemyKingZone)];
         score += checkBonus[rook] * PopCount(attacks & enemyKing);
         ResetLSB(&rooks);
     }
@@ -105,7 +105,7 @@ static Score_t ComputeQueens(
     Bitboard_t availible,
     const Bitboard_t hvEmpty,
     const Bitboard_t d12Empty,
-    const Bitboard_t enemyKingRing,
+    const Bitboard_t enemyKingZone,
     const Bitboard_t enemyKing
 )
 {
@@ -116,7 +116,7 @@ static Score_t ComputeQueens(
         Bitboard_t moves = attacks & availible;
         score += queenMobility[PopCount(moves)];
 
-        score += queenKZThreats[PopCount(attacks & enemyKingRing)];
+        score += queenKZThreats[PopCount(attacks & enemyKingZone)];
         score += checkBonus[queen] * PopCount(attacks & enemyKing);
         ResetLSB(&queens);
     }
