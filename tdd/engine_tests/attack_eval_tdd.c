@@ -9,9 +9,9 @@ static Score_t bishopMobility[BISHOP_MOBILITY_OPTIONS] = BISHOP_MOBILITY;
 static Score_t rookMobility[ROOK_MOBILITY_OPTIONS] = ROOK_MOBILITY;
 static Score_t queenMobility[QUEEN_MOBILITY_OPTIONS] = QUEEN_MOBILITY;
 
-static Score_t knightKZThreats[KING_VIRTUAL_MOBILITY_OPTIONS] = KNIGHT_KING_ZONE_ATTACKS;
+// static Score_t knightKZThreats[KING_VIRTUAL_MOBILITY_OPTIONS] = KNIGHT_KING_ZONE_ATTACKS;
 static Score_t bishopKZThreats[KING_VIRTUAL_MOBILITY_OPTIONS] = BISHOP_KING_ZONE_ATTACKS;
-static Score_t rookKZThreats[KING_VIRTUAL_MOBILITY_OPTIONS] = ROOK_KING_ZONE_ATTACKS;
+// static Score_t rookKZThreats[KING_VIRTUAL_MOBILITY_OPTIONS] = ROOK_KING_ZONE_ATTACKS;
 static Score_t queenKZThreats[KING_VIRTUAL_MOBILITY_OPTIONS] = QUEEN_KING_ZONE_ATTACKS;
 static Score_t pawnKZThreats[KING_VIRTUAL_MOBILITY_OPTIONS] = PAWN_KING_ZONE_ATTACKS;
 
@@ -34,9 +34,12 @@ static void ShouldCalculateMobility() {
 
     Score_t threatScore = ROOK_THREAT_ON_QUEEN;
 
+    VirtualMobility_t wVirtMobility = 2;
+    VirtualMobility_t bVirtMobility = 5;
+
     Score_t safetyScore = 
-        (knightKZThreats[0] + bishopKZThreats[3] + rookKZThreats[0] + queenKZThreats[0] + pawnKZThreats[1]) -
-        (knightKZThreats[0] + bishopKZThreats[2] + rookKZThreats[0] + queenKZThreats[3] + pawnKZThreats[2]);
+        (3*bishopKZThreats[bVirtMobility] + pawnKZThreats[bVirtMobility]) -
+        (2*bishopKZThreats[wVirtMobility] + 3*queenKZThreats[wVirtMobility] + 2*pawnKZThreats[wVirtMobility]);
 
     PrintResults(score == (queenScore + rookScore + bishopScore + knightScore + threatScore + safetyScore));
 }
