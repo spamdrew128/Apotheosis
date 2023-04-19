@@ -32,11 +32,11 @@ enum {
     QUEEN_MOBILITY_FEATURE_COUNT = QUEEN_MOBILITY_OPTIONS,
     THREAT_FEATURE_COUNT = 1,
     CHECK_BONUS_FEATURE_COUNT = NUM_PIECES - 1,
-    KNIGHT_KING_ZONE_FEATURE_COUNT = KING_SAFETY_ZONE_SQUARES,
-    BISHOP_KING_ZONE_FEATURE_COUNT = KING_SAFETY_ZONE_SQUARES,
-    ROOK_KING_ZONE_FEATURE_COUNT = KING_SAFETY_ZONE_SQUARES,
-    QUEEN_KING_ZONE_FEATURE_COUNT = KING_SAFETY_ZONE_SQUARES,
-    PAWN_KING_ZONE_FEATURE_COUNT = KING_SAFETY_ZONE_SQUARES,
+    KNIGHT_KING_ZONE_FEATURE_COUNT = KING_VIRTUAL_MOBILITY_OPTIONS,
+    BISHOP_KING_ZONE_FEATURE_COUNT = KING_VIRTUAL_MOBILITY_OPTIONS,
+    ROOK_KING_ZONE_FEATURE_COUNT = KING_VIRTUAL_MOBILITY_OPTIONS,
+    QUEEN_KING_ZONE_FEATURE_COUNT = KING_VIRTUAL_MOBILITY_OPTIONS,
+    PAWN_KING_ZONE_FEATURE_COUNT = KING_VIRTUAL_MOBILITY_OPTIONS,
 
     pst_offset = 0,
     bishop_pair_offset = pst_offset + PST_FEATURE_COUNT,
@@ -183,14 +183,12 @@ static void KingZoneFeature(
     const Bitboard_t attacks,
     const Bitboard_t enemyKingZone,
     const int multiplier,
-    const int offset
+    const int offset,
+    const VirtualMobility_t enemyVirtMobility
 )
 {
     const int zoneAttackCount = PopCount(attacks & enemyKingZone);
-    if(zoneAttackCount > 0) {
-        // we want no attacks to stay at 0 for readablility
-        allValues[offset + zoneAttackCount] += multiplier;
-    }
+    allValues[offset + enemyVirtMobility] += zoneAttackCount * multiplier;
 }
 
 static void TunerComputeKnights(
@@ -216,7 +214,7 @@ static void TunerComputeKnights(
         allValues[knight_threat_on_rook] += PopCount(attacks & enemyRooks) * multiplier;
         allValues[knight_threat_on_queen] += PopCount(attacks & enemyQueens) * multiplier;
 
-        KingZoneFeature(allValues, attacks, enemyKingZone, multiplier, knight_king_zone_offset);
+        KingZoneFeature(allValues, attacks, enemyKingZone, multiplier, knight_king_zone_offset, KingVirtualMobility(boardInfo, !color));
         allValues[check_bonus_offset + knight] += PopCount(attacks & boardInfo->kings[!color]) * multiplier;
 
         ResetLSB(&knights);
@@ -247,7 +245,7 @@ static void TunerComputeBishops(
         allValues[bishop_threat_on_rook] += PopCount(attacks & enemyRooks) * multiplier;
         allValues[bishop_threat_on_queen] += PopCount(attacks & enemyQueens) * multiplier;
 
-        KingZoneFeature(allValues, attacks, enemyKingZone, multiplier, bishop_king_zone_offset);
+        KingZoneFeature(allValues, attacks, enemyKingZone, multiplier, bishop_king_zone_offset, KingVirtualMobility(boardInfo, !color));
         allValues[check_bonus_offset + bishop] += PopCount(attacks & boardInfo->kings[!color]) * multiplier;
 
         ResetLSB(&bishops);
@@ -274,7 +272,7 @@ static void TunerComputeRooks(
         Bitboard_t attacks = GetRookAttackSet(sq, hvEmpty);
         allValues[rook_threat_on_queen] += PopCount(attacks & enemyQueens) * multiplier;
 
-        KingZoneFeature(allValues, attacks, enemyKingZone, multiplier, rook_king_zone_offset);
+        KingZoneFeature(allValues, attacks, enemyKingZone, multiplier, rook_king_zone_offset, KingVirtualMobility(boardInfo, !color));
         allValues[check_bonus_offset + rook] += PopCount(attacks & boardInfo->kings[!color]) * multiplier;
 
         ResetLSB(&rooks);
@@ -299,7 +297,7 @@ static void TunerComputeQueens(
         Bitboard_t moves = attacks & availible;
         allValues[queen_mobility_offset + PopCount(moves)] += multiplier;
 
-        KingZoneFeature(allValues, attacks, enemyKingZone, multiplier, queen_king_zone_offset);
+        KingZoneFeature(allValues, attacks, enemyKingZone, multiplier, queen_king_zone_offset, KingVirtualMobility(boardInfo, !color));
         allValues[check_bonus_offset + queen] += PopCount(attacks & boardInfo->kings[!color]) * multiplier;
 
         ResetLSB(&queens);
@@ -326,8 +324,8 @@ static void PawnThreats(BoardInfo_t* boardInfo, const Bitboard_t wPawnAttacks, c
     allValues[pawn_threat_on_queen] += queenThreats;
 
     allValues[check_bonus_offset + pawn] += pawnChecks;
-    KingZoneFeature(allValues, wPawnAttacks, bKingZone, 1, pawn_king_zone_offset);
-    KingZoneFeature(allValues, bPawnAttacks, wKingZone, -1, pawn_king_zone_offset);
+    KingZoneFeature(allValues, wPawnAttacks, bKingZone, 1, pawn_king_zone_offset, KingVirtualMobility(boardInfo, black));
+    KingZoneFeature(allValues, bPawnAttacks, wKingZone, -1, pawn_king_zone_offset, KingVirtualMobility(boardInfo, white));
 }
 
 void FillMobility(BoardInfo_t* boardInfo, int16_t allValues[VECTOR_LENGTH]) {
