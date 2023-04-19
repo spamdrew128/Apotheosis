@@ -9,7 +9,11 @@ static Score_t bishopMobility[BISHOP_MOBILITY_OPTIONS] = BISHOP_MOBILITY;
 static Score_t rookMobility[ROOK_MOBILITY_OPTIONS] = ROOK_MOBILITY;
 static Score_t queenMobility[QUEEN_MOBILITY_OPTIONS] = QUEEN_MOBILITY;
 
-static Score_t kingRingThreats[NUM_PIECES - 1] = KING_RING_THREATS;
+// static Score_t knightKZThreats[KING_SAFETY_ZONE_SQUARES] = KNIGHT_KING_ZONE_ATTACKS;
+static Score_t bishopKZThreats[KING_SAFETY_ZONE_SQUARES] = BISHOP_KING_ZONE_ATTACKS;
+// static Score_t rookKZThreats[KING_SAFETY_ZONE_SQUARES] = ROOK_KING_ZONE_ATTACKS;
+static Score_t queenKZThreats[KING_SAFETY_ZONE_SQUARES] = QUEEN_KING_ZONE_ATTACKS;
+static Score_t pawnKZThreats[KING_SAFETY_ZONE_SQUARES] = PAWN_KING_ZONE_ATTACKS;
 
 static BoardInfo_t boardInfo;
 static GameStack_t gameStack;
@@ -31,8 +35,8 @@ static void ShouldCalculateMobility() {
     Score_t threatScore = ROOK_THREAT_ON_QUEEN;
 
     Score_t safetyScore = 
-        (kingRingThreats[pawn] + 2 * kingRingThreats[bishop]) -
-        (kingRingThreats[bishop] + kingRingThreats[queen]);
+        (pawnKZThreats[1] + bishopKZThreats[3]) -
+        (bishopKZThreats[2] + queenKZThreats[2]);
 
     PrintResults(score == (queenScore + rookScore + bishopScore + knightScore + threatScore + safetyScore));
 }

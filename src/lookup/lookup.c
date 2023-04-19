@@ -140,14 +140,16 @@ static void InitCastleSquares(Square_t ksCastleSquares[], Square_t qsCastleSquar
 
 static void InitKingSafetyZone(Bitboard_t kingSafetyZones[2][NUM_SQUARES]) {
     for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
-        Square_t adjustedSq = sq + (sq % 8 == 0) - (sq % 8 == 7);
+        const Square_t adjustedSq = sq + (sq % 8 == 0) - (sq % 8 == 7);
+        const Bitboard_t innerRing = (GetKingAttackSet(adjustedSq) | GetSingleBitset(adjustedSq)) ^ GetSingleBitset(sq);
+
         const Bitboard_t bitset = GetSingleBitset(adjustedSq);
 
         const Bitboard_t wShield = NoWeOne(bitset)| NortOne(bitset) | NoEaOne(bitset);
         const Bitboard_t bShield = SoWeOne(bitset)| SoutOne(bitset) | SoEaOne(bitset);
 
-        kingSafetyZones[white][sq] = GetKingAttackSet(adjustedSq) | GenShiftNorth(wShield, 1) | GenShiftNorth(wShield, 2);
-        kingSafetyZones[black][sq] = GetKingAttackSet(adjustedSq) | GenShiftSouth(bShield, 1) | GenShiftSouth(bShield, 2);
+        kingSafetyZones[white][sq] = innerRing | GenShiftNorth(wShield, 1) | GenShiftNorth(wShield, 2);
+        kingSafetyZones[black][sq] = innerRing | GenShiftSouth(bShield, 1) | GenShiftSouth(bShield, 2);
     }
 }
 

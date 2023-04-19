@@ -3,7 +3,7 @@ CC=gcc
 DEBUGFLAGS=-g
 OPTFLAGS=-O3 -flto
 SAN=N
-CFLAGS=-Wall -std=c17 -march=native $(OPTFLAGS)
+CFLAGS=-Wall -std=c17 -march=native $(DEBUGFLAGS)
 CPPFLAGS=$(INCDIRS)
 
 RELEASE=false
