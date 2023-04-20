@@ -138,6 +138,21 @@ static void InitCastleSquares(Square_t ksCastleSquares[], Square_t qsCastleSquar
     qsCastleSquares[black] = LSB(black_queenside_castle_bb);
 }
 
+static void InitKingSafetyZone(Bitboard_t kingSafetyZones[2][NUM_SQUARES]) {
+    for(Square_t sq = 0; sq < NUM_SQUARES; sq++) {
+        const Square_t adjustedSq = sq + (sq % 8 == 0) - (sq % 8 == 7);
+        const Bitboard_t innerRing = (GetKingAttackSet(adjustedSq) | GetSingleBitset(adjustedSq)) ^ GetSingleBitset(sq);
+
+        const Bitboard_t bitset = GetSingleBitset(adjustedSq);
+
+        const Bitboard_t wShield = NoWeOne(bitset)| NortOne(bitset) | NoEaOne(bitset);
+        const Bitboard_t bShield = SoWeOne(bitset)| SoutOne(bitset) | SoEaOne(bitset);
+
+        kingSafetyZones[white][sq] = innerRing | GenShiftNorth(wShield, 1) | GenShiftNorth(wShield, 2);
+        kingSafetyZones[black][sq] = innerRing | GenShiftSouth(bShield, 1) | GenShiftSouth(bShield, 2);
+    }
+}
+
 void InitLookupTables() {
     InitSingleBitset(lookup.singleBitsets);
     InitKnightAttacks(lookup.knightAttacks);
@@ -147,6 +162,7 @@ void InitLookupTables() {
     InitPawnCheckmasks(lookup.pawnCheckmasks);
     InitDirectionalRays(lookup.directionalRays);
     InitCastleSquares(lookup.ksCastleSquares, lookup.qsCastleSquares);
+    InitKingSafetyZone(lookup.kingSafetyZones);
 }
 
 Bitboard_t GetSingleBitset(Square_t square) {
@@ -199,4 +215,8 @@ Square_t GetKingsideCastleSquare(Color_t color) {
 
 Square_t GetQueensideCastleSquare(Color_t color) {
     return lookup.qsCastleSquares[color];
+}
+
+Bitboard_t GetKingSafetyZone(Square_t square, Color_t color) {
+    return lookup.kingSafetyZones[color][square];
 }
