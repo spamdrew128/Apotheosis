@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <string.h>
 
+#include <immintrin.h>
 #include "bitboards.h"
 
 Bitboard_t NortOne (Bitboard_t b) {return  b << 8;}
