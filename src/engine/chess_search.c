@@ -161,14 +161,12 @@ static EvalScore_t NullWindowSearch(
     ZobristStack_t* zobristStack,
     ChessSearchInfo_t* searchInfo,
     EvalScore_t alpha,
+    EvalScore_t beta,
     Depth_t depth,
     Ply_t ply
 )
 {
-    EvalScore_t nullWindowBeta = alpha + 1;
-    EvalScore_t score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -nullWindowBeta, -alpha, depth-1, ply+1);
-
-    return score;
+    return -Negamax(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, depth-1, ply+1);
 }
 
 static EvalScore_t Negamax(
@@ -245,7 +243,7 @@ static EvalScore_t Negamax(
         if(i == 0) {
             score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
         } else {
-            score = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, depth, ply);
+            score = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, -(alpha + 1), -alpha, depth, ply);
             // if our NWS beat alpha without failing high, that means we might have a better move and need to re search
             if(score > alpha && score < beta) {
                 score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
