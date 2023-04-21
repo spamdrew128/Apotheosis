@@ -243,7 +243,7 @@ static EvalScore_t Negamax(
         if(i == 0) {
             score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
         } else {
-            score = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, -(alpha + 1), -alpha, depth, ply);
+            score = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, -alpha - 1, -alpha, depth, ply);
             // if our NWS beat alpha without failing high, that means we might have a better move and need to re search
             if(score > alpha && score < beta) {
                 score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
