@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <string.h>
 
+#include <immintrin.h>
 #include "bitboards.h"
 
 Bitboard_t NortOne (Bitboard_t b) {return  b << 8;}
@@ -15,6 +16,14 @@ Bitboard_t NoWeOne (Bitboard_t b) {return (b & not_a_file) << 7;}
 
 Bitboard_t NortTwo(Bitboard_t b) {return  b << 16;}
 Bitboard_t SoutTwo(Bitboard_t b) {return  b >> 16;}
+
+Bitboard_t GenShiftNorth(Bitboard_t b, uint8_t shift) {
+    return  b << (8 * shift);
+}
+
+Bitboard_t GenShiftSouth(Bitboard_t b, uint8_t shift) {
+    return b >> (8 * shift);
+}
 
 Bitboard_t GenShiftEast(Bitboard_t b, uint8_t shift) {
     return b << shift;

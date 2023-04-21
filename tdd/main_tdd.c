@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "RNG.h"
 #include "lookup.h"
 #include "board_constants.h"
 #include "lookup_tdd.h"
@@ -24,6 +25,8 @@
 #include "TT_tdd.h"
 #include "killers_tdd.h"
 #include "history_tdd.h"
+#include "pawn_structure_tdd.h"
+#include "attack_eval_tdd.h"
 
 static void ProgramTeardown(UciApplicationData_t* uciApplicationData) {
     TranspositionTable_t* tt = &uciApplicationData->uciSearchInfo.tt;
@@ -34,8 +37,11 @@ int main(int argc, char** argv)
 {
     setvbuf(stdout, NULL, _IONBF, 0);
 
+    Generator_t mainRNG;
+    InitRNG(&mainRNG, true);
+
     InitLookupTables();
-    GenerateZobristKeys();
+    GenerateZobristKeys(&mainRNG);
 
     LookupTDDRunner();
     BitboardsTDDRunner();
@@ -58,6 +64,8 @@ int main(int argc, char** argv)
     TranspositionTableTDDRunner();
     KillersTDDRunner();
     HistoryTDDRunner();
+    PawnStructureTDDRunner();
+    AttackEvalTDDRunner();
 
     // RANDOM CRASHES
     RandomCrashTestRunner(false);
@@ -72,7 +80,7 @@ int main(int argc, char** argv)
     
     UciApplicationData_t uciApplicationData;
     UciApplicationDataInit(&uciApplicationData);
-    bool running = false;
+    bool running = true;
     while(running)
     {
         running = InterpretUCIInput(&uciApplicationData);

@@ -5,6 +5,7 @@ TDD_ROOT=tdd
 BITBOARDS=$(SRC)/bitboards
 ENDINGS=$(SRC)/endings
 ENGINE=$(SRC)/engine
+EVAL=$(ENGINE)/evaluation
 FEN=$(SRC)/FEN
 LOOKUP=$(SRC)/lookup
 MOVEGEN=$(SRC)/movegen
@@ -18,6 +19,8 @@ ZOBRIST=$(SRC)/zobrist
 TDD=$(TDD_ROOT)/tests
 ENGINE_TDD=$(TDD_ROOT)/engine_tests
 
+TUNING=tuning
+
 MAIN=main
 TDD_MAIN=$(TDD_ROOT)/main_tdd
 
@@ -27,6 +30,7 @@ INCDIRS:= \
 -I $(BITBOARDS)/. \
 -I $(ENDINGS)/. \
 -I $(ENGINE)/. \
+-I $(EVAL)/. \
 -I $(FEN)/. \
 -I $(LOOKUP)/. \
 -I $(MOVEGEN)/. \
@@ -39,19 +43,26 @@ INCDIRS:= \
 \
 -I $(TDD_ROOT)/. \
 -I $(TDD)/. \
--I $(ENGINE_TDD)/. 
+-I $(ENGINE_TDD)/. \
+\
+-I $(TUNING)/.
 
 COMMON_CFILES= \
+$(SRC)/string_utils.c \
 $(BITBOARDS)/bitboards.c \
 $(BITBOARDS)/magic.c \
 $(ENDINGS)/endings.c \
 $(ENGINE)/chess_search.c \
-$(ENGINE)/evaluation.c \
 $(ENGINE)/killers.c \
 $(ENGINE)/PV_table.c \
 $(ENGINE)/move_ordering.c \
 $(ENGINE)/transposition_table.c \
 $(ENGINE)/history.c \
+$(EVAL)/attack_eval.c \
+$(EVAL)/eval_helpers.c \
+$(EVAL)/eval_constants_tools.c \
+$(EVAL)/evaluation.c \
+$(EVAL)/pawn_structure.c \
 $(FEN)/FEN.c \
 $(LOOKUP)/lookup.c \
 $(PLAY)/move.c \
@@ -64,7 +75,10 @@ $(MOVEGEN)/legals.c \
 $(MOVEGEN)/movegen.c \
 $(MOVEGEN)/pieces.c \
 $(UCI)/UCI.c \
-$(ZOBRIST)/zobrist.c
+$(ZOBRIST)/zobrist.c \
+\
+$(TUNING)/tuner.c \
+$(TUNING)/datagen.c
 
 COMMON_OBJECTS=$(COMMON_CFILES:%.c=%.o)
 
@@ -96,7 +110,9 @@ $(ENGINE_TDD)/random_crashes.c \
 $(ENGINE_TDD)/move_ordering_tdd.c \
 $(ENGINE_TDD)/TT_tdd.c \
 $(ENGINE_TDD)/killers_tdd.c \
-$(ENGINE_TDD)/history_tdd.c
+$(ENGINE_TDD)/history_tdd.c \
+$(ENGINE_TDD)/pawn_structure_tdd.c \
+$(ENGINE_TDD)/attack_eval_tdd.c
 
 D_OBJECTS=$(D_CFILES:%.c=%.o)
 
@@ -109,13 +125,13 @@ test: $(DEBUG_EXE)
 	$(DEBUG_EXE)
 
 $(EXE): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ -lm	
 
 $(DEBUG_EXE): $(D_OBJECTS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $^
 
 clean:
-	rm $(EXE) $(DEBUG_EXE) $(OBJECTS) $(D_OBJECTS) 
+	rm $(EXE) $(DEBUG_EXE) $(OBJECTS) $(D_OBJECTS) *bin *txt

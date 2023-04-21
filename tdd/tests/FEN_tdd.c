@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "debug.h"
 #include "FEN_tdd.h"
 #include "bitboards.h"
 #include "board_info.h"
 #include "zobrist.h"
+#include "perft_table.h"
 
 #define COMPLEX_FEN "r1b1qrk1/pp2np1p/2pp1npQ/3Pp1P1/4P3/2N2N2/PPP2P2/2KR1B1R w K - 34 56"
 
@@ -86,7 +88,28 @@ static void ComplexFENInterpretedCorrectly() {
     PrintResults(CompareInfo(&info, &expectedInfo) && CompareState(&expectedState, &gameStack));
 }
 
+static void ToFENWorks() {
+    FEN_t fenList[] = { PERFT_TEST_TABLE(EXPAND_AS_FEN_ARRAY) };
+    BoardInfo_t info;
+
+    bool success = true;
+    for(int i = 0; i < NUM_PERFT_ENTRIES; i++) {
+        FEN_t fen = fenList[i];
+        InterpretFEN(fen, &info, &gameStack, &zobristStack);
+        char result[FEN_BUFFER_SIZE];
+        BoardToFEN(&info, &gameStack, result);
+
+        if(!FENsMatch(fen, result)) {
+            success = false;
+            break;
+        }
+    }
+
+    PrintResults(success);
+}
+
 void FENTDDRunner() {
     StartFENInterpretedCorrectly();
     ComplexFENInterpretedCorrectly();
+    ToFENWorks();
 }   

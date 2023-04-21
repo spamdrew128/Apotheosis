@@ -7,6 +7,12 @@
 
 typedef struct { uint64_t state;  uint64_t inc; } pcg32_random_t;
 
-uint64_t RandUnsigned64();
+typedef struct {
+    pcg32_random_t seed;
+} Generator_t;
+
+void InitRNG(Generator_t* rng, bool deterministic);
+
+uint64_t RandUnsigned64(Generator_t* generator);
 
 #endif

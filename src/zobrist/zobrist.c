@@ -1,5 +1,4 @@
 #include "zobrist.h"
-#include "RNG.h"
 #include "bitboards.h"
 #include "util_macros.h"
 
@@ -19,18 +18,18 @@ static ZobristKey_t castlingKeys[16];
 static ZobristKey_t enPassantFileKeys[8];
 static ZobristKey_t sideToMoveIsBlackKey;
 
-static void FillKeysrandomList(ZobristKey_t* list, int num_entries) {
+static void FillKeysrandomList(ZobristKey_t* list, int num_entries, Generator_t* generator) {
     for(int i = 0; i < num_entries; i++) {
-        list[i] = RandUnsigned64();
+        list[i] = RandUnsigned64(generator);
     }
 }
 
-void GenerateZobristKeys() {
-    FillKeysrandomList(whitePieceKeys, NUM_ARRAY_ELEMENTS(whitePieceKeys));
-    FillKeysrandomList(blackPieceKeys, NUM_ARRAY_ELEMENTS(blackPieceKeys));
-    FillKeysrandomList(castlingKeys, NUM_ARRAY_ELEMENTS(castlingKeys));
-    FillKeysrandomList(enPassantFileKeys, NUM_ARRAY_ELEMENTS(enPassantFileKeys));
-    sideToMoveIsBlackKey = RandUnsigned64();
+void GenerateZobristKeys(Generator_t* generator) {
+    FillKeysrandomList(whitePieceKeys, NUM_ARRAY_ELEMENTS(whitePieceKeys), generator);
+    FillKeysrandomList(blackPieceKeys, NUM_ARRAY_ELEMENTS(blackPieceKeys), generator);
+    FillKeysrandomList(castlingKeys, NUM_ARRAY_ELEMENTS(castlingKeys), generator);
+    FillKeysrandomList(enPassantFileKeys, NUM_ARRAY_ELEMENTS(enPassantFileKeys), generator);
+    sideToMoveIsBlackKey = RandUnsigned64(generator);
 }
 
 void InitZobristStack(ZobristStack_t* zobristStack) {

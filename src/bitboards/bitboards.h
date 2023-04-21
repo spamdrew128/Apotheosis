@@ -19,6 +19,8 @@ Bitboard_t NoWeOne (Bitboard_t b);
 Bitboard_t NortTwo(Bitboard_t b);
 Bitboard_t SoutTwo(Bitboard_t b);
 
+Bitboard_t GenShiftNorth(Bitboard_t b, uint8_t shift);
+Bitboard_t GenShiftSouth(Bitboard_t b, uint8_t shift);
 Bitboard_t GenShiftEast(Bitboard_t b, uint8_t shift);
 Bitboard_t GenShiftWest(Bitboard_t b, uint8_t shift);
 

@@ -4,14 +4,7 @@
 
 #include "debug.h"
 #include "lookup.h"
-
-static void FillBoardArray(char boardArray[], Bitboard_t b, char fillChar) {
-    while(b) {
-        Square_t square = LSB(b);
-        boardArray[square] = fillChar;
-        ResetLSB(&b);
-    }
-}
+#include "string_utils.h"
 
 void PrintBitboard(Bitboard_t b) {
     Square_t boardArray[64] = {0};
@@ -71,34 +64,6 @@ void PrintMailbox(BoardInfo_t *info) {
     }
 }
 
-
-void PrintChessboard(BoardInfo_t* info) {
-    char boardArray[64] = {0};
-    FillBoardArray(boardArray, full_set, '.');
-
-    FillBoardArray(boardArray, info->rooks[white], 'R');
-    FillBoardArray(boardArray, info->knights[white], 'N');
-    FillBoardArray(boardArray, info->bishops[white], 'B');
-    FillBoardArray(boardArray, info->queens[white], 'Q');
-    FillBoardArray(boardArray, info->kings[white], 'K');
-    FillBoardArray(boardArray, info->pawns[white], 'P');
-
-    FillBoardArray(boardArray, info->rooks[black], 'r');
-    FillBoardArray(boardArray, info->knights[black], 'n');
-    FillBoardArray(boardArray, info->bishops[black], 'b');
-    FillBoardArray(boardArray, info->queens[black], 'q');
-    FillBoardArray(boardArray, info->kings[black], 'k');
-    FillBoardArray(boardArray, info->pawns[black], 'p');
-
-    printf("\n");
-    for(int i = 7; i >= 0; i--) {
-        for(int j = 0; j < 8; j++) {
-            printf("%c ", boardArray[i*8 + j]);
-        }    
-        printf("\n");
-    }
-}
-
 Bitboard_t CreateBitboard(int numOccupied, ...) {
     va_list valist;
     va_start(valist, numOccupied);
@@ -109,23 +74,6 @@ Bitboard_t CreateBitboard(int numOccupied, ...) {
     } 
 
     return bitboard;
-}
-
-static char RowToNumber(int row) {
-    return (char)(row + 49);
-}
-
-static char ColToLetter(int col) {
-    return (char)(col + 97);
-}
-
-static void SquareToString(Square_t square, char string[3]) {
-    int row = square / 8;
-    int col = square % 8;
-
-    string[0] = ColToLetter(col);
-    string[1] = RowToNumber(row);
-    string[2] = '\0';
 }
 
 static void PrintSingleTypeMoves(Move_t move, BoardInfo_t* info, Piece_t type, const char* typeText) {
@@ -149,41 +97,6 @@ void PrintMoveList(MoveEntryList_t* moveList, BoardInfo_t* info) {
         PrintSingleTypeMoves(move, info, bishop, "Bishop");
         PrintSingleTypeMoves(move, info, knight, "Knight");
         PrintSingleTypeMoves(move, info, pawn, "Pawn");
-    }
-}
-
-static char PieceToChar(Piece_t piece) {
-    switch (piece)
-    {
-        case knight:
-            return 'n';
-        case bishop:
-            return 'b';
-        case king:
-            return 'k';
-        case rook:
-            return 'r';
-        case pawn:
-            return 'p';
-        case queen:
-            return 'q';
-    }
-
-    return ' ';
-}
-
-void PrintMove(Move_t move, bool hasNewline) {
-    char fromText[3];
-    char toText[3];
-    SquareToString(ReadFromSquare(move), fromText);
-    SquareToString(ReadToSquare(move), toText);
-    printf("%s%s", fromText, toText);
-
-    if(ReadSpecialFlag(move) == promotion_flag) {
-        printf("%c", PieceToChar(ReadPromotionPiece(move)));
-    }
-    if(hasNewline) {
-        printf("\n");
     }
 }
 

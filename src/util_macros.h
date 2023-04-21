@@ -1,6 +1,8 @@
 #ifndef __UTIL_MACROS_H__
 #define __UTIL_MACROS_H__
 
+#include <stdio.h>
+
 #define NUM_ARRAY_ELEMENTS(array) sizeof(array) / sizeof(*array)
 
 #define CLAMP_TO_RANGE(n, min, max) \
@@ -17,5 +19,7 @@
 #define MAX(v1, v2) ((v1) > (v2)) ? (v1) : (v2)
 
 #define MIRROR(sq) ((sq)^56)
+
+#define PRINT_INT(int) printf("%d\n", int)
 
 #endif

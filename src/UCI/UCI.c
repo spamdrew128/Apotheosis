@@ -11,10 +11,13 @@
 #include "make_and_unmake.h"
 #include "time_constants.h"
 #include "util_macros.h"
+#include "tuner.h"
+#include "datagen.h"
+#include "string_utils.h"
 
 #define BUFFER_SIZE 50000
 
-#define ENGINE_ID "id name Apotheosis v2.0.0\nid author Andrew Hockman\n"
+#define ENGINE_ID "id name Apotheosis v3.0.0\nid author Andrew Hockman\n"
 #define UCI_OK "uciok\n"
 #define READY_OK "readyok\n"
 
@@ -35,28 +38,13 @@ enum {
     signal_new_game,
     signal_position,
     signal_go,
-    signal_setoption
+    signal_setoption,
+
+    signal_print_board,
+    signal_print_static_eval,
+    signal_begin_datagen,
+    signal_begin_tuning,
 };
-
-static char RowToNumberChar(int row) {
-    return (char)(row + 49);
-}
-
-static char ColToLetterChar(int col) {
-    return (char)(col + 97);
-}
-
-static int RowCharToInt(char row) {
-    return (int)row - 49;
-}
-
-static int ColCharToInt(char col) {
-    return (int)col - 97;
-}
-
-static int NumCharToInt(char numChar) {
-    return (int)numChar - 48;
-}
  
 void UciApplicationDataInit(UciApplicationData_t* data) {
     InterpretFEN(START_FEN, &data->boardInfo, &data->gameStack, &data->zobristStack);
@@ -114,43 +102,6 @@ bool UCITranslateMove(Move_t* move, const char* moveText, BoardInfo_t* boardInfo
     return true;
 }
 
-static void MoveStructToUciString(Move_t move, char* moveString, size_t bufferSize) {
-    memset(moveString, '\0', bufferSize* sizeof(char));
-
-    Square_t fromSquare = ReadFromSquare(move);
-    int fromRow = fromSquare / 8;
-    int fromCol = fromSquare % 8;
-
-    Square_t toSquare = ReadToSquare(move);
-    int toRow = toSquare / 8;
-    int toCol = toSquare % 8;
-
-    moveString[0] = ColToLetterChar(fromCol);
-    moveString[1] = RowToNumberChar(fromRow);
-    moveString[2] = ColToLetterChar(toCol);
-    moveString[3] = RowToNumberChar(toRow);
-    
-    if(ReadSpecialFlag(move) == promotion_flag) {
-        switch(ReadPromotionPiece(move))
-        {
-            case knight:
-                moveString[4] = 'n';
-                break;
-            case bishop:
-                moveString[4] = 'b';
-                break;
-            case rook:
-                moveString[4] = 'r';
-                break;
-            case queen:
-                moveString[4] = 'q';
-                break;
-            default:
-                break;
-        }
-    }
-}
-
 static void SkipToNextCharacter(char input[BUFFER_SIZE], int* i) {
     while(input[*i] == ' ' || input[*i] == '\n') {
         (*i)++;
@@ -178,10 +129,6 @@ static void SkipNextWord(char input[BUFFER_SIZE], int* i) {
     SkipToNextCharacter(input, i);
 }
 
-static bool StringsMatch(const char* s1, const char* s2) {
-    return !strcmp(s1, s2);
-}
-
 static UciSignal_t InterpretWord(const char* word) {
     if (StringsMatch(word, "uci")) {
         return signal_uci;
@@ -196,7 +143,17 @@ static UciSignal_t InterpretWord(const char* word) {
     } else if(StringsMatch(word, "go")) {
         return signal_go;
     } else if (StringsMatch(word, "setoption")) {
-        return signal_setoption;
+        return signal_setoption; 
+
+    // my options below this point
+    } else if(StringsMatch(word, "evaluate")) {
+        return signal_print_static_eval;
+    } else if(StringsMatch(word, "board")) {
+        return signal_print_board;
+    } else if (StringsMatch(word, "datagen")) {
+        return signal_begin_datagen;
+    } else if (StringsMatch(word, "tuning")) {
+        return signal_begin_tuning;
     }
 
     return signal_invalid;
@@ -283,7 +240,7 @@ uint32_t NumberStringToNumber(const char* numString) {
     Milliseconds_t result = 0;
     int multiplier = 1;
     for(int i = (len-1); i >=0; i--) {
-        result += NumCharToInt(numString[i]) * multiplier;
+        result += CharToInt(numString[i]) * multiplier;
         multiplier *= 10;
     }
 
@@ -292,20 +249,13 @@ uint32_t NumberStringToNumber(const char* numString) {
 
 static void GetSearchResults(UciSearchInfo_t* uciSearchInfo, UciApplicationData_t* applicationData)
 {
-    SearchResults_t searchResults = 
-        Search(
-            uciSearchInfo,
-            &applicationData->boardInfo,
-            &applicationData->gameStack,
-            &applicationData->zobristStack,
-            true
-        );
-        
-    char moveString[BUFFER_SIZE];
-    MoveStructToUciString(searchResults.bestMove, moveString, BUFFER_SIZE);
-
-    printf(BESTMOVE);
-    printf(" %s\n", moveString);
+    Search(
+        uciSearchInfo,
+        &applicationData->boardInfo,
+        &applicationData->gameStack,
+        &applicationData->zobristStack,
+        true
+    );
 }
 
 void InterpretGoArguments(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* searchInfo) {
@@ -340,7 +290,7 @@ void InterpretGoArguments(char input[BUFFER_SIZE], int* i, UciSearchInfo_t* sear
             GetNextWord(input, nextWord, i);
             searchInfo->depthLimit = NumberStringToNumber(nextWord);
 
-            if(searchInfo->wTime == 0 || !searchInfo->bTime == 0) {
+            if(searchInfo->wTime == 0 || searchInfo->bTime == 0) {
                 searchInfo->wTime = MSEC_MAX;       
                 searchInfo->bTime = MSEC_MAX;
             }
@@ -399,6 +349,9 @@ static bool RespondToSignal(
     UciApplicationData_t* applicationData
 )
 {
+    char outputFile[BUFFER_SIZE];
+    char inputFile[BUFFER_SIZE];
+    
     switch(signal) {
     case signal_uci:
         UciSignalResponse();
@@ -426,7 +379,24 @@ static bool RespondToSignal(
         break;   
     case signal_setoption:
         SetOption(input, i, &applicationData->uciSearchInfo);
-        break;  
+        break;
+
+    case signal_print_static_eval:
+        printf("%d cp\n", ScoreOfPosition(&applicationData->boardInfo));
+        break;    
+    case signal_print_board:
+        PrintChessboard(&applicationData->boardInfo);
+        printf("\n");
+        PrintFEN(&applicationData->boardInfo, &applicationData->gameStack);
+        break;
+    case signal_begin_datagen:
+        GetNextWord(input, outputFile, i);
+        GenerateData(outputFile);
+        break;
+    case signal_begin_tuning:
+        GetNextWord(input, inputFile, i);
+        TuneParameters(inputFile);
+        break;
     default:
         break;
     }
@@ -438,7 +408,7 @@ bool InterpretUCIInput(UciApplicationData_t* applicationData)
 {
     char input[BUFFER_SIZE];
     memset(input, '\0', BUFFER_SIZE* sizeof(char));
-    if(fgets(input, BUFFER_SIZE, stdin) == NULL) {
+    if(fgets(input, BUFFER_SIZE-1, stdin) == NULL) {
         return true;
     }
 
@@ -503,10 +473,9 @@ void SendPvInfo(PvTable_t* pvTable) {
     PvLength_t variationLength = pvTable->pvLength[0];
     printf(" pv");
 
-    char moveString[6];
     for(int i = 0; i < variationLength; i++) {
         Move_t move = pvTable->moveMatrix[0][i];
-        MoveStructToUciString(move, moveString, 6);
-        printf(" %s", moveString);
+        printf(" ");
+        PrintMove(move, false);
     }
 }

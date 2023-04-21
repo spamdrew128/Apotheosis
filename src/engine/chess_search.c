@@ -15,12 +15,14 @@
 #include "killers.h"
 #include "history.h"
 #include "util_macros.h"
+#include "FEN.h"
 
 enum {
     time_fraction = 25,
     timer_check_freq = 1024,
 
-    DEPTH_MAX = PLY_MAX
+    MIN_TIME_PER_MOVE = 5,
+    DEPTH_MAX = PLY_MAX - 30, // leaving room for qsearch to expand
 };
 
 #define MATING "mate "
@@ -300,7 +302,9 @@ static void SetupGlobalTimer(UciSearchInfo_t* uciSearchInfo, BoardInfo_t* boardI
         timeToUse = (totalTime + increment/2) / time_fraction;
     }
 
-    TimerInit(&globalTimer, timeToUse - uciSearchInfo->overhead);
+    timeToUse = MAX(timeToUse - uciSearchInfo->overhead, MIN_TIME_PER_MOVE);
+
+    TimerInit(&globalTimer, timeToUse);
 }
 
 static void PrintUciInformation(
@@ -310,7 +314,7 @@ static void PrintUciInformation(
     Stopwatch_t* stopwatch
 )
 {
-    const char* scoreType = NO_MATE;
+    char* scoreType = NO_MATE;
     EvalScore_t scoreValue = searchResults.score;
 
     if(searchResults.score > MATE_THRESHOLD) {
@@ -340,6 +344,12 @@ static void PrintUciInformation(
     );
 }
 
+Move_t FirstLegalMove(BoardInfo_t* boardinfo, GameStack_t* gameStack) {
+    MoveEntryList_t list;
+    CompleteMovegen(&list, boardinfo, gameStack);
+    return list.moves[0].move;
+}
+
 SearchResults_t Search(
     UciSearchInfo_t* uciSearchInfo,
     BoardInfo_t* boardInfo,
@@ -356,6 +366,8 @@ SearchResults_t Search(
     InitSearchInfo(&searchInfo, uciSearchInfo);
 
     SearchResults_t searchResults;
+     // so if we time out during depth 1 search we have something to return
+    searchResults.bestMove = FirstLegalMove(boardInfo, gameStack);
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
@@ -366,8 +378,8 @@ SearchResults_t Search(
             gameStack,
             zobristStack,
             &searchInfo,
-            -INFINITY,
-            INFINITY,
+            -INF,
+            INF,
             currentDepth,
             0
         );
@@ -382,6 +394,11 @@ SearchResults_t Search(
         }
 
     } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
+
+    if(printUciInfo) {
+        printf("bestmove ");
+        PrintMove(searchResults.bestMove, true);
+    }
 
     return searchResults;
 }
@@ -408,8 +425,8 @@ NodeCount_t BenchSearch(
             gameStack,
             zobristStack,
             &searchInfo,
-            -INFINITY,
-            INFINITY,
+            -INF,
+            INF,
             currentDepth,
             0
         );
@@ -424,6 +441,7 @@ void UciSearchInfoTimeInfoReset(UciSearchInfo_t* uciSearchInfo) {
     uciSearchInfo->wInc = 0;
     uciSearchInfo->bInc = 0;
     uciSearchInfo->forceTime = 0;
+    uciSearchInfo->depthLimit = 0;
 }
 
 void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {
@@ -437,4 +455,47 @@ void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {
     uciSearchInfo->depthLimit = 0;
 
     TranspositionTableInit(&uciSearchInfo->tt, hash_default_mb);
+}
+
+EvalScore_t SimpleQsearch(
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    EvalScore_t alpha,
+    EvalScore_t beta
+)
+{
+    MoveEntryList_t moveList;
+    CompleteMovegen(&moveList, boardInfo, gameStack);
+
+    EvalScore_t standPat = ScoreOfPosition(boardInfo);
+    if(standPat > alpha) {
+        alpha = standPat;
+    }
+
+    MovePicker_t movePicker;
+    InitCaptureMovePicker(&movePicker, &moveList, boardInfo);
+
+    EvalScore_t bestScore = standPat;
+    for(int i = 0; i <= moveList.maxCapturesIndex; i++) {
+        Move_t move = PickMove(&movePicker);
+        MakeMove(boardInfo, gameStack, move);
+
+        EvalScore_t score = -SimpleQsearch(boardInfo, gameStack, -beta, -alpha);
+
+        UnmakeMove(boardInfo, gameStack);
+
+        if(score > bestScore) {
+            bestScore = score;
+
+            if(score >= beta) {
+                break;
+            }
+            
+            if(score > alpha) {
+                alpha = score;
+            }
+        }
+    }
+
+    return bestScore;
 }

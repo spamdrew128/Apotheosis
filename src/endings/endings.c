@@ -13,6 +13,10 @@ static bool IsThreefoldRepetition(
     int searchStart = zobristStack->maxIndex - 2;
     int searchEnd = zobristStack->maxIndex - halfmoves;
 
+    if(searchEnd < 0) {
+        return false;
+    }
+
     int hashOccurances = 1; // starts at one because currentPositionHash counts!
     for(int i = searchStart; i >= searchEnd; i -= 2) {
         if(zobristStack->entries[i] == currentPositionHash) {

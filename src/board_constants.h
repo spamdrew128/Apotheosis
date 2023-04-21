@@ -6,9 +6,9 @@
 typedef uint64_t Bitboard_t; // supported by MSC 13.00+ and C99 
 #define C64(constantU64) constantU64##ULL
 
+#define NUM_PIECES 6
 #define MOVELIST_MAX 256
 #define GAMESTATES_MAX 1024
-#define NUM_PIECES 6
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 #include <stdbool.h>
@@ -19,6 +19,12 @@ enum color {
   white,
   black
 };
+
+typedef uint8_t Rank_t;
+#define NUM_RANKS 8
+
+typedef uint8_t File_t;
+#define NUM_FILES 8
 
 typedef uint8_t Square_t;
 enum squareLabels {
@@ -43,7 +49,7 @@ enum pieceTypes {
   queen,
   pawn,
   king,
-  none_type
+  none_type,
 };
 
 typedef uint8_t Direction_t;
