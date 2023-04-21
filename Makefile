@@ -6,7 +6,7 @@ SAN=N
 CFLAGS=-Wall -std=c17 -march=native $(OPTFLAGS)
 CPPFLAGS=$(INCDIRS)
 
-RELEASE=false
+RELEASE=N
 
 ifeq ($(RELEASE), Y)
 	CFLAGS += -DNDEBUG
