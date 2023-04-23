@@ -16,6 +16,7 @@
 #include "history.h"
 #include "util_macros.h"
 #include "FEN.h"
+#include "legals.h"
 
 enum {
     time_fraction = 25,
@@ -52,10 +53,15 @@ static EvalScore_t Negamax(
     Ply_t ply
 );
 
-bool IsQuiet(Move_t move, BoardInfo_t* boardInfo) {
+static bool IsQuiet(Move_t move, BoardInfo_t* boardInfo) {
     return 
         PieceOnSquare(boardInfo, ReadToSquare(move)) == none_type &&
         ReadSpecialFlag(move) != en_passant_flag;
+}
+
+static bool DetermineInCheck(BoardInfo_t* boardInfo) {
+    const Color_t color = boardInfo->colorToMove;
+    return InCheck(boardInfo->kings[color], UnsafeSquares(boardInfo, color));
 }
 
 static void ResetSeldepth(ChessSearchInfo_t* chessSearchInfo) {
@@ -188,6 +194,7 @@ static EvalScore_t Negamax(
 
     const bool isRoot = ply == 0;
     const bool isPVNode = beta - alpha != 1;
+    const bool inCheck = DetermineInCheck(boardInfo);
 
     if(ShouldCheckTimer(searchInfo->nodeCount) && TimerExpired(&globalTimer)) {
         searchInfo->outOfTime = true;
