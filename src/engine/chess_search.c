@@ -166,7 +166,7 @@ static EvalScore_t NullWindowSearch(
     Ply_t ply
 )
 {
-    return -Negamax(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, depth-1, ply+1);
+    return -Negamax(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, depth - 1, ply + 1);
 }
 
 static EvalScore_t Negamax(
