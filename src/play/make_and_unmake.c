@@ -278,3 +278,9 @@ void UnmakeMove(BoardInfo_t* boardInfo, GameStack_t* gameStack) {
     RevertState(gameStack);
     *boardInfo = ReadCurrentBoardInfo(gameStack);
 }
+
+void MakeNullMove(BoardInfo_t* boardInfo, GameStack_t* gameStack) {
+    GameState_t* nextState = GetDefaultNextGameState(gameStack);
+    boardInfo->colorToMove = !(boardInfo->colorToMove);
+    nextState->boardInfo = *boardInfo;
+}

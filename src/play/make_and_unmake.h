@@ -11,4 +11,6 @@ void MakeMove(BoardInfo_t* boardInfo, GameStack_t* gameStack, Move_t move);
 
 void UnmakeMove(BoardInfo_t* boardInfo, GameStack_t* gameStack);
 
+void MakeNullMove(BoardInfo_t* boardInfo, GameStack_t* gameStack);
+
 #endif
