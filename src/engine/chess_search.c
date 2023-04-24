@@ -238,18 +238,24 @@ static EvalScore_t Negamax(
         ttMove = entry.bestMove;
     }
 
-    if(depth >= NMP_MIN_DEPTH && doNullMove && !isPVNode && !inCheck) { // && !OnlyPawnsOnBoard(boardInfo)
-        const int reduction = 3 + depth / 5;
-        const int depthPrime = depth - reduction;
-        assert(depthPrime >= 0);
+    if(!isPVNode && !inCheck) {
+        // NULL MOVE PRUNING
+        if(depth >= NMP_MIN_DEPTH && doNullMove && ) { // && !OnlyPawnsOnBoard(boardInfo)
+            const int reduction = 3 + depth / 5;
+            const int depthPrime = depth - reduction;
+            assert(depthPrime >= 0);
 
-        MakeNullMove(boardInfo, gameStack, zobristStack);
-        EvalScore_t nullMoveScore = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, -beta, -beta + 1, depthPrime, ply + 1, false);
-        UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
+            MakeNullMove(boardInfo, gameStack, zobristStack);
+            EvalScore_t nullMoveScore = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, -beta, -beta + 1, depthPrime, ply + 1, false);
+            UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
 
-        if(nullMoveScore >= beta) {
-            return nullMoveScore;
+            if(nullMoveScore >= beta) {
+                return nullMoveScore;
+            }
         }
+
+        // REVERSE FUTILITY PRUNING
+        
     }
 
     MovePicker_t movePicker;
