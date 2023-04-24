@@ -64,6 +64,11 @@ static bool DetermineInCheck(BoardInfo_t* boardInfo) {
     return InCheck(boardInfo->kings[color], UnsafeSquares(boardInfo, color));
 }
 
+static bool OnlyPawnsOnBoard(BoardInfo_t* boardInfo) {
+    const Color_t color = boardInfo->colorToMove;
+    return boardInfo->allPieces[color] == (boardInfo->kings[color] | boardInfo->pawns[color]);
+}
+
 static void ResetSeldepth(ChessSearchInfo_t* chessSearchInfo) {
     chessSearchInfo->seldepth = 0;
 }
@@ -226,6 +231,10 @@ static EvalScore_t Negamax(
         }
         
         ttMove = entry.bestMove;
+    }
+
+    if(!isPVNode && !inCheck && !OnlyPawnsOnBoard(boardInfo)) {
+        
     }
 
     MovePicker_t movePicker;
