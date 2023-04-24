@@ -26,6 +26,9 @@ enum {
     MIN_TIME_PER_MOVE = 5,
     DEPTH_MAX = PLY_MAX - 30, // leaving room for qsearch to expand
     NMP_MIN_DEPTH = 3,
+
+    RFP_MAX_DEPTH = 8,
+    RFP_MARGIN = 75,
 };
 
 #define MATING "mate "
@@ -238,17 +241,27 @@ static EvalScore_t Negamax(
         ttMove = entry.bestMove;
     }
 
-    if(depth >= NMP_MIN_DEPTH && doNullMove && !isPVNode && !inCheck) { // && !OnlyPawnsOnBoard(boardInfo)
-        const int reduction = 3 + depth / 5;
-        const int depthPrime = depth - reduction;
-        assert(depthPrime >= 0);
+    if(!isPVNode && !inCheck) {
+        const EvalScore_t staticEval = ScoreOfPosition(boardInfo);
 
-        MakeNullMove(boardInfo, gameStack, zobristStack);
-        EvalScore_t nullMoveScore = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, -beta, -beta + 1, depthPrime, ply + 1, false);
-        UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
+        // NULL MOVE PRUNING
+        if(depth >= NMP_MIN_DEPTH && doNullMove) { // && !OnlyPawnsOnBoard(boardInfo)
+            const int reduction = 3 + depth / 5;
+            const int depthPrime = depth - reduction;
+            assert(depthPrime >= 0);
 
-        if(nullMoveScore >= beta) {
-            return nullMoveScore;
+            MakeNullMove(boardInfo, gameStack, zobristStack);
+            EvalScore_t nullMoveScore = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, -beta, -beta + 1, depthPrime, ply + 1, false);
+            UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
+
+            if(nullMoveScore >= beta) {
+                return nullMoveScore;
+            }
+        }
+
+        // REVERSE FUTILITY PRUNING
+        if(depth <= RFP_MAX_DEPTH && staticEval >= (beta + RFP_MARGIN * depth)) {
+            return staticEval;
         }
     }
 
