@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <time.h>
+#include <assert.h>
 
 #include "chess_search.h"
 #include "movegen.h"
@@ -24,6 +25,7 @@ enum {
 
     MIN_TIME_PER_MOVE = 5,
     DEPTH_MAX = PLY_MAX - 30, // leaving room for qsearch to expand
+    NMP_MIN_DEPTH = 3,
 };
 
 #define MATING "mate "
@@ -50,7 +52,8 @@ static EvalScore_t Negamax(
     EvalScore_t alpha,
     EvalScore_t beta,
     Depth_t depth,
-    Ply_t ply
+    Ply_t ply,
+    bool doNullMove
 );
 
 static bool IsQuiet(Move_t move, BoardInfo_t* boardInfo) {
@@ -174,10 +177,11 @@ static EvalScore_t NullWindowSearch(
     EvalScore_t alpha,
     EvalScore_t beta,
     Depth_t depth,
-    Ply_t ply
+    Ply_t ply,
+    bool doNullMove
 )
 {
-    return -Negamax(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, depth - 1, ply + 1);
+    return -Negamax(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, depth, ply, doNullMove);
 }
 
 static EvalScore_t Negamax(
@@ -188,7 +192,8 @@ static EvalScore_t Negamax(
     EvalScore_t alpha,
     EvalScore_t beta,
     Depth_t depth,
-    Ply_t ply
+    Ply_t ply,
+    bool doNullMove
 )
 {
     PvLengthInit(&searchInfo->pvTable, ply);
@@ -233,8 +238,18 @@ static EvalScore_t Negamax(
         ttMove = entry.bestMove;
     }
 
-    if(!isPVNode && !inCheck && !OnlyPawnsOnBoard(boardInfo)) {
-        
+    if(depth >= NMP_MIN_DEPTH && doNullMove && !isPVNode && !inCheck && !OnlyPawnsOnBoard(boardInfo)) {
+        const int reduction = 3;
+        const int depthPrime = depth - reduction;
+        assert(depthPrime >= 0);
+
+        MakeNullMove(boardInfo, gameStack, zobristStack);
+        EvalScore_t nullMoveScore = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, -beta, -beta + 1, depthPrime, ply + 1, false);
+        UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
+
+        if(nullMoveScore >= beta) {
+            return nullMoveScore;
+        }
     }
 
     MovePicker_t movePicker;
@@ -257,12 +272,12 @@ static EvalScore_t Negamax(
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
     
         if(i == 0) {
-            score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
+            score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth - 1, ply + 1, true);
         } else {
-            score = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, -alpha - 1, -alpha, depth, ply);
+            score = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, -alpha - 1, -alpha, depth - 1, ply + 1, true);
             // if our NWS beat alpha without failing high, that means we might have a better move and need to re search
             if(score > alpha && score < beta) {
-                score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
+                score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply + 1, true);
             }
         }
 
@@ -395,7 +410,8 @@ SearchResults_t Search(
             -INF,
             INF,
             currentDepth,
-            0
+            0,
+            false
         );
 
         if(!searchInfo.outOfTime) {
@@ -442,7 +458,8 @@ NodeCount_t BenchSearch(
             -INF,
             INF,
             currentDepth,
-            0
+            0,
+            false
         );
     } while(currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
 
