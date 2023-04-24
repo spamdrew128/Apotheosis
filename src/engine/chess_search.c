@@ -26,6 +26,9 @@ enum {
     MIN_TIME_PER_MOVE = 5,
     DEPTH_MAX = PLY_MAX - 30, // leaving room for qsearch to expand
     NMP_MIN_DEPTH = 3,
+
+    RFP_MAX_DEPTH = 8,
+    RFP_MARGIN = 75,
 };
 
 #define MATING "mate "
@@ -239,6 +242,8 @@ static EvalScore_t Negamax(
     }
 
     if(!isPVNode && !inCheck) {
+        const EvalScore_t staticEval = ScoreOfPosition(boardInfo);
+
         // NULL MOVE PRUNING
         if(depth >= NMP_MIN_DEPTH && doNullMove) { // && !OnlyPawnsOnBoard(boardInfo)
             const int reduction = 3 + depth / 5;
@@ -255,7 +260,9 @@ static EvalScore_t Negamax(
         }
 
         // REVERSE FUTILITY PRUNING
-        
+        if(depth <= RFP_MAX_DEPTH && staticEval >= (beta + RFP_MARGIN * depth)) {
+            return staticEval;
+        }
     }
 
     MovePicker_t movePicker;
