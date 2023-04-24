@@ -238,7 +238,9 @@ static EvalScore_t Negamax(
         ttMove = entry.bestMove;
     }
 
-    if(depth >= NMP_MIN_DEPTH && doNullMove && !isPVNode && !inCheck) { // && !OnlyPawnsOnBoard(boardInfo)
+    const EvalScore_t staticEval = ScoreOfPosition(boardInfo);
+
+    if(staticEval >= beta && depth >= NMP_MIN_DEPTH && doNullMove && !isPVNode && !inCheck) { // && !OnlyPawnsOnBoard(boardInfo)
         const int reduction = 3;
         const int depthPrime = depth - reduction;
         assert(depthPrime >= 0);
