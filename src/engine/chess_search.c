@@ -239,7 +239,7 @@ static EvalScore_t Negamax(
     }
 
     if(depth >= NMP_MIN_DEPTH && doNullMove && !isPVNode && !inCheck) { // && !OnlyPawnsOnBoard(boardInfo)
-        const int reduction = 3;
+        const int reduction = 3 + depth / 5;
         const int depthPrime = depth - reduction;
         assert(depthPrime >= 0);
 
