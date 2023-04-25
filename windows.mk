@@ -1,3 +1,7 @@
+ifneq (,$(findstring clang,$(shell $(CXX) --version)))
+	CFLAGS += -fuse-ld=lld
+endif
+
 SRC=src
 BENCH=bench
 TDD_ROOT=tdd

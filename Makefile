@@ -8,10 +8,6 @@ CPPFLAGS=$(INCDIRS)
 
 RELEASE=N
 
-ifneq (,$(findstring clang,$(shell $(CXX) --version)))
-	CFLAGS += -fuse-ld=lld
-endif
-
 ifeq ($(RELEASE), Y)
 	CFLAGS += -DNDEBUG
 endif
