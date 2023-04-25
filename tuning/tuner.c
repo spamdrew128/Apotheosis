@@ -825,9 +825,12 @@ static void PrintBonuses(FILE* fp) {
         (int)weights[eg_phase][bishop_pair_offset]
     );
 
-    FilePrintPST("PASSED_PAWN_PST", 0, fp, passed_pawn_offset, false);
+    fprintf(fp, "#define TEMPO_BONUS \\\n   S(%d, %d)\n\n",
+        (int)weights[mg_phase][bishop_pair_offset],
+        (int)weights[eg_phase][bishop_pair_offset]
+    );
 
-    PrintIndividualBonus("TEMPO_BONUS", tempo_bonus_offset, TEMPO_BONUS_FEATURE_COUNT, fp);
+    FilePrintPST("PASSED_PAWN_PST", 0, fp, passed_pawn_offset, false);
 
     PrintIndividualBonus("BLOCKED_PASSERS", blocked_passer_offset, BLOCKED_PASSER_FEATURE_COUNT, fp);
 

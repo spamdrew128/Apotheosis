@@ -65,9 +65,8 @@ typedef int32_t Score_t;
    S(0, 0), S(0, 0), S(0, 0), S(0, 0), S(0, 0), S(0, 0), S(0, 0), S(0, 0), \
 }, }
 
-#define TEMPO_BONUS { \
-   S(41, 31), \
-}
+#define TEMPO_BONUS \
+   S(41, 31)
 
 #define BLOCKED_PASSERS { \
    S(62, -229), S(9, -124), S(-4, -50), S(6, -27), S(-14, 5), S(1, -11), S(0, 0), S(0, 0), \
