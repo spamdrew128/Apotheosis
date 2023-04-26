@@ -25,7 +25,6 @@ enum {
     timer_check_freq = 1024,
 
     MIN_TIME_PER_MOVE = 5,
-    DEPTH_MAX = PLY_MAX - 30, // leaving room for qsearch to expand
     NMP_MIN_DEPTH = 3,
 
     RFP_MAX_DEPTH = 8,
