@@ -29,6 +29,7 @@ enum {
 
     RFP_MAX_DEPTH = 8,
     RFP_MARGIN = 75,
+    LMR_MIN_DEPTH = 3,
 };
 
 #define MATING "mate "
@@ -276,6 +277,9 @@ static EvalScore_t Negamax(
         ply
     );
 
+    MoveCount_t movesMade = 0;
+    const Reduction_t lmrThreshold = isPVNode ? 5 : 3;
+
     EvalScore_t oldAlpha = alpha;
     EvalScore_t bestScore = -EVAL_MAX;
     Move_t bestMove;
@@ -283,14 +287,34 @@ static EvalScore_t Negamax(
         EvalScore_t score;
         Move_t move = PickMove(&movePicker);
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
+        movesMade++;
     
         if(i == 0) {
             score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth - 1, ply + 1, true);
         } else {
-            score = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, -alpha - 1, -alpha, depth - 1, ply + 1, true);
-            // if our NWS beat alpha without failing high, that means we might have a better move and need to re search
-            if(score > alpha && score < beta) {
-                score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply + 1, true);
+            // LATE MOVE REDUCTIONS (heavily inspired by Svart https://github.com/crippa1337/svart/blob/master/src/engine/search.rs)
+            bool doFullDepthPVS = true;
+            if(!inCheck && depth >= LMR_MIN_DEPTH && movesMade > lmrThreshold) {
+                Reduction_t r = GetReduction(depth, movesMade);
+                r += !isPVNode;
+
+                // don't reduce as much for captures
+                r -= (i <= moveList.maxCapturesIndex);
+
+                if(r > 1) {
+                    r = MIN(r, depth - 1);
+                    score = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, -alpha - 1, -alpha, depth - r, ply + 1, true);
+                    doFullDepthPVS = (score > alpha && score < beta); // we want to try again without reductions if we beat alpha
+                }
+            }
+
+            if(doFullDepthPVS) {
+                score = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, -alpha - 1, -alpha, depth - 1, ply + 1, true);
+
+                // if our NWS beat alpha without failing high, that means we might have a better move and need to re search
+                if(score > alpha && score < beta) {
+                    score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply + 1, true);
+                }
             }
         }
 
