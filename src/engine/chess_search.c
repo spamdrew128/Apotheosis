@@ -18,6 +18,7 @@
 #include "util_macros.h"
 #include "FEN.h"
 #include "legals.h"
+#include "late_move_reductions.h"
 
 enum {
     time_fraction = 25,
