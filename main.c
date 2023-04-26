@@ -13,6 +13,7 @@
 #include "bench.h"
 #include "chess_search.h"
 #include "transposition_table.h"
+#include "late_move_reductions.h"
 
 static void ProgramTeardown(UciApplicationData_t* uciApplicationData) {
     TranspositionTable_t* tt = &uciApplicationData->uciSearchInfo.tt;
@@ -28,6 +29,7 @@ int main(int argc, char** argv)
 
     InitLookupTables();
     GenerateZobristKeys(&mainRNG);
+    InitReductionTable();
 
     bool running = Bench(argc, argv);
 
