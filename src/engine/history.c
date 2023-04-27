@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <stdint.h>
-#include <math.h>
+#include <stdlib.h>
 
 #include "history.h"
 #include "util_macros.h"
