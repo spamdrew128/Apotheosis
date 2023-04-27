@@ -87,7 +87,6 @@ static void InitSearchInfo(ChessSearchInfo_t* chessSearchInfo, UciSearchInfo_t* 
     InitKillers(&chessSearchInfo->killers);
     chessSearchInfo->tt = &uciSearchInfo->tt;
     chessSearchInfo->history = &uciSearchInfo->history;
-    InitHistory(chessSearchInfo->history); // remove later
 }
 
 static bool ShouldCheckTimer(NodeCount_t nodeCount) {
@@ -381,6 +380,10 @@ static void SetupGlobalTimer(UciSearchInfo_t* uciSearchInfo, BoardInfo_t* boardI
     TimerInit(&globalTimer, timeToUse);
 }
 
+static void SearchCompleteActions(UciSearchInfo_t* uciSearchInfo) {
+    AgeHistory(&uciSearchInfo->history);
+}
+
 static void PrintUciInformation(
     ChessSearchInfo_t searchInfo,
     SearchResults_t searchResults,
@@ -475,6 +478,8 @@ SearchResults_t Search(
         PrintMove(searchResults.bestMove, true);
     }
 
+    SearchCompleteActions(uciSearchInfo);
+
     return searchResults;
 }
 
@@ -507,6 +512,8 @@ NodeCount_t BenchSearch(
             false
         );
     } while(currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
+
+    SearchCompleteActions(uciSearchInfo);
 
     return searchInfo.nodeCount;
 }
