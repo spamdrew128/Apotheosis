@@ -41,8 +41,8 @@ typedef struct {
     NodeCount_t nodeCount;
     Depth_t seldepth;
     Killers_t killers;
-    History_t history;
     PvTable_t pvTable;
+    History_t* history;
     TranspositionTable_t* tt;
 } ChessSearchInfo_t;
 
@@ -85,8 +85,8 @@ static void InitSearchInfo(ChessSearchInfo_t* chessSearchInfo, UciSearchInfo_t* 
     chessSearchInfo->nodeCount = 0;
     ResetSeldepth(chessSearchInfo);
     InitKillers(&chessSearchInfo->killers);
-    InitHistory(&chessSearchInfo->history);
     chessSearchInfo->tt = &uciSearchInfo->tt;
+    chessSearchInfo->history = &uciSearchInfo->history;
 }
 
 static bool ShouldCheckTimer(NodeCount_t nodeCount) {
@@ -273,12 +273,14 @@ static EvalScore_t Negamax(
         boardInfo,
         ttMove,
         &searchInfo->killers,
-        &searchInfo->history,
+        searchInfo->history,
         ply
     );
 
     MoveCount_t movesMade = 0;
     const Reduction_t lmrThreshold = isPVNode ? 5 : 3;
+    QuietList_t quietList;
+    InitQuietList(&quietList);
 
     EvalScore_t oldAlpha = alpha;
     EvalScore_t bestScore = -EVAL_MAX;
@@ -286,8 +288,13 @@ static EvalScore_t Negamax(
     for(int i = 0; i <= moveList.maxIndex; i++) {
         EvalScore_t score;
         Move_t move = PickMove(&movePicker);
+        const bool isQuiet = IsQuiet(move, boardInfo);
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
         movesMade++;
+
+        if(isQuiet) {
+            AddQuietMove(&quietList, move);
+        }
     
         if(i == 0) {
             score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth - 1, ply + 1, true);
@@ -330,9 +337,9 @@ static EvalScore_t Negamax(
             bestScore = score;
             bestMove = move;
             if(score >= beta) {
-                if(IsQuiet(move, boardInfo)) {
+                if(isQuiet) {
                     AddKiller(&searchInfo->killers, move, ply);
-                    UpdateHistory(&searchInfo->history, boardInfo, move, depth);
+                    UpdateHistory(searchInfo->history, boardInfo, &quietList, depth);
                 }
                 break;
             }
@@ -371,6 +378,10 @@ static void SetupGlobalTimer(UciSearchInfo_t* uciSearchInfo, BoardInfo_t* boardI
     timeToUse = MAX(timeToUse - uciSearchInfo->overhead, MIN_TIME_PER_MOVE);
 
     TimerInit(&globalTimer, timeToUse);
+}
+
+static void SearchCompleteActions(UciSearchInfo_t* uciSearchInfo) {
+    AgeHistory(&uciSearchInfo->history);
 }
 
 static void PrintUciInformation(
@@ -467,6 +478,8 @@ SearchResults_t Search(
         PrintMove(searchResults.bestMove, true);
     }
 
+    SearchCompleteActions(uciSearchInfo);
+
     return searchResults;
 }
 
@@ -500,6 +513,9 @@ NodeCount_t BenchSearch(
         );
     } while(currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
 
+    SearchCompleteActions(uciSearchInfo);
+    InitHistory(&uciSearchInfo->history);
+
     return searchInfo.nodeCount;
 }
 
@@ -523,6 +539,7 @@ void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {
     uciSearchInfo->depthLimit = 0;
 
     TranspositionTableInit(&uciSearchInfo->tt, hash_default_mb);
+    InitHistory(&uciSearchInfo->history);
 }
 
 EvalScore_t SimpleQsearch(
