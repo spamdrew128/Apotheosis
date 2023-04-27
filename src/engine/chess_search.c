@@ -246,7 +246,7 @@ static EvalScore_t Negamax(
         const EvalScore_t staticEval = ScoreOfPosition(boardInfo);
 
         // NULL MOVE PRUNING
-        if(depth >= NMP_MIN_DEPTH && doNullMove && !WeOnlyHavePawnsOnBoard(boardInfo)) { // && !OnlyPawnsOnBoard(boardInfo)
+        if(depth >= NMP_MIN_DEPTH && doNullMove && !WeOnlyHavePawnsOnBoard(boardInfo)) {
             const int reduction = 3 + depth / 5;
             const int depthPrime = depth - reduction;
             assert(depthPrime >= 0);
