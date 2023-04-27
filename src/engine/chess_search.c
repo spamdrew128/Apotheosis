@@ -21,7 +21,7 @@
 #include "late_move_reductions.h"
 
 enum {
-    time_fraction = 25,
+    time_fraction = 20,
     timer_check_freq = 1024,
 
     MIN_TIME_PER_MOVE = 5,
