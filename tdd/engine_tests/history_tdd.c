@@ -22,7 +22,7 @@ void ShouldUpdate() {
     AddQuietMove(&quiets, move);
 
     UpdateHistory(&history, &boardInfo, &quiets, some_depth);
-    PrintResults(HistoryScore(&history, &boardInfo, move) == some_depth*some_depth);
+    PrintResults(HistoryScore(&history, &boardInfo, move) == 1200);
 }
 
 void HistoryTDDRunner() {
