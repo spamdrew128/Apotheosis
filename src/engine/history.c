@@ -16,6 +16,14 @@ void InitHistory(History_t* history) {
     }
 }
 
+void InitQuietList(QuietList_t* quietList) {
+    quietList->maxIndex = -1;
+}
+
+void AddQuietMove(QuietList_t* quietList, Move_t move) {
+    quietList->quiets[++quietList->maxIndex] = move;
+}
+
 void UpdateHistory(History_t* history, BoardInfo_t* boardInfo, Move_t move, Depth_t depth) {
     const Piece_t piece = PieceOnSquare(boardInfo, ReadFromSquare(move));
     const Square_t toSquare = ReadToSquare(move);

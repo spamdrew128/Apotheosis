@@ -279,6 +279,8 @@ static EvalScore_t Negamax(
 
     MoveCount_t movesMade = 0;
     const Reduction_t lmrThreshold = isPVNode ? 5 : 3;
+    QuietList_t quietList;
+    InitQuietList(&quietList);
 
     EvalScore_t oldAlpha = alpha;
     EvalScore_t bestScore = -EVAL_MAX;
@@ -288,6 +290,10 @@ static EvalScore_t Negamax(
         Move_t move = PickMove(&movePicker);
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
         movesMade++;
+
+        if(i > moveList.maxCapturesIndex) {
+            AddQuietMove(&quietList, move);
+        }
     
         if(i == 0) {
             score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth - 1, ply + 1, true);
