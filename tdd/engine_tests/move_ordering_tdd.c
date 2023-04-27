@@ -106,7 +106,11 @@ static void ShouldOrderCorrectly() {
     Move_t historyMove = NullMove();
     WriteFromSquare(&historyMove, h1);
     WriteToSquare(&historyMove, g1);
-    UpdateHistory(&history, &boardInfo, historyMove, some_depth);
+    QuietList_t quiets;
+    InitQuietList(&quiets);
+    AddQuietMove(&quiets, historyMove);
+
+    UpdateHistory(&history, &boardInfo, &quiets, some_depth);
 
     InitAllMovePicker(&picker, &moveList, &boardInfo, ttMove, &killers, &history, some_ply);
 

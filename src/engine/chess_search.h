@@ -13,6 +13,7 @@
 #include "time_constants.h"
 #include "engine_types.h"
 #include "transposition_table.h"
+#include "history.h"
 
 enum UciSearchInfoOptions {
     overhead_default_msec = 25,
@@ -35,6 +36,7 @@ typedef struct {
     Depth_t depthLimit;
 
     TranspositionTable_t tt;
+    History_t history;
 } UciSearchInfo_t;
 
 typedef struct {

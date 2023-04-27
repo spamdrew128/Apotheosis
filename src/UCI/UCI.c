@@ -14,6 +14,7 @@
 #include "tuner.h"
 #include "datagen.h"
 #include "string_utils.h"
+#include "history.h"
 
 #define BUFFER_SIZE 50000
 
@@ -363,6 +364,7 @@ static bool RespondToSignal(
         return false;
     case signal_new_game:
         ClearTTEntries(&applicationData->uciSearchInfo.tt);
+        InitHistory(&applicationData->uciSearchInfo.history);
         break;
     case signal_position:
         InterpretPosition(
