@@ -69,7 +69,8 @@
         "eval_constants_tools.h": "c",
         "attack_eval.h": "c",
         "attack_eval_tdd.h": "c",
-        "immintrin.h": "c"
+        "immintrin.h": "c",
+        "killers.h": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",
