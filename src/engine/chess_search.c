@@ -288,10 +288,11 @@ static EvalScore_t Negamax(
     for(int i = 0; i <= moveList.maxIndex; i++) {
         EvalScore_t score;
         Move_t move = PickMove(&movePicker);
+        const bool isQuiet = IsQuiet(move, boardInfo);
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
         movesMade++;
 
-        if(i > moveList.maxCapturesIndex) {
+        if(isQuiet) {
             AddQuietMove(&quietList, move);
         }
     
@@ -336,7 +337,7 @@ static EvalScore_t Negamax(
             bestScore = score;
             bestMove = move;
             if(score >= beta) {
-                if(IsQuiet(move, boardInfo)) {
+                if(isQuiet) {
                     AddKiller(&searchInfo->killers, move, ply);
                     UpdateHistory(&searchInfo->history, boardInfo, move, depth);
                 }
