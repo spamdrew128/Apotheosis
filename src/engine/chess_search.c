@@ -514,6 +514,7 @@ NodeCount_t BenchSearch(
     } while(currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
 
     SearchCompleteActions(uciSearchInfo);
+    InitHistory(&uciSearchInfo->history);
 
     return searchInfo.nodeCount;
 }
