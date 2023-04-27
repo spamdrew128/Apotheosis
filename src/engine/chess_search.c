@@ -41,8 +41,8 @@ typedef struct {
     NodeCount_t nodeCount;
     Depth_t seldepth;
     Killers_t killers;
-    History_t history;
     PvTable_t pvTable;
+    History_t* history;
     TranspositionTable_t* tt;
 } ChessSearchInfo_t;
 
@@ -85,8 +85,9 @@ static void InitSearchInfo(ChessSearchInfo_t* chessSearchInfo, UciSearchInfo_t* 
     chessSearchInfo->nodeCount = 0;
     ResetSeldepth(chessSearchInfo);
     InitKillers(&chessSearchInfo->killers);
-    InitHistory(&chessSearchInfo->history);
     chessSearchInfo->tt = &uciSearchInfo->tt;
+    chessSearchInfo->history = &uciSearchInfo->history;
+    InitHistory(chessSearchInfo->history); // remove later
 }
 
 static bool ShouldCheckTimer(NodeCount_t nodeCount) {
@@ -273,7 +274,7 @@ static EvalScore_t Negamax(
         boardInfo,
         ttMove,
         &searchInfo->killers,
-        &searchInfo->history,
+        searchInfo->history,
         ply
     );
 
@@ -339,7 +340,7 @@ static EvalScore_t Negamax(
             if(score >= beta) {
                 if(isQuiet) {
                     AddKiller(&searchInfo->killers, move, ply);
-                    UpdateHistory(&searchInfo->history, boardInfo, move, depth);
+                    UpdateHistory(searchInfo->history, boardInfo, move, depth);
                 }
                 break;
             }
@@ -530,6 +531,7 @@ void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {
     uciSearchInfo->depthLimit = 0;
 
     TranspositionTableInit(&uciSearchInfo->tt, hash_default_mb);
+    InitHistory(&uciSearchInfo->history);
 }
 
 EvalScore_t SimpleQsearch(
