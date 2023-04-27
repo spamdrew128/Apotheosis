@@ -56,3 +56,12 @@ MoveScore_t HistoryScore(History_t* history, BoardInfo_t* boardInfo, Move_t move
 
     return history->scores[color][piece][toSquare];
 }
+
+void AgeHistory(History_t* history) {
+    for(int i = 0; i < NUM_PIECES; i++) {
+        for(int j = 0; j < NUM_SQUARES; j++) {
+            history->scores[white][i][j] /= 2;
+            history->scores[black][i][j] /= 2;
+        }
+    }
+}

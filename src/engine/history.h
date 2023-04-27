@@ -25,4 +25,6 @@ void UpdateHistory(History_t* history, BoardInfo_t* boardInfo, QuietList_t* quie
 
 MoveScore_t HistoryScore(History_t* history, BoardInfo_t* boardInfo, Move_t move);
 
+void AgeHistory(History_t* history);
+
 #endif
