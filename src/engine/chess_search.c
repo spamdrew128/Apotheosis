@@ -202,6 +202,7 @@ static EvalScore_t Negamax(
 {
     PvLengthInit(&searchInfo->pvTable, ply);
 
+    assert(depth >= 0);
     if(depth == 0) {
         return QSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, ply);
     }
@@ -246,13 +247,13 @@ static EvalScore_t Negamax(
         const EvalScore_t staticEval = ScoreOfPosition(boardInfo);
 
         // NULL MOVE PRUNING
-        if(depth >= NMP_MIN_DEPTH && doNullMove && !WeOnlyHavePawnsOnBoard(boardInfo)) {
-            const int reduction = 3 + depth / 5;
-            const int depthPrime = depth - reduction;
-            assert(depthPrime >= 0);
+        if(staticEval >= beta && depth >= NMP_MIN_DEPTH && doNullMove && !WeOnlyHavePawnsOnBoard(boardInfo)) {
+            int reduction = 3 + depth / 3 + MIN((staticEval - beta) / 200, 3);
+            reduction = MIN(reduction, depth);
+            assert(reduction >= 3);
 
             MakeNullMove(boardInfo, gameStack, zobristStack);
-            EvalScore_t nullMoveScore = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, -beta, -beta + 1, depthPrime, ply + 1, false);
+            EvalScore_t nullMoveScore = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, -beta, -beta + 1, depth - reduction, ply + 1, false);
             UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
 
             if(nullMoveScore >= beta) {
