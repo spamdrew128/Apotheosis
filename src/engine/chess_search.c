@@ -21,7 +21,7 @@
 #include "late_move_reductions.h"
 
 enum {
-    time_fraction = 25,
+    time_fraction = 20,
     timer_check_freq = 1024,
 
     MIN_TIME_PER_MOVE = 5,
@@ -357,7 +357,7 @@ static EvalScore_t Negamax(
     return bestScore;
 }
 
-static void SetupGlobalTimer(UciSearchInfo_t* uciSearchInfo, BoardInfo_t* boardInfo) {
+static void SetupGlobalTimer(UciSearchInfo_t* uciSearchInfo, BoardInfo_t* boardInfo, Timer_t* softTimer) {
     Milliseconds_t totalTime;
     Milliseconds_t increment;
     if(boardInfo->colorToMove == white) {
@@ -376,8 +376,10 @@ static void SetupGlobalTimer(UciSearchInfo_t* uciSearchInfo, BoardInfo_t* boardI
     }
 
     timeToUse = MAX(timeToUse - uciSearchInfo->overhead, MIN_TIME_PER_MOVE);
+    Milliseconds_t softCutoff = timeToUse * 0.6;
 
     TimerInit(&globalTimer, timeToUse);
+    TimerInit(softTimer, softCutoff);
 }
 
 static void SearchCompleteActions(UciSearchInfo_t* uciSearchInfo) {
@@ -437,7 +439,9 @@ SearchResults_t Search(
 {
     Stopwatch_t stopwatch;
     StopwatchInit(&stopwatch);
-    SetupGlobalTimer(uciSearchInfo, boardInfo);
+
+    Timer_t softTimer;
+    SetupGlobalTimer(uciSearchInfo, boardInfo, &softTimer);
 
     ChessSearchInfo_t searchInfo;
     InitSearchInfo(&searchInfo, uciSearchInfo);
@@ -470,8 +474,7 @@ SearchResults_t Search(
                 PrintUciInformation(searchInfo, searchResults, currentDepth, &stopwatch);
             }
         }
-
-    } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
+    } while(!searchInfo.outOfTime && !TimerExpired(&softTimer) && currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
 
     if(printUciInfo) {
         printf("bestmove ");
@@ -490,7 +493,8 @@ NodeCount_t BenchSearch(
     ZobristStack_t* zobristStack
 )
 {
-    SetupGlobalTimer(uciSearchInfo, boardInfo);
+    Timer_t softTimer;
+    SetupGlobalTimer(uciSearchInfo, boardInfo, &softTimer);
     
     ChessSearchInfo_t searchInfo;
     InitSearchInfo(&searchInfo, uciSearchInfo);
