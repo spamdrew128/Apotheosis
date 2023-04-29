@@ -30,6 +30,12 @@ enum {
     RFP_MAX_DEPTH = 8,
     RFP_MARGIN = 75,
     LMR_MIN_DEPTH = 3,
+
+    // All values from Archi https://github.com/archishou/MidnightChessEngine
+    ASP_WINDOW_MIN_DEPTH = 7,
+    ASP_WINDOW_INIT_WINDOW = 12,
+    ASP_WINDOW_INIT_DELTA = 16,
+    ASP_WINDOW_FULL_SEARCH_BOUNDS = 3500,
 };
 
 #define MATING "mate "
@@ -430,6 +436,60 @@ Move_t FirstLegalMove(BoardInfo_t* boardinfo, GameStack_t* gameStack) {
     return list.moves[0].move;
 }
 
+// Full credit to Archi for this implementation https://github.com/archishou/MidnightChessEngine
+// I understand the basics of this but I still don't fully understand the depth modification and beta update stuff
+EvalScore_t AspirationWindowSearch(
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    ChessSearchInfo_t* searchInfo,
+    EvalScore_t prevScore,
+    Depth_t currentDepth
+)
+{
+	EvalScore_t alpha = -INF;
+	EvalScore_t beta = INF;
+    Depth_t aspDepth = currentDepth;
+	EvalScore_t delta = ASP_WINDOW_INIT_DELTA;
+
+	if (currentDepth > ASP_WINDOW_MIN_DEPTH) {
+		alpha = MAX(prevScore - ASP_WINDOW_INIT_WINDOW, -INF);
+		beta  = MIN(prevScore + ASP_WINDOW_INIT_WINDOW, INF);
+	}
+
+    EvalScore_t score;
+	while (true) {
+		if (alpha < -ASP_WINDOW_FULL_SEARCH_BOUNDS) { alpha = -INF; }
+		if (beta  > ASP_WINDOW_FULL_SEARCH_BOUNDS) { beta = INF; }
+
+		score = Negamax(
+            boardInfo,
+            gameStack,
+            zobristStack,
+            searchInfo,
+            alpha,
+            beta,
+            aspDepth,
+            0,
+            false
+        );
+
+		if(score <= alpha) {
+			alpha = MAX(alpha - delta, -INF);
+			beta = (alpha + 3 * beta) / 4; // full disclosure I do not understand this part
+		} else if (score >= beta) {
+			beta = MIN(beta + delta, INF);
+            aspDepth = MAX(aspDepth - 1, 1);
+		} else {
+            break;
+        }
+
+		delta += delta * 2 / 3; // or this part
+	}
+
+	return score;
+}
+
 SearchResults_t Search(
     UciSearchInfo_t* uciSearchInfo,
     BoardInfo_t* boardInfo,
@@ -450,21 +510,19 @@ SearchResults_t Search(
     SearchResults_t searchResults;
      // so if we time out during depth 1 search we have something to return
     searchResults.bestMove = FirstLegalMove(boardInfo, gameStack);
+    searchResults.score = 0;
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
         ResetSeldepth(&searchInfo);
 
-        EvalScore_t score = Negamax(
+        EvalScore_t score = AspirationWindowSearch(
             boardInfo,
             gameStack,
             zobristStack,
             &searchInfo,
-            -INF,
-            INF,
-            currentDepth,
-            0,
-            false
+            searchResults.score,
+            currentDepth
         );
 
         if(!searchInfo.outOfTime) {
@@ -500,22 +558,22 @@ NodeCount_t BenchSearch(
     ChessSearchInfo_t searchInfo;
     InitSearchInfo(&searchInfo, uciSearchInfo);
 
+    EvalScore_t prevScore = 0;
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
         ResetSeldepth(&searchInfo);
 
-        Negamax(
+        EvalScore_t score = AspirationWindowSearch(
             boardInfo,
             gameStack,
             zobristStack,
             &searchInfo,
-            -INF,
-            INF,
-            currentDepth,
-            0,
-            false
+            prevScore,
+            currentDepth
         );
+
+        prevScore = score;
     } while(currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
 
     SearchCompleteActions(uciSearchInfo);
