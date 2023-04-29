@@ -39,6 +39,9 @@ Just like Crippa, Archi is the reason I understand many of the concepts I used i
 ### Ciekce (https://github.com/Ciekce/Polaris)
 Ciekce was always there to help me when I needed it. He is more knowledgeable with C code than I am, and several times corrected my implementations of things. He is also a big part of why my tuner is even working in the first place, because he showed me how to implement the Adam optimizer I used and helped me test my tuner.
 
+### Adam (https://github.com/Adam-Kulju/Willow)
+Adam was someone I could always talk to, and his engine Willow was a big inspiration to me because it plays in a super fun and agressive way. Just like Archi, Adam helped me a lot with my eval code.
+
 ### Gedas (https://github.com/GediminasMasaitis/chess-dot-cpp)
 Gedas is a big part of why my tuner works as well. I learned a lot from him, and he helped me be sure my implementation was correct. I also took heavy inspiration from his tuner which can be found at https://github.com/GediminasMasaitis/texel-tuner
 
