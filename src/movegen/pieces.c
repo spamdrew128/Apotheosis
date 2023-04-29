@@ -4,10 +4,10 @@
 #include "lookup.h"
 #include "board_constants.h"
 
-#define white_promotion_rank RANK_8
-#define black_promotion_rank RANK_1
-#define not_white_promotion_rank C64(~0xff00000000000000)
-#define not_black_promotion_rank C64(~0x00000000000000ff)
+#define WHITE_PROMOTION_RANK RANK_8
+#define BLACK_PROMOTION_RANK RANK_1
+#define NOT_WHITE_PROMOTION_RANK C64(~0xff00000000000000)
+#define NOT_BLACK_PROMOTION_RANK C64(~0x00000000000000ff)
 
 // PAWNS
 Bitboard_t WhiteSinglePushTargets(Bitboard_t wPawns, Bitboard_t empty) {
@@ -45,14 +45,14 @@ Bitboard_t BlackWestCaptureTargets(Bitboard_t bPawns, Bitboard_t enemyPieces) {
 }
 
 Bitboard_t FilterWhitePromotions(Bitboard_t* whiteMoveset) {
-   Bitboard_t promotions = (*whiteMoveset) & white_promotion_rank;
-   (*whiteMoveset) &= not_white_promotion_rank;
+   Bitboard_t promotions = (*whiteMoveset) & WHITE_PROMOTION_RANK;
+   (*whiteMoveset) &= NOT_WHITE_PROMOTION_RANK;
    return promotions;
 }
 
 Bitboard_t FilterBlackPromotions(Bitboard_t* blackMoveset) {
-   Bitboard_t promotions = (*blackMoveset) & black_promotion_rank;
-   (*blackMoveset) &= not_black_promotion_rank;
+   Bitboard_t promotions = (*blackMoveset) & BLACK_PROMOTION_RANK;
+   (*blackMoveset) &= NOT_BLACK_PROMOTION_RANK;
    return promotions;
 }
 

@@ -6,14 +6,11 @@
 #include "game_state.h"
 #include "lookup.h"
 
-enum {
-    pawn_start_ranks = RANK_2 | RANK_7,
-    pawn_double_ranks = RANK_4 | RANK_5,
-    rook_start_squares = BOARD_CORNERS
-};
+#define PAWN_START_RANKS RANK_2 | RANK_7
+#define PAWN_DOUBLE_RANKS RANK_4 | RANK_5
 
 static bool PawnIsDoublePushed(Bitboard_t fromBB, Bitboard_t toBB) {
-    return (fromBB & pawn_start_ranks) && (toBB & pawn_double_ranks);
+    return (fromBB & PAWN_START_RANKS) && (toBB & PAWN_DOUBLE_RANKS);
 }
 
 static Bitboard_t GetEnPassantBB(Bitboard_t toBB, Color_t color) {
