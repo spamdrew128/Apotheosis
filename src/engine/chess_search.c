@@ -437,7 +437,7 @@ Move_t FirstLegalMove(BoardInfo_t* boardinfo, GameStack_t* gameStack) {
 }
 
 // Full credit to Archi for this implementation https://github.com/archishou/MidnightChessEngine
-// I understand the basics of this but I still don't fully understand the delta stuff
+// I understand the basics of this but I still don't fully understand the depth modification and beta update stuff
 EvalScore_t AspirationWindowSearch(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
