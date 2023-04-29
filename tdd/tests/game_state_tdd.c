@@ -51,7 +51,7 @@ static void ShouldGetDefaultState() {
         .capturedPiece = none_type,
         .halfmoveClock = state->halfmoveClock + 1,
         .castleSquares = {state->castleSquares[white], state->castleSquares[black]},
-        .enPassantSquare = empty_set
+        .enPassantSquare = EMPTY_SET
     };
 
     GetDefaultNextGameState(&stack);

@@ -68,7 +68,7 @@ Bitboard_t CreateBitboard(int numOccupied, ...) {
     va_list valist;
     va_start(valist, numOccupied);
 
-    Bitboard_t bitboard = empty_set;
+    Bitboard_t bitboard = EMPTY_SET;
     for (int i = 0; i < numOccupied; i++) {
         SetBits(&bitboard, C64(1) << va_arg(valist, int));
     } 
@@ -249,7 +249,7 @@ bool BoardIsValid(BoardInfo_t *info, GameStack_t* gameStack) {
         return false;
     }
 
-    if((info->pawns[white] | info->pawns[black]) & (rank_1 | rank_8)) {
+    if((info->pawns[white] | info->pawns[black]) & (RANK_1 | RANK_8)) {
         return false;
     }
 

@@ -16,7 +16,7 @@ enum {
 
     rook_square = d3,
     rook_blockers = SquareToBitset(b3) | SquareToBitset(g3) | SquareToBitset(d7) | SquareToBitset(d8),
-    rook_expected_attacks = (rank_3 | d_file) & ~(SquareToBitset(a3) | SquareToBitset(h3) | SquareToBitset(d3) | SquareToBitset(d8)),
+    rook_expected_attacks = (RANK_3 | D_FILE) & ~(SquareToBitset(a3) | SquareToBitset(h3) | SquareToBitset(d3) | SquareToBitset(d8)),
 
     bishop_square = f3,
     bishop_blockers = SquareToBitset(d1) | SquareToBitset(g4) | SquareToBitset(d5) | SquareToBitset(c6),
@@ -37,7 +37,7 @@ static bool SquareIsCorner(Square_t square) {
 }
 
 static bool SquareIsEdge(Square_t square) {
-    return CreateBitboard(1, square) & (a_file | h_file | rank_1 | rank_8);
+    return CreateBitboard(1, square) & (A_FILE | H_FILE | RANK_1 | RANK_8);
 }
 
 static bool SquareIsInBishopArea(Square_t square, Bitboard_t area) {

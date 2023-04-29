@@ -35,16 +35,16 @@ static void UpdateCastlingRights(GameState_t* state, char c) {
     switch (c)
     {
         case 'K':
-           SetBits(&(state->castleSquares[white]), white_kingside_castle_bb);
+           SetBits(&(state->castleSquares[white]), WHITE_KINGSIDE_CASTLE_BB);
         break;
         case 'Q':
-            SetBits(&(state->castleSquares[white]), white_queenside_castle_bb);
+            SetBits(&(state->castleSquares[white]), WHITE_QUEENSIDE_CASTLE_BB);
         break;
         case 'k':
-            SetBits(&(state->castleSquares[black]), black_kingside_castle_bb);
+            SetBits(&(state->castleSquares[black]), BLACK_KINGSIDE_CASTLE_BB);
         break;
         case 'q':
-            SetBits(&(state->castleSquares[black]), black_queenside_castle_bb);
+            SetBits(&(state->castleSquares[black]), BLACK_QUEENSIDE_CASTLE_BB);
         break;
         default:
             assert(!"ERROR: Unrecognized Castling");
@@ -287,16 +287,16 @@ void BoardToFEN(
     Bitboard_t whiteCastle = ReadCastleSquares(gameStack, white); // borgar
     Bitboard_t blackCastle = ReadCastleSquares(gameStack, black);
     if(whiteCastle || blackCastle) {
-        if(whiteCastle & white_kingside_castle_bb) {
+        if(whiteCastle & WHITE_KINGSIDE_CASTLE_BB) {
             result[i++] = 'K';
         }
-        if(whiteCastle & white_queenside_castle_bb) {
+        if(whiteCastle & WHITE_QUEENSIDE_CASTLE_BB) {
             result[i++] = 'Q';
         }
-        if(blackCastle & black_kingside_castle_bb) {
+        if(blackCastle & BLACK_KINGSIDE_CASTLE_BB) {
             result[i++] = 'k';
         }
-        if(blackCastle & black_queenside_castle_bb) {
+        if(blackCastle & BLACK_QUEENSIDE_CASTLE_BB) {
             result[i++] = 'q';
         }
     } else {

@@ -29,12 +29,12 @@ static bool IsThreefoldRepetition(
 
 static bool OnlyMinorPiecesOnBoard(BoardInfo_t* boardInfo) {
     return 
-        (boardInfo->pawns[white] == empty_set) &&
-        (boardInfo->pawns[black] == empty_set) &&
-        (boardInfo->rooks[white] == empty_set) &&
-        (boardInfo->rooks[black] == empty_set) &&
-        (boardInfo->queens[white] == empty_set) &&
-        (boardInfo->queens[black] == empty_set);
+        (boardInfo->pawns[white] == EMPTY_SET) &&
+        (boardInfo->pawns[black] == EMPTY_SET) &&
+        (boardInfo->rooks[white] == EMPTY_SET) &&
+        (boardInfo->rooks[black] == EMPTY_SET) &&
+        (boardInfo->queens[white] == EMPTY_SET) &&
+        (boardInfo->queens[black] == EMPTY_SET);
 }
 
 static bool AtMostOneMinorPiece(BoardInfo_t* boardInfo, Color_t color) {

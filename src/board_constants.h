@@ -65,41 +65,38 @@ enum directions {
   NUM_DIRECTIONS
 };
 
-enum squareSets {
-  empty_set                 = C64(0),
-  full_set                  = C64(0xffffffffffffffff),
-  a_file                    = C64(0x0101010101010101),
-  d_file                    = C64(0x0808080808080808),
-  h_file                    = C64(0x8080808080808080),
-  not_a_file                = C64(0xfefefefefefefefe), // ~a_file
-  not_h_file                = C64(0x7f7f7f7f7f7f7f7f), // ~h_file
-  not_ab_files              = C64(0xfcfcfcfcfcfcfcfc),
-  not_gh_files              = C64(0x3f3f3f3f3f3f3f3f),
-  rank_1                    = C64(0x00000000000000ff),
-  rank_2                    = C64(0x000000000000ff00),
-  rank_3                    = C64(0x0000000000ff0000),
-  rank_4                    = C64(0x00000000ff000000),
-  rank_5                    = C64(0x000000ff00000000),
-  rank_6                    = C64(0x0000ff0000000000),
-  rank_7                    = C64(0x00ff000000000000),
-  rank_8                    = C64(0xff00000000000000),
-  a1_h8_diagonal            = C64(0x8040201008040201),
-  h1_a8_diagonal            = C64(0x0102040810204080),
-  light_squares             = C64(0x55aa55aa55aa55aa),
-  dark_squares              = C64(0xaa55aa55aa55aa55),
-  board_corners             = C64(0x8100000000000081),
-  white_queenside_castle_bb = C64(1) << c1,
-  white_kingside_castle_bb  = C64(1) << g1,
-  black_queenside_castle_bb = C64(1) << c8,
-  black_kingside_castle_bb  = C64(1) << g8,
-  w_qsc_vulnerable_squares  = C64(0x0c),
-  w_ksc_vulnerable_squares  = C64(0x60),
-  b_qsc_vulnerable_squares  = C64(0x0c) << 56,
-  b_ksc_vulnerable_squares  = C64(0x60) << 56,
-  w_qsc_blockable_squares   = C64(0x0e),
-  w_ksc_blockable_squares   = C64(0x60),
-  b_qsc_blockable_squares   = C64(0x0e) << 56,
-  b_ksc_blockable_squares   = C64(0x60) << 56
-};
+// Bitboard Constants (originally and enum, but I had to change because some people had problems with size)
+#define EMPTY_SET                  C64(0)
+#define FULL_SET                   C64(0xffffffffffffffff)
+#define A_FILE                     C64(0x0101010101010101)
+#define D_FILE                     C64(0x0808080808080808)
+#define H_FILE                     C64(0x8080808080808080)
+#define NOT_A_FILE                 C64(0xfefefefefefefefe) // ~A_FILE
+#define NOT_H_FILE                 C64(0x7f7f7f7f7f7f7f7f) // ~H_FILE
+#define NOT_AB_FILES               C64(0xfcfcfcfcfcfcfcfc)
+#define NOT_GH_FILES               C64(0x3f3f3f3f3f3f3f3f)
+#define RANK_1                     C64(0x00000000000000ff)
+#define RANK_2                     C64(0x000000000000ff00)
+#define RANK_3                     C64(0x0000000000ff0000)
+#define RANK_4                     C64(0x00000000ff000000)
+#define RANK_5                     C64(0x000000ff00000000)
+#define RANK_6                     C64(0x0000ff0000000000)
+#define RANK_7                     C64(0x00ff000000000000)
+#define RANK_8                     C64(0xff00000000000000)
+#define A1_H8_DIAGONAL             C64(0x8040201008040201)
+#define H1_A8_DIAGONAL             C64(0x0102040810204080)
+#define BOARD_CORNERS              C64(0x8100000000000081)
+#define WHITE_QUEENSIDE_CASTLE_BB  (C64(1) << c1)
+#define WHITE_KINGSIDE_CASTLE_BB   (C64(1) << g1)
+#define BLACK_QUEENSIDE_CASTLE_BB  (C64(1) << c8)
+#define BLACK_KINGSIDE_CASTLE_BB   (C64(1) << g8)
+#define W_QSC_VULNERABLE_SQUARES   C64(0x0c)
+#define W_KSC_VULNERABLE_SQUARES   C64(0x60)
+#define B_QSC_VULNERABLE_SQUARES   (C64(0x0c) << 56)
+#define B_KSC_VULNERABLE_SQUARES   (C64(0x60) << 56)
+#define W_QSC_BLOCKABLE_SQUARES    C64(0x0e)
+#define W_KSC_BLOCKABLE_SQUARES    C64(0x60)
+#define B_QSC_BLOCKABLE_SQUARES    (C64(0x0e) << 56)
+#define B_KSC_BLOCKABLE_SQUARES    (C64(0x60) << 56)
 
 #endif

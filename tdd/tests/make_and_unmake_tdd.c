@@ -45,7 +45,7 @@ static void InitKingsideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState_
     });
 
     GameState_t nextState = ReadDefaultNextGameState(&stack);
-    nextState.castleSquares[white] = empty_set;
+    nextState.castleSquares[white] = EMPTY_SET;
     *expectedState = nextState;
 }
 
@@ -60,7 +60,7 @@ static void InitQueensideCastleExpectedInfo(BoardInfo_t* expectedInfo, GameState
     });
 
     GameState_t nextState = ReadDefaultNextGameState(&stack);
-    nextState.castleSquares[white] = empty_set;
+    nextState.castleSquares[white] = EMPTY_SET;
     *expectedState = nextState;
 }
 
@@ -107,7 +107,7 @@ static void InitExpectedCapturePromotionPostionInfo(BoardInfo_t* expectedInfo, G
     GameState_t nextState = ReadDefaultNextGameState(&stack);
     nextState.halfmoveClock = 0;
     nextState.capturedPiece = queen;
-    nextState.castleSquares[white] = empty_set;
+    nextState.castleSquares[white] = EMPTY_SET;
     *expectedState = nextState;
 }
 
@@ -123,8 +123,8 @@ static void InitBothSidesEnPassantInfo(BoardInfo_t* info) {
 
     GameState_t* state = GetEmptyNextGameState(&stack);
     state->halfmoveClock = some_halfmove_clock;
-    state->castleSquares[white] = empty_set;
-    state->castleSquares[black] = empty_set;
+    state->castleSquares[white] = EMPTY_SET;
+    state->castleSquares[black] = EMPTY_SET;
     state->enPassantSquare = CreateBitboard(2, c3,h6);
     state->capturedPiece = none_type;
     state->boardInfo = *info;
@@ -151,7 +151,7 @@ static void InitSideEnPassantExpectedInfo(BoardInfo_t* expectedInfo, GameState_t
 
     GameState_t nextState = ReadDefaultNextGameState(&stack);
     nextState.halfmoveClock = 0;
-    nextState.enPassantSquare = empty_set;
+    nextState.enPassantSquare = EMPTY_SET;
     nextState.capturedPiece = pawn;
     nextState.canEastEP = false;
     nextState.canWestEP = false;
@@ -172,9 +172,9 @@ static void InitNormalPosition(BoardInfo_t* info) {
 
     GameState_t* state = GetEmptyNextGameState(&stack);
     state->halfmoveClock = some_halfmove_clock;
-    state->enPassantSquare = empty_set;
-    state->castleSquares[white] = empty_set;
-    state->castleSquares[black] = empty_set;
+    state->enPassantSquare = EMPTY_SET;
+    state->castleSquares[white] = EMPTY_SET;
+    state->castleSquares[black] = EMPTY_SET;
     state->capturedPiece = none_type;
     state->boardInfo = *info;
 }
@@ -277,8 +277,8 @@ static void InitPromotionCastleBreakPosition(BoardInfo_t* info) {
 
     GameState_t* state = GetEmptyNextGameState(&stack);
     state->halfmoveClock = some_halfmove_clock;
-    state->enPassantSquare = empty_set;
-    state->castleSquares[white] = empty_set;
+    state->enPassantSquare = EMPTY_SET;
+    state->castleSquares[white] = EMPTY_SET;
     state->castleSquares[black] = CreateBitboard(1, c8);
     state->boardInfo = *info;
     state->capturedPiece = none_type;
@@ -296,7 +296,7 @@ static void InitPromotionCastleBreakPositionExpected(BoardInfo_t* expectedInfo, 
 
     GameState_t nextState = ReadDefaultNextGameState(&stack);
     nextState.halfmoveClock = 0;
-    nextState.castleSquares[black] = empty_set;
+    nextState.castleSquares[black] = EMPTY_SET;
     nextState.capturedPiece = rook;
     *expectedState = nextState;
 }
@@ -313,7 +313,7 @@ static void ShouldCastleKingside() {
     Move_t ksCastle;
     InitMove(&ksCastle);
     WriteFromSquare(&ksCastle, LSB(info.kings[white]));
-    WriteToSquare(&ksCastle, LSB(white_kingside_castle_bb));
+    WriteToSquare(&ksCastle, LSB(WHITE_KINGSIDE_CASTLE_BB));
     WriteSpecialFlag(&ksCastle, castle_flag);
 
     MakeMoveTestWrapper(&info, &stack, ksCastle, white);
@@ -335,7 +335,7 @@ static void ShouldCastleQueenside() {
     Move_t qsCastle;
     InitMove(&qsCastle);
     WriteFromSquare(&qsCastle, LSB(info.kings[white]));
-    WriteToSquare(&qsCastle, LSB(white_queenside_castle_bb));
+    WriteToSquare(&qsCastle, LSB(WHITE_QUEENSIDE_CASTLE_BB));
     WriteSpecialFlag(&qsCastle, castle_flag);
 
     MakeMoveTestWrapper(&info, &stack, qsCastle, white);
@@ -596,7 +596,7 @@ static void ShouldCastleKingsideUnmake(){
     Move_t ksCastle;
     InitMove(&ksCastle);
     WriteFromSquare(&ksCastle, LSB(info.kings[white]));
-    WriteToSquare(&ksCastle, LSB(white_kingside_castle_bb));
+    WriteToSquare(&ksCastle, LSB(WHITE_KINGSIDE_CASTLE_BB));
     WriteSpecialFlag(&ksCastle, castle_flag);
 
     PrintResults(GenericTestUnmake(&info, ksCastle, white));
@@ -610,7 +610,7 @@ static void ShouldCastleQueensideUnmake() {
     Move_t qsCastle;
     InitMove(&qsCastle);
     WriteFromSquare(&qsCastle, LSB(info.kings[white]));
-    WriteToSquare(&qsCastle, LSB(white_queenside_castle_bb));
+    WriteToSquare(&qsCastle, LSB(WHITE_QUEENSIDE_CASTLE_BB));
     WriteSpecialFlag(&qsCastle, castle_flag);
 
     PrintResults(GenericTestUnmake(&info, qsCastle, white));

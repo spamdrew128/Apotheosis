@@ -8,9 +8,7 @@
 #include "bitboards.h"
 #include "RNG.h"
 
-enum {
-    uninitialized = 0xffffffffffffffff
-};
+#define UNINITIALIZED 0xffffffffffffffff
 
 typedef uint32_t Hash_t;
 
@@ -38,12 +36,12 @@ static Hash_t MagicHash(Bitboard_t blockers, MagicBB_t magic, uint8_t shift) { r
 
 static void InitHashTable(Bitboard_t* hashTable, int tableEntries) {
     for(int i = 0; i < tableEntries; i++) {
-        hashTable[i] = uninitialized;
+        hashTable[i] = UNINITIALIZED;
     }
 }
 
 static Bitboard_t FillMask(Bitboard_t singleBitset, DirectionCallback_t DirectionFunc) {
-    Bitboard_t result = empty_set;
+    Bitboard_t result = EMPTY_SET;
 
     singleBitset = DirectionFunc(singleBitset);
     while(DirectionFunc(singleBitset)) {
@@ -55,7 +53,7 @@ static Bitboard_t FillMask(Bitboard_t singleBitset, DirectionCallback_t Directio
 }
 
 static Bitboard_t FillAttacks(Bitboard_t singleBitset, Bitboard_t blockers, DirectionCallback_t DirectionFunc) {
-    Bitboard_t result = empty_set;
+    Bitboard_t result = EMPTY_SET;
 
     do {
         singleBitset = DirectionFunc(singleBitset);
@@ -153,7 +151,7 @@ static void FillHashTable(
         Bitboard_t attacks = tempStorageTable[i].attacks;
         Hash_t hash = MagicHash(blockers, magic, shift);
 
-        if(hashTable[hash + offset] == uninitialized) {
+        if(hashTable[hash + offset] == UNINITIALIZED) {
            hashTable[hash + offset] = attacks;
         } else if(hashTable[hash + offset] != attacks) {
             assert(2 + 2 == 5); // literally 1984

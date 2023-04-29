@@ -21,14 +21,14 @@ static void TestSetup() {
 // HELPERS
 static void InitStartFENExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* expectedState) {
     InitTestInfo(expectedInfo, {
-        expectedInfo->pawns[white] = rank_2;
+        expectedInfo->pawns[white] = RANK_2;
         expectedInfo->knights[white] = CreateBitboard(2, b1,g1);
         expectedInfo->bishops[white] = CreateBitboard(2, c1,f1);
         expectedInfo->rooks[white] = CreateBitboard(2, a1,h1);
         expectedInfo->queens[white] = CreateBitboard(1, d1);
         expectedInfo->kings[white] = CreateBitboard(1, e1);
 
-        expectedInfo->pawns[black] = rank_7;
+        expectedInfo->pawns[black] = RANK_7;
         expectedInfo->knights[black] = CreateBitboard(2, b8,g8);
         expectedInfo->bishops[black] = CreateBitboard(2, c8,f8);
         expectedInfo->rooks[black] = CreateBitboard(2, a8,h8);
@@ -59,7 +59,7 @@ static void InitComplexFENExpectedInfo(BoardInfo_t* expectedInfo, GameState_t* e
 
     GameState_t* state = GetEmptyNextGameState(&gameStack);
     state->halfmoveClock = 34;
-    state->castleSquares[white] = white_kingside_castle_bb;
+    state->castleSquares[white] = WHITE_KINGSIDE_CASTLE_BB;
     *expectedState = *state;
 }
 
