@@ -30,6 +30,12 @@ enum {
     RFP_MAX_DEPTH = 8,
     RFP_MARGIN = 75,
     LMR_MIN_DEPTH = 3,
+
+    // All values from Archi https://github.com/archishou/MidnightChessEngine
+    ASP_WINDOW_MIN_DEPTH = 7,
+    ASP_WINDOW_INIT_WINDOW = 12,
+    ASP_WINDOW_INIT_DELTA = 16,
+    ASP_WINDOW_FULL_SEARCH_BOUNDS = 3500,
 };
 
 #define MATING "mate "
