@@ -71,7 +71,17 @@
         "attack_eval_tdd.h": "c",
         "immintrin.h": "c",
         "killers.h": "c",
-        "late_move_reductions.h": "c"
+        "late_move_reductions.h": "c",
+        "cctype": "c",
+        "cmath": "c",
+        "concepts": "c",
+        "cstdarg": "c",
+        "cstdio": "c",
+        "cstdlib": "c",
+        "new": "c",
+        "*.tcc": "c",
+        "cinttypes": "c",
+        "cstdint": "c"
     },
     "editor.formatOnSave": false,
     "clang-format.executable": "c:\\Program Files\\LLVM\\bin\\clang-format.exe",
