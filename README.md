@@ -24,3 +24,5 @@ Bro I have no idea, you're on your own
 This is not a complete chess program, you need a UCI compatible program to run it.
 
 Cute Chess is one that I typically use, you can find it here: https://github.com/cutechess/cutechess
+
+Alternatively, you can challenge it on lichess at https://lichess.org/@/Apotheosis_Bot, assuming I am hosting the bot at the time the request is sent
