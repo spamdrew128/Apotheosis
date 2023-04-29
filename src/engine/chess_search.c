@@ -446,22 +446,22 @@ EvalScore_t AspirationWindowSearch(
     Depth_t currentDepth
 )
 {
-	EvalScore_t alpha = -INF;
-	EvalScore_t beta = INF;
+    EvalScore_t alpha = -INF;
+    EvalScore_t beta = INF;
     Depth_t aspDepth = currentDepth;
-	EvalScore_t delta = ASP_WINDOW_INIT_DELTA;
+    EvalScore_t delta = ASP_WINDOW_INIT_DELTA;
 
-	if (currentDepth > ASP_WINDOW_MIN_DEPTH) {
-		alpha = MAX(prevScore - ASP_WINDOW_INIT_WINDOW, -INF);
-		beta  = MIN(prevScore + ASP_WINDOW_INIT_WINDOW, INF);
-	}
+    if (currentDepth > ASP_WINDOW_MIN_DEPTH) {
+        alpha = MAX(prevScore - ASP_WINDOW_INIT_WINDOW, -INF);
+        beta  = MIN(prevScore + ASP_WINDOW_INIT_WINDOW, INF);
+    }
 
     EvalScore_t score;
-	while (true) {
-		if (alpha < -ASP_WINDOW_FULL_SEARCH_BOUNDS) { alpha = -INF; }
-		if (beta  > ASP_WINDOW_FULL_SEARCH_BOUNDS) { beta = INF; }
+    while (true) {
+        if (alpha < -ASP_WINDOW_FULL_SEARCH_BOUNDS) { alpha = -INF; }
+        if (beta  > ASP_WINDOW_FULL_SEARCH_BOUNDS) { beta = INF; }
 
-		score = Negamax(
+        score = Negamax(
             boardInfo,
             gameStack,
             zobristStack,
@@ -473,20 +473,20 @@ EvalScore_t AspirationWindowSearch(
             false
         );
 
-		if(score <= alpha) {
-			alpha = MAX(alpha - delta, -INF);
-			beta = (alpha + 3 * beta) / 4;
-		} else if (score >= beta) {
-			beta = MIN(beta + delta, INF);
+        if(score <= alpha) {
+            alpha = MAX(alpha - delta, -INF);
+            beta = (alpha + 3 * beta) / 4;
+        } else if (score >= beta) {
+            beta = MIN(beta + delta, INF);
             aspDepth = MAX(aspDepth - 1, 1); // full disclosure I do not understand this part
-		} else {
+        } else {
             break;
         }
 
-		delta += delta * 2 / 3;
-	}
+        delta += delta * 2 / 3;
+    }
 
-	return score;
+    return score;
 }
 
 SearchResults_t Search(
