@@ -7,13 +7,24 @@
 #include "engine_types.h"
 
 typedef struct {
-    MoveScore_t scores[NUM_PIECES][NUM_SQUARES];
+    MoveScore_t scores[2][NUM_PIECES][NUM_SQUARES];
 } History_t;
+
+typedef struct {
+    Move_t quiets[MOVELIST_MAX];
+    MoveIndex_t maxIndex;
+} QuietList_t;
 
 void InitHistory(History_t* history);
 
-void UpdateHistory(History_t* history, BoardInfo_t* boardInfo, Move_t move, Depth_t depth);
+void InitQuietList(QuietList_t* quietList);
+
+void AddQuietMove(QuietList_t* quietList, Move_t move);
+
+void UpdateHistory(History_t* history, BoardInfo_t* boardInfo, QuietList_t* quietList, Depth_t depth);
 
 MoveScore_t HistoryScore(History_t* history, BoardInfo_t* boardInfo, Move_t move);
+
+void AgeHistory(History_t* history);
 
 #endif

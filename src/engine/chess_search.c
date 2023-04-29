@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <time.h>
+#include <assert.h>
 
 #include "chess_search.h"
 #include "movegen.h"
@@ -16,13 +17,25 @@
 #include "history.h"
 #include "util_macros.h"
 #include "FEN.h"
+#include "legals.h"
+#include "late_move_reductions.h"
 
 enum {
-    time_fraction = 25,
+    time_fraction = 20,
     timer_check_freq = 1024,
 
     MIN_TIME_PER_MOVE = 5,
-    DEPTH_MAX = PLY_MAX - 30, // leaving room for qsearch to expand
+    NMP_MIN_DEPTH = 3,
+
+    RFP_MAX_DEPTH = 8,
+    RFP_MARGIN = 75,
+    LMR_MIN_DEPTH = 3,
+
+    // All values from Archi https://github.com/archishou/MidnightChessEngine
+    ASP_WINDOW_MIN_DEPTH = 7,
+    ASP_WINDOW_INIT_WINDOW = 12,
+    ASP_WINDOW_INIT_DELTA = 16,
+    ASP_WINDOW_FULL_SEARCH_BOUNDS = 3500,
 };
 
 #define MATING "mate "
@@ -34,8 +47,8 @@ typedef struct {
     NodeCount_t nodeCount;
     Depth_t seldepth;
     Killers_t killers;
-    History_t history;
     PvTable_t pvTable;
+    History_t* history;
     TranspositionTable_t* tt;
 } ChessSearchInfo_t;
 
@@ -49,13 +62,24 @@ static EvalScore_t Negamax(
     EvalScore_t alpha,
     EvalScore_t beta,
     Depth_t depth,
-    Ply_t ply
+    Ply_t ply,
+    bool doNullMove
 );
 
-bool IsQuiet(Move_t move, BoardInfo_t* boardInfo) {
+static bool IsQuiet(Move_t move, BoardInfo_t* boardInfo) {
     return 
         PieceOnSquare(boardInfo, ReadToSquare(move)) == none_type &&
         ReadSpecialFlag(move) != en_passant_flag;
+}
+
+static bool DetermineInCheck(BoardInfo_t* boardInfo) {
+    const Color_t color = boardInfo->colorToMove;
+    return InCheck(boardInfo->kings[color], UnsafeSquares(boardInfo, color));
+}
+
+static bool WeOnlyHavePawnsOnBoard(BoardInfo_t* boardInfo) {
+    const Color_t color = boardInfo->colorToMove;
+    return boardInfo->allPieces[color] == (boardInfo->kings[color] | boardInfo->pawns[color]);
 }
 
 static void ResetSeldepth(ChessSearchInfo_t* chessSearchInfo) {
@@ -67,8 +91,8 @@ static void InitSearchInfo(ChessSearchInfo_t* chessSearchInfo, UciSearchInfo_t* 
     chessSearchInfo->nodeCount = 0;
     ResetSeldepth(chessSearchInfo);
     InitKillers(&chessSearchInfo->killers);
-    InitHistory(&chessSearchInfo->history);
     chessSearchInfo->tt = &uciSearchInfo->tt;
+    chessSearchInfo->history = &uciSearchInfo->history;
 }
 
 static bool ShouldCheckTimer(NodeCount_t nodeCount) {
@@ -161,14 +185,13 @@ static EvalScore_t NullWindowSearch(
     ZobristStack_t* zobristStack,
     ChessSearchInfo_t* searchInfo,
     EvalScore_t alpha,
+    EvalScore_t beta,
     Depth_t depth,
-    Ply_t ply
+    Ply_t ply,
+    bool doNullMove
 )
 {
-    EvalScore_t nullWindowBeta = alpha + 1;
-    EvalScore_t score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -nullWindowBeta, -alpha, depth-1, ply+1);
-
-    return score;
+    return -Negamax(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, depth, ply, doNullMove);
 }
 
 static EvalScore_t Negamax(
@@ -179,17 +202,20 @@ static EvalScore_t Negamax(
     EvalScore_t alpha,
     EvalScore_t beta,
     Depth_t depth,
-    Ply_t ply
+    Ply_t ply,
+    bool doNullMove
 )
 {
     PvLengthInit(&searchInfo->pvTable, ply);
 
+    assert(depth >= 0);
     if(depth == 0) {
         return QSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, ply);
     }
 
     const bool isRoot = ply == 0;
     const bool isPVNode = beta - alpha != 1;
+    const bool inCheck = DetermineInCheck(boardInfo);
 
     if(ShouldCheckTimer(searchInfo->nodeCount) && TimerExpired(&globalTimer)) {
         searchInfo->outOfTime = true;
@@ -223,6 +249,30 @@ static EvalScore_t Negamax(
         ttMove = entry.bestMove;
     }
 
+    if(!isPVNode && !inCheck) {
+        const EvalScore_t staticEval = ScoreOfPosition(boardInfo);
+
+        // NULL MOVE PRUNING
+        if(staticEval >= beta && depth >= NMP_MIN_DEPTH && doNullMove && !WeOnlyHavePawnsOnBoard(boardInfo)) {
+            int reduction = 3 + depth / 3 + MIN((staticEval - beta) / 200, 3);
+            reduction = MIN(reduction, depth);
+            assert(reduction >= 3);
+
+            MakeNullMove(boardInfo, gameStack, zobristStack);
+            EvalScore_t nullMoveScore = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, -beta, -beta + 1, depth - reduction, ply + 1, false);
+            UnmakeAndRemoveHash(boardInfo, gameStack, zobristStack);
+
+            if(nullMoveScore >= beta) {
+                return nullMoveScore;
+            }
+        }
+
+        // REVERSE FUTILITY PRUNING
+        if(depth <= RFP_MAX_DEPTH && staticEval >= (beta + RFP_MARGIN * depth)) {
+            return staticEval;
+        }
+    }
+
     MovePicker_t movePicker;
     InitAllMovePicker(
         &movePicker,
@@ -230,9 +280,14 @@ static EvalScore_t Negamax(
         boardInfo,
         ttMove,
         &searchInfo->killers,
-        &searchInfo->history,
+        searchInfo->history,
         ply
     );
+
+    MoveCount_t movesMade = 0;
+    const Reduction_t lmrThreshold = isPVNode ? 5 : 3;
+    QuietList_t quietList;
+    InitQuietList(&quietList);
 
     EvalScore_t oldAlpha = alpha;
     EvalScore_t bestScore = -EVAL_MAX;
@@ -240,15 +295,40 @@ static EvalScore_t Negamax(
     for(int i = 0; i <= moveList.maxIndex; i++) {
         EvalScore_t score;
         Move_t move = PickMove(&movePicker);
+        const bool isQuiet = IsQuiet(move, boardInfo);
         MakeAndAddHash(boardInfo, gameStack, move, zobristStack);
+        movesMade++;
+
+        if(isQuiet) {
+            AddQuietMove(&quietList, move);
+        }
     
         if(i == 0) {
-            score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
+            score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth - 1, ply + 1, true);
         } else {
-            score = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, depth, ply);
-            // if our NWS beat alpha without failing high, that means we might have a better move and need to re search
-            if(score > alpha && score < beta) {
-                score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply+1);
+            // LATE MOVE REDUCTIONS (heavily inspired by Svart https://github.com/crippa1337/svart/blob/master/src/engine/search.rs)
+            bool doFullDepthPVS = true;
+            if(!inCheck && depth >= LMR_MIN_DEPTH && movesMade > lmrThreshold) {
+                Reduction_t r = GetReduction(depth, movesMade);
+                r += !isPVNode;
+
+                // don't reduce as much for captures
+                r -= (i <= moveList.maxCapturesIndex);
+
+                if(r > 1) {
+                    r = MIN(r, depth - 1);
+                    score = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, -alpha - 1, -alpha, depth - r, ply + 1, true);
+                    doFullDepthPVS = (score > alpha && score < beta); // we want to try again without reductions if we beat alpha
+                }
+            }
+
+            if(doFullDepthPVS) {
+                score = NullWindowSearch(boardInfo, gameStack, zobristStack, searchInfo, -alpha - 1, -alpha, depth - 1, ply + 1, true);
+
+                // if our NWS beat alpha without failing high, that means we might have a better move and need to re search
+                if(score > alpha && score < beta) {
+                    score = -Negamax(boardInfo, gameStack, zobristStack, searchInfo, -beta, -alpha, depth-1, ply + 1, true);
+                }
             }
         }
 
@@ -264,9 +344,9 @@ static EvalScore_t Negamax(
             bestScore = score;
             bestMove = move;
             if(score >= beta) {
-                if(IsQuiet(move, boardInfo)) {
+                if(isQuiet) {
                     AddKiller(&searchInfo->killers, move, ply);
-                    UpdateHistory(&searchInfo->history, boardInfo, move, depth);
+                    UpdateHistory(searchInfo->history, boardInfo, &quietList, depth);
                 }
                 break;
             }
@@ -284,7 +364,7 @@ static EvalScore_t Negamax(
     return bestScore;
 }
 
-static void SetupGlobalTimer(UciSearchInfo_t* uciSearchInfo, BoardInfo_t* boardInfo) {
+static void SetupGlobalTimer(UciSearchInfo_t* uciSearchInfo, BoardInfo_t* boardInfo, Timer_t* softTimer) {
     Milliseconds_t totalTime;
     Milliseconds_t increment;
     if(boardInfo->colorToMove == white) {
@@ -303,8 +383,14 @@ static void SetupGlobalTimer(UciSearchInfo_t* uciSearchInfo, BoardInfo_t* boardI
     }
 
     timeToUse = MAX(timeToUse - uciSearchInfo->overhead, MIN_TIME_PER_MOVE);
+    Milliseconds_t softCutoff = timeToUse * 0.6;
 
     TimerInit(&globalTimer, timeToUse);
+    TimerInit(softTimer, softCutoff);
+}
+
+static void SearchCompleteActions(UciSearchInfo_t* uciSearchInfo) {
+    AgeHistory(&uciSearchInfo->history);
 }
 
 static void PrintUciInformation(
@@ -350,6 +436,59 @@ Move_t FirstLegalMove(BoardInfo_t* boardinfo, GameStack_t* gameStack) {
     return list.moves[0].move;
 }
 
+// Full credit to Archi for this implementation https://github.com/archishou/MidnightChessEngine
+EvalScore_t AspirationWindowSearch(
+    BoardInfo_t* boardInfo,
+    GameStack_t* gameStack,
+    ZobristStack_t* zobristStack,
+    ChessSearchInfo_t* searchInfo,
+    EvalScore_t prevScore,
+    Depth_t currentDepth
+)
+{
+	EvalScore_t alpha = -INF;
+	EvalScore_t beta = INF;
+    Depth_t aspDepth = currentDepth;
+	EvalScore_t delta = ASP_WINDOW_INIT_DELTA;
+
+	if (currentDepth > ASP_WINDOW_MIN_DEPTH) {
+		alpha = MAX(prevScore - ASP_WINDOW_INIT_WINDOW, -INF);
+		beta  = MIN(prevScore + ASP_WINDOW_INIT_WINDOW, INF);
+	}
+
+    EvalScore_t score;
+	while (true) {
+		if (alpha < -ASP_WINDOW_FULL_SEARCH_BOUNDS) { alpha = -INF; }
+		if (beta  > ASP_WINDOW_FULL_SEARCH_BOUNDS) { beta = INF; }
+
+		score = Negamax(
+            boardInfo,
+            gameStack,
+            zobristStack,
+            searchInfo,
+            alpha,
+            beta,
+            aspDepth,
+            0,
+            false
+        );
+
+		if(score <= alpha) {
+			alpha = MAX(alpha - delta, -INF);
+			beta = (alpha + 3 * beta) / 4;
+		} else if (score >= beta) {
+			beta = MIN(beta + delta, INF);
+            aspDepth = MAX(aspDepth - 1, 1); // full disclosure I do not understand this part
+		} else {
+            break;
+        }
+
+		delta += delta * 2 / 3;
+	}
+
+	return score;
+}
+
 SearchResults_t Search(
     UciSearchInfo_t* uciSearchInfo,
     BoardInfo_t* boardInfo,
@@ -360,7 +499,9 @@ SearchResults_t Search(
 {
     Stopwatch_t stopwatch;
     StopwatchInit(&stopwatch);
-    SetupGlobalTimer(uciSearchInfo, boardInfo);
+
+    Timer_t softTimer;
+    SetupGlobalTimer(uciSearchInfo, boardInfo, &softTimer);
 
     ChessSearchInfo_t searchInfo;
     InitSearchInfo(&searchInfo, uciSearchInfo);
@@ -368,20 +509,19 @@ SearchResults_t Search(
     SearchResults_t searchResults;
      // so if we time out during depth 1 search we have something to return
     searchResults.bestMove = FirstLegalMove(boardInfo, gameStack);
+    searchResults.score = 0;
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
         ResetSeldepth(&searchInfo);
 
-        EvalScore_t score = Negamax(
+        EvalScore_t score = AspirationWindowSearch(
             boardInfo,
             gameStack,
             zobristStack,
             &searchInfo,
-            -INF,
-            INF,
-            currentDepth,
-            0
+            searchResults.score,
+            currentDepth
         );
 
         if(!searchInfo.outOfTime) {
@@ -392,13 +532,14 @@ SearchResults_t Search(
                 PrintUciInformation(searchInfo, searchResults, currentDepth, &stopwatch);
             }
         }
-
-    } while(!searchInfo.outOfTime && currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
+    } while(!searchInfo.outOfTime && !TimerExpired(&softTimer) && currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
 
     if(printUciInfo) {
         printf("bestmove ");
         PrintMove(searchResults.bestMove, true);
     }
+
+    SearchCompleteActions(uciSearchInfo);
 
     return searchResults;
 }
@@ -410,27 +551,32 @@ NodeCount_t BenchSearch(
     ZobristStack_t* zobristStack
 )
 {
-    SetupGlobalTimer(uciSearchInfo, boardInfo);
+    Timer_t softTimer;
+    SetupGlobalTimer(uciSearchInfo, boardInfo, &softTimer);
     
     ChessSearchInfo_t searchInfo;
     InitSearchInfo(&searchInfo, uciSearchInfo);
 
+    EvalScore_t prevScore = 0;
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
         ResetSeldepth(&searchInfo);
 
-        Negamax(
+        EvalScore_t score = AspirationWindowSearch(
             boardInfo,
             gameStack,
             zobristStack,
             &searchInfo,
-            -INF,
-            INF,
-            currentDepth,
-            0
+            prevScore,
+            currentDepth
         );
+
+        prevScore = score;
     } while(currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
+
+    SearchCompleteActions(uciSearchInfo);
+    InitHistory(&uciSearchInfo->history);
 
     return searchInfo.nodeCount;
 }
@@ -455,6 +601,7 @@ void UciSearchInfoInit(UciSearchInfo_t* uciSearchInfo) {
     uciSearchInfo->depthLimit = 0;
 
     TranspositionTableInit(&uciSearchInfo->tt, hash_default_mb);
+    InitHistory(&uciSearchInfo->history);
 }
 
 EvalScore_t SimpleQsearch(

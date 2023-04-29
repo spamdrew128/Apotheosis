@@ -14,10 +14,11 @@
 #include "tuner.h"
 #include "datagen.h"
 #include "string_utils.h"
+#include "history.h"
 
 #define BUFFER_SIZE 50000
 
-#define ENGINE_ID "id name Apotheosis v3.0.0\nid author Andrew Hockman\n"
+#define ENGINE_ID "id name Apotheosis v4.0.0\nid author Andrew Hockman\n"
 #define UCI_OK "uciok\n"
 #define READY_OK "readyok\n"
 
@@ -363,6 +364,7 @@ static bool RespondToSignal(
         return false;
     case signal_new_game:
         ClearTTEntries(&applicationData->uciSearchInfo.tt);
+        InitHistory(&applicationData->uciSearchInfo.history);
         break;
     case signal_position:
         InterpretPosition(

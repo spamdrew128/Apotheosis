@@ -24,8 +24,7 @@ enum MoveScores { // for move ordering later
     promotion_score = tt_score - 1,
     capture_offset = promotion_score - 2000,
     killer_base_score = capture_offset - 2000,
-    history_max = killer_base_score - 2000,
-    quiet_score = ENTRY_MIN_SCORE,
+    history_base_score = 0,
 };
 
 typedef struct {

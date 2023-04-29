@@ -71,6 +71,8 @@ EvalScore_t ScoreOfPosition(BoardInfo_t* boardInfo) {
     OpenFileBonus(boardInfo, &score);
     MobilityAndThreatsEval(boardInfo, &score);
 
+    score += boardInfo->colorToMove == white ? TEMPO_BONUS : -TEMPO_BONUS;
+
     const EvalScore_t mgScore = MgFromScore(score);
     const EvalScore_t egScore = EgFromScore(score);
 

@@ -27,6 +27,7 @@
 #include "history_tdd.h"
 #include "pawn_structure_tdd.h"
 #include "attack_eval_tdd.h"
+#include "late_move_reductions.h"
 
 static void ProgramTeardown(UciApplicationData_t* uciApplicationData) {
     TranspositionTable_t* tt = &uciApplicationData->uciSearchInfo.tt;
@@ -42,6 +43,7 @@ int main(int argc, char** argv)
 
     InitLookupTables();
     GenerateZobristKeys(&mainRNG);
+    InitReductionTable();
 
     LookupTDDRunner();
     BitboardsTDDRunner();

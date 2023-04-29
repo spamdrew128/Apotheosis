@@ -37,6 +37,7 @@ enum {
     ROOK_KING_ZONE_FEATURE_COUNT = KING_VIRTUAL_MOBILITY_OPTIONS,
     QUEEN_KING_ZONE_FEATURE_COUNT = KING_VIRTUAL_MOBILITY_OPTIONS,
     PAWN_KING_ZONE_FEATURE_COUNT = KING_VIRTUAL_MOBILITY_OPTIONS,
+    TEMPO_BONUS_FEATURE_COUNT = 1,
 
     pst_offset = 0,
     bishop_pair_offset = pst_offset + PST_FEATURE_COUNT,
@@ -76,7 +77,8 @@ enum {
     queen_king_zone_offset = rook_king_zone_offset + ROOK_KING_ZONE_FEATURE_COUNT,
     pawn_king_zone_offset = queen_king_zone_offset + QUEEN_KING_ZONE_FEATURE_COUNT,
 
-    VECTOR_LENGTH = pawn_king_zone_offset + PAWN_KING_ZONE_FEATURE_COUNT,
+    tempo_bonus_offset = pawn_king_zone_offset + PAWN_KING_ZONE_FEATURE_COUNT,
+    VECTOR_LENGTH = tempo_bonus_offset + TEMPO_BONUS_FEATURE_COUNT,
 };
 
 enum {
@@ -479,6 +481,8 @@ void FillTEntry(TEntry_t* tEntry, BoardInfo_t* boardInfo) {
     FillBonuses(allValues, whiteBucket, blackBucket, boardInfo);
     FillMobility(boardInfo, allValues);
 
+    allValues[tempo_bonus_offset] = (boardInfo->colorToMove == white) ? 1 : -1;
+
     tEntry->numFeatures = 0;
     for(uint16_t i = 0; i < VECTOR_LENGTH; i++) {
         if(allValues[i] != 0) {
@@ -817,6 +821,11 @@ static void PrintIndividualBonus(const char* name, int feature_offset, int count
 
 static void PrintBonuses(FILE* fp) {
     fprintf(fp, "#define BISHOP_PAIR_BONUS \\\n   S(%d, %d)\n\n",
+        (int)weights[mg_phase][bishop_pair_offset],
+        (int)weights[eg_phase][bishop_pair_offset]
+    );
+
+    fprintf(fp, "#define TEMPO_BONUS \\\n   S(%d, %d)\n\n",
         (int)weights[mg_phase][bishop_pair_offset],
         (int)weights[eg_phase][bishop_pair_offset]
     );
