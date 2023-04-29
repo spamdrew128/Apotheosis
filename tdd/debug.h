@@ -23,7 +23,7 @@
     } while(0)
 
 // To avoid lookup dependancies
-#define SquareToBitset(square) C64(1) << square
+#define SquareToBitset(square) (C64(1) << square)
 
 void PrintBitboard(Bitboard_t b);
 
