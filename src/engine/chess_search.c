@@ -474,7 +474,6 @@ EvalScore_t AspirationWindowSearch(
             false
         );
 
-        
 		if(score <= alpha) {
 			alpha = MAX(alpha - delta, -INF);
 			beta = (alpha + 3 * beta) / 4; // full disclosure I do not understand this part
