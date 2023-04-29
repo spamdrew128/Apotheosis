@@ -6,8 +6,8 @@
 #include "game_state.h"
 #include "lookup.h"
 
-#define PAWN_START_RANKS RANK_2 | RANK_7
-#define PAWN_DOUBLE_RANKS RANK_4 | RANK_5
+#define PAWN_START_RANKS (RANK_2 | RANK_7)
+#define PAWN_DOUBLE_RANKS (RANK_4 | RANK_5)
 
 static bool PawnIsDoublePushed(Bitboard_t fromBB, Bitboard_t toBB) {
     return (fromBB & PAWN_START_RANKS) && (toBB & PAWN_DOUBLE_RANKS);
