@@ -5,16 +5,16 @@
 
 void InitBoardInfo(BoardInfo_t* info) {
     for(int i = 0; i < 2; i++) {
-        info->allPieces[i] = empty_set;
-        info->pawns[i] = empty_set;
-        info->knights[i] = empty_set;
-        info->bishops[i] = empty_set;
-        info->rooks[i] = empty_set;
-        info->queens[i] = empty_set;
-        info->kings[i] = empty_set;
+        info->allPieces[i] = EMPTY_SET;
+        info->pawns[i] = EMPTY_SET;
+        info->knights[i] = EMPTY_SET;
+        info->bishops[i] = EMPTY_SET;
+        info->rooks[i] = EMPTY_SET;
+        info->queens[i] = EMPTY_SET;
+        info->kings[i] = EMPTY_SET;
     }
 
-    info->empty = empty_set;
+    info->empty = EMPTY_SET;
     info->colorToMove = white;
 
     TranslateBitboardsToMailbox(info);
@@ -44,7 +44,7 @@ void UpdateEmpty(BoardInfo_t* boardInfo) {
 }
 
 void TranslateBitboardsToMailbox(BoardInfo_t* info) {
-    AddPieceBBToMailbox(info, none_type, full_set);
+    AddPieceBBToMailbox(info, none_type, FULL_SET);
     AddPieceBBToMailbox(info, king, info->kings[white] | info->kings[black]);
     AddPieceBBToMailbox(info, pawn, info->pawns[white] | info->pawns[black]);
     AddPieceBBToMailbox(info, knight, info->knights[white] | info->knights[black]);
@@ -115,7 +115,7 @@ static void FillBoardArray(char boardArray[], Bitboard_t b, char fillChar) {
 
 void PrintChessboard(BoardInfo_t* info) {
     char boardArray[64] = {0};
-    FillBoardArray(boardArray, full_set, '.');
+    FillBoardArray(boardArray, FULL_SET, '.');
 
     FillBoardArray(boardArray, info->rooks[white], 'R');
     FillBoardArray(boardArray, info->knights[white], 'N');

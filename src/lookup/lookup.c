@@ -14,14 +14,14 @@ static void InitSingleBitset(Bitboard_t singleBitsets[]) {
 }
 
 // these are knight moves
-static Bitboard_t NoNoEa(Bitboard_t b) {return (b & not_h_file ) << 17;}
-static Bitboard_t NoEaEa(Bitboard_t b) {return (b & not_gh_files) << 10;}
-static Bitboard_t SoEaEa(Bitboard_t b) {return (b & not_gh_files) >>  6;}
-static Bitboard_t SoSoEa(Bitboard_t b) {return (b & not_h_file ) >> 15;}
-static Bitboard_t NoNoWe(Bitboard_t b) {return (b & not_a_file ) << 15;}
-static Bitboard_t NoWeWe(Bitboard_t b) {return (b & not_ab_files) <<  6;}
-static Bitboard_t SoWeWe(Bitboard_t b) {return (b & not_ab_files) >> 10;}
-static Bitboard_t SoSoWe(Bitboard_t b) {return (b & not_a_file ) >> 17;}
+static Bitboard_t NoNoEa(Bitboard_t b) {return (b & NOT_H_FILE ) << 17;}
+static Bitboard_t NoEaEa(Bitboard_t b) {return (b & NOT_GH_FILES) << 10;}
+static Bitboard_t SoEaEa(Bitboard_t b) {return (b & NOT_GH_FILES) >>  6;}
+static Bitboard_t SoSoEa(Bitboard_t b) {return (b & NOT_H_FILE ) >> 15;}
+static Bitboard_t NoNoWe(Bitboard_t b) {return (b & NOT_A_FILE ) << 15;}
+static Bitboard_t NoWeWe(Bitboard_t b) {return (b & NOT_AB_FILES) <<  6;}
+static Bitboard_t SoWeWe(Bitboard_t b) {return (b & NOT_AB_FILES) >> 10;}
+static Bitboard_t SoSoWe(Bitboard_t b) {return (b & NOT_A_FILE ) >> 17;}
 
 static void InitKnightAttacks(Bitboard_t knightAttacks[]) {
     for(Square_t i = 0; i < NUM_SQUARES; i++) {
@@ -62,7 +62,7 @@ static void InitializeSlidingCheckmasksWithZeros(Bitboard_t slidingCheckmasks[][
 }
 
 static void FillSlidingCheckmask(Bitboard_t* checkmasks, Bitboard_t singleBitset, DirectionCallback_t DirectionFunc) {
-    Bitboard_t result = empty_set;
+    Bitboard_t result = EMPTY_SET;
 
     singleBitset = DirectionFunc(singleBitset);
     while(singleBitset) {
@@ -104,7 +104,7 @@ static void InitSlidingCheckmasks(Bitboard_t slidingCheckmasks[NUM_SQUARES][NUM_
 }
 
 static Bitboard_t GetSingleDirectionRay(Bitboard_t singleBitset, DirectionCallback_t DirectionFunc) {
-    Bitboard_t result = empty_set;
+    Bitboard_t result = EMPTY_SET;
 
     singleBitset = DirectionFunc(singleBitset);
     while(singleBitset) {
@@ -131,11 +131,11 @@ static void InitDirectionalRays(Bitboard_t directionalRays[NUM_SQUARES][NUM_DIRE
 }
 
 static void InitCastleSquares(Square_t ksCastleSquares[], Square_t qsCastleSquares[]) {
-    ksCastleSquares[white] = LSB(white_kingside_castle_bb);
-    ksCastleSquares[black] = LSB(black_kingside_castle_bb);
+    ksCastleSquares[white] = LSB(WHITE_KINGSIDE_CASTLE_BB);
+    ksCastleSquares[black] = LSB(BLACK_KINGSIDE_CASTLE_BB);
 
-    qsCastleSquares[white] = LSB(white_queenside_castle_bb);
-    qsCastleSquares[black] = LSB(black_queenside_castle_bb);
+    qsCastleSquares[white] = LSB(WHITE_QUEENSIDE_CASTLE_BB);
+    qsCastleSquares[black] = LSB(BLACK_QUEENSIDE_CASTLE_BB);
 }
 
 static void InitKingSafetyZone(Bitboard_t kingSafetyZones[2][NUM_SQUARES]) {

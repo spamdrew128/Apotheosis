@@ -6,39 +6,37 @@
 #include "board_constants.h"
 #include "bitboards.h"
 
-enum {
-    start_empty = rank_3 | rank_4 | rank_5 | rank_6,
-    start_w = rank_2,
-    start_b = rank_7,
-    start_w_all = rank_1 | rank_2,
-    start_b_all = rank_7 | rank_8,
-    start_expected_w_single = rank_3,
-    start_expected_b_single = rank_6,
-    start_expected_w_double = rank_4,
-    start_expected_b_double = rank_5,
+#define START_EMPTY RANK_3 | RANK_4 | RANK_5 | RANK_6
+#define START_W RANK_2
+#define START_B RANK_7
+#define START_W_ALL RANK_1 | RANK_2
+#define START_B_ALL RANK_7 | RANK_8
+#define START_EXPECTED_W_SINGLE RANK_3
+#define START_EXPECTED_B_SINGLE RANK_6
+#define START_EXPECTED_W_DOUBLE RANK_4
+#define START_EXPECTED_B_DOUBLE RANK_5
 
-    midgame_empty = 0x8A4C13A7EFDBD853,
-    midgame_w = 0x4810002700,
-    midgame_b = 0xA34C1000000000,
+#define MIDGAME_EMPTY 0x8A4C13A7EFDBD853
+#define MIDGAME_W 0x4810002700
+#define MIDGAME_B 0xA34C1000000000
 
-    other_midgame_w = 0x3001CE00,
-    other_midgame_b = 0xE3001C00000000,
-    other_midgame_w_all = 0x1003005CEDD,
-    other_midgame_b_all = 0xBFE3003C00000000,
+#define OTHER_MIDGAME_W 0x3001CE00
+#define OTHER_MIDGAME_B 0xE3001C00000000
+#define OTHER_MIDGAME_W_ALL 0x1003005CEDD
+#define OTHER_MIDGAME_B_ALL 0xBFE3003C00000000
 
-    en_passant_test_b_pawns = 0xE0100805000000,
-};
+#define EN_PASSANT_TEST_B_PAWNS 0xE0100805000000
 
 // HELPERS
 static void InitStartInfo(BoardInfo_t* info) {
-    info->pawns[white] = rank_2;
+    info->pawns[white] = RANK_2;
     info->knights[white] = CreateBitboard(2, b1,g1);
     info->bishops[white] = CreateBitboard(2, c1,f1);
     info->rooks[white] = CreateBitboard(2, a1,h1);
     info->queens[white] = CreateBitboard(1, d1);
     info->kings[white] = CreateBitboard(1, e1);
 
-    info->pawns[black] = rank_7;
+    info->pawns[black] = RANK_7;
     info->knights[black] = CreateBitboard(2, b8,g8);
     info->bishops[black] = CreateBitboard(2, c8,f8);
     info->rooks[black] = CreateBitboard(2, a8,h8);
@@ -72,14 +70,14 @@ static void InitMidgameInfo(BoardInfo_t* info) {
 // 5k1r/1ppb3p/1p1p3p/3B4/1P1p1P2/1Qp1q3/P5PP/3R1K2
 static void InitOtherMidgameInfo(BoardInfo_t* info) {
     info->pawns[white] = CreateBitboard(5, a2,g2,h2,b4,f4);
-    info->knights[white] = empty_set;
+    info->knights[white] = EMPTY_SET;
     info->bishops[white] = CreateBitboard(1, d5);
     info->rooks[white] = CreateBitboard(1, d1);
     info->queens[white] = CreateBitboard(1, b3);
     info->kings[white] = CreateBitboard(1, f1);
 
     info->pawns[black] = CreateBitboard(8, c3,d4,b6,d6,h6,b7,c7,h7);
-    info->knights[black] = empty_set;
+    info->knights[black] = EMPTY_SET;
     info->bishops[black] = CreateBitboard(1, d7);
     info->rooks[black] = CreateBitboard(1, h8);
     info->queens[black] = CreateBitboard(1, e3);
@@ -92,17 +90,17 @@ static void InitOtherMidgameInfo(BoardInfo_t* info) {
 // 8/8/7K/pP4p1/Pk6/8/6PP/8
 static void InitEndgameInfo(BoardInfo_t* info) {
     info->pawns[white] = CreateBitboard(4, a4,b5,g2,h2);
-    info->knights[white] = empty_set;
-    info->bishops[white] = empty_set;
-    info->rooks[white] = empty_set;
-    info->queens[white] = empty_set;
+    info->knights[white] = EMPTY_SET;
+    info->bishops[white] = EMPTY_SET;
+    info->rooks[white] = EMPTY_SET;
+    info->queens[white] = EMPTY_SET;
     info->kings[white] = CreateBitboard(1, h6);
 
     info->pawns[black] = CreateBitboard(2, a5,g5);
-    info->knights[black] = empty_set;
-    info->bishops[black] = empty_set;
-    info->rooks[black] = empty_set;
-    info->queens[black] = empty_set;
+    info->knights[black] = EMPTY_SET;
+    info->bishops[black] = EMPTY_SET;
+    info->rooks[black] = EMPTY_SET;
+    info->queens[black] = EMPTY_SET;
     info->kings[black] = CreateBitboard(1, b4);
 
     UpdateAllPieces(info);
@@ -112,15 +110,15 @@ static void InitEndgameInfo(BoardInfo_t* info) {
 // PAWN TESTS
 static void StartSinglePawnPushesMatch() {
     bool success = 
-        (WhiteSinglePushTargets(start_w, start_empty) == start_expected_w_single) &&
-        (BlackSinglePushTargets(start_b, start_empty) == start_expected_b_single);
+        (WhiteSinglePushTargets(START_W, START_EMPTY) == START_EXPECTED_W_SINGLE) &&
+        (BlackSinglePushTargets(START_B, START_EMPTY) == START_EXPECTED_B_SINGLE);
     PrintResults(success);
 }
 
 static void StartDoublePawnPushesMatch() {
     bool success = 
-        (WhiteDoublePushTargets(start_w, start_empty) == start_expected_w_double) &&
-        (BlackDoublePushTargets(start_b, start_empty) == start_expected_b_double);
+        (WhiteDoublePushTargets(START_W, START_EMPTY) == START_EXPECTED_W_DOUBLE) &&
+        (BlackDoublePushTargets(START_B, START_EMPTY) == START_EXPECTED_B_DOUBLE);
     PrintResults(success);
 }
 
@@ -129,8 +127,8 @@ static void MidgameSinglePawnPushesMatch() {
     Bitboard_t expectedBlack = CreateBitboard(3, a6,b6,c5);
 
     bool success = 
-        (WhiteSinglePushTargets(midgame_w, midgame_empty) == expectedWhite) &&
-        (BlackSinglePushTargets(midgame_b, midgame_empty) == expectedBlack);
+        (WhiteSinglePushTargets(MIDGAME_W, MIDGAME_EMPTY) == expectedWhite) &&
+        (BlackSinglePushTargets(MIDGAME_B, MIDGAME_EMPTY) == expectedBlack);
     PrintResults(success);
 }
 
@@ -139,17 +137,17 @@ static void MidgameDoublePawnPushesMatch() {
     Bitboard_t expectedBlack = CreateBitboard(2, a5,b5);
 
     bool success = 
-        (WhiteDoublePushTargets(midgame_w, midgame_empty) == expectedWhite) &&
-        (BlackDoublePushTargets(midgame_b, midgame_empty) == expectedBlack);
+        (WhiteDoublePushTargets(MIDGAME_W, MIDGAME_EMPTY) == expectedWhite) &&
+        (BlackDoublePushTargets(MIDGAME_B, MIDGAME_EMPTY) == expectedBlack);
     PrintResults(success);
 }
 
 static void StartCaptureTargets() {
     bool success = 
-        (WhiteEastCaptureTargets(start_w, start_b_all) == empty_set) &&
-        (BlackEastCaptureTargets(start_b, start_w_all) == empty_set) &&
-        (WhiteWestCaptureTargets(start_w, start_b_all) == empty_set) &&
-        (BlackWestCaptureTargets(start_b, start_w_all) == empty_set);
+        (WhiteEastCaptureTargets(START_W, START_B_ALL) == EMPTY_SET) &&
+        (BlackEastCaptureTargets(START_B, START_W_ALL) == EMPTY_SET) &&
+        (WhiteWestCaptureTargets(START_W, START_B_ALL) == EMPTY_SET) &&
+        (BlackWestCaptureTargets(START_B, START_W_ALL) == EMPTY_SET);
 
     PrintResults(success);
 }
@@ -161,10 +159,10 @@ static void OtherMidgameCaptureTargets() {
     Bitboard_t expectedBlackWest = CreateBitboard(1, a6);
 
     bool success = 
-        (WhiteEastCaptureTargets(other_midgame_w, other_midgame_b_all) == expectedWhiteEast) &&
-        (BlackEastCaptureTargets(other_midgame_b, other_midgame_w_all) == expectedBlackEast) &&
-        (WhiteWestCaptureTargets(other_midgame_w, other_midgame_b_all) == expectedWhiteWest) &&
-        (BlackWestCaptureTargets(other_midgame_b, other_midgame_w_all) == expectedBlackWest);
+        (WhiteEastCaptureTargets(OTHER_MIDGAME_W, OTHER_MIDGAME_B_ALL) == expectedWhiteEast) &&
+        (BlackEastCaptureTargets(OTHER_MIDGAME_B, OTHER_MIDGAME_W_ALL) == expectedBlackEast) &&
+        (WhiteWestCaptureTargets(OTHER_MIDGAME_W, OTHER_MIDGAME_B_ALL) == expectedWhiteWest) &&
+        (BlackWestCaptureTargets(OTHER_MIDGAME_B, OTHER_MIDGAME_W_ALL) == expectedBlackWest);
 
     PrintResults(success);
 }
@@ -175,8 +173,8 @@ static void EnPassantCaptureTargets() {
     Bitboard_t enPassantSquare = CreateBitboard(1, b3);
 
     bool success = 
-        (BlackEastEnPassantTargets(en_passant_test_b_pawns, enPassantSquare) == expectedBlackEast) &&
-        (BlackWestEnPassantTargets(en_passant_test_b_pawns, enPassantSquare) == expectedBlackWest);
+        (BlackEastEnPassantTargets(EN_PASSANT_TEST_B_PAWNS, enPassantSquare) == expectedBlackEast) &&
+        (BlackWestEnPassantTargets(EN_PASSANT_TEST_B_PAWNS, enPassantSquare) == expectedBlackWest);
 
     PrintResults(success);
 }
@@ -204,10 +202,10 @@ static void StartKnightCaptureTargets() {
     BoardInfo_t info;
     InitStartInfo(&info);
 
-    Bitboard_t expectedB1Knight = empty_set;
-    Bitboard_t expectedB8Knight = empty_set;
-    Bitboard_t expectedG1Knight = empty_set;
-    Bitboard_t expectedG8Knight = empty_set;
+    Bitboard_t expectedB1Knight = EMPTY_SET;
+    Bitboard_t expectedB8Knight = EMPTY_SET;
+    Bitboard_t expectedG1Knight = EMPTY_SET;
+    Bitboard_t expectedG8Knight = EMPTY_SET;
 
     bool success = 
         (KnightMoveTargets(b1, info.allPieces[black]) == expectedB1Knight) &&
@@ -240,7 +238,7 @@ static void MidgameKnightCaptureTargets() {
     BoardInfo_t info;
     InitMidgameInfo(&info);
     
-    Bitboard_t expectedC3Knight = empty_set;
+    Bitboard_t expectedC3Knight = EMPTY_SET;
     Bitboard_t expectedF3Knight = CreateBitboard(1, e5);
     Bitboard_t expectedE7Knight = CreateBitboard(1, d5);
     Bitboard_t expectedF6Knight = CreateBitboard(2, d5,e4);
@@ -344,8 +342,8 @@ static void FilterPawnPromotions() {
     Bitboard_t bPawnMoves = BlackSinglePushTargets(bPawns, empty);
     Bitboard_t bPawnCaptures = BlackEastCaptureTargets(bPawns, wPieces) | BlackWestCaptureTargets(bPawns, wPieces);
 
-    Bitboard_t expectedMoves = empty_set;
-    Bitboard_t expectedCaptures = empty_set;
+    Bitboard_t expectedMoves = EMPTY_SET;
+    Bitboard_t expectedCaptures = EMPTY_SET;
     Bitboard_t expectedWhitePromotions = CreateBitboard(3 ,d8,e8,f8);
     Bitboard_t expectedBlackPromotions = CreateBitboard(2 ,c1,d1);
 

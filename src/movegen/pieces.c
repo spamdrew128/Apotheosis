@@ -4,12 +4,10 @@
 #include "lookup.h"
 #include "board_constants.h"
 
-enum {
-   white_promotion_rank = rank_8,
-   black_promotion_rank = rank_1,
-   not_white_promotion_rank = C64(~0xff00000000000000),
-   not_black_promotion_rank = C64(~0x00000000000000ff)
-};
+#define WHITE_PROMOTION_RANK RANK_8
+#define BLACK_PROMOTION_RANK RANK_1
+#define NOT_WHITE_PROMOTION_RANK C64(~0xff00000000000000)
+#define NOT_BLACK_PROMOTION_RANK C64(~0x00000000000000ff)
 
 // PAWNS
 Bitboard_t WhiteSinglePushTargets(Bitboard_t wPawns, Bitboard_t empty) {
@@ -22,12 +20,12 @@ Bitboard_t BlackSinglePushTargets(Bitboard_t bPawns, Bitboard_t empty) {
 
 Bitboard_t WhiteDoublePushTargets(Bitboard_t wPawns, Bitboard_t empty) {
    Bitboard_t singlePushs = WhiteSinglePushTargets(wPawns, empty);
-   return NortOne(singlePushs) & empty & rank_4;
+   return NortOne(singlePushs) & empty & RANK_4;
 }
 
 Bitboard_t BlackDoublePushTargets(Bitboard_t bPawns, Bitboard_t empty) {
    Bitboard_t singlePushs = BlackSinglePushTargets(bPawns, empty);
-   return SoutOne(singlePushs) & empty & rank_5;
+   return SoutOne(singlePushs) & empty & RANK_5;
 }
 
 Bitboard_t WhiteEastCaptureTargets(Bitboard_t wPawns, Bitboard_t enemyPieces) {
@@ -47,14 +45,14 @@ Bitboard_t BlackWestCaptureTargets(Bitboard_t bPawns, Bitboard_t enemyPieces) {
 }
 
 Bitboard_t FilterWhitePromotions(Bitboard_t* whiteMoveset) {
-   Bitboard_t promotions = (*whiteMoveset) & white_promotion_rank;
-   (*whiteMoveset) &= not_white_promotion_rank;
+   Bitboard_t promotions = (*whiteMoveset) & WHITE_PROMOTION_RANK;
+   (*whiteMoveset) &= NOT_WHITE_PROMOTION_RANK;
    return promotions;
 }
 
 Bitboard_t FilterBlackPromotions(Bitboard_t* blackMoveset) {
-   Bitboard_t promotions = (*blackMoveset) & black_promotion_rank;
-   (*blackMoveset) &= not_black_promotion_rank;
+   Bitboard_t promotions = (*blackMoveset) & BLACK_PROMOTION_RANK;
+   (*blackMoveset) &= NOT_BLACK_PROMOTION_RANK;
    return promotions;
 }
 

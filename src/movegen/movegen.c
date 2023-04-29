@@ -505,7 +505,7 @@ void CompleteMovegen(MoveEntryList_t* moveList, BoardInfo_t* boardInfo, GameStac
         boardInfo->empty
     );
 
-    Bitboard_t checkmask = full_set;
+    Bitboard_t checkmask = FULL_SET;
     bool inCheck = InCheck(boardInfo->kings[color], unsafeSquares);
     if(inCheck) {
         checkmask = DefineCheckmask(boardInfo, color);

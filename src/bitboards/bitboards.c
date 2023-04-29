@@ -9,13 +9,13 @@
 #include "bitboards.h"
 
 Bitboard_t NortOne (Bitboard_t b) {return  b << 8;}
-Bitboard_t NoEaOne (Bitboard_t b) {return (b & not_h_file) << 9;}
-Bitboard_t EastOne (Bitboard_t b) {return (b & not_h_file) << 1;}
-Bitboard_t SoEaOne (Bitboard_t b) {return (b & not_h_file) >> 7;}
+Bitboard_t NoEaOne (Bitboard_t b) {return (b & NOT_H_FILE) << 9;}
+Bitboard_t EastOne (Bitboard_t b) {return (b & NOT_H_FILE) << 1;}
+Bitboard_t SoEaOne (Bitboard_t b) {return (b & NOT_H_FILE) >> 7;}
 Bitboard_t SoutOne (Bitboard_t b) {return  b >> 8;}
-Bitboard_t SoWeOne (Bitboard_t b) {return (b & not_a_file) >> 9;}
-Bitboard_t WestOne (Bitboard_t b) {return (b & not_a_file) >> 1;}
-Bitboard_t NoWeOne (Bitboard_t b) {return (b & not_a_file) << 7;}
+Bitboard_t SoWeOne (Bitboard_t b) {return (b & NOT_A_FILE) >> 9;}
+Bitboard_t WestOne (Bitboard_t b) {return (b & NOT_A_FILE) >> 1;}
+Bitboard_t NoWeOne (Bitboard_t b) {return (b & NOT_A_FILE) << 7;}
 
 Bitboard_t NortTwo(Bitboard_t b) {return  b << 16;}
 Bitboard_t SoutTwo(Bitboard_t b) {return  b >> 16;}
