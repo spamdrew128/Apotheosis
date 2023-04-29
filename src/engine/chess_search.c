@@ -437,7 +437,6 @@ Move_t FirstLegalMove(BoardInfo_t* boardinfo, GameStack_t* gameStack) {
 }
 
 // Full credit to Archi for this implementation https://github.com/archishou/MidnightChessEngine
-// I understand the basics of this but I still don't fully understand the depth modification and beta update stuff
 EvalScore_t AspirationWindowSearch(
     BoardInfo_t* boardInfo,
     GameStack_t* gameStack,
@@ -476,15 +475,15 @@ EvalScore_t AspirationWindowSearch(
 
 		if(score <= alpha) {
 			alpha = MAX(alpha - delta, -INF);
-			beta = (alpha + 3 * beta) / 4; // full disclosure I do not understand this part
+			beta = (alpha + 3 * beta) / 4;
 		} else if (score >= beta) {
 			beta = MIN(beta + delta, INF);
-            aspDepth = MAX(aspDepth - 1, 1);
+            aspDepth = MAX(aspDepth - 1, 1); // full disclosure I do not understand this part
 		} else {
             break;
         }
 
-		delta += delta * 2 / 3; // or this part
+		delta += delta * 2 / 3;
 	}
 
 	return score;
