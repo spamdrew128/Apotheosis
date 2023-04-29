@@ -41,7 +41,7 @@ static void InitHashTable(Bitboard_t* hashTable, int tableEntries) {
 }
 
 static Bitboard_t FillMask(Bitboard_t singleBitset, DirectionCallback_t DirectionFunc) {
-    Bitboard_t result = empty_set;
+    Bitboard_t result = EMPTY_SET;
 
     singleBitset = DirectionFunc(singleBitset);
     while(DirectionFunc(singleBitset)) {
@@ -53,7 +53,7 @@ static Bitboard_t FillMask(Bitboard_t singleBitset, DirectionCallback_t Directio
 }
 
 static Bitboard_t FillAttacks(Bitboard_t singleBitset, Bitboard_t blockers, DirectionCallback_t DirectionFunc) {
-    Bitboard_t result = empty_set;
+    Bitboard_t result = EMPTY_SET;
 
     do {
         singleBitset = DirectionFunc(singleBitset);

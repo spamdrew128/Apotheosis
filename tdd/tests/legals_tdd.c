@@ -11,8 +11,8 @@
 
 #define white_expected_unsafe 0xfefb57be78800000
 #define black_expected_unsafe 0x20c0f5fa9ddfdffe
-#define white_castle_squares white_queenside_castle_bb | white_kingside_castle_bb
-#define black_castle_squares black_queenside_castle_bb | black_kingside_castle_bb
+#define white_castle_squares WHITE_QUEENSIDE_CASTLE_BB | WHITE_KINGSIDE_CASTLE_BB
+#define black_castle_squares BLACK_QUEENSIDE_CASTLE_BB | BLACK_KINGSIDE_CASTLE_BB
 
 // HELPERS
 

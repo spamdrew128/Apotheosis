@@ -21,9 +21,9 @@ GameState_t* GetEmptyNextGameState(GameStack_t* stack) {
 
     nextState->capturedPiece = none_type;
     nextState->halfmoveClock = 0;
-    nextState->castleSquares[white] = empty_set;
-    nextState->castleSquares[black] = empty_set;
-    nextState->enPassantSquare = empty_set;
+    nextState->castleSquares[white] = EMPTY_SET;
+    nextState->castleSquares[black] = EMPTY_SET;
+    nextState->enPassantSquare = EMPTY_SET;
     nextState->canEastEP = false;
     nextState->canWestEP = false;
     InitBoardInfo(&nextState->boardInfo);
@@ -39,7 +39,7 @@ GameState_t* GetDefaultNextGameState(GameStack_t* stack) {
     defaultState->halfmoveClock = ReadHalfmoveClock(stack) + 1;
     defaultState->castleSquares[white] = ReadCastleSquares(stack, white);
     defaultState->castleSquares[black] = ReadCastleSquares(stack, black);
-    defaultState->enPassantSquare = empty_set;
+    defaultState->enPassantSquare = EMPTY_SET;
     defaultState->canEastEP = false;
     defaultState->canWestEP = false;
 
@@ -50,8 +50,8 @@ GameState_t* GetDefaultNextGameState(GameStack_t* stack) {
 void AddStartingGameState(GameStack_t* stack) {
     GameState_t* gameStartState = GetEmptyNextGameState(stack);
 
-    gameStartState->castleSquares[white] = white_kingside_castle_bb | white_queenside_castle_bb;
-    gameStartState->castleSquares[black] = black_kingside_castle_bb | black_queenside_castle_bb;
+    gameStartState->castleSquares[white] = WHITE_KINGSIDE_CASTLE_BB | WHITE_QUEENSIDE_CASTLE_BB;
+    gameStartState->castleSquares[black] = BLACK_KINGSIDE_CASTLE_BB | BLACK_QUEENSIDE_CASTLE_BB;
 }
 
 void RevertState(GameStack_t* stack) {

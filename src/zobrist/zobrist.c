@@ -59,7 +59,7 @@ static void UpdateHashEnPassantFile(ZobristHash_t* zobristHash, Bitboard_t enPas
 }
 
 ZobristHash_t HashPosition(BoardInfo_t* boardInfo, GameStack_t* gameStack) {
-    ZobristHash_t zobristHash = empty_set;
+    ZobristHash_t zobristHash = EMPTY_SET;
     GameState_t gameState = ReadCurrentGameState(gameStack);
 
     UpdateHashWithPieceBitboard(&zobristHash, boardInfo->knights[white], knight, whitePieceKeys);

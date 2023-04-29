@@ -7,9 +7,9 @@
 #include "lookup.h"
 
 enum {
-    pawn_start_ranks = rank_2 | rank_7,
-    pawn_double_ranks = rank_4 | rank_5,
-    rook_start_squares = board_corners
+    pawn_start_ranks = RANK_2 | RANK_7,
+    pawn_double_ranks = RANK_4 | RANK_5,
+    rook_start_squares = BOARD_CORNERS
 };
 
 static bool PawnIsDoublePushed(Bitboard_t fromBB, Bitboard_t toBB) {
@@ -35,7 +35,7 @@ static void UpdateEnPassantInfo(BoardInfo_t* info, GameState_t* nextState, Bitbo
 }
 
 static void UpdateCastleSquares(GameState_t* nextState, BoardInfo_t* info, Color_t color) {
-    Bitboard_t rooksInPlace = board_corners & info->rooks[color];
+    Bitboard_t rooksInPlace = BOARD_CORNERS & info->rooks[color];
     Bitboard_t validCastlingMask = GenShiftWest(rooksInPlace, 1) | GenShiftEast(rooksInPlace, 2);
     
     nextState->castleSquares[color] &= validCastlingMask;
@@ -131,7 +131,7 @@ static void MakeCastlingHandler(BoardInfo_t* boardInfo, GameState_t* nextState, 
     }
 
     UpdateEmpty(boardInfo);
-    nextState->castleSquares[color] = empty_set;
+    nextState->castleSquares[color] = EMPTY_SET;
 }
 
 static void MakePromotionHandler(BoardInfo_t* boardInfo, GameState_t* nextState, Move_t move) {
@@ -167,7 +167,7 @@ static void MakePromotionHandler(BoardInfo_t* boardInfo, GameState_t* nextState,
 
     UpdateEmpty(boardInfo);
 
-    nextState->halfmoveClock = empty_set;
+    nextState->halfmoveClock = EMPTY_SET;
 }
 
 static void MakeEnPassantHandler(BoardInfo_t* boardInfo, GameState_t* nextState, Move_t move) {
@@ -195,8 +195,8 @@ static void MakeEnPassantHandler(BoardInfo_t* boardInfo, GameState_t* nextState,
     );
     UpdateEmpty(boardInfo);
 
-    nextState->halfmoveClock = empty_set;
-    nextState->enPassantSquare = empty_set;
+    nextState->halfmoveClock = EMPTY_SET;
+    nextState->enPassantSquare = EMPTY_SET;
     nextState->capturedPiece = pawn;
 }
 
@@ -229,7 +229,7 @@ static void MakeMoveDefaultHandler(BoardInfo_t* boardInfo, GameState_t* nextStat
             pawnDoublePushed = PawnIsDoublePushed(fromBB, toBB);
         break;
         case king:
-            nextState->castleSquares[color] = empty_set;
+            nextState->castleSquares[color] = EMPTY_SET;
         break;
     }
 

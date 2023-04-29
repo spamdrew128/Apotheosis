@@ -4,8 +4,8 @@
 #include "lookup.h"
 #include "board_constants.h"
 
-#define white_promotion_rank rank_8
-#define black_promotion_rank rank_1
+#define white_promotion_rank RANK_8
+#define black_promotion_rank RANK_1
 #define not_white_promotion_rank C64(~0xff00000000000000)
 #define not_black_promotion_rank C64(~0x00000000000000ff)
 
@@ -20,12 +20,12 @@ Bitboard_t BlackSinglePushTargets(Bitboard_t bPawns, Bitboard_t empty) {
 
 Bitboard_t WhiteDoublePushTargets(Bitboard_t wPawns, Bitboard_t empty) {
    Bitboard_t singlePushs = WhiteSinglePushTargets(wPawns, empty);
-   return NortOne(singlePushs) & empty & rank_4;
+   return NortOne(singlePushs) & empty & RANK_4;
 }
 
 Bitboard_t BlackDoublePushTargets(Bitboard_t bPawns, Bitboard_t empty) {
    Bitboard_t singlePushs = BlackSinglePushTargets(bPawns, empty);
-   return SoutOne(singlePushs) & empty & rank_5;
+   return SoutOne(singlePushs) & empty & RANK_5;
 }
 
 Bitboard_t WhiteEastCaptureTargets(Bitboard_t wPawns, Bitboard_t enemyPieces) {

@@ -7,11 +7,11 @@
 
 typedef Bitboard_t (*GetAttacksCallback_t)(Square_t square, Bitboard_t empty);
 
-static Bitboard_t kscVulnerableSquares[2] = {w_ksc_vulnerable_squares, b_ksc_vulnerable_squares};
-static Bitboard_t qscVulnerableSquares[2] = {w_qsc_vulnerable_squares, b_qsc_vulnerable_squares};
+static Bitboard_t kscVulnerableSquares[2] = {W_KSC_VULNERABLE_SQUARES, B_KSC_VULNERABLE_SQUARES};
+static Bitboard_t qscVulnerableSquares[2] = {W_QSC_VULNERABLE_SQUARES, B_QSC_VULNERABLE_SQUARES};
 
-static Bitboard_t kscBlockableSquares[2] = {w_ksc_blockable_squares, b_ksc_blockable_squares};
-static Bitboard_t qscBlockableSquares[2] = {w_qsc_blockable_squares, b_qsc_blockable_squares};
+static Bitboard_t kscBlockableSquares[2] = {W_KSC_BLOCKABLE_SQUARES, B_KSC_BLOCKABLE_SQUARES};
+static Bitboard_t qscBlockableSquares[2] = {W_QSC_BLOCKABLE_SQUARES, B_QSC_BLOCKABLE_SQUARES};
 
 typedef uint8_t PinmaskType_t;
 enum pinmaskTypes{
@@ -119,7 +119,7 @@ static Bitboard_t CalculateSliderCheckmask(
 {
     Bitboard_t checkingSliders = GetSlidingCheckers(boardInfo, kingSquare, empty, !color);
 
-    Bitboard_t checkmask = empty_set;
+    Bitboard_t checkmask = EMPTY_SET;
     while(checkingSliders) {
         SetBits(&checkmask, GetSlidingCheckmask(kingSquare, LSB(checkingSliders)));
 
@@ -169,7 +169,7 @@ static Bitboard_t CalculateDirectionalPinmask(
     PinmaskType_t pinmaskType  
 ) 
 {
-    Bitboard_t pinmask = empty_set;
+    Bitboard_t pinmask = EMPTY_SET;
 
     for(Direction_t direction = pinmaskType; direction < NUM_DIRECTIONS; direction += 2) {
         Bitboard_t directionalPinmask = GetDirectionalRay(kingSquare, direction) & potentialPinmaskSquares;
