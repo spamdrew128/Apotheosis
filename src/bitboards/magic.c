@@ -8,7 +8,7 @@
 #include "bitboards.h"
 #include "RNG.h"
 
-#define uninitialized 0xffffffffffffffff
+#define UNINITIALIZED 0xffffffffffffffff
 
 typedef uint32_t Hash_t;
 
@@ -36,7 +36,7 @@ static Hash_t MagicHash(Bitboard_t blockers, MagicBB_t magic, uint8_t shift) { r
 
 static void InitHashTable(Bitboard_t* hashTable, int tableEntries) {
     for(int i = 0; i < tableEntries; i++) {
-        hashTable[i] = uninitialized;
+        hashTable[i] = UNINITIALIZED;
     }
 }
 
@@ -151,7 +151,7 @@ static void FillHashTable(
         Bitboard_t attacks = tempStorageTable[i].attacks;
         Hash_t hash = MagicHash(blockers, magic, shift);
 
-        if(hashTable[hash + offset] == uninitialized) {
+        if(hashTable[hash + offset] == UNINITIALIZED) {
            hashTable[hash + offset] = attacks;
         } else if(hashTable[hash + offset] != attacks) {
             assert(2 + 2 == 5); // literally 1984
