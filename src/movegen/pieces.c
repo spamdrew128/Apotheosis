@@ -4,12 +4,10 @@
 #include "lookup.h"
 #include "board_constants.h"
 
-enum {
-   white_promotion_rank = rank_8,
-   black_promotion_rank = rank_1,
-   not_white_promotion_rank = C64(~0xff00000000000000),
-   not_black_promotion_rank = C64(~0x00000000000000ff)
-};
+#define white_promotion_rank rank_8
+#define black_promotion_rank rank_1
+#define not_white_promotion_rank C64(~0xff00000000000000)
+#define not_black_promotion_rank C64(~0x00000000000000ff)
 
 // PAWNS
 Bitboard_t WhiteSinglePushTargets(Bitboard_t wPawns, Bitboard_t empty) {

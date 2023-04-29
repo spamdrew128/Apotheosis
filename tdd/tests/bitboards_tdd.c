@@ -5,10 +5,9 @@
 #include "bitboards_tdd.h"
 #include "bitboards.h"
 
-enum {
-    NineBitBitboard = C64(0b110110010111010),
-    d1_LSB = C64(0b111000)
-};
+#define NineBitBitboard C64(0b110110010111010)
+#define d1_LSB C64(0b111000)
+
 
 // TESTS
 static void CanCountPopulation(Bitboard_t b, Population_t expected) {

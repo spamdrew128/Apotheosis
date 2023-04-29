@@ -6,28 +6,26 @@
 #include "board_constants.h"
 #include "bitboards.h"
 
-enum {
-    start_empty = rank_3 | rank_4 | rank_5 | rank_6,
-    start_w = rank_2,
-    start_b = rank_7,
-    start_w_all = rank_1 | rank_2,
-    start_b_all = rank_7 | rank_8,
-    start_expected_w_single = rank_3,
-    start_expected_b_single = rank_6,
-    start_expected_w_double = rank_4,
-    start_expected_b_double = rank_5,
+#define start_empty rank_3 | rank_4 | rank_5 | rank_6
+#define start_w rank_2
+#define start_b rank_7
+#define start_w_all rank_1 | rank_2
+#define start_b_all rank_7 | rank_8
+#define start_expected_w_single rank_3
+#define start_expected_b_single rank_6
+#define start_expected_w_double rank_4
+#define start_expected_b_double rank_5
 
-    midgame_empty = 0x8A4C13A7EFDBD853,
-    midgame_w = 0x4810002700,
-    midgame_b = 0xA34C1000000000,
+#define midgame_empty 0x8A4C13A7EFDBD853
+#define midgame_w 0x4810002700
+#define midgame_b 0xA34C1000000000
 
-    other_midgame_w = 0x3001CE00,
-    other_midgame_b = 0xE3001C00000000,
-    other_midgame_w_all = 0x1003005CEDD,
-    other_midgame_b_all = 0xBFE3003C00000000,
+#define other_midgame_w 0x3001CE00
+#define other_midgame_b 0xE3001C00000000
+#define other_midgame_w_all 0x1003005CEDD
+#define other_midgame_b_all 0xBFE3003C00000000
 
-    en_passant_test_b_pawns = 0xE0100805000000,
-};
+#define en_passant_test_b_pawns 0xE0100805000000
 
 // HELPERS
 static void InitStartInfo(BoardInfo_t* info) {

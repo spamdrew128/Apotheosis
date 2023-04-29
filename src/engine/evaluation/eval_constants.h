@@ -21,10 +21,10 @@ enum {
   PAWN_PHASE_VALUE = 0,
   KING_PHASE_VALUE = 0,
 
-  QS_PST_MASK = C64(0x0F0F0F0F0F0F0F0F),
-  KS_PST_MASK = C64(0xF0F0F0F0F0F0F0F0),
   NUM_PST_BUCKETS = 2,
 };
+#define QS_PST_MASK C64(0x0F0F0F0F0F0F0F0F)
+#define KS_PST_MASK C64(0xF0F0F0F0F0F0F0F0)
 
 // used for eval calcuations. Contains both EG and MG score packed into 1 value.
 typedef int32_t Score_t;

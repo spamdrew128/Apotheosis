@@ -8,9 +8,7 @@
 #include "bitboards.h"
 #include "RNG.h"
 
-enum {
-    uninitialized = 0xffffffffffffffff
-};
+#define uninitialized 0xffffffffffffffff
 
 typedef uint32_t Hash_t;
 

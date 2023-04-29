@@ -9,12 +9,10 @@
 #include "lookup.h"
 #include "game_state.h"
 
-enum {
-    white_expected_unsafe = 0xfefb57be78800000,
-    black_expected_unsafe = 0x20c0f5fa9ddfdffe,
-    white_castle_squares =   white_queenside_castle_bb | white_kingside_castle_bb,
-    black_castle_squares =   black_queenside_castle_bb | black_kingside_castle_bb
-};
+#define white_expected_unsafe 0xfefb57be78800000
+#define black_expected_unsafe 0x20c0f5fa9ddfdffe
+#define white_castle_squares white_queenside_castle_bb | white_kingside_castle_bb
+#define black_castle_squares black_queenside_castle_bb | black_kingside_castle_bb
 
 // HELPERS
 
