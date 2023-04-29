@@ -5,8 +5,8 @@
 #include "bitboards_tdd.h"
 #include "bitboards.h"
 
-#define NineBitBitboard C64(0b110110010111010)
-#define d1_LSB C64(0b111000)
+#define NINE_BIT_BITBOARD C64(0b110110010111010)
+#define D1_LSB C64(0b111000)
 
 
 // TESTS
@@ -19,6 +19,6 @@ static void CanIdentifyLSB(Bitboard_t b, Square_t expected) {
 }
 
 void BitboardsTDDRunner() {
-    CanCountPopulation(NineBitBitboard, 9);
-    CanIdentifyLSB(d1_LSB, d1);
+    CanCountPopulation(NINE_BIT_BITBOARD, 9);
+    CanIdentifyLSB(D1_LSB, d1);
 }
