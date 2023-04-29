@@ -558,22 +558,22 @@ NodeCount_t BenchSearch(
     ChessSearchInfo_t searchInfo;
     InitSearchInfo(&searchInfo, uciSearchInfo);
 
+    EvalScore_t prevScore = 0;
     Depth_t currentDepth = 0;
     do {
         currentDepth++;
         ResetSeldepth(&searchInfo);
 
-        Negamax(
+        EvalScore_t score = AspirationWindowSearch(
             boardInfo,
             gameStack,
             zobristStack,
             &searchInfo,
-            -INF,
-            INF,
-            currentDepth,
-            0,
-            false
+            prevScore,
+            currentDepth
         );
+
+        prevScore = score;
     } while(currentDepth != uciSearchInfo->depthLimit && currentDepth < DEPTH_MAX);
 
     SearchCompleteActions(uciSearchInfo);
