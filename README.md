@@ -25,7 +25,7 @@ This is not a complete chess program, you need a UCI compatible program to run i
 
 Cute Chess is one that I typically use, you can find it here: https://github.com/cutechess/cutechess
 
-Alternatively, you can challenge it on Lichess at https://lichess.org/@/Apotheosis_Bot, assuming I am hosting the bot at the time the request is sent
+Alternatively, you can challenge it on Lichess at https://lichess.org/@/Apotheosis_Bot, assuming I am hosting the bot at the time the request is sent.
 
 # Special Thanks
 I need to thank some people who made this possible
