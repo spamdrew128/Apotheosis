@@ -10,35 +10,56 @@
 #include "zobrist.h"
 #include "FEN.h"
 
+#define LINE_BUFFER 500
+
 bool Bench(int argc, char** argv) {
     if(argc != 2 || strcmp(argv[1], "bench")) {
         return true; // keep running
     }
 
-    FEN_t fenList[] = { PERFT_TEST_TABLE(EXPAND_AS_FEN_ARRAY) };
-    BoardInfo_t boardInfo;
-    GameStack_t gameStack;
-    ZobristStack_t zobristStack;
+    FILE* rFP = fopen("wahoo_datagen_1.txt", "r");
+    FILE* wFP = fopen("resolved.txt", "w");
 
-    Stopwatch_t stopwatch;
-    StopwatchInit(&stopwatch);
+    uint64_t writes = 0;
+    uint64_t reads = 0;
 
-    UciSearchInfo_t uciSearchInfo;
-    UciSearchInfoInit(&uciSearchInfo);
-    uciSearchInfo.forceTime = 1000000;
-    uciSearchInfo.depthLimit = 12;
+    char buffer[LINE_BUFFER];
+    while(fgets(buffer, LINE_BUFFER, rFP)) {
+        reads++;
 
-    NodeCount_t nodeCount = 0;
-    for(int i = 0; i < NUM_PERFT_ENTRIES; i++) {
-        InterpretFEN(fenList[i], &boardInfo, &gameStack, &zobristStack);
-        gameStack.gameStates[gameStack.top].halfmoveClock = 0;
-        nodeCount += BenchSearch(&uciSearchInfo, &boardInfo, &gameStack, &zobristStack);
+        BoardInfo_t boardInfo;
+        GameStack_t gameStack;
+        ZobristStack_t zobristStack;
+        InterpretFEN(buffer, &boardInfo, &gameStack, &zobristStack);
+
+        UciSearchInfo_t info;
+        UciSearchInfoInit(&info);
+        info.forceTime = 20;
+        info.overhead = 0;
+
+        int i = 0;
+        EvalScore_t upper = 50;
+        EvalScore_t lower = -50;
+        while(i < LINE_BUFFER) {
+            if(buffer[i] == '.') {
+                if(buffer[i - 1] == '1') { // win
+                    lower = 200;
+                    upper = EVAL_MAX;
+                } else if(buffer[i + 1] == '0') { // loss
+                    lower = -EVAL_MAX;
+                    upper = -200;
+                }
+            }
+            i++;
+        }
+
+        if(reads % 10000 == 0) {
+            printf("%lld reads\n%lld saved\n\n", (long long)reads, (long long) writes);
+        }
     }
 
-    Milliseconds_t msec = ElapsedTime(&stopwatch);
-    printf("%lld nodes %lld nps\n", (long long)nodeCount, (long long)(nodeCount * msec_per_sec) / msec);
+    printf("%lld reads\n%lld saved\n\n", (long long)reads, (long long) writes);
 
-    TeardownTT(&uciSearchInfo.tt);
-
-    return false;
+    fclose(rFP);
+    fclose(wFP);
 }
