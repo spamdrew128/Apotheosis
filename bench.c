@@ -63,6 +63,10 @@ bool Bench(int argc, char** argv) {
         if(reads % 1000 == 0) {
             printf("%lld reads\n%lld saved\n\n", (long long)reads, (long long) writes);
         }
+
+        if(writes >= 500000) {
+            break;
+        }
     }
 
     printf("%lld reads\n%lld saved\n\n", (long long)reads, (long long) writes);
