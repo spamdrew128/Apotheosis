@@ -57,7 +57,8 @@ bool Bench(int argc, char** argv) {
         SearchResults_t results = Search(&info, &boardInfo, &gameStack, &zobristStack, false);
         
         if(results.score <= upper && results.score >= lower) {
-            fprintf(wFP, "%s\n", buffer);
+            writes++;
+            fprintf(wFP, "%s", buffer);
         }
 
         if(reads % 1000 == 0) {
@@ -75,4 +76,5 @@ bool Bench(int argc, char** argv) {
     fclose(wFP);
 
     TeardownTT(&info.tt);
+    return false;
 }
