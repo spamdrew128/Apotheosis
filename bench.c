@@ -69,4 +69,6 @@ bool Bench(int argc, char** argv) {
 
     fclose(rFP);
     fclose(wFP);
+
+    TeardownTT(&info.tt);
 }
