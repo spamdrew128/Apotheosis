@@ -27,7 +27,7 @@ bool Bench(int argc, char** argv) {
 
     UciSearchInfo_t info;
     UciSearchInfoInit(&info);
-    info.forceTime = 20;
+    info.forceTime = 50;
     info.overhead = 0;
     while(fgets(buffer, LINE_BUFFER, rFP)) {
         reads++;
@@ -56,7 +56,8 @@ bool Bench(int argc, char** argv) {
         InitHistory(&info.history);
         SearchResults_t results = Search(&info, &boardInfo, &gameStack, &zobristStack, false);
         
-        if(results.score <= upper && results.score >= lower) {
+        EvalScore_t score = (boardInfo.colorToMove == white) ? results.score : -results.score;
+        if(score <= upper && score >= lower) {
             writes++;
             fprintf(wFP, "%s", buffer);
         }
