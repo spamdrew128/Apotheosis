@@ -24,6 +24,11 @@ bool Bench(int argc, char** argv) {
     uint64_t reads = 0;
 
     char buffer[LINE_BUFFER];
+
+    UciSearchInfo_t info;
+    UciSearchInfoInit(&info);
+    info.forceTime = 20;
+    info.overhead = 0;
     while(fgets(buffer, LINE_BUFFER, rFP)) {
         reads++;
 
@@ -31,11 +36,6 @@ bool Bench(int argc, char** argv) {
         GameStack_t gameStack;
         ZobristStack_t zobristStack;
         InterpretFEN(buffer, &boardInfo, &gameStack, &zobristStack);
-
-        UciSearchInfo_t info;
-        UciSearchInfoInit(&info);
-        info.forceTime = 20;
-        info.overhead = 0;
 
         int i = 0;
         EvalScore_t upper = 50;
@@ -53,7 +53,14 @@ bool Bench(int argc, char** argv) {
             i++;
         }
 
-        if(reads % 10000 == 0) {
+        InitHistory(&info.history);
+        SearchResults_t results = Search(&info, &boardInfo, &gameStack, &zobristStack, false);
+        
+        if(results.score <= upper && results.score >= lower) {
+            fprintf(wFP, "%s\n", buffer);
+        }
+
+        if(reads % 1000 == 0) {
             printf("%lld reads\n%lld saved\n\n", (long long)reads, (long long) writes);
         }
     }
