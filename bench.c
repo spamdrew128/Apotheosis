@@ -17,7 +17,7 @@ bool Bench(int argc, char** argv) {
         return true; // keep running
     }
 
-    FILE* rFP = fopen("wahoo_datagen_1.txt", "r");
+    FILE* rFP = fopen("wahoo_2_unfiltered.txt", "r");
     FILE* wFP = fopen("resolved.txt", "w");
 
     uint64_t writes = 0;
@@ -27,7 +27,7 @@ bool Bench(int argc, char** argv) {
 
     UciSearchInfo_t info;
     UciSearchInfoInit(&info);
-    info.forceTime = 50;
+    info.forceTime = 2;
     info.overhead = 0;
     while(fgets(buffer, LINE_BUFFER, rFP)) {
         reads++;
@@ -66,7 +66,7 @@ bool Bench(int argc, char** argv) {
             printf("%lld reads\n%lld saved\n\n", (long long)reads, (long long) writes);
         }
 
-        if(writes >= 500000) {
+        if(writes >= 750000) {
             break;
         }
     }
