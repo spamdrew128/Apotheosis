@@ -13,7 +13,7 @@
 #define LINE_BUFFER 500
 
 bool Bench(int argc, char** argv) {
-    if(argc != 2 || strcmp(argv[1], "bench")) {
+    if(argc != 2 || strcmp(argv[1], "filter")) {
         return true; // keep running
     }
 
