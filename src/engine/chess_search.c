@@ -208,14 +208,18 @@ static EvalScore_t Negamax(
 {
     PvLengthInit(&searchInfo->pvTable, ply);
 
-    assert(depth >= 0);
-    if(depth == 0) {
-        return QSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, ply);
-    }
-
     const bool isRoot = ply == 0;
     const bool isPVNode = beta - alpha != 1;
     const bool inCheck = DetermineInCheck(boardInfo);
+
+    depth += inCheck;
+
+    assert(depth >= 0);
+    if(depth == 0 || ply >= PLY_MAX) {
+        return QSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, ply);
+    }
+
+
 
     if(ShouldCheckTimer(searchInfo->nodeCount) && TimerExpired(&globalTimer)) {
         searchInfo->outOfTime = true;
