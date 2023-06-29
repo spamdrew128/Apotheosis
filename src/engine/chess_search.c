@@ -219,8 +219,6 @@ static EvalScore_t Negamax(
         return QSearch(boardInfo, gameStack, zobristStack, searchInfo, alpha, beta, ply);
     }
 
-
-
     if(ShouldCheckTimer(searchInfo->nodeCount) && TimerExpired(&globalTimer)) {
         searchInfo->outOfTime = true;
         return 0;
