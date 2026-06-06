@@ -30,7 +30,7 @@ Alternatively, you can challenge it on Lichess at https://lichess.org/@/Apotheos
 # Special Thanks
 I need to thank some people who made this possible
 
-### Crippa (https://github.com/crippa1337/svart)
+### Crippa (https://github.com/1337crisis/svart)
 My code was inspired by Crippa's awesome engine Svart in many places because of how readable the code is. Beyond that, Crippa helped me so much by explaining fundamental concepts to me and allowing me to get to where I am now much more quickly than I otherwise would have been able to do, especially with things relating to search. He is also the one who set up the OpenBench instance I used for so many of my SPRT tests.
 
 ### Archi (https://github.com/archishou/MidnightChessEngine)
